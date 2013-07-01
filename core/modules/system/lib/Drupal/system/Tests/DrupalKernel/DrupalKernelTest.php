@@ -80,7 +80,7 @@ class DrupalKernelTest extends UnitTestBase {
     // Test that our synthetic services are there.
     $classloader = $container->get('class_loader');
     $refClass = new ReflectionClass($classloader);
-    $this->assertTrue($refClass->hasMethod('loadClass'), 'Container has a classloader');
+    $this->assertTrue($refClass->hasMethod('composerPrefixes'), 'Container has a classloader registration tool.');
 
     // We make this assertion here purely to show that the new container below
     // is functioning correctly, i.e. we get a brand new ContainerBuilder
@@ -108,7 +108,8 @@ class DrupalKernelTest extends UnitTestBase {
     // Test that our synthetic services are there.
     $classloader = $container->get('class_loader');
     $refClass = new ReflectionClass($classloader);
-    $this->assertTrue($refClass->hasMethod('loadClass'), 'Container has a classloader');
+    // @todo The signature of the registration tool needs to be finalized.
+    $this->assertTrue($refClass->hasMethod('composerPrefixes'), 'Container has a classloader registration tool.');
     // Check that the location of the new module is registered.
     $modules = $container->getParameter('container.modules');
     $this->assertEqual($modules['service_provider_test'], drupal_get_filename('module', 'service_provider_test'));
