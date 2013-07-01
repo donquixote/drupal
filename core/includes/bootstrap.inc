@@ -2779,11 +2779,14 @@ function drupal_classloader($class_loader = NULL) {
     // findFile() method, but none of the others. The actual registry is still
     // in ClassLoader.
     if (!isset($class_loader)) {
-      $loader = Krautoload::start();
+      $class_loader = settings()->get('class_loader', 'default');
     }
     if ($class_loader === 'apc') {
       $salt = 'drupal.' . drupal_get_hash_salt();
       // TODO: Use the salt and boot Krautoload with APC.
+      $loader = Krautoload::start();
+    }
+    else {
       $loader = Krautoload::start();
     }
 

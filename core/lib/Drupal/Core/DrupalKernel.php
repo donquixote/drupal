@@ -150,7 +150,7 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
    *   String indicating the environment, e.g. 'prod' or 'dev'. Used by
    *   Symfony\Component\HttpKernel\Kernel::__construct(). Drupal does not use
    *   this value currently. Pass 'prod'.
-   * @param \Symfony\Component\ClassLoader\ClassLoader $class_loader
+   * @param \Krautoload\RegistrationHub $class_loader
    *   (optional) The classloader is only used if $storage is not given or
    *   the load from storage fails and a container rebuild is required. In
    *   this case, the loaded modules will be registered with this loader in
@@ -233,7 +233,8 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
       $this->moduleList = isset($module_list['enabled']) ? $module_list['enabled'] : array();
     }
     $module_filenames = $this->getModuleFileNames();
-    $this->registerNamespaces($this->getModuleNamespaces($module_filenames));
+    $this->classLoader->namespacesPSR0($this->getModuleNamespacesPSR0($module_filenames));
+    $this->classLoader->namespacesPSRX($this->getModuleNamespacesPSRX($module_filenames));
 
     // Load each module's serviceProvider class.
     foreach ($this->moduleList as $module => $weight) {
@@ -417,8 +418,7 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
       // All namespaces must be registered before we attempt to use any service
       // from the container.
       $container_modules = $this->container->getParameter('container.modules');
-      // $namespaces_before = $this->classLoader->getPrefixes();
-      $this->classLoader->namespacesPSR0($this->getModuleNamespaces($container_modules));
+      $this->classLoader->namespacesPSR0($this->getModuleNamespacesPSR0($container_modules));
       $this->classLoader->namespacesPSRX($this->getModuleNamespacesPSRX($container_modules));
 
       // If 'container.modules' is wrong, the container must be rebuilt.
@@ -428,13 +428,20 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
       if (array_keys($this->moduleList) !== array_keys($container_modules)) {
         $persist = $this->getServicesToPersist();
         unset($this->container);
-        // Revert the class loader to its prior state. However,
-        // registerNamespaces() performs a merge rather than replace, so to
-        // effectively remove erroneous registrations, we must replace them with
-        // empty arrays.
-        // $namespaces_after = $this->classLoader->getPrefixes();
-        // $namespaces_before += array_fill_keys(array_diff(array_keys($namespaces_after), array_keys($namespaces_before)), array());
-        // $this->registerNamespaces($namespaces_before);
+        // @todo At this point, previous versions did attempt to revert the
+        //   class loader to its previous state, with the intention to remove
+        //   erroneous registrations.
+        //   However, we can assume that this did not work, because
+        //   \Symfony\Component\ClassLoader\ClassLoader does not support removal
+        //   of registered namespaces, it only allows adding them.
+        //   The other question is, whether removal of namespace registrations
+        //   is desirable in the first place. Some of the classes might already
+        //   be included, and removal of the namespace cannot undo that.
+        //   A more interesting case is if a module has moved to a different
+        //   directory. This case is not even detected in the if() clause above.
+        //
+        //   Conclusion: A revert mechanic can be added, but needs to be
+        //   discussed first.
       }
     }
 
@@ -508,7 +515,7 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
     $container->setParameter('container.modules', $this->getModuleFileNames());
 
     // Get a list of namespaces and put it onto the container.
-    $namespaces = $this->getModuleNamespaces($this->getModuleFileNames());
+    $namespaces = $this->getModuleNamespacesPSR0($this->getModuleFileNames());
     // Add all components in \Drupal\Core and \Drupal\Component that have a
     // Plugin directory.
     foreach (array('Core', 'Component') as $parent_directory) {
@@ -648,9 +655,9 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
   }
 
   /**
-   * Gets the namespaces of each enabled module.
+   * Gets the PSR-0 namespace directories of each enabled module.
    */
-  protected function getModuleNamespaces($moduleFileNames) {
+  protected function getModuleNamespacesPSR0($moduleFileNames) {
     $namespaces = array();
     foreach ($moduleFileNames as $module => $filename) {
       $namespaces["Drupal\\$module"] = DRUPAL_ROOT . '/' . dirname($filename) . '/lib';
@@ -659,7 +666,7 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
   }
 
   /**
-   * Gets the namespaces of each enabled module.
+   * Gets the PSR-X namespace directories of each enabled module.
    */
   protected function getModuleNamespacesPSRX($moduleFileNames) {
     $namespaces = array();
@@ -667,12 +674,5 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
       $namespaces["Drupal\\$module"] = DRUPAL_ROOT . '/' . dirname($filename) . '/src';
     }
     return $namespaces;
-  }
-
-  /**
-   * Registers a list of namespaces.
-   */
-  protected function registerNamespaces(array $namespaces = array()) {
-    $this->classLoader->namespacesPSR0($namespaces);
   }
 }
