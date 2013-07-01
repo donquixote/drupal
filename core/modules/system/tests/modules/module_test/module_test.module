@@ -89,6 +89,21 @@ function module_test_menu() {
     'page callback' => 'module_test_class_loading',
     'access callback' => TRUE,
   );
+  $items['module-test/class-loading/psr0-underscores'] = array(
+    'title' => 'Test PSR-0 underscore handling',
+    'page callback' => 'module_test_class_loading_psr0_underscores',
+    'access callback' => TRUE,
+  );
+  $items['module-test/class-loading/psr0-multi-include'] = array(
+    'title' => 'Test PSR-0 multi includes',
+    'page callback' => 'module_test_class_loading_psr0_multi_include',
+    'access callback' => TRUE,
+  );
+  $items['module-test/class-loading/psr0-prefix-clash'] = array(
+    'title' => 'Test PSR-0 prefix clash',
+    'page callback' => 'module_test_class_loading_psr0_prefix_clash',
+    'access callback' => TRUE,
+  );
   return $items;
 }
 
@@ -146,6 +161,41 @@ function module_test_class_loading() {
   if (class_exists('Drupal\module_autoload_test\SomeClass')) {
     $obj = new Drupal\module_autoload_test\SomeClass();
     return $obj->testMethod();
+  }
+}
+
+/**
+ * Page callback for 'module-test/class-loading/psr0-underscores'.
+ */
+function module_test_class_loading_psr0_underscores() {
+  $pieces = array();
+  if (class_exists('Drupal\module_autoload_test\ExistingClass_WithUnderscore')) {
+    $pieces[] = 'A class with underscores was found.';
+  }
+  if (!class_exists('Drupal\module_autoload_test\UnloadableClass_WithUnderscore')) {
+    $pieces[] = 'A file with underscores was not included.';
+  }
+  return implode('<br/>', array_filter($pieces));
+}
+
+/**
+ * Page callback for 'module-test/class-loading/psr0-multi-include'.
+ */
+function module_test_class_loading_psr0_multi_include() {
+  class_exists('Drupal\module_autoload_test\SubNamespace\SomeClass');
+  class_exists('Drupal\module_autoload_test\SubNamespace_SomeClass');
+  // If we get here, the application did not crash.
+  return 'The application did not crash.';
+}
+
+/**
+ * Page callback for 'module-test/class-loading/psr0-prefix-clash'.
+ */
+function module_test_class_loading_psr0_prefix_clash() {
+  // The class is defined in the lib folder of module_autoload_test, but we
+  // expect the class loader to ignore that file.
+  if (!class_exists('Drupal\module_autoload_test_subnamespace\PrefixTestClass')) {
+    return 'A file was not included because it is in the wrong folder.';
   }
 }
 
