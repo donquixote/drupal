@@ -2,7 +2,7 @@
 
 namespace Krautoload;
 
-class ClassLoader_NoCache {
+class ClassLoader_NoCache implements ClassLoader_Interface {
 
   protected $finder;
 
