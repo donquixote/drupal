@@ -104,6 +104,11 @@ function module_test_menu() {
     'page callback' => 'module_test_class_loading_psr0_prefix_clash',
     'access callback' => TRUE,
   );
+  $items['module-test/class-loading/psrx'] = array(
+    'title' => 'Test PSR-X class loading',
+    'page callback' => 'module_test_class_loading_psrx',
+    'access callback' => TRUE,
+  );
   return $items;
 }
 
@@ -197,6 +202,23 @@ function module_test_class_loading_psr0_prefix_clash() {
   if (!class_exists('Drupal\module_autoload_test_subnamespace\PrefixTestClass')) {
     return 'A file was not included because it is in the wrong folder.';
   }
+}
+
+/**
+ * Page callback for 'module-test/class-loading/psrx'.
+ */
+function module_test_class_loading_psrx() {
+  $pieces = array();
+  if (class_exists('Drupal\module_autoload_test\SomeClassPSRX')) {
+    $pieces[] = 'SomeClassPSRX was found.';
+  }
+  if (class_exists('Drupal\module_autoload_test\ClassWith_Underscore_PSRX')) {
+    $pieces[] = 'ClassWith_Underscore_PSRX was found.';
+  }
+  if (class_exists('Drupal\module_autoload_test\SubNamespacePSRX\SomeClass')) {
+    $pieces[] = 'Class in sub-namespace was found.';
+  }
+  return implode('<br/>', array_filter($pieces));
 }
 
 /**

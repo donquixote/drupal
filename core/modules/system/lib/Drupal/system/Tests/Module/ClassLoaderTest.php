@@ -73,6 +73,25 @@ class ClassLoaderTest extends WebTestBase {
   }
 
   /**
+   * Tests PSR-X class loading for modules.
+   * PSR-X classes are in the src/ folder of a module.
+   */
+  function testClassLoadingPSRX() {
+    // Enable the module_test and module_autoload_test modules.
+    module_enable(array('module_test', 'module_autoload_test'), FALSE);
+    $this->resetAll();
+
+    // Check that PSR-X classes are found.
+    $this->drupalGet('module-test/class-loading/psrx');
+    $this->assertText('SomeClassPSRX was found.',
+      'Classes are found by the PSR-X class loader.');
+    $this->assertText('ClassWith_Underscore_PSRX was found.',
+      'Classes with underscores are found by the PSR-X class loader.');
+    $this->assertText('Class in sub-namespace was found.',
+      'Classes in sub-namespaces are found by the PSR-X class loader.');
+  }
+
+  /**
    * Tests that module-provided classes can't be loaded from disabled modules.
    *
    * @see \Drupal\module_autoload_test\SomeClass
