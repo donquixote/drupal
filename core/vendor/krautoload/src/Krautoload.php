@@ -12,6 +12,7 @@ class Krautoload {
     // Include the bare minimum we need before Krautoload can load its own.
     require_once $basedir . '/ApiClassFinder.php';
     require_once $basedir . '/InjectedAPI.php';
+    require_once $basedir . '/ClassLoader/Interface.php';
     require_once $basedir . '/ClassLoader/NoCache.php';
     require_once $basedir . '/FinderPlugin/Interface.php';
     require_once $basedir . '/FinderPlugin/ShallowPSR0.php';
