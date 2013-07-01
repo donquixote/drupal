@@ -159,7 +159,7 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
    *   (optional) FALSE to stop the container from being written to or read
    *   from disk. Defaults to TRUE.
    */
-  public function __construct($environment, ClassLoader $class_loader, $allow_dumping = TRUE) {
+  public function __construct($environment, $class_loader, $allow_dumping = TRUE) {
     $this->environment = $environment;
     $this->booted = false;
     $this->classLoader = $class_loader;
@@ -417,8 +417,9 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
       // All namespaces must be registered before we attempt to use any service
       // from the container.
       $container_modules = $this->container->getParameter('container.modules');
-      $namespaces_before = $this->classLoader->getPrefixes();
-      $this->registerNamespaces($this->getModuleNamespaces($container_modules));
+      // $namespaces_before = $this->classLoader->getPrefixes();
+      $this->classLoader->namespacesPSR0($this->getModuleNamespaces($container_modules));
+      $this->classLoader->namespacesPSRX($this->getModuleNamespacesPSRX($container_modules));
 
       // If 'container.modules' is wrong, the container must be rebuilt.
       if (!isset($this->moduleList)) {
@@ -431,9 +432,9 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
         // registerNamespaces() performs a merge rather than replace, so to
         // effectively remove erroneous registrations, we must replace them with
         // empty arrays.
-        $namespaces_after = $this->classLoader->getPrefixes();
-        $namespaces_before += array_fill_keys(array_diff(array_keys($namespaces_after), array_keys($namespaces_before)), array());
-        $this->registerNamespaces($namespaces_before);
+        // $namespaces_after = $this->classLoader->getPrefixes();
+        // $namespaces_before += array_fill_keys(array_diff(array_keys($namespaces_after), array_keys($namespaces_before)), array());
+        // $this->registerNamespaces($namespaces_before);
       }
     }
 
@@ -658,9 +659,20 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
   }
 
   /**
+   * Gets the namespaces of each enabled module.
+   */
+  protected function getModuleNamespacesPSRX($moduleFileNames) {
+    $namespaces = array();
+    foreach ($moduleFileNames as $module => $filename) {
+      $namespaces["Drupal\\$module"] = DRUPAL_ROOT . '/' . dirname($filename) . '/src';
+    }
+    return $namespaces;
+  }
+
+  /**
    * Registers a list of namespaces.
    */
   protected function registerNamespaces(array $namespaces = array()) {
-    $this->classLoader->addPrefixes($namespaces);
+    $this->classLoader->namespacesPSR0($namespaces);
   }
 }

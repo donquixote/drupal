@@ -2770,9 +2770,8 @@ function drupal_classloader($class_loader = NULL) {
 
   if (!isset($loader)) {
 
-    // Include the Symfony ClassLoader for loading PSR-0-compatible classes.
-    require_once DRUPAL_ROOT . '/core/vendor/symfony/class-loader/Symfony/Component/ClassLoader/ClassLoader.php';
-    $loader = new ClassLoader();
+    // Include and boot the Krautoload ClassLoader.
+    require_once DRUPAL_ROOT . '/core/vendor/krautoload/src/Krautoload.php';
 
     // Register the class loader.
     // When configured to use APC, the ApcClassLoader is registered instead.
@@ -2780,24 +2779,18 @@ function drupal_classloader($class_loader = NULL) {
     // findFile() method, but none of the others. The actual registry is still
     // in ClassLoader.
     if (!isset($class_loader)) {
-      $class_loader = settings()->get('class_loader', 'default');
+      $loader = Krautoload::start();
     }
     if ($class_loader === 'apc') {
-      require_once DRUPAL_ROOT . '/core/vendor/symfony/class-loader/Symfony/Component/ClassLoader/ApcClassLoader.php';
-      $apc_loader = new ApcClassLoader('drupal.' . drupal_get_hash_salt(), $loader);
-      $apc_loader->register();
-    }
-    else {
-      $loader->register();
+      $salt = 'drupal.' . drupal_get_hash_salt();
+      // TODO: Use the salt and boot Krautoload with APC.
+      $loader = Krautoload::start();
     }
 
     // Register namespaces for vendor libraries managed by Composer.
-    $prefixes_and_namespaces = require DRUPAL_ROOT . '/core/vendor/composer/autoload_namespaces.php';
-    $loader->addPrefixes($prefixes_and_namespaces);
-
-    // Register the loader with PHP.
-    $loader->register();
+    $loader->composerVendorDir(DRUPAL_ROOT . '/core/vendor');
   }
+
   return $loader;
 }
 
@@ -2811,7 +2804,8 @@ function drupal_classloader($class_loader = NULL) {
  */
 function drupal_classloader_register($name, $path) {
   $loader = drupal_classloader();
-  $loader->addPrefix('Drupal\\' . $name, DRUPAL_ROOT . '/' . $path . '/lib');
+  $loader->namespacePSR0('Drupal\\' . $name, DRUPAL_ROOT . '/' . $path . '/lib');
+  $loader->namespacePSRX('Drupal\\' . $name, DRUPAL_ROOT . '/' . $path . '/src');
 }
 
 /**
