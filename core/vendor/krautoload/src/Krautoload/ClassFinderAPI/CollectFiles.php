@@ -7,12 +7,25 @@ namespace Krautoload;
  * The injected API can be mocked to provide a mocked file_exists(), and to
  * monitor all suggested candidates, not just the correct return value.
  */
-class InjectedAPI_LoadClass extends InjectedAPI_Abstract {
+class ClassFinderAPI_CollectFiles extends ClassFinderAPI_Abstract {
+
+  protected $files = array();
+
+  /**
+   * Return all files collected during one class finding operation.
+   *
+   * @return array
+   *   Associative array, where the keys are collected file names, and the
+   *   values are booleans indicating whether the file can be expected to define
+   *   the class we are looking for.
+   */
+  function getCollectedFiles() {
+    return $this->files;
+  }
 
   /**
    * Suggest a file that, if the file exists,
    * HAS TO declare the class we are looking for.
-   * Include that file, if it exists.
    *
    * @param string $file
    *   The file that is supposed to declare the class.
@@ -23,8 +36,8 @@ class InjectedAPI_LoadClass extends InjectedAPI_Abstract {
    */
   function guessFile($file) {
     if (is_file($file)) {
-      include $file;
-      return TRUE;
+      $this->files[$file] = TRUE;
+      return $file;
     }
     return FALSE;
   }
@@ -32,26 +45,23 @@ class InjectedAPI_LoadClass extends InjectedAPI_Abstract {
   /**
    * Suggest a file that, if the file exists,
    * MAY declare the class we are looking for.
-   * Include that file, if it exists.
    *
    * @param string $file
    *   The file that is supposed to declare the class.
    *
    * @return boolean
-   *   TRUE, if the file exists and the class exists after file inclusion.
-   *   FALSE, otherwise.
+   *   Always FALSE, because we had no chance to check whether the file actually
+   *   defines the class.
    */
   function guessFileCandidate($file) {
     if (is_file($file)) {
-      include_once $file;
-      return class_exists($this->className, FALSE);
+      $this->files[$file] = FALSE;
     }
     return FALSE;
   }
 
   /**
    * Suggest a file that HAS TO declare the class we are looking for.
-   * Include that file.
    *
    * Unlike guessFile(), claimFile() being called means that the caller is sure
    * that the file does exist. Thus, we can skip the is_file() check, saving a
@@ -63,17 +73,15 @@ class InjectedAPI_LoadClass extends InjectedAPI_Abstract {
    *   The file that is supposed to declare the class.
    *
    * @return boolean
-   *   Always TRUE, because we assume the file does exist and does define the
-   *   class.
+   *   Always TRUE, because further candidates are not interesting.
    */
   function claimFile($file) {
-    require $file;
+    $this->files[$file] = TRUE;
     return TRUE;
   }
 
   /**
    * Suggest a file that MAY declare the class we are looking for.
-   * Include that file.
    *
    * Unlike guessFile(), claimFile() being called means that the caller is sure
    * that the file does exist. Thus, we can skip the is_file() check, saving a
@@ -85,18 +93,17 @@ class InjectedAPI_LoadClass extends InjectedAPI_Abstract {
    *   The file that is supposed to declare the class.
    *
    * @return boolean
-   *   TRUE, if the class exists after file inclusion.
-   *   FALSE, otherwise
+   *   Always FALSE, because we had no chance to check whether the file actually
+   *   defines the class.
    */
   function claimFileCandidate($file) {
-    require_once $file;
-    return class_exists($this->className, FALSE);
+    $this->files[$file] = FALSE;
+    return FALSE;
   }
 
   /**
    * Suggest a file that, if the file exists,
    * HAS TO declare the class we are looking for.
-   * Include that file, if it exists.
    *
    * Unlike guessFile(), this one checks the full PHP include path.
    *
@@ -109,7 +116,7 @@ class InjectedAPI_LoadClass extends InjectedAPI_Abstract {
    */
   function guessFile_checkIncludePath($file) {
     if ($this->fileExistsInIncludePath($file)) {
-      include $file;
+      $this->files[$file] = TRUE;
       return TRUE;
     }
     return FALSE;
@@ -118,7 +125,6 @@ class InjectedAPI_LoadClass extends InjectedAPI_Abstract {
   /**
    * Suggest a file that, if the file exists,
    * MAY declare the class we are looking for.
-   * Include that file, if it exists.
    *
    * Unlike guessFile(), this one checks the full PHP include path.
    *
@@ -126,13 +132,12 @@ class InjectedAPI_LoadClass extends InjectedAPI_Abstract {
    *   The file that is supposed to declare the class.
    *
    * @return boolean
-   *   TRUE, if the file exists and the class exists after file inclusion.
-   *   FALSE, otherwise.
+   *   Always FALSE, because we had no chance to check whether the file actually
+   *   defines the class.
    */
   function guessFileCandidate_checkIncludePath($file) {
     if ($this->fileExistsInIncludePath($file)) {
-      include_once $file;
-      return class_exists($this->className, FALSE);
+      $this->files[$file] = FALSE;
     }
     return FALSE;
   }

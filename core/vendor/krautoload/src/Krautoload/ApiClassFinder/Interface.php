@@ -18,7 +18,7 @@ interface ApiClassFinder_Interface {
   /**
    * Finds the path to the file where the class is defined.
    *
-   * @param InjectedAPI $api
+   * @param ClassFinderAPI_Interface $api
    *   API object with a suggestFile() method.
    *   We are supposed to call $api->suggestFile($file) with all suggestions we
    *   can find, until it returns TRUE. Once suggestFile() returns TRUE, we stop
