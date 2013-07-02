@@ -21,7 +21,7 @@ class ClassLoader_NoCache extends ClassLoader_Abstract {
    *   The class to load.
    */
   function loadClass($class) {
-    $api = new InjectedAPI_LoadClass($class);
+    $api = new ClassFinderAPI_LoadClass($class);
     // $api has a ->suggestFile($file) method, which returns TRUE if the
     // suggested file exists.
     // The $finder->findFile() method is supposed to suggest a number of files

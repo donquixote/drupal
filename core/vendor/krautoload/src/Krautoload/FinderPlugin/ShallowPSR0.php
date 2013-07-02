@@ -40,4 +40,39 @@ class FinderPlugin_ShallowPSR0 implements FinderPlugin_Interface {
       return class_exists($class);
     }
   }
+
+  function pluginScanDirectory($api, $namespace, $dir) {
+    foreach (new DirectoryIterator($dir) as $fileinfo) {
+      // @todo Once core requires 5.3.6, use $fileinfo->getExtension().
+      if (pathinfo($fileinfo->getFilename(), PATHINFO_EXTENSION) == 'php') {
+        $class = $namespace . '\\' . $fileinfo->getBasename('.php');
+        $api->fileWithClassCandidates($fileinfo->getPathname(), array($class));
+      }
+    }
+  }
+
+  function pluginScanRecursive($api, $namespace, $dir, $namespaceSuffixes = array('\\')) {
+    foreach (new DirectoryIterator($dir) as $fileinfo) {
+      // @todo Once core requires 5.3.6, use $fileinfo->getExtension().
+      if (pathinfo($fileinfo->getFilename(), PATHINFO_EXTENSION) == 'php') {
+        $classes = array();
+        $suffixes = array();
+        foreach ($namespaceSuffixes as $suffix) {
+          $classes[] = $namespace . $suffix . $fileinfo->getBasename('.php');
+          $suffixes[] = $suffix . $fileinfo->getBasename('.php');
+        }
+        if (!empty($classes)) {
+          $api->fileWithClassCandidates($fileinfo->getPathname(), $classes, $namespace, $suffixes);
+        }
+      }
+      elseif (!$fileinfo->isDot() && $fileinfo->isDir()) {
+        $childSuffixes = array();
+        $childSuffixes[] = $namespaceSuffixes[0] . $fileinfo->getFilename() . '\\';
+        foreach ($namespaceSuffixes as $suffix) {
+          $childSuffixes[] = $suffix . $fileinfo->getFilename() . '_';
+        }
+        $this->pluginScanRecursive($api, $namespace, $fileinfo->getPathname(), $childSuffixes);
+      }
+    }
+  }
 }
