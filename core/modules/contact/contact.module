@@ -232,8 +232,8 @@ function contact_field_extra_fields() {
  * @param $id
  *   The ID of the contact category to load.
  *
- * @return Drupal\contact\Plugin\Core\Entity\Category|false
- *   A Category object or FALSE if the requested $id does not exist.
+ * @return \Drupal\contact\Plugin\Core\Entity\Category|null
+ *   A Category object or NULL if the requested $id does not exist.
  */
 function contact_category_load($id) {
   return entity_load('contact_category', $id);
@@ -277,14 +277,14 @@ function contact_mail($key, &$message, $params) {
     $variables['!sender-url'] = $params['sender']->mail;
   }
 
-  $options = array('langcode' => $language->langcode);
+  $options = array('langcode' => $language->id);
 
   switch ($key) {
     case 'page_mail':
     case 'page_copy':
       $message['subject'] .= t('[!category] !subject', $variables, $options);
       $message['body'][] = t("!sender-name (!sender-url) sent a message using the contact form at !form-url.", $variables, $options);
-      $build = entity_view($contact_message, 'mail', $language->langcode);
+      $build = entity_view($contact_message, 'mail', $language->id);
       $message['body'][] = drupal_render($build);
       break;
 
@@ -303,7 +303,7 @@ function contact_mail($key, &$message, $params) {
       $message['body'][] = t('Hello !recipient-name,', $variables, $options);
       $message['body'][] = t("!sender-name (!sender-url) has sent you a message via your contact form at !site-name.", $variables, $options);
       $message['body'][] = t("If you don't want to receive such e-mails, you can change your settings at !recipient-edit-url.", $variables, $options);
-      $build = entity_view($contact_message, 'mail', $language->langcode);
+      $build = entity_view($contact_message, 'mail', $language->id);
       $message['body'][] = drupal_render($build);
       break;
   }

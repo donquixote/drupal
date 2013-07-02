@@ -719,7 +719,7 @@ function image_effect_definitions() {
 
   // hook_image_effect_info() includes translated strings, so each language is
   // cached separately.
-  $langcode = $language_interface->langcode;
+  $langcode = $language_interface->id;
 
   $effects = &drupal_static(__FUNCTION__);
 
@@ -772,7 +772,7 @@ function image_effect_definitions() {
  */
 function image_effect_definition_load($effect) {
   $definitions = image_effect_definitions();
-  return isset($definitions[$effect]) ? $definitions[$effect] : FALSE;
+  return isset($definitions[$effect]) ? $definitions[$effect] : NULL;
 }
 
 /**
@@ -790,7 +790,7 @@ function image_effect_definition_load($effect) {
  *   - "name": The name of the effect definition that powers this image effect.
  *   - "data": An array of configuration options for this image effect.
  *   Besides these keys, the entirety of the image definition is merged into
- *   the image effect array. Returns FALSE if the specified effect cannot be
+ *   the image effect array. Returns NULL if the specified effect cannot be
  *   found.
  * @see image_effect_definition_load()
  */
@@ -809,7 +809,7 @@ function image_effect_load($ieid, $style_name) {
     $effect['ieid'] = $ieid;
     return $effect;
   }
-  return FALSE;
+  return NULL;
 }
 
 /**
@@ -900,15 +900,25 @@ function theme_image_style($variables) {
 
   image_style_transform_dimensions($variables['style_name'], $dimensions);
 
-  $variables['width'] = $dimensions['width'];
-  $variables['height'] = $dimensions['height'];
-
   // Add in the image style name as an HTML class.
   $variables['attributes']['class'][] = 'image-style-' . drupal_html_class($variables['style_name']);
 
-  // Determine the URL for the styled image.
-  $variables['uri'] = image_style_url($variables['style_name'], $variables['uri']);
-  return theme('image', $variables);
+  $image = array(
+    '#theme' => 'image',
+    '#width' => $dimensions['width'],
+    '#height' => $dimensions['height'],
+    '#attributes' => $variables['attributes'],
+    '#uri' => image_style_url($variables['style_name'], $variables['uri']),
+  );
+
+  if (isset($variables['alt'])) {
+    $image['#alt'] = $variables['alt'];
+  }
+  if (isset($variables['title'])) {
+    $image['#title'] = $variables['title'];
+  }
+
+  return drupal_render($image);
 }
 
 /**

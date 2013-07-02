@@ -9,6 +9,7 @@ namespace Drupal\Core\Entity;
 
 use Drupal\Component\Uuid\Uuid;
 use Drupal\Core\Language\Language;
+use Drupal\Core\TypedData\TranslatableInterface;
 use Drupal\Core\TypedData\TypedDataInterface;
 use Drupal\user\UserInterface;
 use IteratorAggregate;
@@ -287,17 +288,20 @@ class Entity implements IteratorAggregate, EntityInterface {
     $language = language_load($this->langcode);
     if (!$language) {
       // Make sure we return a proper language object.
-      $language = new Language(array('langcode' => Language::LANGCODE_NOT_SPECIFIED));
+      $language = new Language(array('id' => Language::LANGCODE_NOT_SPECIFIED));
     }
     return $language;
   }
 
   /**
    * Implements \Drupal\Core\TypedData\TranslatableInterface::getTranslation().
+   *
+   * @return \Drupal\Core\Entity\EntityInterface
    */
-  public function getTranslation($langcode, $strict = TRUE) {
+  public function getTranslation($langcode) {
     // @todo: Replace by EntityNG implementation once all entity types have been
     // converted to use the entity field API.
+    return $this;
   }
 
   /**
@@ -318,7 +322,7 @@ class Entity implements IteratorAggregate, EntityInterface {
     // @todo: Replace by EntityNG implementation once all entity types have been
     // converted to use the entity field API.
     $default_language = $this->language();
-    $languages = array($default_language->langcode => $default_language);
+    $languages = array($default_language->id => $default_language);
     $entity_info = $this->entityInfo();
 
     if ($entity_info['fieldable']) {
@@ -336,7 +340,7 @@ class Entity implements IteratorAggregate, EntityInterface {
     }
 
     if (empty($include_default)) {
-      unset($languages[$default_language->langcode]);
+      unset($languages[$default_language->id]);
     }
 
     return $languages;
@@ -586,6 +590,48 @@ class Entity implements IteratorAggregate, EntityInterface {
    * {@inheritdoc}
    */
   public function preSaveRevision(EntityStorageControllerInterface $storage_controller, \stdClass $record) {
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getUntranslated() {
+    return $this->getTranslation(Language::LANGCODE_DEFAULT);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function hasTranslation($langcode) {
+    $translations = $this->getTranslationLanguages();
+    return isset($translations[$langcode]);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function addTranslation($langcode, array $values = array()) {
+    // @todo Config entities do not support entity translation hence we need to
+    //   move the TranslatableInterface implementation to EntityNG. See
+    //   http://drupal.org/node/2004244
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function removeTranslation($langcode) {
+    // @todo Config entities do not support entity translation hence we need to
+    //   move the TranslatableInterface implementation to EntityNG. See
+    //   http://drupal.org/node/2004244
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function initTranslation($langcode) {
+    // @todo Config entities do not support entity translation hence we need to
+    //   move the TranslatableInterface implementation to EntityNG. See
+    //   http://drupal.org/node/2004244
   }
 
 }
