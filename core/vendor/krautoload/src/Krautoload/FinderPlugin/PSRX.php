@@ -18,7 +18,7 @@ class FinderPlugin_PSRX implements FinderPlugin_Interface {
   }
 
   function pluginScanDirectory($api, $namespace, $dir) {
-    foreach (new DirectoryIterator($dir) as $fileinfo) {
+    foreach (new \DirectoryIterator($dir) as $fileinfo) {
       // @todo Once core requires 5.3.6, use $fileinfo->getExtension().
       if (pathinfo($fileinfo->getFilename(), PATHINFO_EXTENSION) == 'php') {
         $class = $namespace . '\\' . $fileinfo->getBasename('.php');
@@ -28,7 +28,7 @@ class FinderPlugin_PSRX implements FinderPlugin_Interface {
   }
 
   function pluginScanRecursive($api, $namespace, $dir, $namespaceSuffix = '') {
-    foreach (new DirectoryIterator($dir) as $fileinfo) {
+    foreach (new \DirectoryIterator($dir) as $fileinfo) {
       // @todo Once core requires 5.3.6, use $fileinfo->getExtension().
       if (pathinfo($fileinfo->getFilename(), PATHINFO_EXTENSION) == 'php') {
         $suffix = $namespaceSuffix . '\\' . $fileinfo->getBasename('.php');
