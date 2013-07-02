@@ -24,7 +24,9 @@ class ApiNamespaceFinder_Pluggable extends ApiClassFinder_Pluggable implements A
       // Check any plugin registered for this fragment.
       if (!empty($this->namespaceMap[$logicalBasePath])) {
         foreach ($this->namespaceMap[$logicalBasePath] as $dir => $plugin) {
-          $api->namespaceDirectoryPlugin($namespace, $dir . $pathSuffix, $plugin);
+          if (is_dir($dir . $pathSuffix)) {
+            $api->namespaceDirectoryPlugin($namespace, $dir . $pathSuffix, $plugin);
+          }
         }
       }
 
