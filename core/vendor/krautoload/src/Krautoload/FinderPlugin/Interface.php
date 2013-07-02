@@ -5,7 +5,7 @@ namespace Krautoload;
 interface FinderPlugin_Interface {
 
   /**
-   * @param InjectedAPI $api
+   * @param ClassFinderAPI_Interface $api
    * @param string $prefix
    * @param string $dir
    * @param string $suffix

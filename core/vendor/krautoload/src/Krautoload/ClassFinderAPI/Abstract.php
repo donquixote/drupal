@@ -7,7 +7,7 @@ namespace Krautoload;
  * The injected API can be mocked to provide a mocked file_exists(), and to
  * monitor all suggested candidates, not just the correct return value.
  */
-abstract class InjectedAPI_Abstract implements InjectedAPI_Interface {
+abstract class ClassFinderAPI_Abstract implements ClassFinderAPI_Interface {
 
   protected $className;
 
