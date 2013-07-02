@@ -2,7 +2,7 @@
 
 namespace Krautoload;
 
-class NamespaceFinderAPI_ScanDirectory implements ApiNamespaceFinder_Interface {
+class NamespaceFinderAPI_ScanDirectory implements NamespaceFinderAPI_Interface {
 
   protected $api;
 
