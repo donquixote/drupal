@@ -13,6 +13,7 @@ use Drupal\Core\Config\Config;
 use Drupal\Core\Language\Language;
 use Drupal\Core\Extension\ExtensionNameLengthException;
 use Drupal\Core\Template\Attribute;
+use Drupal\Core\Template\RenderWrapper;
 use Drupal\Core\Utility\ThemeRegistry;
 use Drupal\Core\Theme\ThemeSettings;
 use Drupal\Component\Utility\NestedArray;
@@ -932,8 +933,9 @@ function drupal_find_base_themes($themes, $key, $used_keys = array()) {
  *   properties are mapped to variables expected by the theme hook
  *   implementations.
  *
- * @return
- *   An HTML string representing the themed output.
+ * @return string|false
+ *   An HTML string representing the themed output or FALSE if the passed $hook
+ *   is not implemented.
  *
  * @see themeable
  * @see hook_theme()
@@ -982,7 +984,10 @@ function theme($hook, $variables = array()) {
       if (!isset($candidate)) {
         watchdog('theme', 'Theme hook %hook not found.', array('%hook' => $hook), WATCHDOG_WARNING);
       }
-      return '';
+      // There is no theme implementation for the hook passed. Return FALSE so
+      // the function calling theme() can differentiate between a hook that
+      // exists and renders an empty string and a hook that is not implemented.
+      return FALSE;
     }
   }
 
@@ -1731,7 +1736,7 @@ function theme_links($variables) {
       // Handle links.
       if (isset($link['href'])) {
         $is_current_path = ($link['href'] == current_path() || ($link['href'] == '<front>' && drupal_is_front_page()));
-        $is_current_language = (empty($link['language']) || $link['language']->langcode == $language_url->langcode);
+        $is_current_language = (empty($link['language']) || $link['language']->id == $language_url->id);
         if ($is_current_path && $is_current_language) {
           $class[] = 'active';
         }
@@ -2415,6 +2420,36 @@ function theme_indentation($variables) {
 }
 
 /**
+ * Returns HTML to wrap child elements in a container.
+ *
+ * Used for grouped form items. Can also be used as a #theme_wrapper for any
+ * renderable element, to surround it with a <div> and add attributes such as
+ * classes or an HTML id.
+ *
+ * @param $variables
+ *   An associative array containing:
+ *   - element: An associative array containing the properties of the element.
+ *     Properties used: #id, #attributes, #children.
+ *
+ * @ingroup themeable
+ */
+function theme_container($variables) {
+  $element = $variables['element'];
+
+  // Special handling for form elements.
+  if (isset($element['#array_parents'])) {
+    // Assign an html ID.
+    if (!isset($element['#attributes']['id'])) {
+      $element['#attributes']['id'] = $element['#id'];
+    }
+    // Add the 'form-wrapper' class.
+    $element['#attributes']['class'][] = 'form-wrapper';
+  }
+
+  return '<div' . new Attribute($element['#attributes']) . '>' . $element['#children'] . '</div>';
+}
+
+/**
  * @} End of "addtogroup themeable".
  */
 
@@ -2590,7 +2625,7 @@ function template_preprocess_html(&$variables) {
   $variables['html_attributes'] = new Attribute;
 
   // HTML element attributes.
-  $variables['html_attributes']['lang'] = $language_interface->langcode;
+  $variables['html_attributes']['lang'] = $language_interface->id;
   $variables['html_attributes']['dir'] = $language_interface->direction ? 'rtl' : 'ltr';
 
   // Add favicon.
@@ -2656,6 +2691,24 @@ function template_preprocess_html(&$variables) {
   if ($suggestions = theme_get_suggestions(arg(), 'html')) {
     $variables['theme_hook_suggestions'] = $suggestions;
   }
+
+  drupal_add_library('system', 'html5shiv', TRUE);
+  // Render page_top and page_bottom into top level variables.
+  $variables['page_top'] = isset($variables['page']['page_top']) ? drupal_render($variables['page']['page_top']) : '';
+  $variables['page_bottom'] = array();
+  $variables['page_bottom'][] = isset($variables['page']['page_bottom']) ? drupal_render($variables['page']['page_bottom']) : array();
+  // Add footer scripts as '#markup' so they can be rendered with other
+  // elements in page_bottom.
+  $footer_scripts = new RenderWrapper('drupal_get_js', array('footer'));
+  $variables['page_bottom'][] = array('#markup' => $footer_scripts);
+
+  // Wrap function calls in an object so they can be called when printed.
+  $variables['head'] = new RenderWrapper('drupal_get_html_head');
+  $variables['styles'] = new RenderWrapper('drupal_get_css');
+  $variables['scripts'] = new RenderWrapper('drupal_get_js');
+
+  // Place the rendered HTML for the page body into a top level variable.
+  $variables['page'] = drupal_render($variables['page']);
 }
 
 /**
@@ -2779,30 +2832,6 @@ function template_process_page(&$variables) {
   if (!isset($variables['messages'])) {
     $variables['messages'] = $variables['show_messages'] ? array('#theme' => 'status_messages') : '';
   }
-}
-
-/**
- * Processes variables for html.html.twig.
- *
- * Perform final addition and modification of variables before passing into
- * the template. To customize these variables, call drupal_render() on elements
- * in $variables['page'] during THEME_preprocess_page().
- *
- * @see template_preprocess_html()
- */
-function template_process_html(&$variables) {
-  drupal_add_library('system', 'html5shiv', TRUE);
-  // Render page_top and page_bottom into top level variables.
-  $variables['page_top'] = isset($variables['page']['page_top']) ? drupal_render($variables['page']['page_top']) : '';
-  $variables['page_bottom'] = isset($variables['page']['page_bottom']) ? drupal_render($variables['page']['page_bottom']) : '';
-  // Place the rendered HTML for the page body into a top level variable.
-  $variables['page'] = $variables['page']['#children'];
-  $variables['page_bottom'] .= drupal_get_js('footer');
-
-  $variables['head']    = drupal_get_html_head();
-  $variables['css']     = drupal_add_css();
-  $variables['styles']  = drupal_get_css();
-  $variables['scripts'] = drupal_get_js();
 }
 
 /**
@@ -2978,28 +3007,18 @@ function template_preprocess_maintenance_page(&$variables) {
   if (isset($variables['db_is_active']) && !$variables['db_is_active']) {
     $variables['theme_hook_suggestion'] = 'maintenance_page__offline';
   }
-}
 
-/**
- * Theme process function for theme_maintenance_field().
- *
- * The variables array generated here is a mirror of template_process_html().
- * This processor will run its course when theme_maintenance_page() is invoked.
- *
- * @see maintenance-page.html.twig
- * @see template_process_html()
- */
-function template_process_maintenance_page(&$variables) {
   $variables['head'] = drupal_get_html_head();
 
   // While this code is used in the installer, the language module may not be
   // enabled yet (even maybe no database set up yet), but an RTL language
   // selected should result in RTL stylesheets loaded properly already.
-  $variables['css'] = $css = drupal_add_css();
+  $css = drupal_add_css();
   include_once DRUPAL_ROOT . '/core/modules/language/language.module';
-  $variables['styles'] = drupal_get_css($css);
-
-  $variables['scripts'] = drupal_get_js();
+  // Wrapping drupal_get_css() and drupal_get_js() in an object so they can
+  // be called when printed.
+  $variables['styles'] = new RenderWrapper('drupal_get_css', array($css));
+  $variables['scripts'] = new RenderWrapper('drupal_get_js');
 }
 
 /**
@@ -3023,17 +3042,6 @@ function template_preprocess_install_page(&$variables) {
   // Override the site name that is displayed on the page, since Drupal is
   // still in the process of being installed.
   $variables['site_name'] = drupal_install_profile_distribution_name();
-}
-
-/**
- * Preprocess variables for install-page.html.twig.
- *
- * @see install-page.html.twig
- * @see template_process_html()
- *
- */
-function template_process_install_page(&$variables) {
-  template_process_maintenance_page($variables);
 }
 
 /**
@@ -3106,7 +3114,7 @@ function drupal_common_theme() {
       'template' => 'breadcrumb',
     ),
     'table' => array(
-      'variables' => array('header' => NULL, 'rows' => NULL, 'attributes' => array(), 'caption' => NULL, 'colgroups' => array(), 'sticky' => TRUE, 'responsive' => TRUE, 'empty' => ''),
+      'variables' => array('header' => NULL, 'rows' => NULL, 'attributes' => array(), 'caption' => NULL, 'colgroups' => array(), 'sticky' => FALSE, 'responsive' => TRUE, 'empty' => ''),
     ),
     'tablesort_indicator' => array(
       'variables' => array('style' => NULL),

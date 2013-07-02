@@ -684,30 +684,28 @@ class ViewUI implements ViewStorageInterface {
 
     // Assemble the preview, the query info, and the query statistics in the
     // requested order.
-    if ($show_location === 'above') {
+    $table = array(
+      '#theme' => 'table',
+      '#prefix' => '<div class="views-query-info">',
+      '#suffix' => '</div>',
+    );
+    if ($show_location === 'above' || $show_location === 'below') {
       if ($combined) {
-        $output .= '<div class="views-query-info">' . theme('table', array('rows' => array_merge($rows['query'], $rows['statistics']))) . '</div>';
+        $table['#rows'] = array_merge($rows['query'], $rows['statistics']);
       }
       else {
-        $output .= '<div class="views-query-info">' . theme('table', array('rows' => $rows['query'])) . '</div>';
+        $table['#rows'] = $rows['query'];
       }
     }
-    elseif ($show_stats === 'above') {
-      $output .= '<div class="views-query-info">' . theme('table', array('rows' => $rows['statistics'])) . '</div>';
+    elseif ($show_stats === 'above' || $show_stats === 'below') {
+      $table['#rows'] = $rows['statistics'];
     }
 
-    $output .= $preview;
-
-    if ($show_location === 'below') {
-      if ($combined) {
-        $output .= '<div class="views-query-info">' . theme('table', array('rows' => array_merge($rows['query'], $rows['statistics']))) . '</div>';
-      }
-      else {
-        $output .= '<div class="views-query-info">' . theme('table', array('rows' => $rows['query'])) . '</div>';
-      }
+    if ($show_location === 'above' || $show_stats === 'above') {
+      $output .= drupal_render($table) . $preview;
     }
-    elseif ($show_stats === 'below') {
-      $output .= '<div class="views-query-info">' . theme('table', array('rows' => $rows['statistics'])) . '</div>';
+    elseif ($show_location === 'below' || $show_stats === 'below') {
+      $output .= $preview . drupal_render($table);
     }
 
     _current_path($old_q);
@@ -923,8 +921,9 @@ class ViewUI implements ViewStorageInterface {
   /**
    * Implements \Drupal\Core\TypedData\TranslatableInterface::getTranslation().
    */
-  public function getTranslation($langcode, $strict = TRUE) {
-    return $this->storage->getTranslation($langcode, $strict);
+  public function getTranslation($langcode) {
+    // @todo Revisit this once config entities are converted to NG.
+    return $this;
   }
 
   /**
@@ -1044,6 +1043,41 @@ class ViewUI implements ViewStorageInterface {
    */
   public function isTranslatable() {
     return $this->storage->isTranslatable();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getUntranslated() {
+    return $this->storage->getUntranslated();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function hasTranslation($langcode) {
+    return $this->storage->hasTranslation($langcode);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function addTranslation($langcode, array $values = array()) {
+    return $this->storage->addTranslation($langcode, $values);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function removeTranslation($langcode) {
+    $this->storage->removeTranslation($langcode);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function initTranslation($langcode) {
+    $this->storage->initTranslation($langcode);
   }
 
   /**
