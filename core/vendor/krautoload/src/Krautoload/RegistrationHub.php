@@ -7,6 +7,10 @@ class RegistrationHub {
   protected $finder;
   protected $plugins = array();
 
+  /**
+   * @param \Krautoload\ClassLoader_Pluggable_Interface $finder
+   *   A finder object where namespace and prefix plugins can be registered.
+   */
   function __construct($finder) {
     $this->finder = $finder;
     $this->plugins['ShallowPEAR'] = new FinderPlugin_ShallowPEAR();
