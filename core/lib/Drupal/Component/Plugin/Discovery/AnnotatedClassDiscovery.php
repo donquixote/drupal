@@ -7,12 +7,8 @@
 
 namespace Drupal\Component\Plugin\Discovery;
 
-use DirectoryIterator;
 use Drupal\Component\Plugin\Discovery\DiscoveryInterface;
-use Drupal\Component\Reflection\MockFileFinder;
-use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\AnnotationRegistry;
-use Doctrine\Common\Reflection\StaticReflectionParser;
 
 /**
  * Defines a discovery mechanism to find annotated plugins in PSR-0 namespaces.
@@ -75,17 +71,17 @@ class AnnotatedClassDiscovery implements DiscoveryInterface {
    */
   public function getDefinitions() {
     $definitions = array();
-    $reader = new AnnotationReader();
-    // Prevent @endlink from being parsed as an annotation.
-    $reader->addGlobalIgnoredName('endlink');
 
     // Register the namespaces of classes that can be used for annotations.
     AnnotationRegistry::registerAutoloadNamespaces($this->getAnnotationNamespaces());
 
+    // The discovery engine knows about namespace-directory mappings that are
+    // relevant for plugin discovery.
+    // It does not know the exact plugin directories.
     $discovery = $this->buildDiscoveryEngine();
 
     // Scan namespaces.
-    $discoveryAPI = new KrautoloadDiscoveryAPI($reader, $this->pluginDefinitionAnnotationName);
+    $discoveryAPI = new KrautoloadDiscoveryAPI($this->pluginDefinitionAnnotationName);
     $discovery->apiScanNamespaces($discoveryAPI, array_keys($this->getPluginNamespaces()), FALSE);
     return $discoveryAPI->getDefinitions();
   }
