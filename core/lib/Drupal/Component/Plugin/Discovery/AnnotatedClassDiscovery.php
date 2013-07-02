@@ -82,35 +82,23 @@ class AnnotatedClassDiscovery implements DiscoveryInterface {
     // Register the namespaces of classes that can be used for annotations.
     AnnotationRegistry::registerAutoloadNamespaces($this->getAnnotationNamespaces());
 
-    // Search for classes within all PSR-0 namespace locations.
-    foreach ($this->getPluginNamespaces() as $namespace => $dirs) {
-      foreach ($dirs as $dir) {
-        $dir .= DIRECTORY_SEPARATOR . str_replace('\\', DIRECTORY_SEPARATOR, $namespace);
-        if (file_exists($dir)) {
-          foreach (new DirectoryIterator($dir) as $fileinfo) {
-            // @todo Once core requires 5.3.6, use $fileinfo->getExtension().
-            if (pathinfo($fileinfo->getFilename(), PATHINFO_EXTENSION) == 'php') {
-              $class = $namespace . '\\' . $fileinfo->getBasename('.php');
-
-              // The filename is already known, so there is no need to find the
-              // file. However, StaticReflectionParser needs a finder, so use a
-              // mock version.
-              $finder = MockFileFinder::create($fileinfo->getPathName());
-              $parser = new StaticReflectionParser($class, $finder);
-
-              if ($annotation = $reader->getClassAnnotation($parser->getReflectionClass(), $this->pluginDefinitionAnnotationName)) {
-                // AnnotationInterface::get() returns the array definition
-                // instead of requiring us to work with the annotation object.
-                $definition = $annotation->get();
-                $definition['class'] = $class;
-                $definitions[$definition['id']] = $definition;
-              }
-            }
-          }
-        }
-      }
+    // Build the discovery thingie.
+    // @todo Have this stuff properly injected.
+    $discovery = new \Krautoload\ApiClassDiscovery_Pluggable();
+    $registration = new \Krautoload\RegistrationHub($discovery);
+    $modules = \Drupal::getContainer()->get('module_handler')->getModuleList();
+    foreach ($modules as $module => $module_file) {
+      $module_dir = dirname($module_file);
+      $discovery->namespacePSRX('Drupal\\' . $module, $module_dir . '/lib/Drupal/' . $module);
+      $discovery->namespacePSRX('Drupal\\' . $module, $module_dir . '/src');
     }
-    return $definitions;
+    $discovery->namespacePSRX('Drupal\\Core', DRUPAL_ROOT . '/core/lib/Drupal/Core');
+    $discovery->namespacePSRX('Drupal\\Core', DRUPAL_ROOT . '/core/src');
+
+    // Scan namespaces.
+    $discoveryAPI = new KrautoloadDiscoveryAPI($reader, $this->pluginDefinitionAnnotationName);
+    $discovery->scanNamespaces($discoveryAPI, array_keys($this->getPluginNamespaces()), FALSE);
+    return $discoveryAPI->getDefinitions();
   }
 
   /**

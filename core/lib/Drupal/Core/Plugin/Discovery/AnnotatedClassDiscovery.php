@@ -100,8 +100,8 @@ class AnnotatedClassDiscovery extends ComponentAnnotatedClassDiscovery {
    */
   protected function getPluginNamespaces() {
     $plugin_namespaces = array();
-    foreach ($this->rootNamespacesIterator as $namespace => $dir) {
-      $plugin_namespaces["$namespace\\Plugin\\{$this->subdir}"] = array($dir);
+    foreach ($this->rootNamespacesIterator as $namespace => $dirs) {
+      $plugin_namespaces["$namespace\\Plugin\\{$this->subdir}"] = (array) $dirs;
     }
 
     return $plugin_namespaces;

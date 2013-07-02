@@ -45,8 +45,8 @@ class ViewsHandlerDiscovery extends AnnotatedClassDiscovery {
       'Drupal\Component\Annotation' => DRUPAL_ROOT . '/core/lib',
     );
     $plugin_namespaces = array();
-    foreach ($root_namespaces as $namespace => $dir) {
-      $plugin_namespaces["$namespace\\Plugin\\views\\{$type}"] = array($dir);
+    foreach ($root_namespaces as $namespace => $dirs) {
+      $plugin_namespaces["$namespace\\Plugin\\views\\{$type}"] = (array) $dirs;
     }
     parent::__construct($plugin_namespaces, $annotation_namespaces, 'Drupal\Component\Annotation\PluginID');
   }
@@ -68,8 +68,8 @@ class ViewsHandlerDiscovery extends AnnotatedClassDiscovery {
    */
   protected function getPluginNamespaces() {
     $plugin_namespaces = array();
-    foreach ($this->rootNamespacesIterator as $namespace => $dir) {
-      $plugin_namespaces["$namespace\\Plugin\\views\\{$this->type}"] = array($dir);
+    foreach ($this->rootNamespacesIterator as $namespace => $dirs) {
+      $plugin_namespaces["$namespace\\Plugin\\views\\{$this->type}"] = (array) $dirs;
     }
 
     return $plugin_namespaces;

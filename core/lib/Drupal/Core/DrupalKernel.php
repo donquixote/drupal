@@ -515,6 +515,8 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
     $container->setParameter('container.modules', $this->getModuleFileNames());
 
     // Get a list of namespaces and put it onto the container.
+    // The only thing that uses the directories is the annotation discovery,
+    // which is still on PSR-0 thanks to static methods in doctrine.
     $namespaces = $this->getModuleNamespacesPSR0($this->getModuleFileNames());
     // Add all components in \Drupal\Core and \Drupal\Component that have a
     // Plugin directory.
