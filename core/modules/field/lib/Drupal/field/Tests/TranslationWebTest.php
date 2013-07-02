@@ -87,7 +87,7 @@ class TranslationWebTest extends FieldTestBase {
 
     for ($i = 0; $i < 3; ++$i) {
       $language = new Language(array(
-        'langcode' => 'l' . $i,
+        'id' => 'l' . $i,
         'name' => $this->randomString(),
       ));
       language_save($language);
@@ -106,6 +106,7 @@ class TranslationWebTest extends FieldTestBase {
     $entity = entity_create($this->entity_type, array());
     $available_langcodes = array_flip(field_available_languages($this->entity_type, $this->field));
     unset($available_langcodes[Language::LANGCODE_NOT_SPECIFIED]);
+    unset($available_langcodes[Language::LANGCODE_NOT_APPLICABLE]);
     $field_name = $this->field['field_name'];
 
     // Store the field translations.
@@ -116,11 +117,11 @@ class TranslationWebTest extends FieldTestBase {
     $entity->save();
 
     // Create a new revision.
-    $langcode = field_valid_language(NULL);
+    $langcode = $entity->language()->id;
     $edit = array(
       'user_id' => 1,
       'name' => $this->randomName(),
-      "{$field_name}[$langcode][0][value]" => $entity->getTranslation($langcode)->{$field_name}->value,
+      "{$field_name}[$langcode][0][value]" => $entity->{$field_name}->value,
       'revision' => TRUE,
     );
     $this->drupalPost($this->entity_type . '/manage/' . $entity->id() . '/edit', $edit, t('Save'));

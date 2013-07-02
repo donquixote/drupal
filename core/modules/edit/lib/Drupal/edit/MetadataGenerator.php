@@ -56,9 +56,18 @@ class MetadataGenerator implements MetadataGeneratorInterface {
   }
 
   /**
-   * Implements \Drupal\edit\MetadataGeneratorInterface::generate().
+   * {@inheritdoc}
    */
-  public function generate(EntityInterface $entity, FieldInstance $instance, $langcode, $view_mode) {
+  public function generateEntity(EntityInterface $entity, $langcode) {
+    return array(
+      'label' => $entity->label($langcode),
+    );
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function generateField(EntityInterface $entity, FieldInstance $instance, $langcode, $view_mode) {
     $field_name = $instance['field_name'];
 
     // Early-return if user does not have access.
@@ -69,7 +78,7 @@ class MetadataGenerator implements MetadataGeneratorInterface {
 
     // Early-return if no editor is available.
     $formatter_id = entity_get_render_display($entity, $view_mode)->getRenderer($instance['field_name'])->getPluginId();
-    $items = $entity->getTranslation($langcode, FALSE)->get($field_name)->getValue();
+    $items = $entity->getTranslation($langcode)->get($field_name)->getValue();
     $editor_id = $this->editorSelector->getEditor($formatter_id, $instance, $items);
     if (!isset($editor_id)) {
       return array('access' => FALSE);

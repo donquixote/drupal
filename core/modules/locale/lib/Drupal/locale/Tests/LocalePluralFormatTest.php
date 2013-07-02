@@ -98,11 +98,15 @@ class LocalePluralFormatTest extends WebTestBase {
         1 => 0,
         0 => 1,
         5 => 1,
+        123 => 1,
+        235 => 1,
       ),
       'fr' => array(
         1 => 0,
         0 => 0,
         5 => 1,
+        123 => 1,
+        235 => 1,
       ),
       'hr' => array(
         1 => 0,
@@ -110,6 +114,8 @@ class LocalePluralFormatTest extends WebTestBase {
         0 => 2,
         2 => 1,
         8 => 2,
+        123 => 1,
+        235 => 2,
       ),
       'hu' => array(
         1 => -1,
@@ -173,7 +179,10 @@ class LocalePluralFormatTest extends WebTestBase {
 
     // Look up editing page for this plural string and check fields.
     $path = 'admin/config/regional/translate/';
-    $this->drupalGet($path);
+    $search = array(
+      'langcode' => 'hr',
+    );
+    $this->drupalPost($path, $search, t('Filter'));
     // Labels for plural editing elements.
     $this->assertText('Singular form');
     $this->assertText('First plural form');
