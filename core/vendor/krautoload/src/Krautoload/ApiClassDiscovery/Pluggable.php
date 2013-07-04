@@ -9,7 +9,7 @@ class ApiClassDiscovery_Pluggable extends ApiNamespaceFinder_Pluggable implement
    * @param string $namespace
    */
   public function apiScanNamespace($api, $namespace, $recursive = FALSE) {
-    $namespaceFinderAPI = $recursive ? new NamespaceFinderAPI_ScanRecursive($api) : new NamespaceFinderAPI_ScanDirectory($api);
+    $namespaceFinderAPI = $recursive ? new NamespaceFinderAPI_ScanRecursive($api) : new NamespaceFinderAPI_ScanNamespace($api);
     $this->apiFindNamespace($namespaceFinderAPI, $namespace);
   }
 
@@ -18,7 +18,7 @@ class ApiClassDiscovery_Pluggable extends ApiNamespaceFinder_Pluggable implement
    * @param array $namespaces
    */
   public function apiScanNamespaces($api, $namespaces, $recursive = FALSE) {
-    $namespaceFinderAPI = $recursive ? new NamespaceFinderAPI_ScanRecursive($api) : new NamespaceFinderAPI_ScanDirectory($api);
+    $namespaceFinderAPI = $recursive ? new NamespaceFinderAPI_ScanRecursive($api) : new NamespaceFinderAPI_ScanNamespace($api);
     $this->apiFindNamespaces($namespaceFinderAPI, $namespaces);
   }
 }
