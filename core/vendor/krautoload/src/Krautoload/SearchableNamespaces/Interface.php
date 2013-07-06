@@ -16,7 +16,14 @@ interface SearchableNamespaces_Interface {
    *
    * @param array $namespaces
    */
-  function addNamespaces($namespaces);
+  function addNamespaces(array $namespaces);
+
+  /**
+   * Get namespaces.
+   *
+   * @param array $namespaces
+   */
+  function getNamespaces();
 
   /**
    * @param array $namespaces
@@ -25,7 +32,7 @@ interface SearchableNamespaces_Interface {
    * @return SearchableNamespaces_Interface
    *   Newly created namespace family.
    */
-  function buildSearchableNamespaces($namespaces = array());
+  function buildSearchableNamespaces(array $namespaces = array());
 
   /**
    * @param string $suffix
@@ -43,7 +50,39 @@ interface SearchableNamespaces_Interface {
    * @param InjectedAPI_ClassFileVisitor_Interface $api
    * @param array $namespaces
    */
-  function apiVisitClassFiles($api, $recursive = FALSE);
+  function apiVisitClassFiles(InjectedAPI_ClassFileVisitor_Interface $api, $recursive = FALSE);
+
+  /**
+   * Visit all namespaces.
+   *
+   * @param InjectedAPI_ClassFileVisitor_Interface $api
+   * @param boolean $recursive
+   */
+  function apiVisitNamespaces(InjectedAPI_NamespaceVisitor_Interface $api);
+
+  /**
+   * Scan all registered namespaces for class files, include each file, and
+   * return all classes that actually exist (but no interfaces).
+   *
+   * @param InjectedAPI_ClassFileVisitor_Interface $api
+   * @param boolean $recursive
+   *
+   * @return array
+   *   Collected class names.
+   */
+  function discoverExistingClasses($recursive = FALSE);
+
+  /**
+   * Scan all registered namespaces for class files, and return all names that
+   * may be defined as a class or interface within these namespaces.
+   *
+   * @param InjectedAPI_ClassFileVisitor_Interface $api
+   * @param boolean $recursive
+   *
+   * @return array
+   *   Collected class names.
+   */
+  function discoverCandidateClasses($recursive = FALSE);
 
   /**
    * Check if the given class is "known", and load it.
