@@ -19,19 +19,13 @@ interface SearchableNamespaces_Interface {
   function addNamespaces($namespaces);
 
   /**
-   * @return SearchableNamespaces_Interface
-   *   Newly created namespace family.
-   */
-  function buildEmpty();
-
-  /**
    * @param array $namespaces
    *   Namespaces for the new family.
    *
    * @return SearchableNamespaces_Interface
    *   Newly created namespace family.
    */
-  function buildFromNamespaces($namespaces);
+  function buildSearchableNamespaces($namespaces = array());
 
   /**
    * @param string $suffix

@@ -56,12 +56,12 @@ class AnnotatedClassDiscovery extends ComponentAnnotatedClassDiscovery {
     $this->subdir = str_replace('/', '\\', $subdir);
     $this->rootNamespaces = $root_namespaces;
     if (!is_object($annotation_namespaces)) {
-      $annotation_namespaces = $root_namespaces->buildFromNamespaces(array_keys($annotation_namespaces));
+      $annotation_namespaces = $root_namespaces->buildSearchableNamespaces(array_keys($annotation_namespaces));
     }
     $annotation_namespaces->addNamespace('Drupal\Component\Annotation');
     $annotation_namespaces->addNamespace('Drupal\Core\Annotation');
     // For performance reasons, initialize with an empty namespace collection.
-    $plugin_namespaces = $root_namespaces->buildFromNamespaces(array());
+    $plugin_namespaces = $root_namespaces->buildSearchableNamespaces(array());
     parent::__construct($plugin_namespaces, $annotation_namespaces, $plugin_definition_annotation_name);
   }
 

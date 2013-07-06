@@ -45,7 +45,7 @@ class FormatterPluginManager extends DefaultPluginManager {
    *   The language manager.
    */
   public function __construct(SearchableNamespacesInterface $namespaces, CacheBackendInterface $cache_backend, ModuleHandlerInterface $module_handler, LanguageManager $language_manager) {
-    $annotation_namespaces = $namespaces->buildFromNamespaces(array('Drupal\field\Annotation'));
+    $annotation_namespaces = $namespaces->buildSearchableNamespaces(array('Drupal\field\Annotation'));
 
     parent::__construct('field/formatter', $namespaces, $annotation_namespaces, 'Drupal\field\Annotation\FieldFormatter');
 

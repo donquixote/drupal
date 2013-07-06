@@ -63,24 +63,16 @@ class SearchableNamespaces_Default implements SearchableNamespaces_Interface {
   }
 
   /**
-   * @return SearchableNamespaces_Interface
-   *   Newly created namespace family.
-   */
-  function buildEmpty() {
-    return new self($this->finder);
-  }
-
-  /**
    * @param array $namespaces
    *   Namespaces for the new family.
    *
    * @return SearchableNamespaces_Interface
    *   Newly created namespace family.
    */
-  function buildFromNamespaces(array $namespaces) {
-    $family = $this->buildEmpty();
-    $family->addNamespaces($namespaces);
-    return $family;
+  function buildSearchableNamespaces(array $namespaces = array()) {
+    $new = new self($this->finder);
+    $new->addNamespaces($namespaces);
+    return $new;
   }
 
   /**
@@ -94,7 +86,7 @@ class SearchableNamespaces_Default implements SearchableNamespaces_Interface {
     if ('\\' !== $suffix[0]) {
       $suffix = '\\' . $suffix;
     }
-    $new = $this->buildEmpty();
+    $new = $this->buildSearchableNamespaces();
     foreach ($this->namespaces as $namespace) {
       $new->addNamespace($namespace . $suffix);
     }

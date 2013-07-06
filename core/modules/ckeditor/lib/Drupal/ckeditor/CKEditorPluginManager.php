@@ -30,7 +30,7 @@ class CKEditorPluginManager extends PluginManagerBase {
    *   keyed by the corresponding namespace to look for plugin implementations,
    */
   public function __construct(SearchableNamespacesInterface $namespaces) {
-    $annotation_namespaces = array('Drupal\ckeditor\Annotation' => TRUE);
+    $annotation_namespaces = $namespaces->buildSearchableNamespaces(array('Drupal\ckeditor\Annotation'));
     $this->discovery = new AnnotatedClassDiscovery('CKEditorPlugin', $namespaces, $annotation_namespaces, 'Drupal\ckeditor\Annotation\CKEditorPlugin');
     $this->discovery = new AlterDecorator($this->discovery, 'ckeditor_plugin_info');
     $this->discovery = new CacheDecorator($this->discovery, 'ckeditor_plugin');
