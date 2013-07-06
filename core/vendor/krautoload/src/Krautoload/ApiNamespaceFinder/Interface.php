@@ -13,6 +13,7 @@ interface ApiNamespaceFinder_Interface {
   /**
    * @param NamespaceFinderAPI_Interface $api
    * @param array $namespaces
+   *   If NULL, it will visit all registered namespaces.
    */
-  public function apiFindNamespaces($api, $namespaces);
+  public function apiFindNamespaces($api, $namespaces = NULL);
 }

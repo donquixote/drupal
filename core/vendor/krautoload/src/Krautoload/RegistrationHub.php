@@ -203,6 +203,13 @@ class RegistrationHub {
     $this->finder->registerClass($class, $file);
   }
 
+  function buildNamespaceFamily($namespaces) {
+    $discovery = new ApiClassDiscovery_Pluggable();
+    $family = new NamespaceFamily_Default($this->finder, $discovery);
+    $family->addNamespaces($namespaces);
+    return $family;
+  }
+
   /**
    * Replace the namespace separator with directory separator.
    *

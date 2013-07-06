@@ -11,12 +11,12 @@ class DiscoveryAPI_CollectClasses extends DiscoveryAPI_Abstract {
   }
 
   function fileWithClass($file, $relativeClassName) {
-    $this->classes[$this->getClassName($relativeClassName)] = TRUE;
+    $this->classes[$this->getClassName($relativeClassName)] = 1;
   }
 
   function fileWithClassCandidates($file, $relativeClassNames) {
     foreach ($relativeClassNames as $relativeClassName) {
-      $this->classes[$this->getClassName($relativeClassName)] = TRUE;
+      $this->classes[$this->getClassName($relativeClassName)] = 1;
     }
   }
 }

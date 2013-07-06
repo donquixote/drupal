@@ -54,9 +54,24 @@ class ApiNamespaceFinder_Pluggable extends ApiClassFinder_Pluggable implements A
    * @param NamespaceFinderAPI_Interface $api
    * @param array $namespaces
    */
-  public function apiFindNamespaces($api, $namespaces) {
-    foreach ($namespaces as $namespace) {
-      $this->apiFindNamespace($api, $namespace);
+  public function apiFindNamespaces($api, $namespaces = NULL) {
+    if (isset($namespaces)) {
+      foreach ($namespaces as $namespace) {
+        $this->apiFindNamespace($api, $namespace);
+      }
+    }
+    else {
+      $this->apiVisitAllNamespaces($api);
+    }
+  }
+
+  protected function apiVisitAllNamespaces($api) {
+    foreach ($this->namespaceMap as $logicalBasePath => $plugins) {
+      $namespace = str_replace(DIRECTORY_SEPARATOR, '\\', substr($logicalBasePath, 0, -1));
+      $api->setNamespace($namespace);
+      foreach ($plugins as $baseDir => $plugin) {
+        $api->namespaceDirectoryPlugin($baseDir, '', $plugin);
+      }
     }
   }
 }

@@ -151,10 +151,5 @@ class ClassLoader_Pluggable extends ClassLoader_Abstract implements ClassLoader_
         $relativePath = $path;
       }
     }
-    if (!Util::calledFromClassExists()) {
-      print "Krautoload class not found: $class\n";
-      print_r($this->namespaceMap);
-      die("NOT FROM CLASS_EXISTS\n");
-    }
   }
 }

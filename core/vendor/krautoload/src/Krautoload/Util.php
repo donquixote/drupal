@@ -19,10 +19,13 @@ class Util {
           // @todo Add more cases.
             return TRUE;
           default:
-            echo "FUNCTION: $f\n";
             return FALSE;
         }
       }
     }
+  }
+
+  static function classIsDefined($class) {
+    return class_exists($class, FALSE) || interface_exists($class, FALSE);
   }
 }

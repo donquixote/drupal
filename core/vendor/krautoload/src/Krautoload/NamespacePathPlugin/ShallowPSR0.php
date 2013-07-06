@@ -53,6 +53,12 @@ class NamespacePathPlugin_ShallowPSR0 implements NamespacePathPlugin_Interface {
   }
 
   function pluginScanRecursive($api, $baseDir, $relativePath) {
+    if (is_array($baseDir)) {
+      throw new \Exception("Base dir must not be array.");
+    }
+    if (is_array($relativePath)) {
+      throw new \Exception("Relative path must not be array.");
+    }
     if (is_dir($dir = $baseDir . $relativePath)) {
       $this->doScanRecursive($api, $dir);
     }
@@ -75,7 +81,7 @@ class NamespacePathPlugin_ShallowPSR0 implements NamespacePathPlugin_Interface {
         foreach ($relativeNamespaces as $relativeNamespace) {
           $relativeSubNamespaces[] = $relativeNamespace . $fileinfo->getFilename() . '_';
         }
-        $this->pluginScanRecursive($api, $fileinfo->getPathname(), $relativeSubNamespaces);
+        $this->doScanRecursive($api, $fileinfo->getPathname(), $relativeSubNamespaces);
       }
     }
   }

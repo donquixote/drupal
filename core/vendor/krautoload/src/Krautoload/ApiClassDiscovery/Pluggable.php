@@ -21,4 +21,9 @@ class ApiClassDiscovery_Pluggable extends ApiNamespaceFinder_Pluggable implement
     $namespaceFinderAPI = $recursive ? new NamespaceFinderAPI_ScanRecursive($api) : new NamespaceFinderAPI_ScanNamespace($api);
     $this->apiFindNamespaces($namespaceFinderAPI, $namespaces);
   }
+
+  public function apiScanAll($api, $recursive = FALSE) {
+    $namespaceFinderAPI = $recursive ? new NamespaceFinderAPI_ScanRecursive($api) : new NamespaceFinderAPI_ScanNamespace($api);
+    $this->apiFindNamespaces($namespaceFinderAPI);
+  }
 }
