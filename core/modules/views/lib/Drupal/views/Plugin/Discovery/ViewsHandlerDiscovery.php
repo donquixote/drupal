@@ -8,7 +8,7 @@
 namespace Drupal\views\Plugin\Discovery;
 
 use Drupal\Component\Plugin\Discovery\AnnotatedClassDiscovery;
-use Krautoload\NamespaceFamily_Interface as NamespaceFamilyInterface;
+use Krautoload\SearchableNamespaces_Interface as SearchableNamespacesInterface;
 
 /**
  * Defines a discovery mechanism to find Views handlers in PSR-0 namespaces.
@@ -38,7 +38,7 @@ class ViewsHandlerDiscovery extends AnnotatedClassDiscovery {
    *   An object that implements \Traversable which contains the root paths
    *   keyed by the corresponding namespace to look for plugin implementations,
    */
-  function __construct($type, NamespaceFamilyInterface $root_namespaces) {
+  function __construct($type, SearchableNamespacesInterface $root_namespaces) {
     $this->type = $type;
     $this->rootNamespaces = $root_namespaces;
 

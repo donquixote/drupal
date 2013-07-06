@@ -10,7 +10,7 @@ use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Language\LanguageManager;
 use Drupal\Core\Plugin\DefaultPluginManager;
-use Krautoload\NamespaceFamily_Interface as NamespaceFamilyInterface;
+use Krautoload\SearchableNamespaces_Interface as SearchableNamespacesInterface;
 /**
  * Manages discovery and instantiation of block plugins.
  *
@@ -33,7 +33,7 @@ class BlockManager extends DefaultPluginManager {
    * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
    *   The module handler to invoke the alter hook with.
    */
-  public function __construct(NamespaceFamilyInterface $namespaces, CacheBackendInterface $cache_backend, LanguageManager $language_manager, ModuleHandlerInterface $module_handler) {
+  public function __construct(SearchableNamespacesInterface $namespaces, CacheBackendInterface $cache_backend, LanguageManager $language_manager, ModuleHandlerInterface $module_handler) {
     parent::__construct('Block', $namespaces);
     $this->alterInfo($module_handler, 'block');
     $this->setCacheBackend($cache_backend, $language_manager, 'block_plugins');

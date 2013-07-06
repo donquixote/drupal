@@ -13,7 +13,7 @@ use Drupal\Core\Plugin\Factory\ContainerFactory;
 use Drupal\Core\Plugin\Discovery\CacheDecorator;
 use Drupal\views\Plugin\Discovery\ViewsHandlerDiscovery;
 use Drupal\views\ViewsData;
-use Krautoload\NamespaceFamily_Interface as NamespaceFamilyInterface;
+use Krautoload\SearchableNamespaces_Interface as SearchableNamespacesInterface;
 
 /**
  * Plugin type manager for all views handlers.
@@ -47,7 +47,7 @@ class ViewsHandlerManager extends PluginManagerBase {
    * @param \Drupal\views\ViewsData $views_data
     *   The views data cache.
    */
-  public function __construct($handler_type, NamespaceFamilyInterface $namespaces, ViewsData $views_data) {
+  public function __construct($handler_type, SearchableNamespacesInterface $namespaces, ViewsData $views_data) {
     $this->discovery = new ViewsHandlerDiscovery($handler_type, $namespaces);
     $this->discovery = new CacheDecorator($this->discovery, "views:$handler_type", 'views_info');
 

@@ -12,7 +12,7 @@ use Drupal\Component\Plugin\Discovery\DerivativeDiscoveryDecorator;
 use Drupal\Component\Plugin\Discovery\ProcessDecorator;
 use Drupal\Core\Plugin\Discovery\AnnotatedClassDiscovery;
 use Drupal\Component\Plugin\Factory\ReflectionFactory;
-use Krautoload\NamespaceFamily_Interface as NamespaceFamilyInterface;
+use Krautoload\SearchableNamespaces_Interface as SearchableNamespacesInterface;
 
 /**
  * Layout plugin manager.
@@ -30,7 +30,7 @@ class LayoutManager extends PluginManagerBase {
    *   An object that implements \Traversable which contains the root paths
    *   keyed by the corresponding namespace to look for plugin implementations,
    */
-  public function __construct(NamespaceFamilyInterface $namespaces) {
+  public function __construct(SearchableNamespacesInterface $namespaces) {
     // Create layout plugin derivatives from declaratively defined layouts.
     $this->discovery = new AnnotatedClassDiscovery('Layout', $namespaces);
     $this->discovery = new DerivativeDiscoveryDecorator($this->discovery);

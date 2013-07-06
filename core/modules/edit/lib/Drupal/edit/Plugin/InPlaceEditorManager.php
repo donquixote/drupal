@@ -13,7 +13,7 @@ use Drupal\Component\Plugin\Factory\DefaultFactory;
 use Drupal\Core\Plugin\Discovery\AlterDecorator;
 use Drupal\Core\Plugin\Discovery\AnnotatedClassDiscovery;
 use Drupal\Core\Plugin\Discovery\CacheDecorator;
-use Krautoload\NamespaceFamily_Interface as NamespaceFamilyInterface;
+use Krautoload\SearchableNamespaces_Interface as SearchableNamespacesInterface;
 
 /**
  * Editor manager.
@@ -29,7 +29,7 @@ class InPlaceEditorManager extends PluginManagerBase {
    *   An object that implements \Traversable which contains the root paths
    *   keyed by the corresponding namespace to look for plugin implementations,
    */
-  public function __construct(NamespaceFamilyInterface $namespaces) {
+  public function __construct(SearchableNamespacesInterface $namespaces) {
     $annotation_namespaces = array('Drupal\edit\Annotation' => TRUE);
     $this->discovery = new AnnotatedClassDiscovery('InPlaceEditor', $namespaces, $annotation_namespaces, 'Drupal\edit\Annotation\InPlaceEditor');
     $this->discovery = new AlterDecorator($this->discovery, 'edit_editor');

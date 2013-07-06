@@ -15,7 +15,7 @@ use Drupal\Core\Plugin\Discovery\AlterDecorator;
 use Drupal\Core\Plugin\Discovery\AnnotatedClassDiscovery;
 use Drupal\Core\Plugin\Discovery\CacheDecorator;
 use Drupal\Core\Plugin\Factory\ContainerFactory;
-use Krautoload\NamespaceFamily_Interface as NamespaceFamilyInterface;
+use Krautoload\SearchableNamespaces_Interface as SearchableNamespacesInterface;
 
 /**
  * Plugin type manager for all views plugins.
@@ -31,7 +31,7 @@ class ViewsPluginManager extends PluginManagerBase {
    *   An object that implements \Traversable which contains the root paths
    *   keyed by the corresponding namespace to look for plugin implementations,
    */
-  public function __construct($type, NamespaceFamilyInterface $namespaces) {
+  public function __construct($type, SearchableNamespacesInterface $namespaces) {
     $this->discovery = new AnnotatedClassDiscovery("views/$type", $namespaces);
     $this->discovery = new DerivativeDiscoveryDecorator($this->discovery);
     $this->discovery = new ProcessDecorator($this->discovery, array($this, 'processDefinition'));
