@@ -2,64 +2,16 @@
 
 namespace Krautoload;
 
-class SearchableNamespaces_Default implements SearchableNamespaces_Interface {
+class SearchableNamespaces_Abstract implements SearchableNamespaces_Interface {
 
   protected $finder;
-  protected $namespaces = array();
 
   /**
-   * @param NamespaceVisitor_Interface $finder
+   * @param NamespaceVisitor_Interface $master
    *   @todo This should be a more universal interface..
    */
-  function __construct(NamespaceVisitor_Interface $finder) {
+  function __construct($finder) {
     $this->finder = $finder;
-  }
-
-  /**
-   * @param NamespaceVisitor_Interface $finder
-   *   @todo This should be a more universal interface..
-   */
-  function setFinder(NamespaceVisitor_Interface $finder) {
-    $this->finder = $finder;
-  }
-
-  /**
-   * Add a namespace.
-   *
-   * @param string $namespace
-   */
-  function addNamespace($namespace) {
-    $this->namespaces[$namespace] = $namespace;
-  }
-
-  /**
-   * Set namespaces.
-   *
-   * @param array $namespaces
-   */
-  function setNamespaces(array $namespaces) {
-    $this->namespaces = array();
-    $this->addNamespaces($namespaces);
-  }
-
-  /**
-   * Add namespaces.
-   *
-   * @param array $namespaces
-   */
-  function addNamespaces(array $namespaces) {
-    foreach ($namespaces as $namespace) {
-      $this->namespaces[$namespace] = $namespace;
-    }
-  }
-
-  /**
-   * Get namespaces.
-   *
-   * @param array $namespaces
-   */
-  function getNamespaces() {
-    return $this->namespaces;
   }
 
   /**
@@ -77,10 +29,10 @@ class SearchableNamespaces_Default implements SearchableNamespaces_Interface {
    * @return SearchableNamespaces_Interface
    *   Newly created namespace family.
    */
-  function buildFromNamespaces(array $namespaces) {
-    $family = $this->buildEmpty();
-    $family->addNamespaces($namespaces);
-    return $family;
+  function buildFromNamespaces($namespaces) {
+    $new = $this->buildEmpty();
+    $new->addNamespaces($namespaces);
+    return $new;
   }
 
   /**
@@ -108,19 +60,9 @@ class SearchableNamespaces_Default implements SearchableNamespaces_Interface {
    * @param InjectedAPI_ClassFileVisitor_Interface $api
    * @param boolean $recursive
    */
-  function apiVisitClassFiles(InjectedAPI_ClassFileVisitor_Interface $api, $recursive = FALSE) {
-    $namespaceFinderAPI = $recursive ? new InjectedAPI_NamespaceVisitor_ScanRecursive($api) : new InjectedAPI_NamespaceVisitor_ScanNamespace($api);
-    $this->finder->apiVisitNamespaces($namespaceFinderAPI, array_keys($this->namespaces));
-  }
-
-  /**
-   * Visit all namespaces.
-   *
-   * @param InjectedAPI_ClassFileVisitor_Interface $api
-   * @param boolean $recursive
-   */
-  function apiVisitNamespaces(InjectedAPI_NamespaceVisitor_Interface $api) {
-    $this->finder->apiVisitNamespaces($api, array_keys($this->namespaces));
+  function apiVisitClassFiles($api, $recursive = FALSE) {
+    $namespaceVisitorAPI = $this->buildNamespaceVisitorAPI($api, $recursive);
+    $this->finder->apiVisitNamespaces($namespaceVisitorAPI, array_keys($this->namespaces));
   }
 
   /**
@@ -167,6 +109,10 @@ class SearchableNamespaces_Default implements SearchableNamespaces_Interface {
    */
   function classExistsInNamespaces($class) {
     return $this->classIsInNamespaces($class) && $this->classExistsInFinder($class);
+  }
+
+  protected function buildNamespaceFinderAPI($api, $recursive) {
+    
   }
 
   protected function classIsInNamespaces($class) {

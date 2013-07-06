@@ -18,6 +18,10 @@ class RegistrationHub {
     $this->plugins['PSRX'] = new NamespacePathPlugin_PSRX();
   }
 
+  function getFinder() {
+    return $this->finder;
+  }
+
   /**
    * @param callback $callback
    *   Registration callback, which takes as an argument the registration hub.
@@ -207,7 +211,7 @@ class RegistrationHub {
     $this->finder->registerClass($class, $file);
   }
 
-  function buildSearchableNamespaces($namespaces) {
+  function buildSearchableNamespaces($namespaces = array()) {
     $searchable = new SearchableNamespaces_Default($this->finder);
     $searchable->addNamespaces($namespaces);
     return $searchable;
