@@ -9,6 +9,10 @@ namespace Drupal\field\Plugin\Type\Formatter;
 
 use Drupal\Component\Plugin\PluginManagerBase;
 use Drupal\Component\Plugin\Factory\DefaultFactory;
+use Drupal\Core\Cache\CacheBackendInterface;
+use Drupal\Core\Extension\ModuleHandlerInterface;
+use Drupal\Core\Language\LanguageManager;
+use Drupal\Core\Plugin\DefaultPluginManager;
 use Drupal\Core\Plugin\Discovery\CacheDecorator;
 use Drupal\Core\Plugin\Discovery\AnnotatedClassDiscovery;
 use Drupal\Core\Plugin\Discovery\AlterDecorator;
@@ -18,7 +22,7 @@ use Krautoload\SearchableNamespaces_Interface as SearchableNamespacesInterface;
 /**
  * Plugin type manager for field formatters.
  */
-class FormatterPluginManager extends PluginManagerBase {
+class FormatterPluginManager extends DefaultPluginManager {
 
   /**
    * An array of formatter options for each field type.
@@ -30,15 +34,23 @@ class FormatterPluginManager extends PluginManagerBase {
   /**
    * Constructs a FormatterPluginManager object.
    *
-   * @param \Traversable $namespaces
+   * @param SearchableNamespacesInterface $namespaces
    *   An object that implements \Traversable which contains the root paths
-   *   keyed by the corresponding namespace to look for plugin implementations,
+   *   keyed by the corresponding namespace to look for plugin implementations.
+   * @param \Drupal\Core\Cache\CacheBackendInterface $cache_backend
+   *   Cache backend instance to use.
+   * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
+   *   The module handler.
+   * @param \Drupal\Core\Language\LanguageManager $language_manager
+   *   The language manager.
    */
-  public function __construct(SearchableNamespacesInterface $namespaces) {
-    $annotation_namespaces = array('Drupal\field\Annotation' => TRUE);
-    $this->discovery = new AnnotatedClassDiscovery('field/formatter', $namespaces, $annotation_namespaces, 'Drupal\field\Annotation\FieldFormatter');
-    $this->discovery = new AlterDecorator($this->discovery, 'field_formatter_info');
-    $this->discovery = new CacheDecorator($this->discovery, 'field_formatter_types', 'field');
+  public function __construct(SearchableNamespacesInterface $namespaces, CacheBackendInterface $cache_backend, ModuleHandlerInterface $module_handler, LanguageManager $language_manager) {
+    $annotation_namespaces = $namespaces->buildFromNamespaces(array('Drupal\field\Annotation'));
+
+    parent::__construct('field/formatter', $namespaces, $annotation_namespaces, 'Drupal\field\Annotation\FieldFormatter');
+
+    $this->setCacheBackend($cache_backend, $language_manager, 'field_formatter_types');
+    $this->alterInfo($module_handler, 'field_formatter_info');
   }
 
   /**

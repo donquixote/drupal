@@ -7,7 +7,7 @@
 
 namespace Drupal\views\Plugin\Discovery;
 
-use Drupal\Component\Plugin\Discovery\AnnotatedClassDiscovery;
+use Drupal\Core\Plugin\Discovery\AnnotatedClassDiscovery;
 use Krautoload\SearchableNamespaces_Interface as SearchableNamespacesInterface;
 
 /**
@@ -34,7 +34,7 @@ class ViewsHandlerDiscovery extends AnnotatedClassDiscovery {
    *
    * @param string $type
    *   The plugin type, for example filter.
-   * @param \Traversable $root_namespaces
+   * @param SearchableNamespacesInterface $root_namespaces
    *   An object that implements \Traversable which contains the root paths
    *   keyed by the corresponding namespace to look for plugin implementations,
    */
@@ -42,9 +42,10 @@ class ViewsHandlerDiscovery extends AnnotatedClassDiscovery {
     $this->type = $type;
     $this->rootNamespaces = $root_namespaces;
 
-    $annotation_namespaces = $root_namespaces->buildFromNamespaces(array('Drupal\Component\Annotation'));
-    $plugin_namespaces = $root_namespaces->buildFromSuffix("\\Plugin\\views\\{$type}");
-    parent::__construct($plugin_namespaces, $annotation_namespaces, 'Drupal\Component\Annotation\PluginID');
+    $this->pluginNamespaces = $root_namespaces->buildFromSuffix("\\Plugin\\views\\{$type}");
+    $this->annotationNamespaces = $root_namespaces->buildFromNamespaces(array('Drupal\Component\Annotation'));
+
+    $this->pluginDefinitionAnnotationName = 'Drupal\Component\Annotation\PluginID';
   }
 
   /**
