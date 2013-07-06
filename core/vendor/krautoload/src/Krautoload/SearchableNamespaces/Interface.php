@@ -46,10 +46,10 @@ interface SearchableNamespaces_Interface {
    * Scan all registered namespaces for classes.
    * Tell the $api object about each class file that is found.
    *
-   * @param DiscoveryAPI_Interface $api
+   * @param InjectedAPI_ClassFileVisitor_Interface $api
    * @param array $namespaces
    */
-  function apiScanAll($api, $recursive = FALSE);
+  function apiVisitClassFiles($api, $recursive = FALSE);
 
   /**
    * Check if the given class is "known", and load it.

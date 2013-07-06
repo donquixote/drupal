@@ -4,15 +4,15 @@ namespace Krautoload;
 
 class SearchableNamespaces_Default implements SearchableNamespaces_Interface {
 
-  protected $master;
+  protected $finder;
   protected $namespaces = array();
 
   /**
-   * @param ApiNamespaceFinder_Interface $master
+   * @param NamespaceVisitor_Interface $master
    *   @todo This should be a more universal interface..
    */
   function __construct($master) {
-    $this->master = $master;
+    $this->finder = $master;
   }
 
   /**
@@ -44,7 +44,7 @@ class SearchableNamespaces_Default implements SearchableNamespaces_Interface {
    *   Newly created namespace family.
    */
   function buildEmpty() {
-    return new self($this->master);
+    return new self($this->finder);
   }
 
   /**
@@ -82,12 +82,44 @@ class SearchableNamespaces_Default implements SearchableNamespaces_Interface {
    * Scan all registered namespaces for classes.
    * Tell the $api object about each class file that is found.
    *
-   * @param DiscoveryAPI_Interface $api
-   * @param array $namespaces
+   * @param InjectedAPI_ClassFileVisitor_Interface $api
+   * @param boolean $recursive
    */
-  function apiScanAll($api, $recursive = FALSE) {
-    $namespaceFinderAPI = $recursive ? new NamespaceFinderAPI_ScanRecursive($api) : new NamespaceFinderAPI_ScanNamespace($api);
-    $this->master->apiFindNamespaces($namespaceFinderAPI, array_keys($this->namespaces));
+  function apiVisitClassFiles($api, $recursive = FALSE) {
+    $namespaceFinderAPI = $recursive ? new InjectedAPI_NamespaceVisitor_ScanRecursive($api) : new InjectedAPI_NamespaceVisitor_ScanNamespace($api);
+    $this->finder->apiVisitNamespaces($namespaceFinderAPI, array_keys($this->namespaces));
+  }
+
+  /**
+   * Scan all registered namespaces for class files, include each file, and
+   * return all classes that actually exist (but no interfaces).
+   *
+   * @param InjectedAPI_ClassFileVisitor_Interface $api
+   * @param boolean $recursive
+   *
+   * @return array
+   *   Collected class names.
+   */
+  function discoverExistingClasses($recursive = FALSE) {
+    $api = new InjectedAPI_ClassFileVisitor_CollectExistingClasses();
+    $this->apiVisitClassFiles($api, $recursive);
+    return $api->getCollectedClasses();
+  }
+
+  /**
+   * Scan all registered namespaces for class files, and return all names that
+   * may be defined as a class or interface within these namespaces.
+   *
+   * @param InjectedAPI_ClassFileVisitor_Interface $api
+   * @param boolean $recursive
+   *
+   * @return array
+   *   Collected class names.
+   */
+  function discoverCandidateClasses($recursive = FALSE) {
+    $api = new InjectedAPI_ClassFileVisitor_CollectCandidateClasses();
+    $this->apiVisitClassFiles($api, $recursive);
+    return $api->getCollectedClasses();
   }
 
   /**
@@ -117,11 +149,11 @@ class SearchableNamespaces_Default implements SearchableNamespaces_Interface {
 
   protected function classExistsInFinder($class) {
     if (Util::classIsDefined($class)) {
-      $api = new ClassFinderAPI_FindExistingClass($class);
+      $api = new InjectedAPI_ClassFinder_FindExistingClass($class);
     }
     else {
-      $api = new ClassFinderAPI_LoadClass($class);
+      $api = new InjectedAPI_ClassFinder_LoadClass($class);
     }
-    return $this->master->apiFindFile($api, $class);
+    return $this->finder->apiFindFile($api, $class);
   }
 }

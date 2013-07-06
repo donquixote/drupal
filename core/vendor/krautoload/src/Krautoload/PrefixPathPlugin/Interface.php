@@ -6,12 +6,12 @@ interface PrefixPathPlugin_Interface {
 
   /**
    * Find files that could define the class, and report each of the candidates
-   * to the ClassFinderAPI object.
-   * Stop the operation, as soon as the ClassFinderAPI object returns TRUE.
+   * to the InjectedAPI_ClassFinder object.
+   * Stop the operation, as soon as the InjectedAPI_ClassFinder object returns TRUE.
    *
    * This type of plugin only fires with classes that have NO namespaces.
    *
-   * @param ClassFinderAPI_Interface $api
+   * @param InjectedAPI_ClassFinder_Interface $api
    *   An object that gets told about files that could define the class.
    *   $api->getClass() will return the FQCN of the class we are looking for.
    * @param string $baseDir

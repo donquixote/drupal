@@ -7,7 +7,7 @@ namespace Krautoload;
  * The injected API can be mocked to provide a mocked file_exists(), and to
  * monitor all suggested candidates, not just the correct return value.
  */
-class ClassFinderAPI_LoadClass extends ClassFinderAPI_Abstract {
+class InjectedAPI_ClassFinder_LoadClass extends InjectedAPI_ClassFinder_Abstract {
 
   /**
    * Suggest a file that, if the file exists,

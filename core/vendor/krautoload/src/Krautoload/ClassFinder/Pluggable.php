@@ -13,7 +13,7 @@ namespace Krautoload;
  * The benefit is that all filesystem contact can be mocked out, by passing in
  * a different implementation for the $api argument.
  */
-class ApiClassFinder_Pluggable extends ClassLoader_Pluggable implements ApiClassFinder_Interface {
+class ClassFinder_Pluggable extends ClassLoader_Pluggable implements ClassFinder_Interface {
 
   /**
    * Alternative to loadClass() that passes an $api argument around.
@@ -22,7 +22,7 @@ class ApiClassFinder_Pluggable extends ClassLoader_Pluggable implements ApiClass
    * proof-of-concept implementation.
    */
   public function apiLoadClass($class) {
-    $api = new ClassFinderAPI_LoadClass($class);
+    $api = new InjectedAPI_ClassFinder_LoadClass($class);
     // $api has a ->suggestFile($file) method, which returns TRUE if the
     // suggested file exists.
     // The ->apiFindFile() method is supposed to suggest a number of files
@@ -37,7 +37,7 @@ class ApiClassFinder_Pluggable extends ClassLoader_Pluggable implements ApiClass
   /**
    * Finds the path to the file where the class is defined.
    *
-   * @param ClassFinderAPI_Interface $api
+   * @param InjectedAPI_ClassFinder_Interface $api
    *   API object with a suggestFile() method.
    *   We are supposed to call $api->suggestFile($file) with all suggestions we
    *   can find, until it returns TRUE. Once suggestFile() returns TRUE, we stop
@@ -102,7 +102,7 @@ class ApiClassFinder_Pluggable extends ClassLoader_Pluggable implements ApiClass
    *
    * @param array $map
    *   Either the namespace map or the prefix 
-   * @param ClassFinderAPI_Interface $api
+   * @param InjectedAPI_ClassFinder_Interface $api
    *   API object with a suggestFile() method.
    *   We are supposed to call $api->suggestFile($file) with all suggestions we
    *   can find, until it returns TRUE. Once suggestFile() returns TRUE, we stop

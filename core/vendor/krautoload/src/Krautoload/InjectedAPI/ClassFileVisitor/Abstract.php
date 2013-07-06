@@ -2,7 +2,7 @@
 
 namespace Krautoload;
 
-abstract class DiscoveryAPI_Abstract implements DiscoveryAPI_Interface {
+abstract class InjectedAPI_ClassFileVisitor_Abstract implements InjectedAPI_ClassFileVisitor_Interface {
 
   protected $nsp;
 

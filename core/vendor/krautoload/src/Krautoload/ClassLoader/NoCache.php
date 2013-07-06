@@ -7,7 +7,7 @@ class ClassLoader_NoCache extends ClassLoader_Abstract {
   protected $finder;
 
   /**
-   * @param ApiClassFinder_Interface $finder
+   * @param ClassFinder_Interface $finder
    *   The object that does the actual class finding.
    */
   function __construct($finder) {
@@ -21,7 +21,7 @@ class ClassLoader_NoCache extends ClassLoader_Abstract {
    *   The class to load.
    */
   function loadClass($class) {
-    $api = new ClassFinderAPI_LoadClass($class);
+    $api = new InjectedAPI_ClassFinder_LoadClass($class);
     // $api has a ->suggestFile($file) method, which returns TRUE if the
     // suggested file exists.
     // The $finder->findFile() method is supposed to suggest a number of files

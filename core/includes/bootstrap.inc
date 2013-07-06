@@ -2804,8 +2804,8 @@ function drupal_classloader($class_loader = NULL) {
  */
 function drupal_classloader_register($name, $path) {
   $loader = drupal_classloader();
-  $loader->namespacePSR0('Drupal\\' . $name, DRUPAL_ROOT . '/' . $path . '/lib');
-  $loader->namespacePSRX('Drupal\\' . $name, DRUPAL_ROOT . '/' . $path . '/src');
+  $loader->addNamespacePSR0('Drupal\\' . $name, DRUPAL_ROOT . '/' . $path . '/lib');
+  $loader->addNamespacePSRX('Drupal\\' . $name, DRUPAL_ROOT . '/' . $path . '/src');
 }
 
 /**

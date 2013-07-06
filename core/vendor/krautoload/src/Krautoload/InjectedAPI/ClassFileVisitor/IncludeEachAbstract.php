@@ -8,7 +8,7 @@ namespace Krautoload;
  *   because the class might extend another class which is not available.
  *   We rather leave this task to a parser.
  */
-abstract class DiscoveryAPI_Abstract extends DiscoveryAPI_Abstract {
+abstract class InjectedAPI_ClassFileVisitor_IncludeEachAbstract extends InjectedAPI_ClassFileVisitor_Abstract {
 
   function fileWithClass($file, $relativeClassName) {
     include_once $file;

@@ -2,13 +2,13 @@
 
 namespace Krautoload;
 
-class ApiNamespaceFinder_Pluggable extends ApiClassFinder_Pluggable implements ApiNamespaceFinder_Interface {
+class NamespaceVisitor_Pluggable extends ClassFinder_Pluggable implements NamespaceVisitor_Interface {
 
   /**
-   * @param NamespaceFinderAPI_Interface $api
+   * @param InjectedAPI_NamespaceVisitor_Interface $api
    * @param string $namespace
    */
-  public function apiFindNamespace($api, $namespace) {
+  public function apiVisitNamespace($api, $namespace) {
 
     // Discard initial namespace separator.
     if ('\\' === $namespace[0]) {
@@ -51,21 +51,16 @@ class ApiNamespaceFinder_Pluggable extends ApiClassFinder_Pluggable implements A
   }
 
   /**
-   * @param NamespaceFinderAPI_Interface $api
+   * @param InjectedAPI_NamespaceVisitor_Interface $api
    * @param array $namespaces
    */
-  public function apiFindNamespaces($api, $namespaces = NULL) {
-    if (isset($namespaces)) {
-      foreach ($namespaces as $namespace) {
-        $this->apiFindNamespace($api, $namespace);
-      }
-    }
-    else {
-      $this->apiVisitAllNamespaces($api);
+  public function apiVisitNamespaces($api, $namespaces) {
+    foreach ($namespaces as $namespace) {
+      $this->apiVisitNamespace($api, $namespace);
     }
   }
 
-  protected function apiVisitAllNamespaces($api) {
+  public function apiVisitBaseNamespaces($api) {
     foreach ($this->namespaceMap as $logicalBasePath => $plugins) {
       $namespace = str_replace(DIRECTORY_SEPARATOR, '\\', substr($logicalBasePath, 0, -1));
       $api->setNamespace($namespace);

@@ -2,7 +2,7 @@
 
 namespace Krautoload;
 
-class NamespaceFinderAPI_ScanRecursive extends NamespaceFinderAPI_ScanAbstract {
+class InjectedAPI_NamespaceVisitor_ScanRecursive extends InjectedAPI_NamespaceVisitor_ScanAbstract {
 
   public function namespaceDirectoryPlugin($baseDir, $relativePath, $plugin) {
     if (is_array($baseDir)) {

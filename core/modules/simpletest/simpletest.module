@@ -444,38 +444,24 @@ function simpletest_test_get_all() {
       $groups = $cache->data;
     }
     else {
-      // Select all PSR-0 classes in the Tests namespace of all modules.
-      $classes = array();
+      // Assemble test namespaces for modules, themes and install profiles.
       $module_data = system_rebuild_module_data();
       $all_data = $module_data + system_rebuild_theme_data();
       $all_data += drupal_system_listing('/\.profile$/', 'profiles', 'name');
+      $namespaces = array();
       foreach ($all_data as $name => $data) {
-        // Build directory in which the test files would reside.
-        $tests_dir = DRUPAL_ROOT . '/' . dirname($data->uri) . '/lib/Drupal/' . $name . '/Tests';
-        // Scan it for test files if it exists.
-        if (is_dir($tests_dir)) {
-          $files = file_scan_directory($tests_dir, '/.*\.php/');
-          if (!empty($files)) {
-            $basedir = DRUPAL_ROOT . '/' . dirname($data->uri) . '/lib/';
-            foreach ($files as $file) {
-              // Convert the file name into the namespaced class name.
-              $replacements = array(
-                '/' => '\\',
-                $basedir => '',
-                '.php' => '',
-              );
-              $classes[] = strtr($file->uri, $replacements);
-            }
-          }
-        }
+        $namespaces[] = "Drupal\\$name\\Tests";
       }
+
+      // Build a searchable namespace collection.
+      $namespaces = drupal_classloader()->buildSearchableNamespaces($namespaces);
 
       // Check that each class has a getInfo() method and store the information
       // in an array keyed with the group specified in the test information.
       $groups = array();
-      foreach ($classes as $class) {
+      foreach ($namespaces->discoverExistingClasses(TRUE) as $class) {
         // Test classes need to implement getInfo() to be valid.
-        if (class_exists($class) && method_exists($class, 'getInfo')) {
+        if (method_exists($class, 'getInfo')) {
           $info = call_user_func(array($class, 'getInfo'));
 
           // If this test class requires a non-existing module, skip it.
@@ -520,14 +506,14 @@ function simpletest_classloader_register() {
     $matches = drupal_system_listing('/^' . DRUPAL_PHP_FUNCTION_PATTERN . '\.' . $info['extension'] . '$/', $info['dir']);
     foreach ($matches as $name => $file) {
       drupal_classloader_register($name, dirname($file->uri));
-      drupal_classloader()->namespacePSR0('Drupal\\' . $name . '\\Tests', DRUPAL_ROOT . '/' . dirname($file->uri) . '/tests');
+      drupal_classloader()->addNamespacePSR0('Drupal\\' . $name . '\\Tests', DRUPAL_ROOT . '/' . dirname($file->uri) . '/tests');
       // While being there, prime drupal_get_filename().
       drupal_get_filename($type, $name, $file->uri);
     }
   }
 
   // Register the core test directory so we can find Drupal\UnitTestCase.
-  drupal_classloader()->namespacePSR0('Drupal\\Tests', DRUPAL_ROOT . '/core/tests');
+  drupal_classloader()->addNamespacePSR0('Drupal\\Tests', DRUPAL_ROOT . '/core/tests');
 }
 
 /**

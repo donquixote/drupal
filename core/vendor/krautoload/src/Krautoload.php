@@ -14,16 +14,16 @@ class Krautoload {
     require_once $basedir . '/ClassLoader/Abstract.php';
     require_once $basedir . '/ClassLoader/Pluggable/Interface.php';
     require_once $basedir . '/ClassLoader/Pluggable.php';
-    require_once $basedir . '/ApiClassFinder/Interface.php';
-    require_once $basedir . '/ApiClassFinder/Pluggable.php';
-    require_once $basedir . '/ApiNamespaceFinder/Interface.php';
-    require_once $basedir . '/ApiNamespaceFinder/Pluggable.php';
+    require_once $basedir . '/ClassFinder/Interface.php';
+    require_once $basedir . '/ClassFinder/Pluggable.php';
+    require_once $basedir . '/NamespaceVisitor/Interface.php';
+    require_once $basedir . '/NamespaceVisitor/Pluggable.php';
     require_once $basedir . '/NamespacePathPlugin/Interface.php';
     require_once $basedir . '/NamespacePathPlugin/ShallowPSR0.php';
     require_once $basedir . '/NamespacePathPlugin/ShallowPSR0/AllUnderscore.php';
 
     // Build the class finder and loader, and register it to the spl stack.
-    $finder = new Krautoload\ApiNamespaceFinder_Pluggable();
+    $finder = new Krautoload\NamespaceVisitor_Pluggable();
     $loader = $finder;
     $loader->register();
 

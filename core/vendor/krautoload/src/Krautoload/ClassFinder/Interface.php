@@ -13,12 +13,12 @@ namespace Krautoload;
  * The benefit is that all filesystem contact can be mocked out, by passing in
  * a different implementation for the $api argument.
  */
-interface ApiClassFinder_Interface {
+interface ClassFinder_Interface {
 
   /**
    * Finds the path to the file where the class is defined.
    *
-   * @param ClassFinderAPI_Interface $api
+   * @param InjectedAPI_ClassFinder_Interface $api
    *   API object with a suggestFile() method.
    *   We are supposed to call $api->suggestFile($file) with all suggestions we
    *   can find, until it returns TRUE. Once suggestFile() returns TRUE, we stop

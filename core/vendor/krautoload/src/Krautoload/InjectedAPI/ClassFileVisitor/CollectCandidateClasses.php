@@ -2,21 +2,21 @@
 
 namespace Krautoload;
 
-class DiscoveryAPI_CollectClasses extends DiscoveryAPI_Abstract {
+class InjectedAPI_ClassFileVisitor_CollectCandidateClasses extends InjectedAPI_ClassFileVisitor_Abstract {
 
   protected $classes = array();
 
   function getCollectedClasses() {
-    return $this->classes;
+    return array_keys($this->classes);
   }
 
   function fileWithClass($file, $relativeClassName) {
-    $this->classes[$this->getClassName($relativeClassName)] = 1;
+    $this->classes[$this->getClassName($relativeClassName)] = TRUE;
   }
 
   function fileWithClassCandidates($file, $relativeClassNames) {
     foreach ($relativeClassNames as $relativeClassName) {
-      $this->classes[$this->getClassName($relativeClassName)] = 1;
+      $this->classes[$this->getClassName($relativeClassName)] = TRUE;
     }
   }
 }

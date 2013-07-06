@@ -233,8 +233,8 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
       $this->moduleList = isset($module_list['enabled']) ? $module_list['enabled'] : array();
     }
     $module_filenames = $this->getModuleFileNames();
-    $this->classLoader->namespacesPSR0($this->getModuleNamespacesPSR0($module_filenames));
-    $this->classLoader->namespacesPSRX($this->getModuleNamespacesPSRX($module_filenames));
+    $this->classLoader->addNamespacesPSR0($this->getModuleNamespacesPSR0($module_filenames));
+    $this->classLoader->addNamespacesPSRX($this->getModuleNamespacesPSRX($module_filenames));
 
     // Load each module's serviceProvider class.
     foreach ($this->moduleList as $module => $weight) {
@@ -418,8 +418,8 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
       // All namespaces must be registered before we attempt to use any service
       // from the container.
       $container_modules = $this->container->getParameter('container.modules');
-      $this->classLoader->namespacesPSR0($this->getModuleNamespacesPSR0($container_modules));
-      $this->classLoader->namespacesPSRX($this->getModuleNamespacesPSRX($container_modules));
+      $this->classLoader->addNamespacesPSR0($this->getModuleNamespacesPSR0($container_modules));
+      $this->classLoader->addNamespacesPSRX($this->getModuleNamespacesPSRX($container_modules));
 
       // If 'container.modules' is wrong, the container must be rebuilt.
       if (!isset($this->moduleList)) {

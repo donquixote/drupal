@@ -7,21 +7,15 @@ namespace Krautoload;
  * The injected API can be mocked to provide a mocked file_exists(), and to
  * monitor all suggested candidates, not just the correct return value.
  */
-class ClassFinderAPI_CollectFiles extends ClassFinderAPI_Abstract {
-
-  protected $files = array();
+interface InjectedAPI_ClassFinder_Interface {
 
   /**
-   * Return all files collected during one class finding operation.
+   * Get the name of the class we are looking for.
    *
-   * @return array
-   *   Associative array, where the keys are collected file names, and the
-   *   values are booleans indicating whether the file can be expected to define
-   *   the class we are looking for.
+   * @return string
+   *   The class we are looking for.
    */
-  function getCollectedFiles() {
-    return $this->files;
-  }
+  function getClass();
 
   /**
    * Suggest a file that, if the file exists,
@@ -31,16 +25,10 @@ class ClassFinderAPI_CollectFiles extends ClassFinderAPI_Abstract {
    *   The file that is supposed to declare the class.
    *
    * @return boolean
-   *   TRUE, if the file exists.
-   *   FALSE, otherwise.
+   *   TRUE, if we are not interested in further candidates.
+   *   FALSE, if we are interested in further candidates.
    */
-  function guessFile($file) {
-    if (is_file($file)) {
-      $this->files[$file] = TRUE;
-      return $file;
-    }
-    return FALSE;
-  }
+  function guessFile($file);
 
   /**
    * Suggest a file that, if the file exists,
@@ -50,15 +38,10 @@ class ClassFinderAPI_CollectFiles extends ClassFinderAPI_Abstract {
    *   The file that is supposed to declare the class.
    *
    * @return boolean
-   *   Always FALSE, because we had no chance to check whether the file actually
-   *   defines the class.
+   *   TRUE, if we are not interested in further candidates.
+   *   FALSE, if we are interested in further candidates.
    */
-  function guessFileCandidate($file) {
-    if (is_file($file)) {
-      $this->files[$file] = FALSE;
-    }
-    return FALSE;
-  }
+  function guessFileCandidate($file);
 
   /**
    * Suggest a file that HAS TO declare the class we are looking for.
@@ -73,12 +56,10 @@ class ClassFinderAPI_CollectFiles extends ClassFinderAPI_Abstract {
    *   The file that is supposed to declare the class.
    *
    * @return boolean
-   *   Always TRUE, because further candidates are not interesting.
+   *   TRUE, if we are not interested in further candidates.
+   *   FALSE, if we are interested in further candidates.
    */
-  function claimFile($file) {
-    $this->files[$file] = TRUE;
-    return TRUE;
-  }
+  function claimFile($file);
 
   /**
    * Suggest a file that MAY declare the class we are looking for.
@@ -93,13 +74,10 @@ class ClassFinderAPI_CollectFiles extends ClassFinderAPI_Abstract {
    *   The file that is supposed to declare the class.
    *
    * @return boolean
-   *   Always FALSE, because we had no chance to check whether the file actually
-   *   defines the class.
+   *   TRUE, if we are not interested in further candidates.
+   *   FALSE, if we are interested in further candidates.
    */
-  function claimFileCandidate($file) {
-    $this->files[$file] = FALSE;
-    return FALSE;
-  }
+  function claimFileCandidate($file);
 
   /**
    * Suggest a file that, if the file exists,
@@ -111,16 +89,10 @@ class ClassFinderAPI_CollectFiles extends ClassFinderAPI_Abstract {
    *   The file that is supposed to declare the class.
    *
    * @return boolean
-   *   TRUE, if the file exists.
-   *   FALSE, otherwise.
+   *   TRUE, if we are not interested in further candidates.
+   *   FALSE, if we are interested in further candidates.
    */
-  function guessFile_checkIncludePath($file) {
-    if ($this->fileExistsInIncludePath($file)) {
-      $this->files[$file] = TRUE;
-      return TRUE;
-    }
-    return FALSE;
-  }
+  function guessFile_checkIncludePath($file);
 
   /**
    * Suggest a file that, if the file exists,
@@ -132,13 +104,8 @@ class ClassFinderAPI_CollectFiles extends ClassFinderAPI_Abstract {
    *   The file that is supposed to declare the class.
    *
    * @return boolean
-   *   Always FALSE, because we had no chance to check whether the file actually
-   *   defines the class.
+   *   TRUE, if we are not interested in further candidates.
+   *   FALSE, if we are interested in further candidates.
    */
-  function guessFileCandidate_checkIncludePath($file) {
-    if ($this->fileExistsInIncludePath($file)) {
-      $this->files[$file] = FALSE;
-    }
-    return FALSE;
-  }
+  function guessFileCandidate_checkIncludePath($file);
 }

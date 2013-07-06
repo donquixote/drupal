@@ -2,7 +2,7 @@
 
 namespace Krautoload;
 
-interface DiscoveryAPI_Interface {
+interface InjectedAPI_ClassFileVisitor_Interface {
 
   function setNamespace($namespace);
 

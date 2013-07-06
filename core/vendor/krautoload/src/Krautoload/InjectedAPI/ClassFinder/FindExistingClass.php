@@ -2,7 +2,7 @@
 
 namespace Krautoload;
 
-class ClassFinderAPI_FindExistingClass extends ClassFinderAPI_LoadClass {
+class InjectedAPI_ClassFinder_FindExistingClass extends InjectedAPI_ClassFinder_LoadClass {
 
   /**
    * Suggest a file that, if the file exists,

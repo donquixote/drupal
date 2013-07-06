@@ -156,9 +156,9 @@ services:
     tags:
       - { name: persist }
   container.namespaces:
-    class: Krautoload\NamespaceFamily_Default
+    class: Krautoload\SearchableNamespaces_Default
     factory_service: class_loader
-    factory_method: buildNamespaceFamily
+    factory_method: buildSearchableNamespaces
     arguments: [ '@container.namespaces.array' ]
   plugin.manager.entity:
     class: Drupal\Core\Entity\EntityManager

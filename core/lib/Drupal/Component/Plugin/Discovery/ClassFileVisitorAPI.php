@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains Drupal\Component\Plugin\Discovery\AnnotatedClassDiscovery.
+ * Contains Drupal\Component\Plugin\Discovery\InjectedAPI_ClassFileVisitor.
  */
 
 namespace Drupal\Component\Plugin\Discovery;
@@ -13,14 +13,14 @@ use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Reflection\StaticReflectionParser;
 use Drupal\Component\Reflection\MockFileFinder;
 
-class KrautoloadDiscoveryAPI extends \Krautoload\DiscoveryAPI_Abstract {
+class ClassFileVisitorAPI extends \Krautoload\InjectedAPI_ClassFileVisitor_Abstract {
 
   protected $reader;
   protected $annotationName;
   protected $definitions = array();
 
   /**
-   * Constructs a KrautoloadDiscoveryAPI object.
+   * Constructs a KrautoloadInjectedAPI_ClassFileVisitor object.
    *
    * @param string $annotationName
    */
