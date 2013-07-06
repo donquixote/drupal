@@ -2,7 +2,7 @@
 
 namespace Krautoload;
 
-interface NamespaceFamily_Interface {
+interface SearchableNamespaces_Interface {
 
   /**
    * Add a namespace to the family.
@@ -19,7 +19,7 @@ interface NamespaceFamily_Interface {
   function addNamespaces($namespaces);
 
   /**
-   * @return NamespaceFamily_Interface
+   * @return SearchableNamespaces_Interface
    *   Newly created namespace family.
    */
   function buildEmpty();
@@ -28,7 +28,7 @@ interface NamespaceFamily_Interface {
    * @param array $namespaces
    *   Namespaces for the new family.
    *
-   * @return NamespaceFamily_Interface
+   * @return SearchableNamespaces_Interface
    *   Newly created namespace family.
    */
   function buildFromNamespaces($namespaces);
@@ -37,7 +37,7 @@ interface NamespaceFamily_Interface {
    * @param string $suffix
    *   Namespace suffix to append to each namespace.
    *
-   * @return NamespaceFamily_Interface
+   * @return SearchableNamespaces_Interface
    *   Newly created namespace family.
    */
   function buildFromSuffix($suffix);

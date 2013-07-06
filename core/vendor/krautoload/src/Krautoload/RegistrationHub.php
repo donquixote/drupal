@@ -203,9 +203,9 @@ class RegistrationHub {
     $this->finder->registerClass($class, $file);
   }
 
-  function buildNamespaceFamily($namespaces) {
+  function buildSearchableNamespaces($namespaces) {
     $discovery = new ApiClassDiscovery_Pluggable();
-    $family = new NamespaceFamily_Default($this->finder, $discovery);
+    $family = new SearchableNamespaces_Default($this->finder, $discovery);
     $family->addNamespaces($namespaces);
     return $family;
   }

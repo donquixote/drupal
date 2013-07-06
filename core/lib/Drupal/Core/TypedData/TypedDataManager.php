@@ -18,7 +18,7 @@ use Drupal\Core\Validation\ConstraintManager;
 use Drupal\Core\Validation\DrupalTranslator;
 use Symfony\Component\Validator\ValidatorInterface;
 use Symfony\Component\Validator\Validation;
-use Krautoload\NamespaceFamily_Interface as NamespaceFamilyInterface;
+use Krautoload\SearchableNamespaces_Interface as SearchableNamespacesInterface;
 
 /**
  * Manages data type plugins.
@@ -46,7 +46,7 @@ class TypedDataManager extends DefaultPluginManager {
    */
   protected $prototypes = array();
 
-  public function __construct(NamespaceFamilyInterface $namespaces, CacheBackendInterface $cache_backend, LanguageManager $language_manager, ModuleHandlerInterface $module_handler) {
+  public function __construct(SearchableNamespacesInterface $namespaces, CacheBackendInterface $cache_backend, LanguageManager $language_manager, ModuleHandlerInterface $module_handler) {
     $this->alterInfo($module_handler, 'data_type_info');
     $this->setCacheBackend($cache_backend, $language_manager, 'typed_data:types');
 
