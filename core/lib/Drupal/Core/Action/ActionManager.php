@@ -11,6 +11,7 @@ use Drupal\Component\Plugin\PluginManagerBase;
 use Drupal\Core\Plugin\Discovery\AlterDecorator;
 use Drupal\Core\Plugin\Discovery\AnnotatedClassDiscovery;
 use Drupal\Core\Plugin\Factory\ContainerFactory;
+use Krautoload\NamespaceFamily_Interface as NamespaceFamilyInterface;
 
 /**
  * Provides an Action plugin manager.
@@ -27,7 +28,7 @@ class ActionManager extends PluginManagerBase {
    *   An object that implements \Traversable which contains the root paths
    *   keyed by the corresponding namespace to look for plugin implementations.
    */
-  public function __construct(\Traversable $namespaces) {
+  public function __construct(NamespaceFamilyInterface $namespaces) {
     $this->discovery = new AnnotatedClassDiscovery('Action', $namespaces, array(), 'Drupal\Core\Annotation\Action');
     $this->discovery = new AlterDecorator($this->discovery, 'action_info');
 

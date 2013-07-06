@@ -14,6 +14,7 @@ use Drupal\Core\Language\Language;
 use Drupal\Core\Plugin\Discovery\AlterDecorator;
 use Drupal\Core\Plugin\Discovery\AnnotatedClassDiscovery;
 use Drupal\Core\Plugin\Discovery\CacheDecorator;
+use Krautoload\NamespaceFamily_Interface as NamespaceFamilyInterface;
 
 /**
  * Manages text processing filters.
@@ -29,8 +30,8 @@ class FilterPluginManager extends PluginManagerBase {
    *   An object that implements \Traversable which contains the root paths
    *   keyed by the corresponding namespace to look for plugin implementations.
    */
-  public function __construct(\Traversable $namespaces) {
-    $annotation_namespaces = array('Drupal\filter\Annotation' => $namespaces['Drupal\filter']);
+  public function __construct(NamespaceFamilyInterface $namespaces) {
+    $annotation_namespaces = array('Drupal\filter\Annotation' => TRUE);
     $this->discovery = new AnnotatedClassDiscovery('Filter', $namespaces, $annotation_namespaces, 'Drupal\filter\Annotation\Filter');
     $this->discovery = new AlterDecorator($this->discovery, 'filter_info');
     $cache_key = 'filter_plugins:' . language(Language::TYPE_INTERFACE)->id;

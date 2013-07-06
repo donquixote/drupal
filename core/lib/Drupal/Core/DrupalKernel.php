@@ -452,8 +452,8 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
       // The namespaces are marked as persistent, so objects like the annotated
       // class discovery still has the right object. We may have updated the
       // list of modules, so set it.
-      if ($this->container->initialized('container.namespaces')) {
-        $this->container->get('container.namespaces')->exchangeArray($this->container->getParameter('container.namespaces'));
+      if ($this->container->initialized('container.namespaces.array')) {
+        $this->container->get('container.namespaces.array')->exchangeArray($this->container->getParameter('container.namespaces.array'));
       }
 
       if ($this->allowDumping) {
@@ -528,10 +528,10 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
         }
       }
     }
-    $container->setParameter('container.namespaces', $namespaces);
+    $container->setParameter('container.namespaces.array', array_keys($namespaces));
 
     // Register synthetic services.
-    $container->register('class_loader', 'Symfony\Component\ClassLoader\ClassLoader')->setSynthetic(TRUE);
+    $container->register('class_loader', 'Krautoload\RegistrationHub')->setSynthetic(TRUE);
     $container->register('kernel', 'Symfony\Component\HttpKernel\KernelInterface')->setSynthetic(TRUE);
     $container->register('service_container', 'Symfony\Component\DependencyInjection\ContainerInterface')->setSynthetic(TRUE);
     $yaml_loader = new YamlFileLoader($container);

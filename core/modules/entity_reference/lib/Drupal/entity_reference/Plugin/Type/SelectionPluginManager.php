@@ -14,6 +14,7 @@ use Drupal\Core\Plugin\Discovery\AlterDecorator;
 use Drupal\Core\Plugin\Discovery\AnnotatedClassDiscovery;
 use Drupal\Core\Plugin\Discovery\CacheDecorator;
 use Drupal\entity_reference\Plugin\Type\Selection\SelectionBroken;
+use Krautoload\NamespaceFamily_Interface as NamespaceFamilyInterface;
 
 /**
  * Plugin type manager for the Entity Reference Selection plugin.
@@ -27,7 +28,7 @@ class SelectionPluginManager extends PluginManagerBase {
    *   An object that implements \Traversable which contains the root paths
    *   keyed by the corresponding namespace to look for plugin implementations,
    */
-  public function __construct(\Traversable $namespaces) {
+  public function __construct(NamespaceFamilyInterface $namespaces) {
     $this->baseDiscovery = new AlterDecorator(new AnnotatedClassDiscovery('entity_reference/selection', $namespaces), 'entity_reference_selection');
     $this->discovery = new CacheDecorator($this->baseDiscovery, 'entity_reference_selection');
     $this->factory = new ReflectionFactory($this);

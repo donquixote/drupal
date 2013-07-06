@@ -70,19 +70,15 @@ class AnnotatedClassDiscovery implements DiscoveryInterface {
    * Implements Drupal\Component\Plugin\Discovery\DiscoveryInterface::getDefinitions().
    */
   public function getDefinitions() {
-    $definitions = array();
 
     // Register the namespaces of classes that can be used for annotations.
-    AnnotationRegistry::registerAutoloadNamespaces($this->getAnnotationNamespaces());
-
-    // The discovery engine knows about namespace-directory mappings that are
-    // relevant for plugin discovery.
-    // It does not know the exact plugin directories.
-    $discovery = $this->buildDiscoveryEngine();
+    AnnotationRegistry::reset();
+    AnnotationRegistry::registerLoader(array($this->getAnnotationNamespaces(), 'classExistsInNamespaces'));
+    assert($this->getAnnotationNamespaces()->classExistsInNamespaces($this->pluginDefinitionAnnotationName));
 
     // Scan namespaces.
-    $discoveryAPI = new KrautoloadDiscoveryAPI($this->pluginDefinitionAnnotationName);
-    $discovery->apiScanNamespaces($discoveryAPI, array_keys($this->getPluginNamespaces()), FALSE);
+    $discoveryAPI = new KrautoloadDiscoveryAPI($this->pluginDefinitionAnnotationName, $this->getAnnotationNamespaces());
+    $this->getPluginNamespaces()->apiScanAll($discoveryAPI, FALSE);
     return $discoveryAPI->getDefinitions();
   }
 
@@ -98,23 +94,5 @@ class AnnotatedClassDiscovery implements DiscoveryInterface {
    */
   protected function getAnnotationNamespaces() {
     return $this->annotationNamespaces;
-  }
-
-  /**
-   * Build the discovery engine, and build relevant namespaces.
-   * @todo Have this stuff properly injected.
-   */
-  protected function buildDiscoveryEngine() {
-    $discovery = new \Krautoload\ApiClassDiscovery_Pluggable();
-    $registration = new \Krautoload\RegistrationHub($discovery);
-    $modules = \Drupal::getContainer()->get('module_handler')->getModuleList();
-    foreach ($modules as $module => $module_file) {
-      $module_dir = dirname($module_file);
-      $registration->namespacePSRX('Drupal\\' . $module, $module_dir . '/lib/Drupal/' . $module);
-      $registration->namespacePSRX('Drupal\\' . $module, $module_dir . '/src');
-    }
-    $registration->namespacePSRX('Drupal\\Core', DRUPAL_ROOT . '/core/lib/Drupal/Core');
-    $registration->namespacePSRX('Drupal\\Core', DRUPAL_ROOT . '/core/src');
-    return $discovery;
   }
 }

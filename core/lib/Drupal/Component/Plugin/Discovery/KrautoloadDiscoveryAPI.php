@@ -8,6 +8,8 @@
 namespace Drupal\Component\Plugin\Discovery;
 
 use Doctrine\Common\Annotations\AnnotationReader;
+// use Drupal\Component\Plugin\Discovery\Doctrine\AnnotationReader;
+
 use Doctrine\Common\Reflection\StaticReflectionParser;
 use Drupal\Component\Reflection\MockFileFinder;
 
@@ -77,8 +79,8 @@ class KrautoloadDiscoveryAPI extends \Krautoload\DiscoveryAPI_Abstract {
    * @param string $relativeClassName
    */
   protected function parseFileWithClass($file, $relativeClassName) {
-    $class = $this->getClassName($relativeClassName);
-    if ($annotation = $this->getClassAnnotation($file, $class)) {
+    $class = $this->getNamespace() . $relativeClassName;
+    if ($annotation = $this->extractClassAnnotation($file, $class)) {
       // AnnotationInterface::get() returns the array definition
       // instead of requiring us to work with the annotation object.
       $definition = $annotation->get();
@@ -93,7 +95,7 @@ class KrautoloadDiscoveryAPI extends \Krautoload\DiscoveryAPI_Abstract {
    * @param string $file
    * @param string $class
    */
-  protected function getClassAnnotation($file, $class) {
+  protected function extractClassAnnotation($file, $class) {
     // The filename is already known, so there is no need to find the
     // file. However, StaticReflectionParser needs a finder, so use a
     // mock version.

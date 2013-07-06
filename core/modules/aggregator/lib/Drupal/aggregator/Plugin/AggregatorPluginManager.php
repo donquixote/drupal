@@ -12,6 +12,7 @@ use Drupal\Component\Plugin\Factory\DefaultFactory;
 use Drupal\Core\Language\Language;
 use Drupal\Core\Plugin\Discovery\AnnotatedClassDiscovery;
 use Drupal\Core\Plugin\Discovery\CacheDecorator;
+use Krautoload\NamespaceFamily_Interface as NamespaceFamilyInterface;
 
 /**
  * Manages aggregator plugins.
@@ -27,7 +28,7 @@ class AggregatorPluginManager extends PluginManagerBase {
    *   An object that implements \Traversable which contains the root paths
    *   keyed by the corresponding namespace to look for plugin implementations,
    */
-  public function __construct($type, \Traversable $namespaces) {
+  public function __construct($type, NamespaceFamilyInterface $namespaces) {
     $type_annotations = array(
       'fetcher' => 'Drupal\aggregator\Annotation\AggregatorFetcher',
       'parser' => 'Drupal\aggregator\Annotation\AggregatorParser',

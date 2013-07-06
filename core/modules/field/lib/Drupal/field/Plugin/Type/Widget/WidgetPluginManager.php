@@ -12,6 +12,7 @@ use Drupal\Component\Plugin\Discovery\ProcessDecorator;
 use Drupal\Core\Plugin\Discovery\CacheDecorator;
 use Drupal\Core\Plugin\Discovery\AlterDecorator;
 use Drupal\Core\Plugin\Discovery\AnnotatedClassDiscovery;
+use Krautoload\NamespaceFamily_Interface as NamespaceFamilyInterface;
 
 /**
  * Plugin type manager for field widgets.
@@ -42,7 +43,7 @@ class WidgetPluginManager extends PluginManagerBase {
    *   An object that implements \Traversable which contains the root paths
    *   keyed by the corresponding namespace to look for plugin implementations,
    */
-  public function __construct(\Traversable $namespaces) {
+  public function __construct(NamespaceFamilyInterface $namespaces) {
     $this->discovery = new AnnotatedClassDiscovery('field/widget', $namespaces);
     $this->discovery = new ProcessDecorator($this->discovery, array($this, 'processDefinition'));
     $this->discovery = new AlterDecorator($this->discovery, 'field_widget_info');

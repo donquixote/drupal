@@ -10,6 +10,7 @@ namespace Drupal\system\Plugin;
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Language\LanguageManager;
 use Drupal\Core\Plugin\DefaultPluginManager;
+use Krautoload\NamespaceFamily_Interface as NamespaceFamilyInterface;
 
 /**
  * Manages toolkit plugins.
@@ -27,7 +28,7 @@ class ImageToolkitManager extends DefaultPluginManager {
    * @param \Drupal\Core\Language\LanguageManager $language_manager
    *   The language manager.
    */
-  public function __construct(\Traversable $namespaces, CacheBackendInterface $cache_backend, LanguageManager $language_manager) {
+  public function __construct(NamespaceFamilyInterface $namespaces, CacheBackendInterface $cache_backend, LanguageManager $language_manager) {
     parent::__construct('ImageToolkit', $namespaces);
     $this->setCacheBackend($cache_backend, $language_manager, 'image_toolkit');
   }

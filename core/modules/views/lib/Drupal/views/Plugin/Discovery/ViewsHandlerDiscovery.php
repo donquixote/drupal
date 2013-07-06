@@ -8,6 +8,7 @@
 namespace Drupal\views\Plugin\Discovery;
 
 use Drupal\Component\Plugin\Discovery\AnnotatedClassDiscovery;
+use Krautoload\NamespaceFamily_Interface as NamespaceFamilyInterface;
 
 /**
  * Defines a discovery mechanism to find Views handlers in PSR-0 namespaces.
@@ -26,7 +27,7 @@ class ViewsHandlerDiscovery extends AnnotatedClassDiscovery {
    *
    * @var \Traversable
    */
-  protected $rootNamespacesIterator;
+  protected $rootNamespaces;
 
   /**
    * Constructs a ViewsHandlerDiscovery object.
@@ -37,17 +38,12 @@ class ViewsHandlerDiscovery extends AnnotatedClassDiscovery {
    *   An object that implements \Traversable which contains the root paths
    *   keyed by the corresponding namespace to look for plugin implementations,
    */
-  function __construct($type, \Traversable $root_namespaces) {
+  function __construct($type, NamespaceFamilyInterface $root_namespaces) {
     $this->type = $type;
-    $this->rootNamespacesIterator = $root_namespaces;
+    $this->rootNamespaces = $root_namespaces;
 
-    $annotation_namespaces = array(
-      'Drupal\Component\Annotation' => DRUPAL_ROOT . '/core/lib',
-    );
-    $plugin_namespaces = array();
-    foreach ($root_namespaces as $namespace => $dirs) {
-      $plugin_namespaces["$namespace\\Plugin\\views\\{$type}"] = (array) $dirs;
-    }
+    $annotation_namespaces = $root_namespaces->buildFromNamespaces(array('Drupal\Component\Annotation'));
+    $plugin_namespaces = $root_namespaces->buildFromSuffix("\\Plugin\\views\\{$type}");
     parent::__construct($plugin_namespaces, $annotation_namespaces, 'Drupal\Component\Annotation\PluginID');
   }
 
@@ -67,12 +63,7 @@ class ViewsHandlerDiscovery extends AnnotatedClassDiscovery {
    * {@inheritdoc}
    */
   protected function getPluginNamespaces() {
-    $plugin_namespaces = array();
-    foreach ($this->rootNamespacesIterator as $namespace => $dirs) {
-      $plugin_namespaces["$namespace\\Plugin\\views\\{$this->type}"] = (array) $dirs;
-    }
-
-    return $plugin_namespaces;
+    return $this->rootNamespaces->buildFromSuffix("\\Plugin\\views\\{$this->type}");
   }
 
 }

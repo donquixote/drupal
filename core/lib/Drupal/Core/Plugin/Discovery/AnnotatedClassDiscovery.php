@@ -33,7 +33,7 @@ class AnnotatedClassDiscovery extends ComponentAnnotatedClassDiscovery {
    *
    * @var \Traversable
    */
-  protected $rootNamespacesIterator;
+  protected $rootNamespaces;
 
   /**
    * Constructs an AnnotatedClassDiscovery object.
@@ -51,13 +51,14 @@ class AnnotatedClassDiscovery extends ComponentAnnotatedClassDiscovery {
    *   (optional) The name of the annotation that contains the plugin definition.
    *   Defaults to 'Drupal\Component\Annotation\Plugin'.
    */
-  function __construct($subdir, \Traversable $root_namespaces, $annotation_namespaces = array(), $plugin_definition_annotation_name = 'Drupal\Component\Annotation\Plugin') {
+  function __construct($subdir, $root_namespaces, $annotation_namespaces = array(), $plugin_definition_annotation_name = 'Drupal\Component\Annotation\Plugin') {
     $this->subdir = str_replace('/', '\\', $subdir);
-    $this->rootNamespacesIterator = $root_namespaces;
-    $annotation_namespaces += array(
-      'Drupal\Component\Annotation' => DRUPAL_ROOT . '/core/lib',
-      'Drupal\Core\Annotation' => DRUPAL_ROOT . '/core/lib',
-    );
+    $this->rootNamespaces = $root_namespaces;
+    if (!is_object($annotation_namespaces)) {
+      $annotation_namespaces = $root_namespaces->buildFromNamespaces(array_keys($annotation_namespaces));
+    }
+    $annotation_namespaces->addNamespace('Drupal\Component\Annotation');
+    $annotation_namespaces->addNamespace('Drupal\Core\Annotation');
     $plugin_namespaces = array();
     parent::__construct($plugin_namespaces, $annotation_namespaces, $plugin_definition_annotation_name);
   }
@@ -99,12 +100,7 @@ class AnnotatedClassDiscovery extends ComponentAnnotatedClassDiscovery {
    * {@inheritdoc}
    */
   protected function getPluginNamespaces() {
-    $plugin_namespaces = array();
-    foreach ($this->rootNamespacesIterator as $namespace => $dirs) {
-      $plugin_namespaces["$namespace\\Plugin\\{$this->subdir}"] = (array) $dirs;
-    }
-
-    return $plugin_namespaces;
+    return $this->rootNamespaces->buildFromSuffix("\\Plugin\\{$this->subdir}");
   }
 
 }

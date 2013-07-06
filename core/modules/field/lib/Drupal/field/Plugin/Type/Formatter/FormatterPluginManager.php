@@ -13,6 +13,7 @@ use Drupal\Core\Plugin\Discovery\CacheDecorator;
 use Drupal\Core\Plugin\Discovery\AnnotatedClassDiscovery;
 use Drupal\Core\Plugin\Discovery\AlterDecorator;
 use Drupal\field\Plugin\Core\Entity\FieldInstance;
+use Krautoload\NamespaceFamily_Interface as NamespaceFamilyInterface;
 
 /**
  * Plugin type manager for field formatters.
@@ -33,8 +34,8 @@ class FormatterPluginManager extends PluginManagerBase {
    *   An object that implements \Traversable which contains the root paths
    *   keyed by the corresponding namespace to look for plugin implementations,
    */
-  public function __construct(\Traversable $namespaces) {
-    $annotation_namespaces = array('Drupal\field\Annotation' => $namespaces['Drupal\field']);
+  public function __construct(NamespaceFamilyInterface $namespaces) {
+    $annotation_namespaces = array('Drupal\field\Annotation' => TRUE);
     $this->discovery = new AnnotatedClassDiscovery('field/formatter', $namespaces, $annotation_namespaces, 'Drupal\field\Annotation\FieldFormatter');
     $this->discovery = new AlterDecorator($this->discovery, 'field_formatter_info');
     $this->discovery = new CacheDecorator($this->discovery, 'field_formatter_types', 'field');

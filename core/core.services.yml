@@ -150,11 +150,16 @@ services:
     calls:
       - [addSubscriber, ['@http_client_simpletest_subscriber']]
       - [setUserAgent, ['Drupal (+http://drupal.org/)']]
-  container.namespaces:
+  container.namespaces.array:
     class: ArrayObject
-    arguments: [ '%container.namespaces%' ]
+    arguments: [ '%container.namespaces.array%' ]
     tags:
       - { name: persist }
+  container.namespaces:
+    class: Krautoload\NamespaceFamily_Default
+    factory_service: class_loader
+    factory_method: buildNamespaceFamily
+    arguments: [ '@container.namespaces.array' ]
   plugin.manager.entity:
     class: Drupal\Core\Entity\EntityManager
     arguments: ['@container.namespaces', '@service_container', '@module_handler', '@cache.cache', '@language_manager']
