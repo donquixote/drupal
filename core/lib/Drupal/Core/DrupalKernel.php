@@ -449,11 +449,13 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
       $this->container = $this->buildContainer();
       $this->persistServices($persist);
 
-      // The namespaces are marked as persistent, so objects like the annotated
-      // class discovery still has the right object. We may have updated the
-      // list of modules, so set it.
-      if ($this->container->initialized('container.namespaces.array')) {
-        $this->container->get('container.namespaces.array')->exchangeArray($this->container->getParameter('container.namespaces.array'));
+      // The searchable namespaces collection is marked as persistent, so
+      // objects like the annotated class discovery still have the right object.
+      if ($this->container->initialized('container.namespaces')) {
+        // The list of namespaces may have changed, so set it.
+        $this->container->get('container.namespaces')->setNamespaces($this->container->getParameter('container.namespaces'));
+        // There may be a new class loader, so set it.
+        $this->container->get('container.namespaces')->setFinder($this->classLoader->getFinder());
       }
 
       if ($this->allowDumping) {
@@ -465,6 +467,7 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
 
     // Set the class loader which was registered as a synthetic service.
     $this->container->set('class_loader', $this->classLoader);
+
     // If we have a request set it back to the new container.
     if (isset($request)) {
       $this->container->enterScope('request');
@@ -528,7 +531,7 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
         }
       }
     }
-    $container->setParameter('container.namespaces.array', array_keys($namespaces));
+    $container->setParameter('container.namespaces', array_keys($namespaces));
 
     // Register synthetic services.
     $container->register('class_loader', 'Krautoload\RegistrationHub')->setSynthetic(TRUE);
