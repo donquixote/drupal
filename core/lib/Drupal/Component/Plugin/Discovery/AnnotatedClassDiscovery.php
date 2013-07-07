@@ -77,7 +77,7 @@ class AnnotatedClassDiscovery implements DiscoveryInterface {
     AnnotationRegistry::registerLoader(array($this->getAnnotationNamespaces(), 'classExistsInNamespaces'));
 
     // Scan namespaces.
-    $discoveryAPI = new ClassFileVisitorAPI($this->pluginDefinitionAnnotationName, $this->getAnnotationNamespaces());
+    $discoveryAPI = new ClassFileVisitorAPI($this->pluginDefinitionAnnotationName);
     $this->getPluginNamespaces()->apiVisitClassFiles($discoveryAPI, FALSE);
     return $discoveryAPI->getDefinitions();
   }
