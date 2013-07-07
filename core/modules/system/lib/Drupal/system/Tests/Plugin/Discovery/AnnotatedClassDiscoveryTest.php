@@ -57,7 +57,18 @@ class AnnotatedClassDiscoveryTest extends DiscoveryTestBase {
         'provider' => 'plugin_test',
       ),
     );
-    $namespaces = new \ArrayObject(array('Drupal\plugin_test' => DRUPAL_ROOT . '/core/modules/system/tests/modules/plugin_test/lib'));
+
+    // Build namespace finder.
+    $finder = new \Krautoload\NamespaceVisitor_Pluggable();
+    $registrationHub = new \Krautoload\RegistrationHub($finder);
+    $registrationHub->addNamespacePSR0('Drupal\plugin_test', DRUPAL_ROOT . '/core/modules/system/tests/modules/plugin_test/lib');
+    $registrationHub->addNamespacePSR0('Drupal\Component', DRUPAL_ROOT . '/core/lib');
+    $registrationHub->addNamespacePSR0('Drupal\Core', DRUPAL_ROOT . '/core/lib');
+
+    // Build searchable namespaces.
+    $namespaces = $registrationHub->buildSearchableNamespaces(array('Drupal\plugin_test'));
+
+    // Build annotated class discovery.
     $this->discovery = new AnnotatedClassDiscovery('plugin_test/fruit', $namespaces);
     $this->emptyDiscovery = new AnnotatedClassDiscovery('non_existing_module/non_existing_plugin_type', $namespaces);
   }

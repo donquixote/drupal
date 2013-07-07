@@ -41,11 +41,19 @@ class CustomAnnotationClassDiscoveryTest extends DiscoveryTestBase {
         'provider' => 'plugin_test',
       ),
     );
-    $root_namespaces = new \ArrayObject(array('Drupal\plugin_test' => DRUPAL_ROOT . '/core/modules/system/tests/modules/plugin_test/lib'));
-    $annotation_namespaces = array(
-      'Drupal\plugin_test\Plugin\Annotation' => DRUPAL_ROOT . '/core/modules/system/tests/modules/plugin_test/lib',
-    );
 
+    // Build namespace finder.
+    $finder = new \Krautoload\NamespaceVisitor_Pluggable();
+    $registrationHub = new \Krautoload\RegistrationHub($finder);
+    $registrationHub->addNamespacePSR0('Drupal\plugin_test', DRUPAL_ROOT . '/core/modules/system/tests/modules/plugin_test/lib');
+    $registrationHub->addNamespacePSR0('Drupal\Component', DRUPAL_ROOT . '/core/lib');
+    $registrationHub->addNamespacePSR0('Drupal\Core', DRUPAL_ROOT . '/core/lib');
+
+    // Build searchable namespaces.
+    $root_namespaces = $registrationHub->buildSearchableNamespaces(array('Drupal\plugin_test'));
+    $annotation_namespaces = $registrationHub->buildSearchableNamespaces(array('Drupal\plugin_test\Plugin\Annotation'));
+
+    // Build annotated class discovery.
     $this->discovery = new AnnotatedClassDiscovery('plugin_test/custom_annotation', $root_namespaces, $annotation_namespaces, 'Drupal\plugin_test\Plugin\Annotation\PluginExample');
     $this->emptyDiscovery = new AnnotatedClassDiscovery('non_existing_module/non_existing_plugin_type', $root_namespaces, $annotation_namespaces, 'Drupal\plugin_test\Plugin\Annotation\PluginExample');
   }
