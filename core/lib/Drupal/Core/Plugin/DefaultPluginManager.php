@@ -61,13 +61,6 @@ class DefaultPluginManager extends PluginManagerBase implements PluginManagerInt
   protected $alterHook;
 
   /**
-   * The plugin's subdirectory, for example views/filter.
-   *
-   * @var string
-   */
-  protected $subdir;
-
-  /**
    * The module handler to invoke the alter hook.
    *
    * @var \Drupal\Core\Extension\ModuleHandlerInterface
@@ -82,13 +75,15 @@ class DefaultPluginManager extends PluginManagerBase implements PluginManagerInt
   protected $languageManager;
 
   /**
-   * Creates the discovery object.
+   * Creates the DefaultPluginManager object.
    *
-   * @param string $subdir
-   *   The plugin's subdirectory, for example views/filter.
-   * @param \Traversable $namespaces
-   *   An object that implements \Traversable which contains the root paths
-   *   keyed by the corresponding namespace to look for plugin implementations
+   * @param SearchableNamespacesInterface $root_namespaces
+   *   Searchable namespaces for enabled extensions and core.
+   *   This will be used to build the plugin namespaces by adding the suffix.
+   *   E.g. the root namespace for a module is Drupal\$module.
+   * @param string $namespace_suffix
+   *   Suffix to build plugin namespaces from root namespaces, e.g. 'views\filter'.
+   *   The resulting plugin namespace will be $root_namespace\Plugin\$namespace_suffix.
    * @param array $annotation_namespaces
    *   (optional) The namespaces of classes that can be used as annotations.
    *   Defaults to an empty array.
@@ -96,9 +91,11 @@ class DefaultPluginManager extends PluginManagerBase implements PluginManagerInt
    *   (optional) The name of the annotation that contains the plugin definition.
    *   Defaults to 'Drupal\Component\Annotation\Plugin'.
    */
-  public function __construct($subdir, SearchableNamespacesInterface $namespaces, $annotation_namespaces = array(), $plugin_definition_annotation_name = 'Drupal\Component\Annotation\Plugin') {
-    $this->subdir = $subdir;
-    $this->discovery = new AnnotatedClassDiscovery($subdir, $namespaces, $annotation_namespaces, $plugin_definition_annotation_name);
+  public function __construct(SearchableNamespacesInterface $root_namespaces, $namespace_suffix, $annotation_namespaces = array(), $plugin_definition_annotation_name = 'Drupal\Component\Annotation\Plugin') {
+    $this->discovery = new AnnotatedClassDiscovery($root_namespaces, $namespace_suffix, $plugin_definition_annotation_name);
+    foreach ($annotation_namespaces as $namespace) {
+      $this->discovery->addAnnotationNamespace($namespace);
+    }
     $this->discovery = new DerivativeDiscoveryDecorator($this->discovery);
     $this->factory = new ContainerFactory($this);
   }

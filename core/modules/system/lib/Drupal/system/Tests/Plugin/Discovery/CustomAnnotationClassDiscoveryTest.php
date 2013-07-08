@@ -51,11 +51,12 @@ class CustomAnnotationClassDiscoveryTest extends DiscoveryTestBase {
 
     // Build searchable namespaces.
     $root_namespaces = $registrationHub->buildSearchableNamespaces(array('Drupal\plugin_test'));
-    $annotation_namespaces = $registrationHub->buildSearchableNamespaces(array('Drupal\plugin_test\Plugin\Annotation'));
 
     // Build annotated class discovery.
-    $this->discovery = new AnnotatedClassDiscovery('plugin_test/custom_annotation', $root_namespaces, $annotation_namespaces, 'Drupal\plugin_test\Plugin\Annotation\PluginExample');
-    $this->emptyDiscovery = new AnnotatedClassDiscovery('non_existing_module/non_existing_plugin_type', $root_namespaces, $annotation_namespaces, 'Drupal\plugin_test\Plugin\Annotation\PluginExample');
+    $this->discovery = new AnnotatedClassDiscovery($root_namespaces, 'plugin_test\custom_annotation', 'Drupal\plugin_test\Plugin\Annotation\PluginExample');
+    $this->discovery->addAnnotationNamespace('Drupal\plugin_test\Plugin\Annotation');
+    $this->emptyDiscovery = new AnnotatedClassDiscovery($root_namespaces, 'non_existing_module\non_existing_plugin_type', 'Drupal\plugin_test\Plugin\Annotation\PluginExample');
+    $this->emptyDiscovery->addAnnotationNamespace('Drupal\plugin_test\Plugin\Annotation');
   }
 
 }

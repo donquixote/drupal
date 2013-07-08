@@ -17,16 +17,25 @@ use Krautoload\SearchableNamespaces_Interface as SearchableNamespacesInterface;
 class AnnotatedClassDiscovery implements DiscoveryInterface {
 
   /**
-   * The namespaces within which to find plugin classes.
+   * An object containing the base namespaces from which the plugin namespaces
+   * are built by appending the namespace suffix.
    *
-   * @var array
+   * @var SearchableNamespacesInterface
    */
-  protected $pluginNamespaces;
+  protected $rootNamespaces;
+
+  /**
+   * Suffix to be appended to each base namespace,
+   * to obtain the plugin namespaces.
+   *
+   * @var string
+   */
+  protected $namespaceSuffix;
 
   /**
    * The namespaces of classes that can be used as annotations.
    *
-   * @var array
+   * @var SearchableNamespacesInterface
    */
   protected $annotationNamespaces;
 
@@ -43,20 +52,31 @@ class AnnotatedClassDiscovery implements DiscoveryInterface {
   /**
    * Constructs an AnnotatedClassDiscovery object.
    *
-   * @param array $plugin_namespaces
-   *   (optional) An array of namespace that may contain plugin implementations.
-   *   Defaults to an empty array.
-   * @param array $annotation_namespaces
-   *   (optional) The namespaces of classes that can be used as annotations.
-   *   Defaults to an empty array.
+   * @param SearchableNamespacesInterface $root_namespaces
+   *   Searchable base namespaces from which the plugin namespaces are built.
+   * @param string $namespace_suffix
+   *   Namespace suffix to be appended to each base plugin namespace, to obtain
+   *   the plugin namespaces that will be searched for plugin classes.
    * @param string $plugin_definition_annotation_name
-   *   (optional) The name of the annotation that contains the plugin definition.
-   *   Defaults to 'Drupal\Component\Annotation\Plugin'.
+   *   The name of the annotation that contains the plugin definition.
    */
-  function __construct(SearchableNamespacesInterface $plugin_namespaces, SearchableNamespacesInterface $annotation_namespaces, $plugin_definition_annotation_name = 'Drupal\Component\Annotation\Plugin') {
-    $this->pluginNamespaces = $plugin_namespaces;
-    $this->annotationNamespaces = $annotation_namespaces;
+  function __construct(SearchableNamespacesInterface $root_namespaces, $namespace_suffix, $plugin_definition_annotation_name) {
+    $this->rootNamespaces = $root_namespaces;
+    $this->namespaceSuffix = $namespace_suffix;
+    // Initialize with an empty collection of annotation namespaces.
+    // More namespaces can be added with addAnnotationNamespace().
+    $this->annotationNamespaces = $root_namespaces->buildSearchableNamespaces();
     $this->pluginDefinitionAnnotationName = $plugin_definition_annotation_name;
+  }
+
+  /**
+   * Add an annotation namespace, after the object has been created.
+   *
+   * @param string $namespace
+   *   Annotation namespace to add.
+   */
+  public function addAnnotationNamespace($namespace) {
+    $this->annotationNamespaces->addNamespace($namespace);
   }
 
   /**
@@ -84,13 +104,17 @@ class AnnotatedClassDiscovery implements DiscoveryInterface {
 
   /**
    * Returns an array of PSR-0 namespaces to search for plugin classes.
+   *
+   * @return SearchableNamespacesInterface
    */
   protected function getPluginNamespaces() {
-    return $this->pluginNamespaces;
+    return $this->rootNamespaces->buildFromSuffix('\\' . $this->namespaceSuffix);
   }
 
   /**
    * Returns a searchable namespace collection to search for annotation classes.
+   *
+   * @return SearchableNamespacesInterface
    */
   protected function getAnnotationNamespaces() {
     return $this->annotationNamespaces;

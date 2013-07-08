@@ -43,9 +43,10 @@ class WidgetPluginManager extends DefaultPluginManager {
   /**
    * Constructs a WidgetPluginManager object.
    *
-   * @param \Traversable $namespaces
-   *   An object that implements \Traversable which contains the root paths
-   *   keyed by the corresponding namespace to look for plugin implementations.
+   * @param SearchableNamespacesInterface $root_namespaces
+   *   Searchable namespaces for enabled extensions and core.
+   *   This will be used to build the plugin namespaces by adding the suffix.
+   *   E.g. the root namespace for a module is Drupal\$module.
    * @param \Drupal\Core\Cache\CacheBackendInterface $cache_backend
    *   Cache backend instance to use.
    * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
@@ -53,8 +54,8 @@ class WidgetPluginManager extends DefaultPluginManager {
    * @param \Drupal\Core\Language\LanguageManager $language_manager
    *   The language manager.
    */
-  public function __construct(SearchableNamespacesInterface $namespaces, CacheBackendInterface $cache_backend, ModuleHandlerInterface $module_handler, LanguageManager $language_manager) {
-    parent::__construct('field/widget', $namespaces);
+  public function __construct(SearchableNamespacesInterface $root_namespaces, CacheBackendInterface $cache_backend, ModuleHandlerInterface $module_handler, LanguageManager $language_manager) {
+    parent::__construct($root_namespaces, 'field\widget');
 
     $this->setCacheBackend($cache_backend, $language_manager, 'field_widget_types');
     $this->alterInfo($module_handler, 'field_widget_info');

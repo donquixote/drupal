@@ -24,22 +24,20 @@ class AggregatorPluginManager extends PluginManagerBase {
    *
    * @param string $type
    *   The plugin type, for example fetcher.
-   * @param \Traversable $namespaces
-   *   An object that implements \Traversable which contains the root paths
-   *   keyed by the corresponding namespace to look for plugin implementations,
+   * @param SearchableNamespacesInterface $root_namespaces
+   *   Searchable namespaces for enabled extensions and core.
+   *   This will be used to build the plugin namespaces by adding the suffix.
+   *   E.g. the root namespace for a module is Drupal\$module.
    */
-  public function __construct($type, SearchableNamespacesInterface $namespaces) {
+  public function __construct($type, SearchableNamespacesInterface $root_namespaces) {
     $type_annotations = array(
       'fetcher' => 'Drupal\aggregator\Annotation\AggregatorFetcher',
       'parser' => 'Drupal\aggregator\Annotation\AggregatorParser',
       'processor' => 'Drupal\aggregator\Annotation\AggregatorProcessor',
     );
 
-    $annotation_namespaces = array(
-      'Drupal\aggregator\Annotation' => DRUPAL_ROOT . '/core/modules/aggregator/lib',
-    );
-
-    $this->discovery = new AnnotatedClassDiscovery("aggregator/$type", $namespaces, $annotation_namespaces, $type_annotations[$type]);
+    $this->discovery = new AnnotatedClassDiscovery($root_namespaces, "aggregator\\$type", $type_annotations[$type]);
+    $this->discovery->addAnnotationNamespace('Drupal\aggregator\Annotation');
     $this->discovery = new CacheDecorator($this->discovery, "aggregator_$type:" . language(Language::TYPE_INTERFACE)->id);
     $this->factory = new DefaultFactory($this->discovery);
   }

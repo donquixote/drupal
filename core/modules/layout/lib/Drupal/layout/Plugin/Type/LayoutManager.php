@@ -26,13 +26,14 @@ class LayoutManager extends PluginManagerBase {
   /**
    * Overrides Drupal\Component\Plugin\PluginManagerBase::__construct().
    *
-   * @param \Traversable $namespaces
-   *   An object that implements \Traversable which contains the root paths
-   *   keyed by the corresponding namespace to look for plugin implementations,
+   * @param SearchableNamespacesInterface $root_namespaces
+   *   Searchable namespaces for enabled extensions and core.
+   *   This will be used to build the plugin namespaces by adding the suffix.
+   *   E.g. the root namespace for a module is Drupal\$module.
    */
-  public function __construct(SearchableNamespacesInterface $namespaces) {
+  public function __construct(SearchableNamespacesInterface $root_namespaces) {
     // Create layout plugin derivatives from declaratively defined layouts.
-    $this->discovery = new AnnotatedClassDiscovery('Layout', $namespaces);
+    $this->discovery = new AnnotatedClassDiscovery($root_namespaces, 'Layout');
     $this->discovery = new DerivativeDiscoveryDecorator($this->discovery);
     $this->discovery = new ProcessDecorator($this->discovery, array($this, 'processDefinition'));
 

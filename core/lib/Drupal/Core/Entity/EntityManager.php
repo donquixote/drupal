@@ -91,9 +91,10 @@ class EntityManager extends PluginManagerBase {
   /**
    * Constructs a new Entity plugin manager.
    *
-   * @param \Traversable $namespaces
-   *   An object that implements \Traversable which contains the root paths
-   *   keyed by the corresponding namespace to look for plugin implementations,
+   * @param SearchableNamespacesInterface $root_namespaces
+   *   Searchable namespaces for enabled extensions and core.
+   *   This will be used to build the plugin namespaces by adding the suffix.
+   *   E.g. the root namespace for a module is Drupal\$module.
    * @param \Symfony\Component\DependencyInjection\ContainerInterface $container
    *   The service container this object should use.
    * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
@@ -103,17 +104,15 @@ class EntityManager extends PluginManagerBase {
    * @param \Drupal\Core\Language\LanguageManager $language_manager
    *   The language manager.
    */
-  public function __construct(SearchableNamespacesInterface $namespaces, ContainerInterface $container, ModuleHandlerInterface $module_handler, CacheBackendInterface $cache, LanguageManager $language_manager) {
-    // Allow the plugin definition to be altered by hook_entity_info_alter().
-    $annotation_namespaces = array(
-      'Drupal\Core\Entity\Annotation' => TRUE,
-    );
+  public function __construct(SearchableNamespacesInterface $root_namespaces, ContainerInterface $container, ModuleHandlerInterface $module_handler, CacheBackendInterface $cache, LanguageManager $language_manager) {
 
+    // Allow the plugin definition to be altered by hook_entity_info_alter().
     $this->moduleHandler = $module_handler;
     $this->cache = $cache;
     $this->languageManager = $language_manager;
 
-    $this->discovery = new AnnotatedClassDiscovery('Core/Entity', $namespaces, $annotation_namespaces, 'Drupal\Core\Entity\Annotation\EntityType');
+    $this->discovery = new AnnotatedClassDiscovery($root_namespaces, 'Core\Entity', 'Drupal\Core\Entity\Annotation\EntityType');
+    $this->discovery->addAnnotationNamespace('Drupal\Core\Entity\Annotation');
     $this->discovery = new InfoHookDecorator($this->discovery, 'entity_info');
     $this->discovery = new AlterDecorator($this->discovery, 'entity_info');
     $this->discovery = new CacheDecorator($this->discovery, 'entity_info:' . $this->languageManager->getLanguage(Language::TYPE_INTERFACE)->id, 'cache', CacheBackendInterface::CACHE_PERMANENT, array('entity_info' => TRUE));

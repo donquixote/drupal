@@ -32,9 +32,10 @@ class FieldTypePluginManager extends DefaultPluginManager {
   /**
    * Constructs the FieldTypePluginManager object
    *
-   * @param \Traversable $namespaces
-   *   An object that implements \Traversable which contains the root paths
-   *   keyed by the corresponding namespace to look for plugin implementations.
+   * @param SearchableNamespacesInterface $root_namespaces
+   *   Searchable namespaces for enabled extensions and core.
+   *   This will be used to build the plugin namespaces by adding the suffix.
+   *   E.g. the root namespace for a module is Drupal\$module.
    * @param \Drupal\Core\Cache\CacheBackendInterface $cache_backend
    *   Cache backend instance to use.
    * @param \Drupal\Core\Language\LanguageManager $language_manager
@@ -42,11 +43,8 @@ class FieldTypePluginManager extends DefaultPluginManager {
    * @param \Drupal\Core\Extension\ModuleHandlerInterface
    *   The module handler.
    */
-  public function __construct(SearchableNamespacesInterface $namespaces, CacheBackendInterface $cache_backend, LanguageManager $language_manager, ModuleHandlerInterface $module_handler) {
-    $annotation_namespaces = array(
-      'Drupal\Core\Entity\Annotation' => TRUE,
-    );
-    parent::__construct('field/field_type', $namespaces, $annotation_namespaces, 'Drupal\Core\Entity\Annotation\FieldType');
+  public function __construct(SearchableNamespacesInterface $root_namespaces, CacheBackendInterface $cache_backend, LanguageManager $language_manager, ModuleHandlerInterface $module_handler) {
+    parent::__construct($root_namespaces, 'field\field_type', array('Drupal\Core\Entity\Annotation'), 'Drupal\Core\Entity\Annotation\FieldType');
     $this->alterInfo($module_handler, 'field_info');
     $this->setCacheBackend($cache_backend, $language_manager, 'field_types');
 

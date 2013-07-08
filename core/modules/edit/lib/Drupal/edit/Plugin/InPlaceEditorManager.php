@@ -25,13 +25,14 @@ class InPlaceEditorManager extends PluginManagerBase {
   /**
    * Overrides \Drupal\Component\Plugin\PluginManagerBase::__construct().
    *
-   * @param \Traversable $namespaces
-   *   An object that implements \Traversable which contains the root paths
-   *   keyed by the corresponding namespace to look for plugin implementations,
+   * @param SearchableNamespacesInterface $root_namespaces
+   *   Searchable namespaces for enabled extensions and core.
+   *   This will be used to build the plugin namespaces by adding the suffix.
+   *   E.g. the root namespace for a module is Drupal\$module.
    */
-  public function __construct(SearchableNamespacesInterface $namespaces) {
-    $annotation_namespaces = array('Drupal\edit\Annotation' => TRUE);
-    $this->discovery = new AnnotatedClassDiscovery('InPlaceEditor', $namespaces, $annotation_namespaces, 'Drupal\edit\Annotation\InPlaceEditor');
+  public function __construct(SearchableNamespacesInterface $root_namespaces) {
+    $this->discovery = new AnnotatedClassDiscovery($root_namespaces, 'InPlaceEditor', 'Drupal\edit\Annotation\InPlaceEditor');
+    $this->discovery->addAnnotationNamespace('Drupal\edit\Annotation');
     $this->discovery = new AlterDecorator($this->discovery, 'edit_editor');
     $this->discovery = new CacheDecorator($this->discovery, 'edit:editor');
     $this->factory = new DefaultFactory($this->discovery);

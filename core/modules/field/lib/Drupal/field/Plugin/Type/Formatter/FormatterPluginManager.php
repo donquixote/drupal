@@ -34,9 +34,10 @@ class FormatterPluginManager extends DefaultPluginManager {
   /**
    * Constructs a FormatterPluginManager object.
    *
-   * @param SearchableNamespacesInterface $namespaces
-   *   An object that implements \Traversable which contains the root paths
-   *   keyed by the corresponding namespace to look for plugin implementations.
+   * @param SearchableNamespacesInterface $root_namespaces
+   *   Searchable namespaces for enabled extensions and core.
+   *   This will be used to build the plugin namespaces by adding the suffix.
+   *   E.g. the root namespace for a module is Drupal\$module.
    * @param \Drupal\Core\Cache\CacheBackendInterface $cache_backend
    *   Cache backend instance to use.
    * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
@@ -44,10 +45,9 @@ class FormatterPluginManager extends DefaultPluginManager {
    * @param \Drupal\Core\Language\LanguageManager $language_manager
    *   The language manager.
    */
-  public function __construct(SearchableNamespacesInterface $namespaces, CacheBackendInterface $cache_backend, ModuleHandlerInterface $module_handler, LanguageManager $language_manager) {
-    $annotation_namespaces = $namespaces->buildSearchableNamespaces(array('Drupal\field\Annotation'));
+  public function __construct(SearchableNamespacesInterface $root_namespaces, CacheBackendInterface $cache_backend, ModuleHandlerInterface $module_handler, LanguageManager $language_manager) {
 
-    parent::__construct('field/formatter', $namespaces, $annotation_namespaces, 'Drupal\field\Annotation\FieldFormatter');
+    parent::__construct($root_namespaces, 'field\formatter', array('Drupal\field\Annotation'), 'Drupal\field\Annotation\FieldFormatter');
 
     $this->setCacheBackend($cache_backend, $language_manager, 'field_formatter_types');
     $this->alterInfo($module_handler, 'field_formatter_info');

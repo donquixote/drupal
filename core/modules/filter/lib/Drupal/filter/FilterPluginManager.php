@@ -26,13 +26,14 @@ class FilterPluginManager extends PluginManagerBase {
   /**
    * Constructs a FilterPluginManager object.
    *
-   * @param \Traversable $namespaces
-   *   An object that implements \Traversable which contains the root paths
-   *   keyed by the corresponding namespace to look for plugin implementations.
+   * @param SearchableNamespacesInterface $root_namespaces
+   *   Searchable namespaces for enabled extensions and core.
+   *   This will be used to build the plugin namespaces by adding the suffix.
+   *   E.g. the root namespace for a module is Drupal\$module.
    */
-  public function __construct(SearchableNamespacesInterface $namespaces) {
-    $annotation_namespaces = array('Drupal\filter\Annotation' => TRUE);
-    $this->discovery = new AnnotatedClassDiscovery('Filter', $namespaces, $annotation_namespaces, 'Drupal\filter\Annotation\Filter');
+  public function __construct(SearchableNamespacesInterface $root_namespaces) {
+    $this->discovery = new AnnotatedClassDiscovery($root_namespaces, 'Filter', 'Drupal\filter\Annotation\Filter');
+    $this->discovery->addAnnotationNamespace('Drupal\filter\Annotation');
     $this->discovery = new AlterDecorator($this->discovery, 'filter_info');
     $cache_key = 'filter_plugins:' . language(Language::TYPE_INTERFACE)->id;
     $cache_tags = array('filter_formats' => TRUE);

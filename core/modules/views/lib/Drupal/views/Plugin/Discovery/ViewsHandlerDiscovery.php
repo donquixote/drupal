@@ -7,13 +7,14 @@
 
 namespace Drupal\views\Plugin\Discovery;
 
-use Drupal\Core\Plugin\Discovery\AnnotatedClassDiscovery;
+use Drupal\Core\Plugin\Discovery\AnnotatedClassDiscovery as CoreAnnotatedClassDiscovery;
+use Drupal\Core\Plugin\Discovery\AnnotatedClassDiscovery as ComponentAnnotatedClassDiscovery;
 use Krautoload\SearchableNamespaces_Interface as SearchableNamespacesInterface;
 
 /**
  * Defines a discovery mechanism to find Views handlers in PSR-0 namespaces.
  */
-class ViewsHandlerDiscovery extends AnnotatedClassDiscovery {
+class ViewsHandlerDiscovery extends CoreAnnotatedClassDiscovery {
 
   /**
    * The type of handler being discovered.
@@ -23,48 +24,31 @@ class ViewsHandlerDiscovery extends AnnotatedClassDiscovery {
   protected $type;
 
   /**
-   * An object containing the namespaces to look for plugin implementations.
-   *
-   * @var \Traversable
-   */
-  protected $rootNamespaces;
-
-  /**
    * Constructs a ViewsHandlerDiscovery object.
    *
    * @param string $type
    *   The plugin type, for example filter.
    * @param SearchableNamespacesInterface $root_namespaces
-   *   An object that implements \Traversable which contains the root paths
-   *   keyed by the corresponding namespace to look for plugin implementations,
+   *   Searchable namespaces for enabled extensions and core.
+   *   This will be used to build the plugin namespaces by adding the suffix.
+   *   E.g. the root namespace for a module is Drupal\$module.
    */
   function __construct($type, SearchableNamespacesInterface $root_namespaces) {
     $this->type = $type;
-    $this->rootNamespaces = $root_namespaces;
-
-    $this->pluginNamespaces = $root_namespaces->buildFromSuffix("\\Plugin\\views\\{$type}");
-    $this->annotationNamespaces = $root_namespaces->buildSearchableNamespaces(array('Drupal\Component\Annotation'));
-
-    $this->pluginDefinitionAnnotationName = 'Drupal\Component\Annotation\PluginID';
+    ComponentAnnotatedClassDiscovery::__construct($root_namespaces, 'Plugin\views\\' . $type, 'Drupal\Component\Annotation\PluginID');
+    $this->addAnnotationNamespace('Drupal\Component\Annotation');
   }
 
   /**
    * {@inheritdoc}
    */
   public function getDefinitions() {
-    // Add the plugin_type to the definition.
     $definitions = parent::getDefinitions();
+    // Add the plugin_type to each definition.
     foreach ($definitions as $key => $definition) {
       $definitions[$key]['plugin_type'] = $this->type;
     }
     return $definitions;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  protected function getPluginNamespaces() {
-    return $this->rootNamespaces->buildFromSuffix("\\Plugin\\views\\{$this->type}");
   }
 
 }

@@ -23,13 +23,14 @@ class TipPluginManager extends PluginManagerBase {
   /**
    * Overrides \Drupal\Component\Plugin\PluginManagerBase::__construct().
    *
-   * @param \Traversable $namespaces
-   *   An object that implements \Traversable which contains the root paths
-   *   keyed by the corresponding namespace to look for plugin implementations,
+   * @param SearchableNamespacesInterface $root_namespaces
+   *   Searchable namespaces for enabled extensions and core.
+   *   This will be used to build the plugin namespaces by adding the suffix.
+   *   E.g. the root namespace for a module is Drupal\$module.
    */
-  public function __construct(SearchableNamespacesInterface $namespaces) {
-    $annotation_namespaces = array('Drupal\tour\Annotation' => TRUE);
-    $this->discovery = new AnnotatedClassDiscovery('tour/tip', $namespaces, $annotation_namespaces, 'Drupal\tour\Annotation\Tip');
+  public function __construct(SearchableNamespacesInterface $root_namespaces) {
+    $this->discovery = new AnnotatedClassDiscovery($root_namespaces, 'tour\tip', 'Drupal\tour\Annotation\Tip');
+    $this->discovery->addAnnotationNamespace('Drupal\tour\Annotation');
     $this->discovery = new AlterDecorator($this->discovery, 'tour_tips_info');
     $this->discovery = new CacheDecorator($this->discovery, 'tour');
 

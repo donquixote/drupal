@@ -16,53 +16,23 @@ use Krautoload\SearchableNamespaces_Interface as SearchableNamespacesInterface;
 class AnnotatedClassDiscovery extends ComponentAnnotatedClassDiscovery {
 
   /**
-   * The module name that defines the plugin type.
-   *
-   * @var string
-   */
-  protected $owner;
-
-  /**
-   * The plugin type, for example filter.
-   *
-   * @var string
-   */
-  protected $type;
-
-  /**
-   * An object containing the namespaces to look for plugin implementations.
-   *
-   * @var \Traversable
-   */
-  protected $rootNamespaces;
-
-  /**
    * Constructs an AnnotatedClassDiscovery object.
    *
-   * @param string $subdir
-   *   The plugin's subdirectory, for example views/filter.
-   * @param \Traversable $root_namespaces
-   *   An object that implements \Traversable which contains the root paths
-   *   keyed by the corresponding namespace to look for plugin implementations,
-   *   \Plugin\$subdir will be appended to each namespace.
-   * @param array $annotation_namespaces
-   *   (optional) The namespaces of classes that can be used as annotations.
-   *   Defaults to an empty array.
+   * @param SearchableNamespacesInterface $root_namespaces
+   *   Searchable namespaces for enabled extensions and core.
+   *   This will be used to build the plugin namespaces by adding the suffix.
+   *   E.g. the root namespace for a module is Drupal\$module.
+   * @param string $namespace_suffix
+   *   Suffix to build plugin namespaces from root namespaces, e.g. 'views\filter'.
+   *   The resulting plugin namespace will be $root_namespace\Plugin\$namespace_suffix.
    * @param string $plugin_definition_annotation_name
    *   (optional) The name of the annotation that contains the plugin definition.
    *   Defaults to 'Drupal\Component\Annotation\Plugin'.
    */
-  function __construct($subdir, SearchableNamespacesInterface $root_namespaces, $annotation_namespaces = array(), $plugin_definition_annotation_name = 'Drupal\Component\Annotation\Plugin') {
-    $this->subdir = str_replace('/', '\\', $subdir);
-    $this->rootNamespaces = $root_namespaces;
-    if (!is_object($annotation_namespaces)) {
-      $annotation_namespaces = $root_namespaces->buildSearchableNamespaces(array_keys($annotation_namespaces));
-    }
-    $annotation_namespaces->addNamespace('Drupal\Component\Annotation');
-    $annotation_namespaces->addNamespace('Drupal\Core\Annotation');
-    // For performance reasons, initialize with an empty namespace collection.
-    $plugin_namespaces = $root_namespaces->buildSearchableNamespaces(array());
-    parent::__construct($plugin_namespaces, $annotation_namespaces, $plugin_definition_annotation_name);
+  function __construct(SearchableNamespacesInterface $root_namespaces, $namespace_suffix, $plugin_definition_annotation_name = 'Drupal\Component\Annotation\Plugin') {
+    parent::__construct($root_namespaces, 'Plugin\\' . $namespace_suffix, $plugin_definition_annotation_name);
+    $this->addAnnotationNamespace('Drupal\Component\Annotation');
+    $this->addAnnotationNamespace('Drupal\Core\Annotation');
   }
 
   /**
@@ -96,13 +66,6 @@ class AnnotatedClassDiscovery extends ComponentAnnotatedClassDiscovery {
     }
 
     return NULL;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  protected function getPluginNamespaces() {
-    return $this->rootNamespaces->buildFromSuffix("\\Plugin\\{$this->subdir}");
   }
 
 }

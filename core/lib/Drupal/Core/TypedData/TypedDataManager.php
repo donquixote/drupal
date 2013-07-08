@@ -46,14 +46,25 @@ class TypedDataManager extends DefaultPluginManager {
    */
   protected $prototypes = array();
 
-  public function __construct(SearchableNamespacesInterface $namespaces, CacheBackendInterface $cache_backend, LanguageManager $language_manager, ModuleHandlerInterface $module_handler) {
+  /**
+   * Overrides \Drupal\Core\Plugin\DefaultPluginManager::__construct().
+   *
+   * @param SearchableNamespacesInterface $root_namespaces
+   *   Searchable namespaces for enabled extensions and core.
+   *   This will be used to build the plugin namespaces by adding the suffix.
+   *   E.g. the root namespace for a module is Drupal\$module.
+   * @param \Drupal\Core\Cache\CacheBackendInterface $cache_backend
+   *   Cache backend instance to use.
+   * @param \Drupal\Core\Language\LanguageManager $language_manager
+   *   The language manager.
+   * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
+   *   The module handler to invoke the alter hook with.
+   */
+  public function __construct(SearchableNamespacesInterface $root_namespaces, CacheBackendInterface $cache_backend, LanguageManager $language_manager, ModuleHandlerInterface $module_handler) {
     $this->alterInfo($module_handler, 'data_type_info');
     $this->setCacheBackend($cache_backend, $language_manager, 'typed_data:types');
 
-    $annotation_namespaces = array(
-      'Drupal\Core\TypedData\Annotation' => TRUE,
-    );
-    parent::__construct('DataType', $namespaces, $annotation_namespaces, 'Drupal\Core\TypedData\Annotation\DataType');
+    parent::__construct($root_namespaces, 'DataType', array('Drupal\Core\TypedData\Annotation'), 'Drupal\Core\TypedData\Annotation\DataType');
   }
 
   /**

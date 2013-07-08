@@ -8,8 +8,6 @@
 namespace Drupal\Component\Plugin\Discovery;
 
 use Doctrine\Common\Annotations\AnnotationReader;
-// use Drupal\Component\Plugin\Discovery\Doctrine\AnnotationReader;
-
 use Doctrine\Common\Reflection\StaticReflectionParser;
 use Drupal\Component\Reflection\MockFileFinder;
 
@@ -36,7 +34,7 @@ class ClassFileVisitorAPI extends \Krautoload\InjectedAPI_ClassFileVisitor_Abstr
    *
    * @return array
    */
-  function getDefinitions() {
+  public function getDefinitions() {
     return $this->definitions;
   }
 
@@ -51,7 +49,7 @@ class ClassFileVisitorAPI extends \Krautoload\InjectedAPI_ClassFileVisitor_Abstr
    *   The first class in this array is always the class which has no
    *   underscores after the last namespace separator.
    */
-  function fileWithClass($file, $relativeClassName) {
+  public function fileWithClass($file, $relativeClassName) {
     $this->parseFileWithClass($file, $relativeClassName);
   }
 
@@ -66,7 +64,7 @@ class ClassFileVisitorAPI extends \Krautoload\InjectedAPI_ClassFileVisitor_Abstr
    *   The first class in this array is always the class which has no
    *   underscores after the last namespace separator.
    */
-  function fileWithClassCandidates($file, $relativeClassNames) {
+  public function fileWithClassCandidates($file, $relativeClassNames) {
     // Only pick the first class, which is the no-underscore version.
     $this->parseFileWithClass($file, $relativeClassNames[0]);
   }

@@ -25,13 +25,14 @@ class CKEditorPluginManager extends PluginManagerBase {
   /**
    * Overrides \Drupal\Component\Plugin\PluginManagerBase::__construct().
    *
-   * @param \Traversable $namespaces
-   *   An object that implements \Traversable which contains the root paths
-   *   keyed by the corresponding namespace to look for plugin implementations,
+   * @param SearchableNamespacesInterface $root_namespaces
+   *   Searchable namespaces for enabled extensions and core.
+   *   This will be used to build the plugin namespaces by adding the suffix.
+   *   E.g. the root namespace for a module is Drupal\$module.
    */
-  public function __construct(SearchableNamespacesInterface $namespaces) {
-    $annotation_namespaces = $namespaces->buildSearchableNamespaces(array('Drupal\ckeditor\Annotation'));
-    $this->discovery = new AnnotatedClassDiscovery('CKEditorPlugin', $namespaces, $annotation_namespaces, 'Drupal\ckeditor\Annotation\CKEditorPlugin');
+  public function __construct(SearchableNamespacesInterface $root_namespaces) {
+    $this->discovery = new AnnotatedClassDiscovery($root_namespaces, 'CKEditorPlugin', 'Drupal\ckeditor\Annotation\CKEditorPlugin');
+    $this->discovery->addAnnotationNamespace('Drupal\ckeditor\Annotation');
     $this->discovery = new AlterDecorator($this->discovery, 'ckeditor_plugin_info');
     $this->discovery = new CacheDecorator($this->discovery, 'ckeditor_plugin');
     $this->factory = new DefaultFactory($this->discovery);

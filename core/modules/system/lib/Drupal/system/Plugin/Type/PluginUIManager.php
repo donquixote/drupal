@@ -25,12 +25,13 @@ class PluginUIManager extends PluginManagerBase {
   /**
    * Constructs a \Drupal\system\Plugin\Type\PluginUIManager object.
    *
-   * @param \Traversable $namespaces
-   *   An object that implements \Traversable which contains the root paths
-   *   keyed by the corresponding namespace to look for plugin implementations,
+   * @param SearchableNamespacesInterface $root_namespaces
+   *   Searchable namespaces for enabled extensions and core.
+   *   This will be used to build the plugin namespaces by adding the suffix.
+   *   E.g. the root namespace for a module is Drupal\$module.
    */
-  public function __construct(SearchableNamespacesInterface $namespaces) {
-    $this->discovery = new AnnotatedClassDiscovery('PluginUI', $namespaces);
+  public function __construct(SearchableNamespacesInterface $root_namespaces) {
+    $this->discovery = new AnnotatedClassDiscovery($root_namespaces, 'PluginUI');
     $this->discovery = new DerivativeDiscoveryDecorator($this->discovery);
     $this->discovery = new AlterDecorator($this->discovery, 'plugin_ui');
     $this->discovery = new CacheDecorator($this->discovery, 'plugin_ui');

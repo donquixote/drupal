@@ -24,13 +24,15 @@ class SelectionPluginManager extends PluginManagerBase {
   /**
    * Constructs a SelectionPluginManager object.
    *
-   * @param \Traversable $namespaces
-   *   An object that implements \Traversable which contains the root paths
-   *   keyed by the corresponding namespace to look for plugin implementations,
+   * @param SearchableNamespacesInterface $root_namespaces
+   *   Searchable namespaces for enabled extensions and core.
+   *   This will be used to build the plugin namespaces by adding the suffix.
+   *   E.g. the root namespace for a module is Drupal\$module.
    */
-  public function __construct(SearchableNamespacesInterface $namespaces) {
-    $this->baseDiscovery = new AlterDecorator(new AnnotatedClassDiscovery('entity_reference/selection', $namespaces), 'entity_reference_selection');
-    $this->discovery = new CacheDecorator($this->baseDiscovery, 'entity_reference_selection');
+  public function __construct(SearchableNamespacesInterface $root_namespaces) {
+    $this->discovery = new AnnotatedClassDiscovery($root_namespaces, 'entity_reference\selection');
+    $this->discovery = new AlterDecorator($this->discovery, 'entity_reference_selection');
+    $this->discovery = new CacheDecorator($this->discovery, 'entity_reference_selection');
     $this->factory = new ReflectionFactory($this);
   }
 

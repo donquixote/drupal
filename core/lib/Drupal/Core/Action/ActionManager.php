@@ -24,12 +24,13 @@ class ActionManager extends PluginManagerBase {
   /**
    * Constructs a ActionManager object.
    *
-   * @param \Traversable $namespaces
-   *   An object that implements \Traversable which contains the root paths
-   *   keyed by the corresponding namespace to look for plugin implementations.
+   * @param SearchableNamespacesInterface $root_namespaces
+   *   Searchable namespaces for enabled extensions and core.
+   *   This will be used to build the plugin namespaces by adding the suffix.
+   *   E.g. the root namespace for a module is Drupal\$module.
    */
-  public function __construct(SearchableNamespacesInterface $namespaces) {
-    $this->discovery = new AnnotatedClassDiscovery('Action', $namespaces, array(), 'Drupal\Core\Annotation\Action');
+  public function __construct(SearchableNamespacesInterface $root_namespaces) {
+    $this->discovery = new AnnotatedClassDiscovery($root_namespaces, 'Action', 'Drupal\Core\Annotation\Action');
     $this->discovery = new AlterDecorator($this->discovery, 'action_info');
 
     $this->factory = new ContainerFactory($this);
