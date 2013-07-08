@@ -101,25 +101,25 @@ class SearchableNamespaces_Default implements SearchableNamespaces_Interface {
    * @param boolean $recursive
    */
   function apiVisitClassFiles(InjectedAPI_ClassFileVisitor_Interface $api, $recursive = FALSE) {
-    $namespaceFinderAPI = $recursive ? new InjectedAPI_NamespaceVisitor_ScanRecursive($api) : new InjectedAPI_NamespaceVisitor_ScanNamespace($api);
-    $this->finder->apiVisitNamespaces($namespaceFinderAPI, array_keys($this->namespaces));
+    $namespaceVisitorAPI = $recursive ? new InjectedAPI_NamespaceVisitor_ScanRecursive($api) : new InjectedAPI_NamespaceVisitor_ScanNamespace($api);
+    $this->apiVisitNamespaces($namespaceVisitorAPI);
   }
 
   /**
    * Visit all namespaces.
    *
-   * @param InjectedAPI_ClassFileVisitor_Interface $api
-   * @param boolean $recursive
+   * @param InjectedAPI_NamespaceVisitor_Interface $api
    */
   function apiVisitNamespaces(InjectedAPI_NamespaceVisitor_Interface $api) {
-    $this->finder->apiVisitNamespaces($api, array_keys($this->namespaces));
+    foreach ($this->namespaces as $namespace) {
+      $this->finder->apiFindNamespace($api, $namespace);
+    }
   }
 
   /**
    * Scan all registered namespaces for class files, include each file, and
    * return all classes that actually exist (but no interfaces).
    *
-   * @param InjectedAPI_ClassFileVisitor_Interface $api
    * @param boolean $recursive
    *
    * @return array
@@ -135,7 +135,6 @@ class SearchableNamespaces_Default implements SearchableNamespaces_Interface {
    * Scan all registered namespaces for class files, and return all names that
    * may be defined as a class or interface within these namespaces.
    *
-   * @param InjectedAPI_ClassFileVisitor_Interface $api
    * @param boolean $recursive
    *
    * @return array
@@ -156,6 +155,8 @@ class SearchableNamespaces_Default implements SearchableNamespaces_Interface {
    * - Is the class defined after file inclusion?
    *
    * The method can return FALSE even if the class is defined
+   *
+   * @param string $class
    */
   function classExistsInNamespaces($class) {
     return $this->classIsInNamespaces($class) && $this->classExistsInFinder($class);

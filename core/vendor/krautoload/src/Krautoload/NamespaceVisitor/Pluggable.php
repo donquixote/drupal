@@ -8,7 +8,7 @@ class NamespaceVisitor_Pluggable extends ClassFinder_Pluggable implements Namesp
    * @param InjectedAPI_NamespaceVisitor_Interface $api
    * @param string $namespace
    */
-  public function apiVisitNamespace($api, $namespace) {
+  public function apiFindNamespace($api, $namespace) {
 
     // Discard initial namespace separator.
     if ('\\' === $namespace[0]) {
@@ -46,26 +46,6 @@ class NamespaceVisitor_Pluggable extends ClassFinder_Pluggable implements Namesp
       else {
         $logicalBasePath = '';
         $relativePath = $logicalPath;
-      }
-    }
-  }
-
-  /**
-   * @param InjectedAPI_NamespaceVisitor_Interface $api
-   * @param array $namespaces
-   */
-  public function apiVisitNamespaces($api, $namespaces) {
-    foreach ($namespaces as $namespace) {
-      $this->apiVisitNamespace($api, $namespace);
-    }
-  }
-
-  public function apiVisitBaseNamespaces($api) {
-    foreach ($this->namespaceMap as $logicalBasePath => $plugins) {
-      $namespace = str_replace(DIRECTORY_SEPARATOR, '\\', substr($logicalBasePath, 0, -1));
-      $api->setNamespace($namespace);
-      foreach ($plugins as $baseDir => $plugin) {
-        $api->namespaceDirectoryPlugin($baseDir, '', $plugin);
       }
     }
   }
