@@ -35,7 +35,7 @@ class ViewsHandlerDiscovery extends CoreAnnotatedClassDiscovery {
    */
   function __construct($type, SearchableNamespacesInterface $root_namespaces) {
     $this->type = $type;
-    ComponentAnnotatedClassDiscovery::__construct($root_namespaces, 'Plugin\views\\' . $type, 'Drupal\Component\Annotation\PluginID');
+    ComponentAnnotatedClassDiscovery::__construct($root_namespaces, 'views\\' . $type, 'Drupal\Component\Annotation\PluginID');
     $this->addAnnotationNamespace('Drupal\Component\Annotation');
   }
 
