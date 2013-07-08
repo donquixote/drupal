@@ -5,8 +5,13 @@ namespace Krautoload;
 class NamespaceVisitor_Pluggable extends ClassFinder_Pluggable implements NamespaceVisitor_Interface {
 
   /**
+   * Find namespace path plugins that are registered for a parent namespace
+   * of the given namespace, and tell the $api object about it.
+   *
    * @param InjectedAPI_NamespaceVisitor_Interface $api
+   *   Object that will be informed for every matching plugin/path/namespace.
    * @param string $namespace
+   *   The namespace to look for.
    */
   public function apiFindNamespace($api, $namespace) {
 
