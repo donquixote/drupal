@@ -106,13 +106,13 @@ class EntityManager extends PluginManagerBase {
    */
   public function __construct(SearchableNamespacesInterface $root_namespaces, ContainerInterface $container, ModuleHandlerInterface $module_handler, CacheBackendInterface $cache, LanguageManager $language_manager) {
 
-    // Allow the plugin definition to be altered by hook_entity_info_alter().
     $this->moduleHandler = $module_handler;
     $this->cache = $cache;
     $this->languageManager = $language_manager;
 
     $this->discovery = new AnnotatedClassDiscovery($root_namespaces, 'Core\Entity', 'Drupal\Core\Entity\Annotation\EntityType');
     $this->discovery->addAnnotationNamespace('Drupal\Core\Entity\Annotation');
+    // Allow the plugin definition to be altered by hook_entity_info_alter().
     $this->discovery = new InfoHookDecorator($this->discovery, 'entity_info');
     $this->discovery = new AlterDecorator($this->discovery, 'entity_info');
     $this->discovery = new CacheDecorator($this->discovery, 'entity_info:' . $this->languageManager->getLanguage(Language::TYPE_INTERFACE)->id, 'cache', CacheBackendInterface::CACHE_PERMANENT, array('entity_info' => TRUE));
