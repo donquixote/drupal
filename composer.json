@@ -3,6 +3,12 @@
   "description": "Drupal is an open source content management platform powering millions of websites and applications.",
   "type": "drupal-core",
   "license": "GPL-2.0+",
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/donquixote/krautoload"
+    }
+  ],
   "require": {
     "symfony/class-loader": "2.3.*",
     "symfony/dependency-injection": "2.3.*",
@@ -20,7 +26,8 @@
     "symfony-cmf/routing": "1.1.*@alpha",
     "easyrdf/easyrdf": "0.8.*@beta",
     "phpunit/phpunit": "3.7.*",
-    "zendframework/zend-feed": "2.2.*"
+    "zendframework/zend-feed": "2.2.*",
+    "donquixote/krautoload": "0.0.*@alpha"
   },
   "autoload": {
     "psr-0": {
