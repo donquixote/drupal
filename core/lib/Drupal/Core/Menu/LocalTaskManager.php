@@ -12,6 +12,7 @@ use Drupal\Core\Plugin\DefaultPluginManager;
 use Drupal\Core\Routing\RouteProviderInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Controller\ControllerResolverInterface;
+use Krautoload\SearchableNamespaces_Interface as SearchableNamespacesInterface;
 
 /**
  * Manages discovery and instantiation of menu local task plugins.
@@ -53,9 +54,10 @@ class LocalTaskManager extends DefaultPluginManager {
   /**
    * Constructs a \Drupal\Core\Menu\LocalTaskManager object.
    *
-   * @param \Traversable $namespaces
-   *   An object that implements \Traversable which contains the root paths
-   *   keyed by the corresponding namespace to look for plugin implementations,
+   * @param SearchableNamespacesInterface $root_namespaces
+   *   Searchable namespaces for enabled extensions and core.
+   *   This will be used to build the plugin namespaces by adding the suffix.
+   *   E.g. the root namespace for a module is Drupal\$module.
    * @param \Symfony\Component\HttpKernel\Controller\ControllerResolverInterface $controller_resolver
    *   An object to use in introspecting route methods.
    * @param \Symfony\Component\HttpFoundation\Request $request
@@ -65,8 +67,8 @@ class LocalTaskManager extends DefaultPluginManager {
    * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
    *   The module handler.u
    */
-  public function __construct(\Traversable $namespaces, ControllerResolverInterface $controller_resolver, Request $request, RouteProviderInterface $route_provider, ModuleHandlerInterface $module_handler) {
-    parent::__construct('Menu\LocalTask', $namespaces, array(), 'Drupal\Core\Annotation\Menu\LocalTask');
+  public function __construct(SearchableNamespacesInterface $root_namespaces, ControllerResolverInterface $controller_resolver, Request $request, RouteProviderInterface $route_provider, ModuleHandlerInterface $module_handler) {
+    parent::__construct($root_namespaces, 'Menu\LocalTask', array(), 'Drupal\Core\Annotation\Menu\LocalTask');
     $this->controllerResolver = $controller_resolver;
     $this->request = $request;
     $this->routeProvider = $route_provider;
