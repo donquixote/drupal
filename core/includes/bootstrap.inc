@@ -2747,57 +2747,75 @@ function arg($index = NULL, $path = NULL) {
 }
 
 /**
- * Initializes and returns the class loader.
+ * Initializes the class loader, and return an object to controll the class
+ * loader.
  *
- * The class loader is responsible for lazy-loading all PSR-0 compatible
- * classes, interfaces, and traits (PHP 5.4 and later). It's only dependency
- * is DRUPAL_ROOT. Otherwise it may be called as early as possible.
+ * The class loader is responsible for lazy-loading all classes, interfaces, and
+ * traits (PHP 5.4 and later) that cannot be loaded in other ways.
+ * It may be called as soon as the DRUPAL_ROOT constant is available.
+ * (defined in 
+ * Its only dependency is DRUPAL_ROOT. Otherwise it may be called as early as possible.
  *
- * @param $class_loader
+ * @param $loader_name
  *   The name of class loader to use. This can be used to change the class
  *   loader class when calling drupal_classloader() from settings.php. It is
  *   ignored otherwise.
  *
- * @return \Symfony\Component\ClassLoader\ClassLoader
- *   A ClassLoader class instance (or extension thereof).
+ * @return \Krautoload\RegistrationHub
+ *   A wrapper around the class loader, with methods to register classes,
+ *   namespaces and prefixes.
  */
-function drupal_classloader($class_loader = NULL) {
-  // By default, use the ClassLoader which is best for development, as it does
-  // not break when code is moved on the file system. However, as it is slow,
-  // allow to use the APC class loader in production.
-  static $loader;
+function drupal_classloader($loader_name = NULL) {
+  /**
+   * @var \Krautoload\RegistrationHub $loader_controller
+   */
+  static $loader_controller;
 
-  if (!isset($loader)) {
+  // Initialize the class loader, if it is not already initialized.
+  if (!isset($loader_controller)) {
 
-    // Include and boot the Krautoload ClassLoader.
-    require_once DRUPAL_ROOT . '/core/vendor/krautoload/src/Krautoload.php';
+    // Include the bootstrap include file for the Krautoload ClassLoader.
+    // Drupal 8 uses Krautoload instead of the loader shipped with Symfony or
+    // Composer, to have PSR-4 support and class discovery.
+    require_once DRUPAL_ROOT . '/core/vendor/donquixote/krautoload/src/Krautoload.php';
 
-    // Register the class loader.
-    // When configured to use APC, the ApcClassLoader is registered instead.
-    // Note that ApcClassLoader decorates ClassLoader and only provides the
-    // findFile() method, but none of the others. The actual registry is still
-    // in ClassLoader.
-    if (!isset($class_loader)) {
-      $class_loader = settings()->get('class_loader', 'default');
-    }
-    if ($class_loader === 'apc') {
-      $salt = 'drupal.' . drupal_get_hash_salt();
-      // TODO: Use the salt and boot Krautoload with APC.
-      $loader = Krautoload::start();
-    }
-    else {
-      $loader = Krautoload::start();
+    // Check class loader setting, to determine which variation of the class
+    // loader to use.
+    if (!isset($loader_name)) {
+      $loader_name = settings()->get('class_loader', 'default');
     }
 
-    // Register namespaces for vendor libraries managed by Composer.
-    $loader->composerVendorDir(DRUPAL_ROOT . '/core/vendor');
+    // Prepare an options array to initialize Krautoload.
+    $krautoload_options = array();
+    // Use a discovery-enabled version of the class loader.
+    $krautoload_options['introspection'] = TRUE;
+    // Activate APC cache, if available.
+    if ($loader_name === 'apc' && extension_enabled('apc') && function_exists('apc_store')) {
+      $krautoload_options['cache'] = 'ApcCache';
+      $krautoload_options['cache_prefix'] = 'drupal.' . drupal_get_hash_salt();
+    }
+
+    // Bootstrap Krautoload with these options.
+    // The return value is a "RegistrationHub" object, which has various methods
+    // to register namespaces and other things, but is not the main class loader
+    // object. Within Drupal, this is being referred to as "$loader_controller".
+    $loader_controller = Krautoload::start($krautoload_options);
+
+    // Register class loading for vendor libraries managed by Composer.
+    // This will process
+    // - core/vendor/composer/autoload_namespaces.php
+    // - core/vendor/composer/autoload_classmap.php
+    // This will also work with a generated classmap from
+    // "composer install --optimize-autoloader".
+    $loader_controller->composerVendorDir(DRUPAL_ROOT . '/core/vendor');
   }
 
-  return $loader;
+  return $loader_controller;
 }
 
 /**
- * Registers an additional namespace.
+ * Registers class loading for a Drupal extension.
+ * (module, theme or install profile)
  *
  * @param string $name
  *   The namespace component to register; e.g., 'node'.
@@ -2806,7 +2824,15 @@ function drupal_classloader($class_loader = NULL) {
  */
 function drupal_classloader_register($name, $path) {
   $loader = drupal_classloader();
+
+  // Register the extension's "lib/" directory for PSR-0 class loading.
   $loader->addNamespacePSR0('Drupal\\' . $name, DRUPAL_ROOT . '/' . $path . '/lib');
+
+  // Register the extension's "src/" directory for PSR-4 class loading.
+  // @todo
+  //   - Make a choice between "src/" and "lib/" for PSR-4 classes.
+  //   - Have a transition phase to migrate modules to PSR-4.
+  //   - Remove PSR-0 after this transition phase.
   $loader->addNamespacePSRX('Drupal\\' . $name, DRUPAL_ROOT . '/' . $path . '/src');
 }
 
