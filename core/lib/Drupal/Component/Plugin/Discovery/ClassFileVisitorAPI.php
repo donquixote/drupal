@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains Drupal\Component\Plugin\Discovery\InjectedAPI_ClassFileVisitor.
+ * Contains Drupal\Component\Plugin\Discovery\ClassFileVisitorAPI.
  */
 
 namespace Drupal\Component\Plugin\Discovery;
@@ -10,8 +10,9 @@ namespace Drupal\Component\Plugin\Discovery;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Reflection\StaticReflectionParser;
 use Drupal\Component\Reflection\MockFileFinder;
+use Krautoload\InjectedAPI_ClassFileVisitor_Abstract;
 
-class ClassFileVisitorAPI extends \Krautoload\InjectedAPI_ClassFileVisitor_Abstract {
+class ClassFileVisitorAPI extends InjectedAPI_ClassFileVisitor_Abstract {
 
   protected $reader;
   protected $annotationName;
@@ -43,7 +44,7 @@ class ClassFileVisitorAPI extends \Krautoload\InjectedAPI_ClassFileVisitor_Abstr
    * which is expected to define the given class.
    *
    * @param string $file
-   * @param array $relativeClassNames
+   * @param string $relativeClassName
    *   Classes that could be in this file according to PSR-0 mapping.
    *   This array is never empty.
    *   The first class in this array is always the class which has no
@@ -64,7 +65,7 @@ class ClassFileVisitorAPI extends \Krautoload\InjectedAPI_ClassFileVisitor_Abstr
    *   The first class in this array is always the class which has no
    *   underscores after the last namespace separator.
    */
-  public function fileWithClassCandidates($file, $relativeClassNames) {
+  public function fileWithClassCandidates($file, array $relativeClassNames) {
     // Only pick the first class, which is the no-underscore version.
     $this->parseFileWithClass($file, $relativeClassNames[0]);
   }
@@ -88,10 +89,13 @@ class ClassFileVisitorAPI extends \Krautoload\InjectedAPI_ClassFileVisitor_Abstr
   }
 
   /**
-   * Extract the annotation from a class.
+   * Parse a class file, to extract the annotation.
    *
    * @param string $file
    * @param string $class
+   * @return mixed
+   *   The annotation as returned by AnnotationReader::getClassAnnotation(),
+   *   or NULL.
    */
   protected function extractClassAnnotation($file, $class) {
     // The filename is already known, so there is no need to find the
