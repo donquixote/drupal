@@ -319,7 +319,11 @@ function _simpletest_batch_operation($test_list_init, $test_id, &$context) {
   }
   $context['message'] = t('Processed test @num of @max - %test.', array('%test' => $info['name'], '@num' => $max - $size, '@max' => $max));
   $context['message'] .= '<div class="simpletest-' . ($test_results['#fail'] + $test_results['#exception'] ? 'fail' : 'pass') . '">Overall results: ' . _simpletest_format_summary_line($test_results) . '</div>';
-  $context['message'] .= theme('item_list', array('items' => $items));
+  $item_list = array(
+    '#theme' => 'item_list',
+    '#items' => $items,
+  );
+  $context['message'] .= drupal_render($item_list);
 
   // Save working values for the next iteration.
   $context['sandbox']['tests'] = $test_list;
@@ -512,7 +516,7 @@ function simpletest_classloader_register() {
     }
   }
 
-  // Register the core test directory so we can find Drupal\UnitTestCase.
+  // Register the core/tests directory so we can find Drupal\Tests\UnitTestCase.
   drupal_classloader()->addNamespacePSR0('Drupal\\Tests', DRUPAL_ROOT . '/core/tests');
 }
 
@@ -538,7 +542,8 @@ function simpletest_generate_file($filename, $width, $lines, $type = 'binary-tex
         break;
     }
   }
-  $text = wordwrap($text, $width - 1, "\n", TRUE) . "\n"; // Add \n for symmetrical file.
+  // Add \n for symmetrical file.
+  $text = wordwrap($text, $width - 1, "\n", TRUE) . "\n";
 
   // Create filename.
   file_put_contents('public://' . $filename . '.txt', $text);
@@ -564,8 +569,7 @@ function simpletest_clean_environment() {
 }
 
 /**
- * Removed prefixed tables from the database that are left over from crashed
- * tests.
+ * Remove prefixed tables from the database from crashed tests.
  */
 function simpletest_clean_database() {
   $tables = db_find_tables(Database::getConnection()->prefixTables('{simpletest}') . '%');

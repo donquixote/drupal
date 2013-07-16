@@ -9,31 +9,32 @@ namespace Drupal\entity_reference\Plugin\Type;
 
 use Drupal\Component\Plugin\Exception\PluginException;
 use Drupal\Component\Plugin\Factory\ReflectionFactory;
-use Drupal\Component\Plugin\PluginManagerBase;
-use Drupal\Core\Plugin\Discovery\AlterDecorator;
+use Drupal\Core\Cache\CacheBackendInterface;
+use Drupal\Core\Extension\ModuleHandlerInterface;
+use Drupal\Core\Language\LanguageManager;
+use Drupal\Core\Plugin\DefaultPluginManager;
 use Drupal\Core\Plugin\Discovery\AnnotatedClassDiscovery;
-use Drupal\Core\Plugin\Discovery\CacheDecorator;
 use Drupal\entity_reference\Plugin\Type\Selection\SelectionBroken;
 use Krautoload\SearchableNamespaces_Interface as SearchableNamespacesInterface;
 
 /**
  * Plugin type manager for the Entity Reference Selection plugin.
  */
-class SelectionPluginManager extends PluginManagerBase {
+class SelectionPluginManager extends DefaultPluginManager {
 
   /**
-   * Constructs a SelectionPluginManager object.
-   *
-   * @param SearchableNamespacesInterface $root_namespaces
-   *   Searchable namespaces for enabled extensions and core.
-   *   This will be used to build the plugin namespaces by adding the suffix.
-   *   E.g. the root namespace for a module is Drupal\$module.
+   * {@inheritdoc}
    */
-  public function __construct(SearchableNamespacesInterface $root_namespaces) {
-    $this->discovery = new AnnotatedClassDiscovery($root_namespaces, 'entity_reference\selection');
-    $this->discovery = new AlterDecorator($this->discovery, 'entity_reference_selection');
-    $this->discovery = new CacheDecorator($this->discovery, 'entity_reference_selection');
+  public function __construct(SearchableNamespacesInterface $root_namespaces, CacheBackendInterface $cache_backend, LanguageManager $language_manager, ModuleHandlerInterface $module_handler) {
+    $this->discovery = new AnnotatedClassDiscovery($root_namespaces, 'entity_reference\selection', 'Drupal\entity_reference\Annotation\EntityReferenceSelection');
+    $this->discovery->addAnnotationNamespace('Drupal\entity_reference\Annotation');
+
+    // We're not using the parent constructor because we use a different factory
+    // method and don't need the derivative discovery decorator.
     $this->factory = new ReflectionFactory($this);
+
+    $this->alterInfo($module_handler, 'entity_reference_selection');
+    $this->setCacheBackend($cache_backend, $language_manager, 'entity_reference_selection');
   }
 
   /**
@@ -81,7 +82,7 @@ class SelectionPluginManager extends PluginManagerBase {
     $plugins = array();
 
     foreach ($this->getDefinitions() as $plugin_id => $plugin) {
-      if (!isset($plugin['entity_types']) || in_array($entity_type, $plugin['entity_types'])) {
+      if (empty($plugin['entity_types']) || in_array($entity_type, $plugin['entity_types'])) {
         $plugins[$plugin['group']][$plugin_id] = $plugin;
       }
     }
