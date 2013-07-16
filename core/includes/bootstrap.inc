@@ -2772,7 +2772,7 @@ function drupal_classloader($loader_name = NULL) {
     // Include the bootstrap include file for the Krautoload ClassLoader.
     // Drupal 8 uses Krautoload instead of the loader shipped with Symfony or
     // Composer, to have PSR-4 support and class discovery.
-    require_once DRUPAL_ROOT . '/core/vendor/donquixote/krautoload/src/Krautoload.php';
+    require_once DRUPAL_ROOT . '/core/vendor/krautoload/src/Krautoload.php';
 
     // Check class loader setting, to determine which variation of the class
     // loader to use.
