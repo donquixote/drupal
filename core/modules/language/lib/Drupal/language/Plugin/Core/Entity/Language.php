@@ -10,6 +10,8 @@ namespace Drupal\language\Plugin\Core\Entity;
 use Drupal\Core\Entity\Annotation\EntityType;
 use Drupal\Core\Annotation\Translation;
 use Drupal\Core\Config\Entity\ConfigEntityBase;
+use Drupal\Core\Entity\EntityStorageControllerInterface;
+use Drupal\Core\Language\LanguageManager;
 use Drupal\language\LanguageInterface;
 
 /**
@@ -20,7 +22,9 @@ use Drupal\language\LanguageInterface;
  *   label = @Translation("Language"),
  *   module = "language",
  *   controllers = {
- *     "storage" = "Drupal\Core\Config\Entity\ConfigStorageController"
+ *     "storage" = "Drupal\Core\Config\Entity\ConfigStorageController",
+ *     "list" = "Drupal\language\LanguageListController",
+ *     "access" = "Drupal\language\LanguageAccessController"
  *   },
  *   config_prefix = "language.entity",
  *   entity_keys = {
@@ -75,5 +79,16 @@ class Language extends ConfigEntityBase implements LanguageInterface {
    * @var bool
    */
   public $locked = FALSE;
+
+  /**
+   * {@inheritdoc}
+   */
+  public function preSave(EntityStorageControllerInterface $storage_controller) {
+    parent::preSave($storage_controller);
+    // Languages are picked from a predefined list which is given in English.
+    // For the uncommon case of custom languages the label should be given in
+    // English.
+    $this->langcode = 'en';
+  }
 
 }

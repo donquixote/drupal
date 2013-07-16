@@ -159,8 +159,15 @@ function taxonomy_overview_terms($form, &$form_state, Vocabulary $vocabulary) {
   );
   foreach ($current_page as $key => $term) {
     $form['terms'][$key]['#term'] = $term;
+    $indentation = array();
+    if (isset($term->depth) && $term->depth > 0) {
+      $indentation = array(
+        '#theme' => 'indentation',
+        '#size' => $term->depth,
+      );
+    }
     $form['terms'][$key]['term'] = array(
-      '#prefix' => isset($term->depth->value) && $term->depth->value > 0 ? theme('indentation', array('size' => $term->depth->value)) : '',
+      '#prefix' => !empty($indentation) ? drupal_render($indentation) : '',
       '#type' => 'link',
       '#title' => $term->label(),
       '#href' => "taxonomy/term/" . $term->id(),
@@ -388,17 +395,6 @@ function taxonomy_overview_terms_submit($form, &$form_state) {
     $vocabulary->save();
   }
   drupal_set_message(t('The configuration options have been saved.'));
-}
-
-/**
- * Returns a rendered edit form to create a new term associated to the given vocabulary.
- */
-function taxonomy_term_add($vocabulary) {
-  $term = entity_create('taxonomy_term', array('vid' => $vocabulary->id()));
-  if (module_exists('language')) {
-    $term->langcode = language_get_default_langcode('taxonomy_term', $vocabulary->id());
-  }
-  return Drupal::entityManager()->getForm($term);
 }
 
 /**
