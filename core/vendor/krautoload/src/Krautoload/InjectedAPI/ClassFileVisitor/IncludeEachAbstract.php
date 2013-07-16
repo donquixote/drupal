@@ -10,32 +10,58 @@ namespace Krautoload;
  */
 abstract class InjectedAPI_ClassFileVisitor_IncludeEachAbstract extends InjectedAPI_ClassFileVisitor_Abstract {
 
+  /**
+   * @inheritdoc
+   */
   function fileWithClass($file, $relativeClassName) {
     include_once $file;
-    if (class_exists($class = $this->getClassName($relativeClassName), FALSE)) {
+    $this->includedFileWithClassCandidate($file, $relativeClassName);
+  }
+
+  /**
+   * @inheritdoc
+   */
+  function fileWithClassCandidates($file, array $relativeClassNames) {
+    include_once $file;
+    foreach ($relativeClassNames as $relativeClassName) {
+      $this->includedFileWithClassCandidate($file, $relativeClassName);
+    }
+  }
+
+  /**
+   * @inheritdoc
+   */
+  protected function includedFileWithClassCandidate($file, $relativeClassName) {
+    if (class_exists($class = $this->getInterface() . $relativeClassName, FALSE)) {
       $this->confirmedFileWithClass($file, $class);
     }
     elseif (interface_exists($class, FALSE)) {
       $this->confirmedFileWithInterface($file, $class);
     }
-  }
-
-  function fileWithClassCandidates($file, $relativeClassNames) {
-    include_once $file;
-    foreach ($relativeClassNames as $relativeClassName) {
-      // Only find classes, not interfaces.
-      if (class_exists($class = $this->getClassName($relativeClassName), FALSE)) {
-        $this->confirmedFileWithClass($file, $class);
-      }
-      elseif (interface_exists($class, FALSE)) {
-        $this->confirmedFileWithInterface($file, $class);
-      }
+    elseif (function_exists('trait_exists') && trait_exists($class, FALSE)) {
+      $this->confirmedFileWithTrait($file, $class);
     }
   }
 
+  /**
+   * @param string $file
+   * @param string $class
+   */
   abstract protected function confirmedFileWithClass($file, $class);
 
+  /**
+   * @param string $file
+   * @param string $interface
+   */
   protected function confirmedFileWithInterface($file, $interface) {
+    // Do nothing by default.
+  }
+
+  /**
+   * @param string $file
+   * @param string $trait
+   */
+  protected function confirmedFileWithTrait($file, $trait) {
     // Do nothing by default.
   }
 }

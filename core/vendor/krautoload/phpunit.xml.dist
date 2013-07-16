@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<phpunit backupGlobals="false"
+         cacheTokens="true"
+         colors="true"
+         stopOnFailure="false"
+         strict="true"
+         bootstrap="vendor/autoload.php"
+>
+    <testsuites>
+        <testsuite name="Krautoload Test Suite">
+            <directory>./tests/src/</directory>
+        </testsuite>
+    </testsuites>
+</phpunit>
