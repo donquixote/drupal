@@ -25,8 +25,9 @@ class ClassFileVisitorAPI extends InjectedAPI_ClassFileVisitor_Abstract {
    */
   function __construct($annotationName) {
     $this->reader = new AnnotationReader();
-    // Prevent @endlink from being parsed as an annotation.
+    // Prevent @endlink and @file from being parsed as an annotation.
     $this->reader->addGlobalIgnoredName('endlink');
+    $this->reader->addGlobalIgnoredName('file');
     $this->annotationName = $annotationName;
   }
 
