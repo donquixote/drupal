@@ -58,10 +58,14 @@ class AnnotatedClassDiscoveryTest extends DiscoveryTestBase {
       ),
     );
 
-    // Build namespace finder.
-    $finder = new \Krautoload\NamespaceVisitor_Pluggable();
-    $registrationHub = new \Krautoload\RegistrationHub($finder);
+    // Build namespace inspector.
+    $inspector = new \Krautoload\NamespaceInspector_Pluggable();
+    $registrationHub = new \Krautoload\RegistrationHub($inspector);
+    // Register the module namespace.
+    // @todo Remove PSR-0 registration, once PSR-0 for modules is removed.
     $registrationHub->addNamespacePSR0('Drupal\plugin_test', DRUPAL_ROOT . '/core/modules/system/tests/modules/plugin_test/lib');
+    $registrationHub->addNamespacePSRX('Drupal\plugin_test', DRUPAL_ROOT . '/core/modules/system/tests/modules/plugin_test/src');
+    // Register core namespaces, that will be used for annotations.
     $registrationHub->addNamespacePSR0('Drupal\Component', DRUPAL_ROOT . '/core/lib');
     $registrationHub->addNamespacePSR0('Drupal\Core', DRUPAL_ROOT . '/core/lib');
 
