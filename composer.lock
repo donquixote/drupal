@@ -3,7 +3,7 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "9cad5a32fc0b4c0fac16fbda1b8ead16",
+    "hash": "7498cf0dce7a852d3dbeb5681515ed0a",
     "packages": [
         {
             "name": "doctrine/common",
@@ -73,6 +73,58 @@
                 "spl"
             ],
             "time": "2012-09-19 22:55:18"
+        },
+        {
+            "name": "donquixote/krautoload",
+            "version": "0.0.1-alpha7",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/donquixote/krautoload.git",
+                "reference": "0.0.1-alpha7"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/donquixote/krautoload/zipball/0.0.1-alpha7",
+                "reference": "0.0.1-alpha7",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.3"
+            },
+            "require-dev": {
+                "phpunit/php-invoker": ">=1.1.2",
+                "phpunit/phpunit": ">=3.7"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Krautoload\\": "src/"
+                }
+            },
+            "license": [
+                "GPL"
+            ],
+            "authors": [
+                {
+                    "name": "Andreas Hennings",
+                    "homepage": "http://github.com/donquixote"
+                }
+            ],
+            "description": "Krautoload is a pluggable class loader and class discovery tool.",
+            "homepage": "http://github.com/donquixote/krautoload",
+            "keywords": [
+                "PEAR",
+                "PSR-0",
+                "PSR-4",
+                "PSR-X",
+                "autoload",
+                "classloader"
+            ],
+            "support": {
+                "issues": "http://github.com/donquixote/krautoload/issues",
+                "source": "https://github.com/donquixote/krautoload/tree/0.0.1-alpha7"
+            },
+            "time": "2013-07-18 21:43:11"
         },
         {
             "name": "easyrdf/easyrdf",
@@ -1685,7 +1737,8 @@
     "stability-flags": {
         "kriswallsmith/assetic": 15,
         "symfony-cmf/routing": 15,
-        "easyrdf/easyrdf": 10
+        "easyrdf/easyrdf": 10,
+        "donquixote/krautoload": 15
     },
     "platform": [
 

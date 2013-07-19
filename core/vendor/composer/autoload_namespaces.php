@@ -24,6 +24,7 @@ return array(
     'Symfony\\Component\\ClassLoader\\' => array($vendorDir . '/symfony/class-loader'),
     'Symfony\\Cmf\\Component\\Routing' => array($vendorDir . '/symfony-cmf/routing'),
     'Psr\\Log\\' => array($vendorDir . '/psr/log'),
+    'Krautoload\\' => array($vendorDir . '/donquixote/krautoload/src'),
     'Guzzle\\Stream' => array($vendorDir . '/guzzle/stream'),
     'Guzzle\\Parser' => array($vendorDir . '/guzzle/parser'),
     'Guzzle\\Http' => array($vendorDir . '/guzzle/http'),

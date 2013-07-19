@@ -1731,5 +1731,59 @@
             "feed",
             "zf2"
         ]
+    },
+    {
+        "name": "donquixote/krautoload",
+        "version": "0.0.1-alpha7",
+        "version_normalized": "0.0.1.0-alpha7",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/donquixote/krautoload.git",
+            "reference": "0.0.1-alpha7"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/donquixote/krautoload/zipball/0.0.1-alpha7",
+            "reference": "0.0.1-alpha7",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3.3"
+        },
+        "require-dev": {
+            "phpunit/php-invoker": ">=1.1.2",
+            "phpunit/phpunit": ">=3.7"
+        },
+        "time": "2013-07-18 21:43:11",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-0": {
+                "Krautoload\\": "src/"
+            }
+        },
+        "license": [
+            "GPL"
+        ],
+        "authors": [
+            {
+                "name": "Andreas Hennings",
+                "homepage": "http://github.com/donquixote"
+            }
+        ],
+        "description": "Krautoload is a pluggable class loader and class discovery tool.",
+        "homepage": "http://github.com/donquixote/krautoload",
+        "keywords": [
+            "PEAR",
+            "PSR-0",
+            "PSR-4",
+            "PSR-X",
+            "autoload",
+            "classloader"
+        ],
+        "support": {
+            "issues": "http://github.com/donquixote/krautoload/issues",
+            "source": "https://github.com/donquixote/krautoload/tree/0.0.1-alpha7"
+        }
     }
 ]
