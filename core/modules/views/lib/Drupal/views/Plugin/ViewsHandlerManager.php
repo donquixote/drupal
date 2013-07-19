@@ -13,7 +13,7 @@ use Drupal\Core\Plugin\Factory\ContainerFactory;
 use Drupal\Core\Plugin\Discovery\CacheDecorator;
 use Drupal\views\Plugin\Discovery\ViewsHandlerDiscovery;
 use Drupal\views\ViewsData;
-use Krautoload\SearchableNamespaces_Interface as SearchableNamespacesInterface;
+use Drupal\Core\ClassLoader\SearchableNamespacesInterface;
 
 /**
  * Plugin type manager for all views handlers.

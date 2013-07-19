@@ -15,7 +15,7 @@ use Drupal\Core\Plugin\Discovery\AlterDecorator;
 use Drupal\Core\Plugin\Discovery\AnnotatedClassDiscovery;
 use Drupal\Core\Plugin\Discovery\CacheDecorator;
 use Drupal\editor\Plugin\Core\Entity\Editor;
-use Krautoload\SearchableNamespaces_Interface as SearchableNamespacesInterface;
+use Drupal\Core\ClassLoader\SearchableNamespacesInterface;
 
 /**
  * CKEditor Plugin manager.

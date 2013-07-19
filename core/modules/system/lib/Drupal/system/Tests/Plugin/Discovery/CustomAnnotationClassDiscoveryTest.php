@@ -8,6 +8,7 @@
 namespace Drupal\system\Tests\Plugin\Discovery;
 
 use Drupal\Core\Plugin\Discovery\AnnotatedClassDiscovery;
+use Drupal\Core\ClassLoader\NamespaceInspectorAdapter;
 
 /**
  * Tests that a custom annotation class is used.
@@ -43,18 +44,12 @@ class CustomAnnotationClassDiscoveryTest extends DiscoveryTestBase {
     );
 
     // Build namespace inspector.
-    $inspector = new \Krautoload\NamespaceInspector_Pluggable();
-    $registrationHub = new \Krautoload\RegistrationHub($inspector);
-    // Register the module namespace.
-    // @todo Remove PSR-0 registration, once PSR-0 for modules is removed.
-    $registrationHub->addNamespacePSR0('Drupal\plugin_test', DRUPAL_ROOT . '/core/modules/system/tests/modules/plugin_test/lib');
-    $registrationHub->addNamespacePSRX('Drupal\plugin_test', DRUPAL_ROOT . '/core/modules/system/tests/modules/plugin_test/src');
-    // Register core namespaces, that will be used for annotations.
-    $registrationHub->addNamespacePSR0('Drupal\Component', DRUPAL_ROOT . '/core/lib');
-    $registrationHub->addNamespacePSR0('Drupal\Core', DRUPAL_ROOT . '/core/lib');
+    $adapter = NamespaceInspectorAdapter::start();
+    $adapter->addDrupalExtension('plugin_test', 'core/modules/system/tests/modules/plugin_test');
+    $adapter->addDrupalCore();
 
     // Build searchable namespaces.
-    $root_namespaces = $registrationHub->buildSearchableNamespaces(array('Drupal\plugin_test'));
+    $root_namespaces = $adapter->buildSearchableNamespaces(array('Drupal\plugin_test'));
 
     // Build annotated class discovery.
     $this->discovery = new AnnotatedClassDiscovery($root_namespaces, 'plugin_test\custom_annotation', 'Drupal\plugin_test\Plugin\Annotation\PluginExample');

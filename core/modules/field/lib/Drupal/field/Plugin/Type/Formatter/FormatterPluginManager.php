@@ -17,7 +17,7 @@ use Drupal\Core\Plugin\Discovery\CacheDecorator;
 use Drupal\Core\Plugin\Discovery\AnnotatedClassDiscovery;
 use Drupal\Core\Plugin\Discovery\AlterDecorator;
 use Drupal\field\Plugin\Core\Entity\FieldInstance;
-use Krautoload\SearchableNamespaces_Interface as SearchableNamespacesInterface;
+use Drupal\Core\ClassLoader\SearchableNamespacesInterface;
 
 /**
  * Plugin type manager for field formatters.

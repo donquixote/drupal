@@ -13,7 +13,7 @@ use Drupal\Core\Executable\ExecutableInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Language\LanguageManager;
 use Drupal\Core\Plugin\DefaultPluginManager;
-use Krautoload\SearchableNamespaces_Interface as SearchableNamespacesInterface;
+use Drupal\Core\ClassLoader\SearchableNamespacesInterface;
 
 /**
  * A plugin manager for condition plugins.

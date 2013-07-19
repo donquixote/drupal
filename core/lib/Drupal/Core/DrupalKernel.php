@@ -12,7 +12,7 @@ use Drupal\Core\Config\BootstrapConfigStorageFactory;
 use Drupal\Core\CoreServiceProvider;
 use Drupal\Core\DependencyInjection\ContainerBuilder;
 use Drupal\Core\DependencyInjection\YamlFileLoader;
-use Symfony\Component\ClassLoader\ClassLoader;
+use Drupal\Core\ClassLoader\NamespaceInspectorAdapter;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\DependencyInjection\Dumper\PhpDumper;
@@ -97,7 +97,7 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
   /**
    * The classloader object.
    *
-   * @var \Symfony\Component\ClassLoader\ClassLoader
+   * @var NamespaceInspectorAdapter
    */
   protected $classLoader;
 
@@ -150,7 +150,7 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
    *   String indicating the environment, e.g. 'prod' or 'dev'. Used by
    *   Symfony\Component\HttpKernel\Kernel::__construct(). Drupal does not use
    *   this value currently. Pass 'prod'.
-   * @param \Krautoload\RegistrationHub $class_loader
+   * @param NamespaceInspectorAdapter $class_loader
    *   (optional) The classloader is only used if $storage is not given or
    *   the load from storage fails and a container rebuild is required. In
    *   this case, the loaded modules will be registered with this loader in
@@ -233,8 +233,7 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
       $this->moduleList = isset($module_list['enabled']) ? $module_list['enabled'] : array();
     }
     $module_filenames = $this->getModuleFileNames();
-    $this->classLoader->addNamespacesPSR0($this->getModuleNamespacesPSR0($module_filenames));
-    $this->classLoader->addNamespacesPSRX($this->getModuleNamespacesPSRX($module_filenames));
+    $this->classLoader->addDrupalExtensionsByFileName($module_filenames);
 
     // Load each module's serviceProvider class.
     foreach ($this->moduleList as $module => $weight) {
@@ -418,8 +417,7 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
       // All namespaces must be registered before we attempt to use any service
       // from the container.
       $container_modules = $this->container->getParameter('container.modules');
-      $this->classLoader->addNamespacesPSR0($this->getModuleNamespacesPSR0($container_modules));
-      $this->classLoader->addNamespacesPSRX($this->getModuleNamespacesPSRX($container_modules));
+      $this->classLoader->addDrupalExtensionsByFileName($container_modules);
 
       // If 'container.modules' is wrong, the container must be rebuilt.
       if (!isset($this->moduleList)) {
@@ -518,23 +516,11 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
     $container->setParameter('container.modules', $this->getModuleFileNames());
 
     // Get a list of namespaces and put it onto the container.
-    // The only thing that uses the directories is the annotation discovery,
-    // which is still on PSR-0 thanks to static methods in doctrine.
-    $namespaces = $this->getModuleNamespacesPSR0($this->getModuleFileNames());
-    // Add all components in \Drupal\Core and \Drupal\Component that have a
-    // Plugin directory.
-    foreach (array('Core', 'Component') as $parent_directory) {
-      $path = DRUPAL_ROOT . '/core/lib/Drupal/' . $parent_directory;
-      foreach (new \DirectoryIterator($path) as $component) {
-        if (!$component->isDot() && is_dir($component->getPathname() . '/Plugin')) {
-          $namespaces['Drupal\\' . $parent_directory  .'\\' . $component->getFilename()] = DRUPAL_ROOT . '/core/lib';
-        }
-      }
-    }
-    $container->setParameter('container.namespaces', array_keys($namespaces));
+    $namespaces = $this->getDiscoveryBaseNamespaces();
+    $container->setParameter('container.namespaces', $namespaces);
 
     // Register synthetic services.
-    $container->register('class_loader', 'Krautoload\RegistrationHub')->setSynthetic(TRUE);
+    $container->register('class_loader', 'Drupal\Core\ClassLoader\NamespaceInspectorAdapterInterface')->setSynthetic(TRUE);
     $container->register('kernel', 'Symfony\Component\HttpKernel\KernelInterface')->setSynthetic(TRUE);
     $container->register('service_container', 'Symfony\Component\DependencyInjection\ContainerInterface')->setSynthetic(TRUE);
     $yaml_loader = new YamlFileLoader($container);
@@ -660,24 +646,30 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
   }
 
   /**
-   * Gets the PSR-0 namespace directories of each enabled module.
+   * Gets the root namespaces that are used for plugin discovery.
+   *
+   * @return array
+   *   Array of namespaces, keys are identical to the values.
    */
-  protected function getModuleNamespacesPSR0($moduleFileNames) {
+  protected function getDiscoveryBaseNamespaces() {
     $namespaces = array();
-    foreach ($moduleFileNames as $module => $filename) {
-      $namespaces["Drupal\\$module"] = DRUPAL_ROOT . '/' . dirname($filename) . '/lib';
-    }
-    return $namespaces;
-  }
 
-  /**
-   * Gets the PSR-X namespace directories of each enabled module.
-   */
-  protected function getModuleNamespacesPSRX($moduleFileNames) {
-    $namespaces = array();
-    foreach ($moduleFileNames as $module => $filename) {
-      $namespaces["Drupal\\$module"] = DRUPAL_ROOT . '/' . dirname($filename) . '/src';
+    // Collect root namespaces for extensions.
+    foreach ($this->getModuleFileNames() as $module => $filename) {
+      $namespaces[] = 'Drupal\\' . $module;
     }
+
+    // Add all components in \Drupal\Core and \Drupal\Component that have a
+    // Plugin directory.
+    foreach (array('Core', 'Component') as $parent_directory) {
+      $path = DRUPAL_ROOT . '/core/lib/Drupal/' . $parent_directory;
+      foreach (new \DirectoryIterator($path) as $component) {
+        if (!$component->isDot() && is_dir($component->getPathname() . '/Plugin')) {
+          $namespaces[] = 'Drupal\\' . $parent_directory  . '\\' . $component->getFilename();
+        }
+      }
+    }
+
     return $namespaces;
   }
 }

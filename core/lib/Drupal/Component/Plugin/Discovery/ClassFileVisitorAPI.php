@@ -19,7 +19,7 @@ class ClassFileVisitorAPI extends InjectedAPI_ClassFileVisitor_Abstract {
   protected $definitions = array();
 
   /**
-   * Constructs a KrautoloadInjectedAPI_ClassFileVisitor object.
+   * Constructs a ClassFileVisitorAPI object.
    *
    * @param string $annotationName
    */

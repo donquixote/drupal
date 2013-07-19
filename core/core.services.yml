@@ -153,7 +153,7 @@ services:
       - [addSubscriber, ['@http_client_simpletest_subscriber']]
       - [setUserAgent, ['Drupal (+http://drupal.org/)']]
   container.namespaces:
-    class: Krautoload\SearchableNamespaces_Default
+    class: Drupal\Core\ClassLoader\SearchableNamespacesInterface
     factory_service: class_loader
     factory_method: buildSearchableNamespaces
     arguments: [ '%container.namespaces%' ]

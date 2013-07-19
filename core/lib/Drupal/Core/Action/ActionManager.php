@@ -11,7 +11,7 @@ use Drupal\Component\Plugin\PluginManagerBase;
 use Drupal\Core\Plugin\Discovery\AlterDecorator;
 use Drupal\Core\Plugin\Discovery\AnnotatedClassDiscovery;
 use Drupal\Core\Plugin\Factory\ContainerFactory;
-use Krautoload\SearchableNamespaces_Interface as SearchableNamespacesInterface;
+use Drupal\Core\ClassLoader\SearchableNamespacesInterface;
 
 /**
  * Provides an Action plugin manager.

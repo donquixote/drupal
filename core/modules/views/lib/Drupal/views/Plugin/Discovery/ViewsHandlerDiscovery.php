@@ -9,7 +9,7 @@ namespace Drupal\views\Plugin\Discovery;
 
 use Drupal\Core\Plugin\Discovery\AnnotatedClassDiscovery as CoreAnnotatedClassDiscovery;
 use Drupal\Core\Plugin\Discovery\AnnotatedClassDiscovery as ComponentAnnotatedClassDiscovery;
-use Krautoload\SearchableNamespaces_Interface as SearchableNamespacesInterface;
+use Drupal\Core\ClassLoader\SearchableNamespacesInterface;
 
 /**
  * Defines a discovery mechanism to find Views handlers in PSR-0 namespaces.

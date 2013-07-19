@@ -506,18 +506,19 @@ function simpletest_classloader_register() {
     'theme' => array('dir' => 'themes', 'extension' => 'info'),
     'profile' => array('dir' => 'profiles', 'extension' => 'profile'),
   );
+  $loader_adapter = drupal_classloader();
   foreach ($types as $type => $info) {
     $matches = drupal_system_listing('/^' . DRUPAL_PHP_FUNCTION_PATTERN . '\.' . $info['extension'] . '$/', $info['dir']);
     foreach ($matches as $name => $file) {
-      drupal_classloader_register($name, dirname($file->uri));
-      drupal_classloader()->addNamespacePSR0('Drupal\\' . $name . '\\Tests', DRUPAL_ROOT . '/' . dirname($file->uri) . '/tests');
+      $loader_adapter->addDrupalExtension($name, dirname($file->uri));
+      $loader_adapter->addDrupalExtensionTests($name, dirname($file->uri));
       // While being there, prime drupal_get_filename().
       drupal_get_filename($type, $name, $file->uri);
     }
   }
 
   // Register the core/tests directory so we can find Drupal\Tests\UnitTestCase.
-  drupal_classloader()->addNamespacePSR0('Drupal\\Tests', DRUPAL_ROOT . '/core/tests');
+  $loader_adapter->addDrupalCoreTests();
 }
 
 /**

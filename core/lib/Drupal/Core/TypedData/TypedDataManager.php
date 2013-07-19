@@ -18,7 +18,7 @@ use Drupal\Core\Validation\ConstraintManager;
 use Drupal\Core\Validation\DrupalTranslator;
 use Symfony\Component\Validator\ValidatorInterface;
 use Symfony\Component\Validator\Validation;
-use Krautoload\SearchableNamespaces_Interface as SearchableNamespacesInterface;
+use Drupal\Core\ClassLoader\SearchableNamespacesInterface;
 
 /**
  * Manages data type plugins.

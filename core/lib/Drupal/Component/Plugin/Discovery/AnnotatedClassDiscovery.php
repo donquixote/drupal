@@ -9,7 +9,7 @@ namespace Drupal\Component\Plugin\Discovery;
 
 use Drupal\Component\Plugin\Discovery\DiscoveryInterface;
 use Doctrine\Common\Annotations\AnnotationRegistry;
-use Krautoload\SearchableNamespaces_Interface as SearchableNamespacesInterface;
+use Drupal\Core\ClassLoader\SearchableNamespacesInterface;
 
 /**
  * Defines a discovery mechanism to find annotated plugins in PSR-0 namespaces.

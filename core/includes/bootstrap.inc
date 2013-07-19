@@ -22,6 +22,8 @@ use Drupal\Core\Language\Language;
 use Drupal\Core\Lock\DatabaseLockBackend;
 use Drupal\Core\Lock\LockBackendInterface;
 use Drupal\Core\Session\UserSession;
+use Drupal\Core\ClassLoader\NamespaceInspectorAdapter;
+use Drupal\Core\ClassLoader\NamespaceInspectorAdapterInterface;
 
 /**
  * @file
@@ -2756,18 +2758,18 @@ function arg($index = NULL, $path = NULL) {
  *   loader class when calling drupal_classloader() from settings.php. It is
  *   ignored otherwise.
  *
- * @return \Krautoload\RegistrationHub
+ * @return NamespaceInspectorAdapter
  *   A wrapper around the class loader, with methods to register classes,
  *   namespaces and prefixes.
  */
 function drupal_classloader($loader_name = NULL) {
   /**
-   * @var \Krautoload\RegistrationHub $loader_controller
+   * @var NamespaceInspectorAdapter $adapter
    */
-  static $loader_controller;
+  static $adapter;
 
   // Initialize the class loader, if it is not already initialized.
-  if (!isset($loader_controller)) {
+  if (!isset($adapter)) {
 
     // Include the bootstrap include file for the Krautoload ClassLoader.
     // Drupal 8 uses Krautoload instead of the loader shipped with Symfony or
@@ -2794,7 +2796,7 @@ function drupal_classloader($loader_name = NULL) {
     // The return value is a "RegistrationHub" object, which has various methods
     // to register namespaces and other things, but is not the main class loader
     // object. Within Drupal, this is being referred to as "$loader_controller".
-    $loader_controller = Krautoload::start($krautoload_options);
+    $adapter = Krautoload::start($krautoload_options);
 
     // Register class loading for vendor libraries managed by Composer.
     // This will process
@@ -2802,10 +2804,13 @@ function drupal_classloader($loader_name = NULL) {
     // - core/vendor/composer/autoload_classmap.php
     // This will also work with a generated classmap from
     // "composer install --optimize-autoloader".
-    $loader_controller->composerVendorDir(DRUPAL_ROOT . '/core/vendor');
+    $adapter->composerVendorDir(DRUPAL_ROOT . '/core/vendor');
+
+    // Replace the adapter with a Drupal-native one.
+    $adapter = new NamespaceInspectorAdapter($adapter->getInspector());
   }
 
-  return $loader_controller;
+  return $adapter;
 }
 
 /**
@@ -2818,17 +2823,7 @@ function drupal_classloader($loader_name = NULL) {
  *   The relative path to the Drupal component in the filesystem.
  */
 function drupal_classloader_register($name, $path) {
-  $loader = drupal_classloader();
-
-  // Register the extension's "lib/" directory for PSR-0 class loading.
-  $loader->addNamespacePSR0('Drupal\\' . $name, DRUPAL_ROOT . '/' . $path . '/lib');
-
-  // Register the extension's "src/" directory for PSR-4 class loading.
-  // @todo
-  //   - Make a choice between "src/" and "lib/" for PSR-4 classes.
-  //   - Have a transition phase to migrate modules to PSR-4.
-  //   - Remove PSR-0 after this transition phase.
-  $loader->addNamespacePSRX('Drupal\\' . $name, DRUPAL_ROOT . '/' . $path . '/src');
+  drupal_classloader()->addDrupalExtension($name, $path);
 }
 
 /**
