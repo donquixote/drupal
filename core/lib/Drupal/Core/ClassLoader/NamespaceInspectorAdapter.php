@@ -38,6 +38,7 @@ class NamespaceInspectorAdapter extends BaseAdapter implements NamespaceInspecto
    */
   function addDrupalExtensionTests($extension_name, $extension_dir) {
     $this->addNamespacePSR0('Drupal\\' . $extension_name . '\\Tests', DRUPAL_ROOT . '/' . $extension_dir . '/tests');
+    $this->addNamespacePSRX('Drupal\\' . $extension_name . '\\Tests', DRUPAL_ROOT . '/' . $extension_dir . '/tests/src');
   }
 
   /**
