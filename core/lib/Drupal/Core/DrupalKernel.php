@@ -12,7 +12,7 @@ use Drupal\Core\Config\BootstrapConfigStorageFactory;
 use Drupal\Core\CoreServiceProvider;
 use Drupal\Core\DependencyInjection\ContainerBuilder;
 use Drupal\Core\DependencyInjection\YamlFileLoader;
-use Drupal\Core\ClassLoader\NamespaceInspectorAdapter;
+use Drupal\Core\ClassLoader\NamespaceInspectorAdapterInterface;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\DependencyInjection\Dumper\PhpDumper;
@@ -97,7 +97,7 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
   /**
    * The classloader object.
    *
-   * @var NamespaceInspectorAdapter
+   * @var NamespaceInspectorAdapterInterface
    */
   protected $classLoader;
 
@@ -150,7 +150,7 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
    *   String indicating the environment, e.g. 'prod' or 'dev'. Used by
    *   Symfony\Component\HttpKernel\Kernel::__construct(). Drupal does not use
    *   this value currently. Pass 'prod'.
-   * @param NamespaceInspectorAdapter $class_loader
+   * @param NamespaceInspectorAdapterInterface $class_loader
    *   (optional) The classloader is only used if $storage is not given or
    *   the load from storage fails and a container rebuild is required. In
    *   this case, the loaded modules will be registered with this loader in

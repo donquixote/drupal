@@ -2758,13 +2758,13 @@ function arg($index = NULL, $path = NULL) {
  *   loader class when calling drupal_classloader() from settings.php. It is
  *   ignored otherwise.
  *
- * @return NamespaceInspectorAdapter
+ * @return NamespaceInspectorAdapterInterface
  *   A wrapper around the class loader, with methods to register classes,
  *   namespaces and prefixes.
  */
 function drupal_classloader($loader_name = NULL) {
   /**
-   * @var NamespaceInspectorAdapter $adapter
+   * @var NamespaceInspectorAdapterInterface $adapter
    */
   static $adapter;
 
