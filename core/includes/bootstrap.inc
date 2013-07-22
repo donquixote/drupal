@@ -1568,14 +1568,16 @@ function watchdog($type, $message, array $variables = NULL, $severity = WATCHDOG
       'timestamp'   => time(),
     );
 
-    try {
-      $request = Drupal::request();
-      $log_entry['request_uri'] = $request->getUri();
-      $log_entry['referer'] = $request->headers->get('Referer', '');
-      $log_entry['ip'] = $request->getClientIP();
-    }
-    catch (\InvalidArgumentException $e) {
-      // We are not in a request context.
+    if (Drupal::hasContainer()) {
+      try {
+        $request = Drupal::request();
+        $log_entry['request_uri'] = $request->getUri();
+        $log_entry['referer'] = $request->headers->get('Referer', '');
+        $log_entry['ip'] = $request->getClientIP();
+      }
+      catch (\InvalidArgumentException $e) {
+        // We are not in a request context.
+      }
     }
 
     // Call the logging hooks to log/process the message
