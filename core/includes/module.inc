@@ -135,7 +135,7 @@ function system_list_reset() {
  */
 function system_register($type, $name, $uri) {
   drupal_get_filename($type, $name, $uri);
-  drupal_classloader_register($name, dirname($uri));
+  drupal_classloader()->addDrupalExtension($name, dirname($uri));
 }
 
 /**

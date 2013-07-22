@@ -125,7 +125,7 @@ class UpdateModuleHandler extends ModuleHandler {
       system_list_reset();
       $this->moduleList[$module] = drupal_get_filename('module', $module);
       $this->load($module);
-      drupal_classloader_register($module, dirname($this->moduleList[$module]));
+      drupal_classloader()->addDrupalExtension($module, dirname($this->moduleList[$module]));
       // @todo Figure out what to do about hook_install() and hook_enable().
     }
     return $old_schema;

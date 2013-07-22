@@ -951,7 +951,15 @@ function install_display_output($output, $install_state) {
     $active_task = $install_state['installation_finished'] ? NULL : $install_state['active_task'];
     drupal_add_region_content('sidebar_first', theme('task_list', array('items' => install_tasks_to_display($install_state), 'active' => $active_task, 'variant' => 'install')));
   }
-  print theme('install_page', array('content' => $output));
+  if (function_exists('theme')) {
+    print theme('install_page', array('content' => $output));
+  }
+  elseif (is_string($output)) {
+    print $output;
+  }
+  else {
+    var_dump($output);
+  }
   exit;
 }
 

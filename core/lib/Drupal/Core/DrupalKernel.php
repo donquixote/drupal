@@ -12,7 +12,7 @@ use Drupal\Core\Config\BootstrapConfigStorageFactory;
 use Drupal\Core\CoreServiceProvider;
 use Drupal\Core\DependencyInjection\ContainerBuilder;
 use Drupal\Core\DependencyInjection\YamlFileLoader;
-use Symfony\Component\ClassLoader\ClassLoader;
+use Drupal\Core\ClassLoader\ClassLoaderInterface;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\DependencyInjection\Dumper\PhpDumper;
@@ -97,7 +97,7 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
   /**
    * The classloader object.
    *
-   * @var \Symfony\Component\ClassLoader\ClassLoader
+   * @var ClassLoaderInterface
    */
   protected $classLoader;
 
@@ -150,7 +150,7 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
    *   String indicating the environment, e.g. 'prod' or 'dev'. Used by
    *   Symfony\Component\HttpKernel\Kernel::__construct(). Drupal does not use
    *   this value currently. Pass 'prod'.
-   * @param \Symfony\Component\ClassLoader\ClassLoader $class_loader
+   * @param ClassLoaderInterface $class_loader
    *   (optional) The classloader is only used if $storage is not given or
    *   the load from storage fails and a container rebuild is required. In
    *   this case, the loaded modules will be registered with this loader in
@@ -159,7 +159,7 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
    *   (optional) FALSE to stop the container from being written to or read
    *   from disk. Defaults to TRUE.
    */
-  public function __construct($environment, ClassLoader $class_loader, $allow_dumping = TRUE) {
+  public function __construct($environment, ClassLoaderInterface $class_loader, $allow_dumping = TRUE) {
     $this->environment = $environment;
     $this->booted = false;
     $this->classLoader = $class_loader;
@@ -233,7 +233,7 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
       $this->moduleList = isset($module_list['enabled']) ? $module_list['enabled'] : array();
     }
     $module_filenames = $this->getModuleFileNames();
-    $this->registerNamespaces($this->getModuleNamespaces($module_filenames));
+    $this->classLoader->addDrupalExtensionsByRelativeFilePath($module_filenames);
 
     // Load each module's serviceProvider class.
     foreach ($this->moduleList as $module => $weight) {
@@ -417,8 +417,7 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
       // All namespaces must be registered before we attempt to use any service
       // from the container.
       $container_modules = $this->container->getParameter('container.modules');
-      $namespaces_before = $this->classLoader->getPrefixes();
-      $this->registerNamespaces($this->getModuleNamespaces($container_modules));
+      $this->classLoader->addDrupalExtensionsByRelativeFilePath($container_modules);
 
       // If 'container.modules' is wrong, the container must be rebuilt.
       if (!isset($this->moduleList)) {
@@ -427,13 +426,21 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
       if (array_keys($this->moduleList) !== array_keys($container_modules)) {
         $persist = $this->getServicesToPersist();
         unset($this->container);
-        // Revert the class loader to its prior state. However,
-        // registerNamespaces() performs a merge rather than replace, so to
-        // effectively remove erroneous registrations, we must replace them with
-        // empty arrays.
-        $namespaces_after = $this->classLoader->getPrefixes();
-        $namespaces_before += array_fill_keys(array_diff(array_keys($namespaces_after), array_keys($namespaces_before)), array());
-        $this->registerNamespaces($namespaces_before);
+        // @todo Revert the class loader?
+        //   At this point, previous versions did attempt to revert the
+        //   class loader to its previous state, with the intention to remove
+        //   erroneous registrations.
+        //   However, we can assume that this did not work, because
+        //   \Symfony\Component\ClassLoader\ClassLoader does not support removal
+        //   of registered namespaces, it only allows adding them.
+        //   The other question is, whether removal of namespace registrations
+        //   is desirable in the first place. Some of the classes might already
+        //   be included, and removal of the namespace cannot undo that.
+        //   A more interesting case is if a module has moved to a different
+        //   directory. This case is not even detected in the if() clause above.
+        //
+        //   Conclusion: A revert mechanic can be added, but needs to be
+        //   discussed first.
       }
     }
 
@@ -521,7 +528,7 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
     $container->setParameter('container.namespaces', $namespaces);
 
     // Register synthetic services.
-    $container->register('class_loader', 'Symfony\Component\ClassLoader\ClassLoader')->setSynthetic(TRUE);
+    $container->register('class_loader', 'Drupal\Core\ClassLoader\ClassLoaderInterface')->setSynthetic(TRUE);
     $container->register('kernel', 'Symfony\Component\HttpKernel\KernelInterface')->setSynthetic(TRUE);
     $container->register('service_container', 'Symfony\Component\DependencyInjection\ContainerInterface')->setSynthetic(TRUE);
     $yaml_loader = new YamlFileLoader($container);
@@ -655,12 +662,5 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
       $namespaces["Drupal\\$module"] = DRUPAL_ROOT . '/' . dirname($filename) . '/lib';
     }
     return $namespaces;
-  }
-
-  /**
-   * Registers a list of namespaces.
-   */
-  protected function registerNamespaces(array $namespaces = array()) {
-    $this->classLoader->addPrefixes($namespaces);
   }
 }

@@ -10,7 +10,8 @@ use Drupal\Component\Utility\Url;
 use Drupal\Core\DrupalKernel;
 use Drupal\Core\Database\Database;
 use Drupal\Core\DependencyInjection\ContainerBuilder;
-use Symfony\Component\ClassLoader\ClassLoader;
+use Drupal\Core\ClassLoader\ClassLoaderInterface;
+use Drupal\Core\ClassLoader\ClassLoader;
 use Symfony\Component\ClassLoader\ApcClassLoader;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Container;
@@ -2750,64 +2751,72 @@ function arg($index = NULL, $path = NULL) {
  * classes, interfaces, and traits (PHP 5.4 and later). It's only dependency
  * is DRUPAL_ROOT. Otherwise it may be called as early as possible.
  *
- * @param $class_loader
+ * @param string $loader_name
  *   The name of class loader to use. This can be used to change the class
  *   loader class when calling drupal_classloader() from settings.php. It is
  *   ignored otherwise.
+ * @param ClassLoaderInterface $custom_loader
+ *   Loader object.
+ *   This can be called from settings.php to replace the class loader.
+ * @param boolean $add_composer_dir
+ *   Whether to register core and vendor namespaces from composer's
+ *   autoload_classes.php and autoload_namespaces.php. This can be set to FALSE,
+ *   if the namespaces are already registered in the $custom_loader object.
  *
- * @return \Symfony\Component\ClassLoader\ClassLoader
+ * @throws Exception
+ * @return ClassLoaderInterface
  *   A ClassLoader class instance (or extension thereof).
  */
-function drupal_classloader($class_loader = NULL) {
+function drupal_classloader($loader_name = NULL, ClassLoaderInterface $custom_loader = NULL, $add_composer_dir = TRUE) {
   // By default, use the ClassLoader which is best for development, as it does
   // not break when code is moved on the file system. However, as it is slow,
   // allow to use the APC class loader in production.
   static $loader;
 
   if (!isset($loader)) {
-
-    // Include the Symfony ClassLoader for loading PSR-0-compatible classes.
-    require_once DRUPAL_ROOT . '/core/vendor/symfony/class-loader/Symfony/Component/ClassLoader/ClassLoader.php';
-    $loader = new ClassLoader();
-
-    // Register the class loader.
-    // When configured to use APC, the ApcClassLoader is registered instead.
-    // Note that ApcClassLoader decorates ClassLoader and only provides the
-    // findFile() method, but none of the others. The actual registry is still
-    // in ClassLoader.
-    if (!isset($class_loader)) {
-      $class_loader = settings()->get('class_loader', 'default');
-    }
-    if ($class_loader === 'apc') {
-      require_once DRUPAL_ROOT . '/core/vendor/symfony/class-loader/Symfony/Component/ClassLoader/ApcClassLoader.php';
-      $apc_loader = new ApcClassLoader('drupal.' . drupal_get_hash_salt(), $loader);
-      $apc_loader->register();
+    if (isset($custom_loader)) {
+      // Use a custom loader.
+      $loader = $custom_loader;
+      // Do not call ->register() on the custom loader, to support custom
+      // decorators.
     }
     else {
-      $loader->register();
+      // Include the Drupal ClassLoader for loading PSR-0-compatible classes.
+      require_once DRUPAL_ROOT . '/core/lib/Drupal/Core/ClassLoader/ClassLoaderInterface.php';
+      require_once DRUPAL_ROOT . '/core/lib/Drupal/Core/ClassLoader/AbstractClassLoader.php';
+      require_once DRUPAL_ROOT . '/core/lib/Drupal/Core/ClassLoader/ClassLoader.php';
+      $loader = new ClassLoader();
+
+      // Determine whether to use a cache decorator for the loader.
+      if (!isset($loader_name)) {
+        $loader_name = settings()->get('class_loader', 'default');
+      }
+
+      // Register either the decorator, or the loader itself.
+      if ($loader_name === 'apc') {
+        // Create the APC decorator, and register its loadClass() method on the
+        // spl autoload stack.
+        require_once DRUPAL_ROOT . '/core/vendor/symfony/class-loader/Symfony/Component/ClassLoader/ApcClassLoader.php';
+        $apc_loader = new ApcClassLoader('drupal.' . drupal_get_hash_salt(), $loader);
+        $apc_loader->register();
+      }
+      else {
+        // Register the undecorated class loader.
+        $loader->register();
+      }
     }
 
-    // Register namespaces for vendor libraries managed by Composer.
-    $prefixes_and_namespaces = require DRUPAL_ROOT . '/core/vendor/composer/autoload_namespaces.php';
-    $loader->addPrefixes($prefixes_and_namespaces);
-
-    // Register the loader with PHP.
-    $loader->register();
+    if ($add_composer_dir) {
+      // Register namespaces for vendor libraries managed by Composer.
+      // This always happens on the loader itself, not on the APC decorator.
+      $loader->composerVendorDir(DRUPAL_ROOT . '/core/vendor', FALSE);
+    }
   }
-  return $loader;
-}
+  elseif ($custom_loader) {
+    throw new \Exception('Custom loader cannot be set, if a loader already exists.');
+  }
 
-/**
- * Registers an additional namespace.
- *
- * @param string $name
- *   The namespace component to register; e.g., 'node'.
- * @param string $path
- *   The relative path to the Drupal component in the filesystem.
- */
-function drupal_classloader_register($name, $path) {
-  $loader = drupal_classloader();
-  $loader->addPrefix('Drupal\\' . $name, DRUPAL_ROOT . '/' . $path . '/lib');
+  return $loader;
 }
 
 /**

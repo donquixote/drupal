@@ -7,6 +7,7 @@
 
 namespace Drupal\system\Tests\DrupalKernel;
 
+use Drupal\Core\ClassLoader\ClassLoaderInterface;
 use Drupal\Core\DrupalKernel;
 use Drupal\Component\PhpStorage\MTimeProtectedFastFileStorage;
 use Drupal\Component\PhpStorage\FileReadOnlyStorage;
@@ -79,8 +80,7 @@ class DrupalKernelTest extends UnitTestBase {
     $this->assertTrue($is_compiled_container);
     // Test that our synthetic services are there.
     $classloader = $container->get('class_loader');
-    $refClass = new ReflectionClass($classloader);
-    $this->assertTrue($refClass->hasMethod('loadClass'), 'Container has a classloader');
+    $this->assertTrue($classloader instanceof ClassLoaderInterface, 'Container has a classloader');
 
     // We make this assertion here purely to show that the new container below
     // is functioning correctly, i.e. we get a brand new ContainerBuilder
@@ -107,8 +107,7 @@ class DrupalKernelTest extends UnitTestBase {
     $this->assertTrue($container->has('service_provider_test_class'));
     // Test that our synthetic services are there.
     $classloader = $container->get('class_loader');
-    $refClass = new ReflectionClass($classloader);
-    $this->assertTrue($refClass->hasMethod('loadClass'), 'Container has a classloader');
+    $this->assertTrue($classloader instanceof ClassLoaderInterface, 'Container has a classloader');
     // Check that the location of the new module is registered.
     $modules = $container->getParameter('container.modules');
     $this->assertEqual($modules['service_provider_test'], drupal_get_filename('module', 'service_provider_test'));
