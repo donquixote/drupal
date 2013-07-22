@@ -116,6 +116,16 @@ class Drupal {
   }
 
   /**
+   * Determines whether the static::$container variable is set.
+   *
+   * @return bool
+   *   TRUE, if the container is set.
+   */
+  public static function hasContainer() {
+    return !empty(static::$container);
+  }
+
+  /**
    * Retrieves a service from the container.
    *
    * Use this method if the desired service is not one of those with a dedicated
