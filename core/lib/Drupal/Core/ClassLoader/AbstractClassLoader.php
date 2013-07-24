@@ -37,6 +37,7 @@ abstract class AbstractClassLoader implements ClassLoaderInterface {
        * @var \Composer\Autoload\ClassLoader $composerLoader
        */
       $composerLoader = $dir . '/autoload.php';
+      $composerLoader->unregister();
       $this->add('', $composerLoader->getFallbackDirs());
       $this->setUseIncludePath($composerLoader->getUseIncludePath());
       $prefixes = $composerLoader->getPrefixes();
