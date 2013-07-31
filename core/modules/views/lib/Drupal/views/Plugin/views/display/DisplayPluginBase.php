@@ -32,7 +32,7 @@ abstract class DisplayPluginBase extends PluginBase {
   /**
    * The top object of a view.
    *
-   * @var Drupal\views\ViewExecutable
+   * @var \Drupal\views\ViewExecutable
    */
   var $view = NULL;
 
@@ -1279,7 +1279,7 @@ abstract class DisplayPluginBase extends PluginBase {
       $link_display = empty($displays[$display_id]) ? t('None') : check_plain($displays[$display_id]['display_title']);
       $link_display = $this->getOption('link_display') == 'custom_url' ? t('Custom URL') : $link_display;
       $options['link_display'] = array(
-        'category' => 'other',
+        'category' => 'pager',
         'title' => t('Link display'),
         'value' => $link_display,
         'desc' => t('Specify which display or custom url this display will link to.'),
@@ -1445,9 +1445,9 @@ abstract class DisplayPluginBase extends PluginBase {
         );
         $form['use_more_always'] = array(
           '#type' => 'checkbox',
-          '#title' => t("Display 'more' link only if there is more content"),
-          '#description' => t("Leave this unchecked to display the 'more' link even if there are no more items to display."),
-          '#default_value' => !$this->getOption('use_more_always'),
+          '#title' => t('Always display the more link'),
+          '#description' => t('Check this to display the more link even if there are no more items to display.'),
+          '#default_value' => $this->getOption('use_more_always'),
           '#states' => array(
             'visible' => array(
               ':input[name="use_more"]' => array('checked' => TRUE),
@@ -1457,7 +1457,7 @@ abstract class DisplayPluginBase extends PluginBase {
         $form['use_more_text'] = array(
           '#type' => 'textfield',
           '#title' => t('More link text'),
-          '#description' => t("The text to display for the more link."),
+          '#description' => t('The text to display for the more link.'),
           '#default_value' => $this->getOption('use_more_text'),
           '#states' => array(
             'visible' => array(
@@ -2246,7 +2246,7 @@ abstract class DisplayPluginBase extends PluginBase {
         break;
       case 'use_more':
         $this->setOption($section, intval($form_state['values'][$section]));
-        $this->setOption('use_more_always', !intval($form_state['values']['use_more_always']));
+        $this->setOption('use_more_always', intval($form_state['values']['use_more_always']));
         $this->setOption('use_more_text', $form_state['values']['use_more_text']);
       case 'distinct':
         $this->setOption($section, $form_state['values'][$section]);
