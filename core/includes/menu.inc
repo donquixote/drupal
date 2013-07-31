@@ -966,7 +966,7 @@ function _menu_link_translate(&$item, $translate = FALSE) {
  */
 function menu_item_route_access(Route $route, $href, &$map) {
   $request = Request::create('/' . $href);
-  $request->attributes->set('system_path', $href);
+  $request->attributes->set('_system_path', $href);
   // Attempt to match this path to provide a fully built request to the
   // access checker.
   try {
@@ -1746,7 +1746,7 @@ function menu_get_active_help() {
 
   $arg = drupal_help_arg(arg(NULL));
 
-  foreach (module_implements('help') as $module) {
+  foreach (Drupal::moduleHandler()->getImplementations('help') as $module) {
     $function = $module . '_help';
     // Lookup help for this path.
     if ($help = $function($router_path, $arg)) {
@@ -2629,7 +2629,7 @@ function menu_get_active_breadcrumb() {
 
     // Don't show a link to the current page in the breadcrumb trail.
     $end = end($active_trail);
-    if (Drupal::request()->attributes->get('system_path') == $end['href']) {
+    if (Drupal::request()->attributes->get('_system_path') == $end['href']) {
       array_pop($active_trail);
     }
 
@@ -2753,7 +2753,7 @@ function menu_router_build($save = FALSE) {
   // We need to manually call each module so that we can know which module
   // a given item came from.
   $callbacks = array();
-  foreach (module_implements('menu') as $module) {
+  foreach (Drupal::moduleHandler()->getImplementations('menu') as $module) {
     $router_items = call_user_func($module . '_menu');
     if (isset($router_items) && is_array($router_items)) {
       foreach (array_keys($router_items) as $path) {
