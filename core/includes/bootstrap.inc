@@ -2718,7 +2718,7 @@ function drupal_classloader($class_loader = NULL) {
   if (!isset($loader)) {
 
     // Retrieve the Composer ClassLoader for loading classes.
-    $loader = include __DIR__ . '/../vendor/autoload.php';
+    $loader = include __DIR__ . '/../autoload.php';
 
     // Register the class loader.
     // When configured to use APC, the ApcClassLoader is registered instead.
