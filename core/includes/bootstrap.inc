@@ -10,7 +10,6 @@ use Drupal\Component\Utility\Url;
 use Drupal\Core\DrupalKernel;
 use Drupal\Core\Database\Database;
 use Drupal\Core\DependencyInjection\ContainerBuilder;
-use Symfony\Component\ClassLoader\ApcClassLoader;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\DependencyInjection\Reference;
@@ -1934,11 +1933,12 @@ function _drupal_bootstrap_configuration() {
   // Initialize the configuration, including variables from settings.php.
   drupal_settings_initialize();
 
+  // Ensure the class loader is using the proper wrapper if needed.
+  $wrapper = settings()->get('class_loader', null);
+  drupal_classloader_wrapper($wrapper);
+
   // Make sure we are using the test database prefix in child Drupal sites.
   _drupal_initialize_db_test_prefix();
-
-  // Activate the class loader.
-  drupal_classloader();
 
   // Start a page timer:
   Timer::start('page');
@@ -2695,48 +2695,62 @@ function arg($index = NULL, $path = NULL) {
 }
 
 /**
- * Initializes and returns the class loader.
+ * Wraps the current class loader with a caching layer for better performance.
+ *
+ * Example:
+ * @code
+ * drupal_classloader_wrapper('Symfony\Component\ClassLoader\ApcClassLoader');
+ * @endcode
+ *
+ * @param string $class
+ *   The name of the class for the desired class loader wrapper to apply to the
+ *   current class loader.
+ *
+ * @return
+ *   The class loader wrapper object, if one is present.
+ *
+ * @see drupal_classloader()
+ */
+function drupal_classloader_wrapper($class = NULL) {
+  static $wrapper = NULL;
+
+  if (isset($class)) {
+    // Unregister the previously used class loader caching method, if it exists.
+    if (isset($wrapper)) {
+      $wrapper->unregister();
+    }
+
+    // Retrieve the loader to pass off to the new wrapper.
+    $loader = drupal_classloader();
+
+    // Create the new wrapper instance, and wrap the class loader with it.
+    $wrapper = new $class('drupal.' . drupal_get_hash_salt(), $loader);
+
+    // Ensure the ClassLoader is unregistered, and register the new wrapper.
+    $loader->unregister();
+    $wrapper->register();
+  }
+
+  return $wrapper;
+}
+
+/**
+ * Returns the class loader.
  *
  * The class loader is responsible for lazy-loading all PSR-0 compatible
- * classes, interfaces, and traits (PHP 5.4 and later). It's only dependency
- * is DRUPAL_ROOT. Otherwise it may be called as early as possible.
+ * classes, interfaces, and traits (PHP 5.4 and later).
  *
- * @param $class_loader
- *   The name of class loader to use. This can be used to change the class
- *   loader class when calling drupal_classloader() from settings.php. It is
- *   ignored otherwise.
- *
- * @return \Symfony\Component\ClassLoader\ClassLoader
+ * @return \Composer\Autoload\ClassLoader
  *   A ClassLoader class instance (or extension thereof).
  */
-function drupal_classloader($class_loader = NULL) {
-  // By default, use the ClassLoader which is best for development, as it does
-  // not break when code is moved on the file system. However, as it is slow,
-  // allow to use the APC class loader in production.
+function drupal_classloader() {
   static $loader;
 
   if (!isset($loader)) {
-
     // Retrieve the Composer ClassLoader for loading classes.
     $loader = include __DIR__ . '/../vendor/autoload.php';
-
-    // Register the class loader.
-    // When configured to use APC, the ApcClassLoader is registered instead.
-    // Note that ApcClassLoader decorates ClassLoader and only provides the
-    // findFile() method, but none of the others. The actual registry is still
-    // in ClassLoader.
-    if (!isset($class_loader)) {
-      $class_loader = settings()->get('class_loader', 'default');
-    }
-    if ($class_loader === 'apc') {
-      require_once DRUPAL_ROOT . '/core/vendor/symfony/class-loader/Symfony/Component/ClassLoader/ApcClassLoader.php';
-      $apc_loader = new ApcClassLoader('drupal.' . drupal_get_hash_salt(), $loader);
-      $apc_loader->register();
-    }
-    else {
-      $loader->register();
-    }
   }
+
   return $loader;
 }
 
