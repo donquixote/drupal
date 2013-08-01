@@ -43,6 +43,7 @@ class ComposerAutoloaderInitae9396db2008f9b266cde1fb85dfa4f8
         $loader->register(true);
 
         require $vendorDir . '/kriswallsmith/assetic/src/functions.php';
+        require $baseDir . '/core/lib/Drupal.php';
 
         return $loader;
     }
