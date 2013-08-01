@@ -4,6 +4,8 @@
  * This script runs Drupal tests from command line.
  */
 
+require_once __DIR__ . '/../vendor/autoload.php';
+
 const SIMPLETEST_SCRIPT_COLOR_PASS = 32; // Green.
 const SIMPLETEST_SCRIPT_COLOR_FAIL = 31; // Red.
 const SIMPLETEST_SCRIPT_COLOR_EXCEPTION = 33; // Brown.
