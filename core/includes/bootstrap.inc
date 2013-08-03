@@ -2732,6 +2732,7 @@ function drupal_classloader($class_loader = NULL) {
     if ($class_loader === 'apc') {
       require_once DRUPAL_ROOT . '/core/vendor/symfony/class-loader/Symfony/Component/ClassLoader/ApcClassLoader.php';
       $apc_loader = new ApcClassLoader('drupal.' . drupal_get_hash_salt(), $loader);
+      $loader->unregister();
       $apc_loader->register();
     }
     else {
