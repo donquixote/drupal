@@ -37,6 +37,8 @@ class ClassLoader {
   private $useIncludePath = false;
   private $classMap = array();
 
+  const PREDICTOR_INDEX = 9;
+
   public function getPrefixes() {
     return call_user_func_array('array_merge', $this->prefixes);
   }
@@ -86,21 +88,27 @@ class ClassLoader {
       return;
     }
 
-    $first = $prefix[0];
-    if (!isset($this->prefixes[$first][$prefix])) {
-      $this->prefixes[$first][$prefix] = (array) $paths;
+    if (isset($prefix[self::PREDICTOR_INDEX])) {
+      $predictor = $prefix[0] . $prefix[self::PREDICTOR_INDEX];
+    }
+    else {
+      $predictor = $prefix[0];
+    }
+
+    if (!isset($this->prefixes[$predictor][$prefix])) {
+      $this->prefixes[$predictor][$prefix] = (array) $paths;
 
       return;
     }
     if ($prepend) {
-      $this->prefixes[$first][$prefix] = array_merge(
+      $this->prefixes[$predictor][$prefix] = array_merge(
         (array) $paths,
-        $this->prefixes[$first][$prefix]
+        $this->prefixes[$predictor][$prefix]
       );
     }
     else {
-      $this->prefixes[$first][$prefix] = array_merge(
-        $this->prefixes[$first][$prefix],
+      $this->prefixes[$predictor][$prefix] = array_merge(
+        $this->prefixes[$predictor][$prefix],
         (array) $paths
       );
     }
@@ -201,6 +209,21 @@ class ClassLoader {
     $classPath .= strtr($className, '_', DIRECTORY_SEPARATOR) . '.php';
 
     $first = $class[0];
+    if (isset($class[self::PREDICTOR_INDEX])) {
+      $predictor = $first . $class[self::PREDICTOR_INDEX];
+      if (isset($this->prefixes[$predictor])) {
+        foreach ($this->prefixes[$predictor] as $prefix => $dirs) {
+          if (0 === strpos($class, $prefix)) {
+            foreach ($dirs as $dir) {
+              if (file_exists($dir . DIRECTORY_SEPARATOR . $classPath)) {
+                return $dir . DIRECTORY_SEPARATOR . $classPath;
+              }
+            }
+          }
+        }
+      }
+    }
+
     if (isset($this->prefixes[$first])) {
       foreach ($this->prefixes[$first] as $prefix => $dirs) {
         if (0 === strpos($class, $prefix)) {
