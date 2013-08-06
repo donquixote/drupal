@@ -44,6 +44,8 @@ class ClassLoader {
   private $useIncludePath = false;
   private $classMap = array();
 
+  const PREDICTOR_INDEX = 9;
+
   public function getPrefixes() {
     return call_user_func_array('array_merge', $this->prefixesPsr0);
   }
@@ -153,7 +155,13 @@ class ClassLoader {
       if ('\\' !== $prefix[$length - 1]) {
         throw new \Exception("A non-empty PSR-4 prefix must end with a namespace separator.");
       }
-      $this->prefixLengthsPsr4[$prefix[0]][$prefix] = $length;
+      if ($length > self::PREDICTOR_INDEX) {
+        $predictor = $prefix[0] . $prefix[self::PREDICTOR_INDEX];
+        $this->prefixLengthsPsr4[$predictor][$prefix] = $length;
+      }
+      else {
+        $this->prefixLengthsPsr4[$prefix[0]][$prefix] = $length;
+      }
       $this->prefixDirsPsr4[$prefix] = (array) $paths;
     }
     elseif ($prepend) {
@@ -205,7 +213,13 @@ class ClassLoader {
       if ('\\' !== $prefix[$length - 1]) {
         throw new \Exception("A non-empty PSR-4 prefix must end with a namespace separator.");
       }
-      $this->prefixLengthsPsr4[$prefix[0]][$prefix] = $length;
+      if ($length > self::PREDICTOR_INDEX) {
+        $predictor = $prefix[0] . $prefix[self::PREDICTOR_INDEX];
+        $this->prefixLengthsPsr4[$predictor][$prefix] = $length;
+      }
+      else {
+        $this->prefixLengthsPsr4[$prefix[0]][$prefix] = $length;
+      }
       $this->prefixDirsPsr4[$prefix] = (array) $paths;
     }
   }
@@ -281,6 +295,21 @@ class ClassLoader {
     $logicalPathPsr4 = strtr($class, '\\', DIRECTORY_SEPARATOR) . '.php';
 
     $first = $class[0];
+    if (isset($class[self::PREDICTOR_INDEX])) {
+      $predictor = $first . $class[self::PREDICTOR_INDEX];
+      if (isset($this->prefixLengthsPsr4[$predictor])) {
+        foreach ($this->prefixLengthsPsr4[$predictor] as $prefix => $length) {
+          if (0 === strpos($class, $prefix)) {
+            foreach ($this->prefixDirsPsr4[$prefix] as $dir) {
+              if (file_exists($file = $dir . DIRECTORY_SEPARATOR . substr($logicalPathPsr4, $length))) {
+                return $file;
+              }
+            }
+          }
+        }
+      }
+    }
+
     if (isset($this->prefixLengthsPsr4[$first])) {
       foreach ($this->prefixLengthsPsr4[$first] as $prefix => $length) {
         if (0 === strpos($class, $prefix)) {
