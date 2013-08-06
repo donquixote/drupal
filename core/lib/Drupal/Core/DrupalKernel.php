@@ -19,7 +19,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\TerminableInterface;
-use Composer\Autoload\ClassLoader;
+use Drupal\Core\Autoload\ClassLoader;
 
 /**
  * The DrupalKernel class is the core of Drupal itself.
@@ -97,7 +97,7 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
   /**
    * The classloader object.
    *
-   * @var \Composer\Autoload\ClassLoader
+   * @var \Drupal\Core\Autoload\ClassLoader
    */
   protected $classLoader;
 
@@ -150,7 +150,7 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
    *   String indicating the environment, e.g. 'prod' or 'dev'. Used by
    *   Symfony\Component\HttpKernel\Kernel::__construct(). Drupal does not use
    *   this value currently. Pass 'prod'.
-   * @param \Composer\Autoload\ClassLoader $class_loader
+   * @param \Drupal\Core\Autoload\ClassLoader $class_loader
    *   (optional) The classloader is only used if $storage is not given or
    *   the load from storage fails and a container rebuild is required. In
    *   this case, the loaded modules will be registered with this loader in
