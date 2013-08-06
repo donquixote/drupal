@@ -12,15 +12,19 @@ namespace Drupal\Core\Autoload;
  * - https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-0.md
  * - https://github.com/pmjones/fig-standards/blob/master/proposed/psr-4-autoloader/psr-4-autolader.md
  *
- * The class is mostly based on a pull request for Composer, that will add PSR-4
- * class loading to Composer\Autoload\ClassLoader,
- * https://github.com/composer/composer/pull/2121.
+ * The class is mostly based on:
+ * 1. A pull request for Composer, that will add PSR-4 class loading to
+ *    Composer\Autoload\ClassLoader.
+ *    See https://github.com/composer/composer/pull/2121.
+ * 2. A change proposed to Composer, that will improve autoload performance in
+ *    cases where many of the registered namespaces have the same first
+ *    character. E.g. many sub-namespaces of 'Drupal\\', where the first
+ *    character is always 'D'.
+ *    See https://github.com/composer/composer/issues/2112
  *
- * It has been adapted to comply with the Drupal coding standards, and enhanced
- * with docblock comments.
- *
- * No variables or methods have been renamed, and no logic has been changed,
- * when copying from the pull request.
+ * The pull request (1.) has been adapted to comply with the Drupal coding
+ * standards, and enhanced with docblock comments.
+ * The predictor logic (2.) was added to that in a custom fashion.
  */
 class ClassLoader {
 
@@ -32,12 +36,22 @@ class ClassLoader {
    *   Namespaces are represented with trailing namespace separator, but without
    *   a preceding namespace separator.
    *
-   *   The array has a nested structure, where namespaces are grouped by their
-   *   first character.
+   *   The array has a nested structure, where namespaces are grouped by
+   *   predictor characters picked at specific positions in the namespace.
+   *   The first position is always [0], the second position is determined by
+   *   self::PREDICTOR_INDEX, which is hardcoded to [9].
+   *   If the namespace is shorter than that, only the first character is used.
    *
    *   E.g. a possible value of this variable could be:
    *
-   *   array('D' => array('Drupal\Core\\' => 11))
+   *   array(
+   *     'Dr' => array('Drupal\Core\\' => 12),
+   *     'Dm' => array(
+   *       'Drupal\Component\\' => 17,
+   *       'Drupal\number\\' => 14,
+   *     ),
+   *     'S' => array('Symfony\\' => 8),
+   *   )
    */
   private $prefixLengthsPsr4 = array();
 
@@ -54,7 +68,10 @@ class ClassLoader {
    *
    *   E.g. a possible value of this variable could be:
    *
-   *   array('Drupal\Core\\' => array(DRUPAL_ROOT . '/core/lib/Drupal/Core'))
+   *   array(
+   *     'Drupal\Core\\' => array(DRUPAL_ROOT . '/core/lib/Drupal/Core'),
+   *     'Drupal\Component\\' => array(DRUPAL_ROOT . '/core/lib/Drupal/Component'),
+   *   )
    */
   private $prefixDirsPsr4 = array();
 
@@ -104,6 +121,15 @@ class ClassLoader {
    *   Specific classes mapped to specific PHP files.
    */
   private $classMap = array();
+
+  /**
+   * @const
+   *   Position in a fully-qualified class name where a character should be
+   *   picked to build the index for $prefixLengthsPsr4.
+   *   The position [9] has been chosen because it provides a good distribution
+   *   of the typical namespaces in a Drupal project.
+   */
+  const PREDICTOR_INDEX = 9;
 
   /**
    * Gets the registered prefixes for PSR-0 directories.
@@ -259,7 +285,15 @@ class ClassLoader {
       if ('\\' !== $prefix[$length - 1]) {
         throw new \Exception("A non-empty PSR-4 prefix must end with a namespace separator.");
       }
-      $this->prefixLengthsPsr4[$prefix[0]][$prefix] = $length;
+      if ($length > self::PREDICTOR_INDEX) {
+        // The namespace is long enough to have a character at position [9].
+        $predictor = $prefix[0] . $prefix[self::PREDICTOR_INDEX];
+        $this->prefixLengthsPsr4[$predictor][$prefix] = $length;
+      }
+      else {
+        // The namespace is too short to have a character at position [9].
+        $this->prefixLengthsPsr4[$prefix[0]][$prefix] = $length;
+      }
       $this->prefixDirsPsr4[$prefix] = (array) $paths;
     }
     elseif ($prepend) {
@@ -323,7 +357,13 @@ class ClassLoader {
       if ('\\' !== $prefix[$length - 1]) {
         throw new \Exception("A non-empty PSR-4 prefix must end with a namespace separator.");
       }
-      $this->prefixLengthsPsr4[$prefix[0]][$prefix] = $length;
+      if ($length > self::PREDICTOR_INDEX) {
+        $predictor = $prefix[0] . $prefix[self::PREDICTOR_INDEX];
+        $this->prefixLengthsPsr4[$predictor][$prefix] = $length;
+      }
+      else {
+        $this->prefixLengthsPsr4[$prefix[0]][$prefix] = $length;
+      }
       $this->prefixDirsPsr4[$prefix] = (array) $paths;
     }
   }
@@ -404,8 +444,26 @@ class ClassLoader {
     // PSR-4 lookup.
     $logicalPathPsr4 = strtr($class, '\\', DIRECTORY_SEPARATOR) . '.php';
 
-    // Check if the class is in any of the namespaces registered for PSR-4.
+    // Check if the class is in any of the namespaces registered for PSR-4,
+    // and that are long enough to have a character at the predictor index.
     $first = $class[0];
+    if (isset($class[self::PREDICTOR_INDEX])) {
+      $predictor = $first . $class[self::PREDICTOR_INDEX];
+      if (isset($this->prefixLengthsPsr4[$predictor])) {
+        foreach ($this->prefixLengthsPsr4[$predictor] as $prefix => $length) {
+          if (0 === strpos($class, $prefix)) {
+            foreach ($this->prefixDirsPsr4[$prefix] as $dir) {
+              if (file_exists($file = $dir . DIRECTORY_SEPARATOR . substr($logicalPathPsr4, $length))) {
+                return $file;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // Check if the class is in any of the namespaces registered for PSR-4,
+    // that are too short to have a character at the predictor index.
     if (isset($this->prefixLengthsPsr4[$first])) {
       foreach ($this->prefixLengthsPsr4[$first] as $prefix => $length) {
         if (0 === strpos($class, $prefix)) {
