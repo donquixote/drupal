@@ -219,7 +219,7 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
       $this->moduleList = isset($module_list['enabled']) ? $module_list['enabled'] : array();
     }
     $module_filenames = $this->getModuleFileNames();
-    $this->registerNamespaces($this->getModuleNamespaces($module_filenames));
+    $this->registerNamespacesPsr4($this->getModuleNamespacesPsr4($module_filenames));
 
     // Load each module's serviceProvider class.
     foreach ($this->moduleList as $module => $weight) {
@@ -404,8 +404,8 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
       // All namespaces must be registered before we attempt to use any service
       // from the container.
       $container_modules = $this->container->getParameter('container.modules');
-      $namespaces_before = $this->classLoader->getPrefixes();
-      $this->registerNamespaces($this->getModuleNamespaces($container_modules));
+      $namespaces_before = $this->classLoader->getPrefixesPsr4();
+      $this->registerNamespacesPsr4($this->getModuleNamespacesPsr4($container_modules));
 
       // If 'container.modules' is wrong, the container must be rebuilt.
       if (!isset($this->moduleList)) {
@@ -418,9 +418,9 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
         // registerNamespaces() performs a merge rather than replace, so to
         // effectively remove erroneous registrations, we must replace them with
         // empty arrays.
-        $namespaces_after = $this->classLoader->getPrefixes();
+        $namespaces_after = $this->classLoader->getPrefixesPsr4();
         $namespaces_before += array_fill_keys(array_diff(array_keys($namespaces_after), array_keys($namespaces_before)), array());
-        $this->registerNamespaces($namespaces_before);
+        $this->registerNamespacesPsr4($namespaces_before);
       }
     }
 
@@ -654,7 +654,11 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
   }
 
   /**
-   * Gets the namespaces of each enabled module.
+   * Gets the namespaces of each enabled module,
+   * each with its PSR-0 directory.
+   *
+   * @param array $moduleFileNames
+   * @return array
    */
   protected function getModuleNamespaces($moduleFileNames) {
     $namespaces = array();
@@ -665,7 +669,20 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
   }
 
   /**
-   * Registers a list of namespaces.
+   * Registers a list of namespaces with PSR-4 directories.
+   *
+   * @param array $namespaces
+   */
+  protected function registerNamespacesPsr4(array $namespaces = array()) {
+    foreach ($namespaces as $prefix => $paths) {
+      $this->classLoader->addPsr4($prefix . '\\', $paths);
+    }
+  }
+
+  /**
+   * Registers a list of namespaces with PSR-0 directories.
+   *
+   * @param array $namespaces
    */
   protected function registerNamespaces(array $namespaces = array()) {
     foreach ($namespaces as $prefix => $path) {
