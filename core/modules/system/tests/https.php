@@ -20,5 +20,5 @@ foreach ($_SERVER as $key => $value) {
 
 // Change current directory to the Drupal root.
 chdir('../../../..');
-require_once dirname(dirname(dirname(__DIR__))) . '/vendor/autoload.php';
+require_once dirname(dirname(dirname(__DIR__))) . '/autoload.php';
 Drupal::handleRequest(TRUE);
