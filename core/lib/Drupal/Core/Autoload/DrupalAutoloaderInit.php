@@ -36,6 +36,12 @@ class DrupalAutoloaderInit
     set_include_path(join(PATH_SEPARATOR, $includePaths));
 
     $map = require $composerDir . '/autoload_namespaces.php';
+    unset($map['Drupal\Core']);
+    unset($map['Drupal\Component']);
+    unset($map['Drupal\Driver']);
+    $loader->setPsr4('Drupal\Core\\', $baseDir . '/core/lib/Drupal/Core');
+    $loader->setPsr4('Drupal\Component\\', $baseDir . '/core/lib/Drupal/Component');
+    $loader->setPsr4('Drupal\Driver\\', $baseDir . '/core/lib/Drupal/Driver');
     foreach ($map as $namespace => $path) {
       $loader->set($namespace, $path);
     }
