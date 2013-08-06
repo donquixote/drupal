@@ -646,8 +646,13 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
    * Registers a list of namespaces.
    */
   protected function registerNamespaces(array $namespaces = array()) {
-    foreach ($namespaces as $prefix => $path) {
-      $this->classLoader->add($prefix, $path);
+    foreach ($namespaces as $prefix => $paths) {
+      $paths_extended = array();
+      $append = '/' . str_replace('\\', '/', $prefix);
+      foreach ((array)$paths as $path) {
+        $paths_extended[] = $path . $append;
+      }
+      $this->classLoader->addPsr4($prefix . '\\', $paths_extended);
     }
   }
 }
