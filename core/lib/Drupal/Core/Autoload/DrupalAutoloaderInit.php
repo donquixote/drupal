@@ -72,8 +72,23 @@ class DrupalAutoloaderInit {
     array_push($includePaths, get_include_path());
     set_include_path(join(PATH_SEPARATOR, $includePaths));
 
-    // Register PSR-0 namespaces in the class loader.
+    // Load PSR-0 namespaces to be registered in the class loader.
     $map = require $composerDir . '/autoload_namespaces.php';
+
+    // Register core namespaces as PSR-4 instead of PSR-0,
+    // to let the autoloader handle them with priority.
+    // These mappings need to be equivalent with the PSR-0 mappings specified in
+    // composer.json. This is only possible because class names in Drupal core
+    // do not contain underscores.
+    // @todo Do this via composer.json, once Composer supports PSR-4.
+    unset($map['Drupal\Core']);
+    unset($map['Drupal\Component']);
+    unset($map['Drupal\Driver']);
+    $loader->setPsr4('Drupal\Core\\', $baseDir . '/core/lib/Drupal/Core');
+    $loader->setPsr4('Drupal\Component\\', $baseDir . '/core/lib/Drupal/Component');
+    $loader->setPsr4('Drupal\Driver\\', $baseDir . '/drivers/lib/Drupal/Driver');
+
+    // Register the remaining PSR-0 namespaces - mostly for vendor libraries.
     foreach ($map as $namespace => $path) {
       $loader->set($namespace, $path);
     }
