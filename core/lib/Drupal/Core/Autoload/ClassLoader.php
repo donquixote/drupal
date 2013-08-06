@@ -156,7 +156,7 @@ class ClassLoader {
         throw new \Exception("A non-empty PSR-4 prefix must end with a namespace separator.");
       }
       if ($length > self::PREDICTOR_INDEX) {
-        $predictor = $prefix[0] . $prefix[self::PREDICTOR_INDEX];
+        $predictor = $prefix[0] . $prefix[self::PREDICTOR_INDEX - 1] . $prefix[self::PREDICTOR_INDEX];
         $this->prefixLengthsPsr4[$predictor][$prefix] = $length;
       }
       else {
@@ -214,7 +214,7 @@ class ClassLoader {
         throw new \Exception("A non-empty PSR-4 prefix must end with a namespace separator.");
       }
       if ($length > self::PREDICTOR_INDEX) {
-        $predictor = $prefix[0] . $prefix[self::PREDICTOR_INDEX];
+        $predictor = $prefix[0] . $prefix[self::PREDICTOR_INDEX - 1] . $prefix[self::PREDICTOR_INDEX];
         $this->prefixLengthsPsr4[$predictor][$prefix] = $length;
       }
       else {
@@ -296,7 +296,7 @@ class ClassLoader {
 
     $first = $class[0];
     if (isset($class[self::PREDICTOR_INDEX])) {
-      $predictor = $first . $class[self::PREDICTOR_INDEX];
+      $predictor = $first . $class[self::PREDICTOR_INDEX - 1] . $class[self::PREDICTOR_INDEX];
       if (isset($this->prefixLengthsPsr4[$predictor])) {
         foreach ($this->prefixLengthsPsr4[$predictor] as $prefix => $length) {
           if (0 === strpos($class, $prefix)) {
