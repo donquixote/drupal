@@ -662,7 +662,7 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
    */
   protected function registerNamespaces(array $namespaces = array()) {
     foreach ($namespaces as $prefix => $path) {
-      $this->classLoader->add($prefix, $path);
+      $this->classLoader->addPsr4($prefix . '\\', $path . '/' . str_replace('\\', '/', $prefix));
     }
   }
 }
