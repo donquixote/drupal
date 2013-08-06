@@ -8,7 +8,7 @@
  * See COPYRIGHT.txt and LICENSE.txt files in the "core" directory.
  */
 
-require_once __DIR__ . '/core/vendor/autoload.php';
+require_once __DIR__ . '/core/autoload.php';
 
 try {
   Drupal::handleRequest();
