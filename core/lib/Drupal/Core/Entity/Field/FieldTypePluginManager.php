@@ -42,10 +42,8 @@ class FieldTypePluginManager extends DefaultPluginManager {
    *   The module handler.
    */
   public function __construct(\Traversable $namespaces, CacheBackendInterface $cache_backend, LanguageManager $language_manager, ModuleHandlerInterface $module_handler) {
-    $annotation_namespaces = array(
-      'Drupal\Core\Entity\Annotation' => DRUPAL_ROOT . '/core/lib/Drupal/Core/Entity/Annotation',
-    );
-    parent::__construct('Plugin/field/field_type', $namespaces, $annotation_namespaces, 'Drupal\Core\Entity\Annotation\FieldType');
+    parent::__construct($namespaces, 'Plugin\field\field_type', 'Drupal\Core\Entity\Annotation\FieldType');
+    $this->addAnnotationNamespace('Drupal\Core\Entity\Annotation');
     $this->alterInfo($module_handler, 'field_info');
     $this->setCacheBackend($cache_backend, $language_manager, 'field_types');
 
