@@ -7,12 +7,12 @@
 
 namespace Drupal\Core\Plugin\Discovery;
 
-use Drupal\Component\Plugin\Discovery\AnnotatedClassDiscovery as ComponentAnnotatedClassDiscovery;
+use Drupal\Component\Plugin\Discovery\AbstractAnnotatedClassDiscovery;
 
 /**
  * Defines a discovery mechanism to find annotated plugins in PSR-0 namespaces.
  */
-class AnnotatedClassDiscovery extends ComponentAnnotatedClassDiscovery {
+class AnnotatedClassDiscovery extends AbstractAnnotatedClassDiscovery {
 
   /**
    * The subdirectory within a namespace to look for plugins.
@@ -42,6 +42,13 @@ class AnnotatedClassDiscovery extends ComponentAnnotatedClassDiscovery {
   protected $rootNamespacesIterator;
 
   /**
+   * The namespaces of classes that can be used as annotations.
+   *
+   * @var array
+   */
+  protected $annotationNamespaces;
+
+  /**
    * Constructs an AnnotatedClassDiscovery object.
    *
    * @param string $subdir
@@ -67,12 +74,11 @@ class AnnotatedClassDiscovery extends ComponentAnnotatedClassDiscovery {
       $this->namespaceSuffix = str_replace('/', '\\', $subdir);
     }
     $this->rootNamespacesIterator = $root_namespaces;
-    $annotation_namespaces += array(
+    $this->annotationNamespaces = $annotation_namespaces + array(
       'Drupal\Component\Annotation' => DRUPAL_ROOT . '/core/lib/Drupal/Component/Annotation',
       'Drupal\Core\Annotation' => DRUPAL_ROOT . '/core/lib/Drupal/Core/Annotation',
     );
-    $plugin_namespaces = array();
-    parent::__construct($plugin_namespaces, $annotation_namespaces, $plugin_definition_annotation_name);
+    parent::__construct($plugin_definition_annotation_name);
   }
 
   /**
@@ -128,6 +134,13 @@ class AnnotatedClassDiscovery extends ComponentAnnotatedClassDiscovery {
     }
 
     return $plugin_namespaces;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function getAnnotationNamespaces() {
+    return $this->annotationNamespaces;
   }
 
 }
