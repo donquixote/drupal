@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains Drupal\Core\Autoload\DrupalAutoloaderInit.
+ * Contains \Drupal\Core\Autoload\DrupalAutoloaderInit.
  */
 
 namespace Drupal\Core\Autoload;

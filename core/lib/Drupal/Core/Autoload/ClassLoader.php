@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains Drupal\Core\Autoload\ClassLoader.
+ * Contains \Drupal\Core\Autoload\ClassLoader.
  */
 
 namespace Drupal\Core\Autoload;

@@ -15,6 +15,13 @@ use Drupal\Component\Plugin\Discovery\AbstractAnnotatedClassDiscovery;
 class AnnotatedClassDiscovery extends AbstractAnnotatedClassDiscovery {
 
   /**
+   * An object containing the namespaces to look for plugin implementations.
+   *
+   * @var \Traversable
+   */
+  protected $rootNamespacesIterator;
+
+  /**
    * The subdirectory within a namespace to look for plugins.
    *
    * If the plugins are in the top level of the namespace and not within a
@@ -35,50 +42,82 @@ class AnnotatedClassDiscovery extends AbstractAnnotatedClassDiscovery {
   protected $namespaceSuffix = '';
 
   /**
-   * An object containing the namespaces to look for plugin implementations.
-   *
-   * @var \Traversable
-   */
-  protected $rootNamespacesIterator;
-
-  /**
    * The namespaces of classes that can be used as annotations.
    *
    * @var array
    */
-  protected $annotationNamespaces;
+  protected $annotationNamespaces = array();
 
   /**
    * Constructs an AnnotatedClassDiscovery object.
    *
-   * @param string $subdir
-   *   Either the plugin's subdirectory, for example 'Plugin/views/filter', or
-   *   empty string if plugins are located at the top level of the namespace.
    * @param \Traversable $root_namespaces
    *   An object that implements \Traversable which contains the root paths
    *   keyed by the corresponding namespace to look for plugin implementations.
    *   If $subdir is not an empty string, it will be appended to each namespace.
-   * @param array $annotation_namespaces
-   *   (optional) The namespaces of classes that can be used as annotations.
-   *   Defaults to an empty array.
+   * @param string $namespace_suffix
+   *   Suffix to append to each of the root namespaces, to obtain the plugin
+   *   namespaces. E.g. '\Plugin\views\filter', or empty string if plugins are
+   *   located at the top level of each of the root namespaces.
    * @param string $plugin_definition_annotation_name
    *   (optional) The name of the annotation that contains the plugin definition.
    *   Defaults to 'Drupal\Component\Annotation\Plugin'.
    */
-  function __construct($subdir, \Traversable $root_namespaces, $annotation_namespaces = array(), $plugin_definition_annotation_name = 'Drupal\Component\Annotation\Plugin') {
-    if ($subdir) {
-      if ('/' !== $subdir[0]) {
-        $subdir = '/' . $subdir;
-      }
-      $this->directorySuffix = $subdir;
-      $this->namespaceSuffix = str_replace('/', '\\', $subdir);
-    }
+  public function __construct(\Traversable $root_namespaces, $namespace_suffix = '', $plugin_definition_annotation_name = 'Drupal\Component\Annotation\Plugin') {
     $this->rootNamespacesIterator = $root_namespaces;
-    $this->annotationNamespaces = $annotation_namespaces + array(
-      'Drupal\Component\Annotation' => DRUPAL_ROOT . '/core/lib/Drupal/Component/Annotation',
-      'Drupal\Core\Annotation' => DRUPAL_ROOT . '/core/lib/Drupal/Core/Annotation',
-    );
+    if ($namespace_suffix) {
+      if ($namespace_suffix && '\\' !== $namespace_suffix[0]) {
+        $namespace_suffix = '\\' . $namespace_suffix;
+      }
+      $this->namespaceSuffix = $namespace_suffix;
+      $this->directorySuffix = str_replace('\\', '/', $namespace_suffix);
+    }
+    $this->addAnnotationNamespace('Drupal\Component\Annotation');
+    $this->addAnnotationNamespace('Drupal\Core\Annotation');
     parent::__construct($plugin_definition_annotation_name);
+  }
+
+  /**
+   * @param string $namespace
+   *   The namespace.
+   * @param string $dir
+   *   Optional: The directory.
+   * @throws \Exception
+   */
+  public function addAnnotationNamespace($namespace, $dir = NULL) {
+
+    if (!empty($dir)) {
+      $this->annotationNamespaces[$namespace] = $dir;
+      return;
+    }
+
+    if ('Drupal\Core\\' === substr($namespace, 0, 12)) {
+      $this->annotationNamespaces[$namespace] = DRUPAL_ROOT . '/core/lib/' . str_replace('\\', '/', $namespace);
+      return;
+    }
+
+    if ('Drupal\Component\\' === substr($namespace, 0, 17)) {
+      $this->annotationNamespaces[$namespace] = DRUPAL_ROOT . '/core/lib/' . str_replace('\\', '/', $namespace);
+      return;
+    }
+
+    if (!empty($this->rootNamespacesIterator[$namespace])) {
+      $this->annotationNamespaces[$namespace] = $this->rootNamespacesIterator[$namespace];
+      return;
+    }
+
+    $fragments = explode('\\', $namespace);
+    $relativePath = array_pop($fragments);
+    while (!empty($fragments)) {
+      $prefix = implode('\\', $fragments);
+      if (!empty($this->rootNamespacesIterator[$prefix])) {
+        $this->annotationNamespaces[$namespace] = $this->rootNamespacesIterator[$prefix] . '/' . $relativePath;
+        return;
+      }
+      $relativePath = array_pop($fragments) . '/' . $relativePath;
+    }
+
+    throw new \Exception("Unable to find base directory for annotation namespace '$namespace'.");
   }
 
   /**

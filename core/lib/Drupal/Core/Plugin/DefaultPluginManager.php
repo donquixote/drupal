@@ -105,7 +105,11 @@ class DefaultPluginManager extends PluginManagerBase implements PluginManagerInt
    */
   public function __construct($subdir, \Traversable $namespaces, $annotation_namespaces = array(), $plugin_definition_annotation_name = 'Drupal\Component\Annotation\Plugin') {
     $this->subdir = $subdir;
-    $this->discovery = new AnnotatedClassDiscovery($subdir, $namespaces, $annotation_namespaces, $plugin_definition_annotation_name);
+    $namespace_suffix = str_replace('/', '\\', $subdir);
+    $this->discovery = new AnnotatedClassDiscovery($namespaces, $namespace_suffix, $plugin_definition_annotation_name);
+    foreach ($annotation_namespaces as $namespace => $dir) {
+      $this->discovery->addAnnotationNamespace($namespace, $dir);
+    }
     $this->discovery = new ContainerDerivativeDiscoveryDecorator($this->discovery);
     $this->factory = new ContainerFactory($this);
   }
