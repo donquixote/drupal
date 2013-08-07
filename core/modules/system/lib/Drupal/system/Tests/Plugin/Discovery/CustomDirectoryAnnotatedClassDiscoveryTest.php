@@ -70,7 +70,13 @@ class CustomDirectoryAnnotatedClassDiscoveryTest extends DiscoveryTestBase {
         'provider' => 'plugin_test',
       ),
     );
-    $namespaces = new \ArrayObject(array('Drupal\plugin_test' => DRUPAL_ROOT . '/core/modules/system/tests/modules/plugin_test/lib'));
+    $namespaces = new \ArrayObject(array(
+      'Drupal\plugin_test' => array(
+        // @todo Remove lib/Drupal/$module, once the switch to PSR-4 is complete.
+        DRUPAL_ROOT . '/core/modules/system/tests/modules/plugin_test/lib/Drupal/plugin_test',
+        DRUPAL_ROOT . '/core/modules/system/tests/modules/plugin_test/lib',
+      ),
+    ));
     $this->discovery = new AnnotatedClassDiscovery('', $namespaces);
     $empty_namespaces = new \ArrayObject();
     $this->emptyDiscovery = new AnnotatedClassDiscovery('', $empty_namespaces);
