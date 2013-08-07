@@ -35,7 +35,7 @@ class AggregatorPluginManager extends PluginManagerBase {
     );
 
     $annotation_namespaces = array(
-      'Drupal\aggregator\Annotation' => DRUPAL_ROOT . '/core/modules/aggregator/lib',
+      'Drupal\aggregator\Annotation' => DRUPAL_ROOT . '/core/modules/aggregator/lib/Drupal/aggregator/Annotation',
     );
 
     $this->discovery = new AnnotatedClassDiscovery("Plugin/aggregator/$type", $namespaces, $annotation_namespaces, $type_annotations[$type]);

@@ -54,7 +54,7 @@ class FormatterPluginManager extends DefaultPluginManager {
    *   The 'field type' plugin manager.
    */
   public function __construct(\Traversable $namespaces, CacheBackendInterface $cache_backend, ModuleHandlerInterface $module_handler, LanguageManager $language_manager, FieldTypePluginManager $field_type_manager) {
-    $annotation_namespaces = array('Drupal\field\Annotation' => $namespaces['Drupal\field']);
+    $annotation_namespaces = array('Drupal\field\Annotation' => $namespaces['Drupal\field'] . '/Annotation');
 
     parent::__construct('Plugin/field/formatter', $namespaces, $annotation_namespaces, 'Drupal\field\Annotation\FieldFormatter');
 

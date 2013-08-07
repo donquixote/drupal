@@ -105,7 +105,7 @@ class EntityManager extends PluginManagerBase {
   public function __construct(\Traversable $namespaces, ContainerInterface $container, ModuleHandlerInterface $module_handler, CacheBackendInterface $cache, LanguageManager $language_manager) {
     // Allow the plugin definition to be altered by hook_entity_info_alter().
     $annotation_namespaces = array(
-      'Drupal\Core\Entity\Annotation' => DRUPAL_ROOT . '/core/lib',
+      'Drupal\Core\Entity\Annotation' => DRUPAL_ROOT . '/core/lib/Drupal/Core/Entity/Annotation',
     );
 
     $this->moduleHandler = $module_handler;
@@ -148,6 +148,7 @@ class EntityManager extends PluginManagerBase {
    *   (optional) If this controller definition is nested, the name of the key.
    *   Defaults to NULL.
    *
+   * @throws \InvalidArgumentException
    * @return string
    *   The class name for this controller instance.
    */
