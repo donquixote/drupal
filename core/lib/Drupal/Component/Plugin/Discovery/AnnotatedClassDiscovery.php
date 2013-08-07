@@ -71,6 +71,31 @@ class AnnotatedClassDiscovery implements DiscoveryInterface {
   }
 
   /**
+   * @param $class
+   * @return bool
+   */
+  public function loadAnnotationClass($class) {
+
+    if (class_exists($class, FALSE)) {
+      return TRUE;
+    }
+
+    foreach ($this->getAnnotationNamespaces() as $namespace => $dirs) {
+      if (0 === strpos($class, $namespace)) {
+        $relativePath = str_replace('\\', '/', substr($class, strlen($namespace))) . '.php';
+        foreach ((array) $dirs as $dir) {
+          if (file_exists($file = $dir . '/' . $relativePath)) {
+            require $file;
+            return TRUE;
+          }
+        }
+      }
+    }
+
+    return FALSE;
+  }
+
+  /**
    * Implements Drupal\Component\Plugin\Discovery\DiscoveryInterface::getDefinitions().
    */
   public function getDefinitions() {
@@ -81,13 +106,15 @@ class AnnotatedClassDiscovery implements DiscoveryInterface {
     $reader->addGlobalIgnoredName('file');
 
     // Register the namespaces of classes that can be used for annotations.
-    AnnotationRegistry::registerAutoloadNamespaces($this->getAnnotationNamespaces());
+    AnnotationRegistry::registerLoader(array($this, 'loadAnnotationClass'));
 
     // Search for classes within all PSR-0 namespace locations.
     foreach ($this->getPluginNamespaces() as $namespace => $dirs) {
       foreach ($dirs as $dir) {
-        $dir .= DIRECTORY_SEPARATOR . str_replace('\\', DIRECTORY_SEPARATOR, $namespace);
         if (file_exists($dir)) {
+          /**
+           * @var DirectoryIterator $fileinfo
+           */
           foreach (new DirectoryIterator($dir) as $fileinfo) {
             // @todo Once core requires 5.3.6, use $fileinfo->getExtension().
             if (pathinfo($fileinfo->getFilename(), PATHINFO_EXTENSION) == 'php') {
@@ -111,6 +138,10 @@ class AnnotatedClassDiscovery implements DiscoveryInterface {
         }
       }
     }
+
+    // Don't let the loaders pile up.
+    AnnotationRegistry::reset();
+
     return $definitions;
   }
 
