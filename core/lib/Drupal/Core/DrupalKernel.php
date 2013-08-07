@@ -492,14 +492,15 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
     $container->setParameter('container.modules', $this->getModuleFileNames());
 
     // Get a list of namespaces and put it onto the container.
-    $namespaces = $this->getModuleNamespaces($this->getModuleFileNames());
+    $namespaces = $this->getModuleNamespacesPsr4($this->getModuleFileNames());
     // Add all components in \Drupal\Core and \Drupal\Component that have a
     // Plugin directory.
     foreach (array('Core', 'Component') as $parent_directory) {
       $path = DRUPAL_ROOT . '/core/lib/Drupal/' . $parent_directory;
+      $parent_namespace = 'Drupal\\' . $parent_directory;
       foreach (new \DirectoryIterator($path) as $component) {
         if (!$component->isDot() && is_dir($component->getPathname() . '/Plugin')) {
-          $namespaces['Drupal\\' . $parent_directory  .'\\' . $component->getFilename()] = DRUPAL_ROOT . '/core/lib';
+          $namespaces[$parent_namespace . '\\' . $component->getFilename()] = $path . '/' . $component->getFilename();
         }
       }
     }
