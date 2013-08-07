@@ -14,7 +14,11 @@ use Drupal\field\Entity\Field;
  */
 function taxonomy_uninstall() {
   \Drupal::entityManager()->addNamespaces(new ArrayIterator(array(
-    'Drupal\taxonomy' => DRUPAL_ROOT . '/core/modules/taxonomy/lib',
+    'Drupal\taxonomy' => array(
+      // @todo Remove lib/Drupal/$module, once the switch to PSR-4 is complete.
+      DRUPAL_ROOT . '/core/modules/taxonomy/lib/Drupal/taxonomy',
+      DRUPAL_ROOT . '/core/modules/taxonomy/lib',
+    ),
   )));
   drupal_classloader_register('taxonomy', 'core/modules/taxonomy');
   // Remove taxonomy_term bundles.
