@@ -33,7 +33,7 @@ class ViewsHandlerDiscovery extends AnnotatedClassDiscovery {
   function __construct($type, \Traversable $root_namespaces) {
     $this->type = $type;
 
-    parent::__construct("Plugin/views/$type", $root_namespaces, array(), 'Drupal\Component\Annotation\PluginID');
+    parent::__construct($root_namespaces, 'Plugin\views\\' . $type, 'Drupal\Component\Annotation\PluginID');
     unset($this->annotationNamespaces['Drupal\Core\Annotation']);
   }
 
