@@ -30,7 +30,7 @@ class ViewsPluginManager extends PluginManagerBase {
    *   keyed by the corresponding namespace to look for plugin implementations,
    */
   public function __construct($type, \Traversable $namespaces) {
-    $this->discovery = new AnnotatedClassDiscovery("Plugin/views/$type", $namespaces);
+    $this->discovery = new AnnotatedClassDiscovery($namespaces, "Plugin\\views\\$type");
     $this->discovery = new ContainerDerivativeDiscoveryDecorator($this->discovery);
     $this->discovery = new ProcessDecorator($this->discovery, array($this, 'processDefinition'));
     $this->discovery = new AlterDecorator($this->discovery, 'views_plugins_' . $type);

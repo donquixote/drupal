@@ -34,11 +34,8 @@ class AggregatorPluginManager extends PluginManagerBase {
       'processor' => 'Drupal\aggregator\Annotation\AggregatorProcessor',
     );
 
-    $annotation_namespaces = array(
-      'Drupal\aggregator\Annotation' => DRUPAL_ROOT . '/core/modules/aggregator/lib/Drupal/aggregator/Annotation',
-    );
-
-    $this->discovery = new AnnotatedClassDiscovery("Plugin/aggregator/$type", $namespaces, $annotation_namespaces, $type_annotations[$type]);
+    $this->discovery = new AnnotatedClassDiscovery($namespaces, "Plugin\\aggregator\\$type", $type_annotations[$type]);
+    $this->discovery->addAnnotationNamespace('Drupal\aggregator\Annotation');
     $this->discovery = new CacheDecorator($this->discovery, "aggregator_$type:" . language(Language::TYPE_INTERFACE)->id);
     $this->factory = new DefaultFactory($this->discovery);
   }
