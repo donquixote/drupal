@@ -98,7 +98,6 @@ class AnnotatedClassDiscovery implements DiscoveryInterface {
     // Search for classes within all PSR-0 namespace locations.
     foreach ($this->getPluginNamespaces() as $namespace => $dirs) {
       foreach ($dirs as $dir) {
-        $dir .= DIRECTORY_SEPARATOR . str_replace('\\', DIRECTORY_SEPARATOR, $namespace);
         if (file_exists($dir)) {
           foreach (new \DirectoryIterator($dir) as $fileinfo) {
             // @todo Once core requires 5.3.6, use $fileinfo->getExtension().
