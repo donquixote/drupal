@@ -22,7 +22,17 @@ class AnnotatedClassDiscovery extends ComponentAnnotatedClassDiscovery {
    *
    * @var string
    */
-  protected $subdir = '';
+  protected $directorySuffix = '';
+
+  /**
+   * The subdirectory within a namespace to look for plugins.
+   *
+   * If the plugins are in the top level of the namespace and not within a
+   * subdirectory, set this to an empty string.
+   *
+   * @var string
+   */
+  protected $namespaceSuffix = '';
 
   /**
    * An object containing the namespaces to look for plugin implementations.
@@ -50,12 +60,16 @@ class AnnotatedClassDiscovery extends ComponentAnnotatedClassDiscovery {
    */
   function __construct($subdir, \Traversable $root_namespaces, $annotation_namespaces = array(), $plugin_definition_annotation_name = 'Drupal\Component\Annotation\Plugin') {
     if ($subdir) {
-      $this->subdir = str_replace('/', '\\', $subdir);
+      if ('/' !== $subdir[0]) {
+        $subdir = '/' . $subdir;
+      }
+      $this->directorySuffix = $subdir;
+      $this->namespaceSuffix = str_replace('/', '\\', $subdir);
     }
     $this->rootNamespacesIterator = $root_namespaces;
     $annotation_namespaces += array(
-      'Drupal\Component\Annotation' => DRUPAL_ROOT . '/core/lib',
-      'Drupal\Core\Annotation' => DRUPAL_ROOT . '/core/lib',
+      'Drupal\Component\Annotation' => DRUPAL_ROOT . '/core/lib/Drupal/Component/Annotation',
+      'Drupal\Core\Annotation' => DRUPAL_ROOT . '/core/lib/Drupal/Core/Annotation',
     );
     $plugin_namespaces = array();
     parent::__construct($plugin_namespaces, $annotation_namespaces, $plugin_definition_annotation_name);
@@ -99,11 +113,18 @@ class AnnotatedClassDiscovery extends ComponentAnnotatedClassDiscovery {
    */
   protected function getPluginNamespaces() {
     $plugin_namespaces = array();
-    foreach ($this->rootNamespacesIterator as $namespace => $dir) {
-      if ($this->subdir) {
-        $namespace .= "\\{$this->subdir}";
+    if ($this->namespaceSuffix) {
+      foreach ($this->rootNamespacesIterator as $namespace => $dirs) {
+        $namespace .= $this->namespaceSuffix;
+        foreach ((array) $dirs as $dir) {
+          $plugin_namespaces[$namespace][] = $dir . $this->directorySuffix;
+        }
       }
-      $plugin_namespaces[$namespace] = array($dir);
+    }
+    else {
+      foreach ($this->rootNamespacesIterator as $namespace => $dirs) {
+        $plugin_namespaces[$namespace] = (array) $dirs;
+      }
     }
 
     return $plugin_namespaces;

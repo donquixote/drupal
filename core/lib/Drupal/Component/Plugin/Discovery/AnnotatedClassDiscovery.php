@@ -63,7 +63,7 @@ class AnnotatedClassDiscovery implements DiscoveryInterface {
   }
 
   /**
-   * Implements Drupal\Component\Plugin\Discovery\DiscoveryInterface::getDefinition().
+   * {@inheritdoc}
    */
   public function getDefinition($plugin_id) {
     $plugins = $this->getDefinitions();
@@ -71,7 +71,34 @@ class AnnotatedClassDiscovery implements DiscoveryInterface {
   }
 
   /**
-   * Implements Drupal\Component\Plugin\Discovery\DiscoveryInterface::getDefinitions().
+   * @param string $class
+   *   A potential annotation class, found while parsing annotations.
+   * @return bool
+   *   TRUE, if the class exists and is in a known annotation namespace.
+   */
+  public function loadAnnotationClass($class) {
+
+    if (class_exists($class, FALSE)) {
+      return TRUE;
+    }
+
+    foreach ($this->getAnnotationNamespaces() as $namespace => $dirs) {
+      if (0 === strpos($class, $namespace)) {
+        $relativePath = str_replace('\\', '/', substr($class, strlen($namespace))) . '.php';
+        foreach ((array) $dirs as $dir) {
+          if (file_exists($file = $dir . '/' . $relativePath)) {
+            require $file;
+            return TRUE;
+          }
+        }
+      }
+    }
+
+    return FALSE;
+  }
+
+  /**
+   * {@inheritdoc}
    */
   public function getDefinitions() {
     $definitions = array();
@@ -81,12 +108,11 @@ class AnnotatedClassDiscovery implements DiscoveryInterface {
     $reader->addGlobalIgnoredName('file');
 
     // Register the namespaces of classes that can be used for annotations.
-    AnnotationRegistry::registerAutoloadNamespaces($this->getAnnotationNamespaces());
+    AnnotationRegistry::registerLoader(array($this, 'loadAnnotationClass'));
 
     // Search for classes within all PSR-0 namespace locations.
     foreach ($this->getPluginNamespaces() as $namespace => $dirs) {
       foreach ($dirs as $dir) {
-        $dir .= DIRECTORY_SEPARATOR . str_replace('\\', DIRECTORY_SEPARATOR, $namespace);
         if (file_exists($dir)) {
           foreach (new DirectoryIterator($dir) as $fileinfo) {
             // @todo Once core requires 5.3.6, use $fileinfo->getExtension().
@@ -111,6 +137,10 @@ class AnnotatedClassDiscovery implements DiscoveryInterface {
         }
       }
     }
+
+    // Don't let the loaders pile up.
+    AnnotationRegistry::reset();
+
     return $definitions;
   }
 
