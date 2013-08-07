@@ -144,7 +144,7 @@ class EntityManager extends PluginManagerBase {
 
   protected function doDiscovery($namespaces) {
     $annotation_namespaces = array(
-      'Drupal\Core\Entity\Annotation' => DRUPAL_ROOT . '/core/lib',
+      'Drupal\Core\Entity\Annotation' => DRUPAL_ROOT . '/core/lib/Drupal/Core/Entity/Annotation',
     );
     $this->discovery = new AnnotatedClassDiscovery('Entity', $namespaces, $annotation_namespaces, 'Drupal\Core\Entity\Annotation\EntityType');
     $this->discovery = new InfoHookDecorator($this->discovery, 'entity_info');
@@ -209,6 +209,7 @@ class EntityManager extends PluginManagerBase {
    *   (optional) If this controller definition is nested, the name of the key.
    *   Defaults to NULL.
    *
+   * @throws \InvalidArgumentException
    * @return string
    *   The class name for this controller instance.
    */
