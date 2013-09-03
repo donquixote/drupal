@@ -9,18 +9,18 @@ use Drupal\Core\Language\Language;
 use Drupal\Core\Template\Attribute;
 use Drupal\field\FieldInterface;
 use Drupal\field\FieldInstanceInterface;
-use Drupal\Core\Entity\EntityNG;
 
 /*
  * Load all public Field API functions. Drupal currently has no
  * mechanism for auto-loading core APIs, so we have to load them on
  * every page request.
  */
-require_once __DIR__ . '/field.crud.inc';
 require_once __DIR__ . '/field.info.inc';
 require_once __DIR__ . '/field.multilingual.inc';
 require_once __DIR__ . '/field.attach.inc';
 require_once __DIR__ . '/field.form.inc';
+require_once __DIR__ . '/field.purge.inc';
+require_once __DIR__ . '/field.deprecated.inc';
 
 /**
  * @defgroup field Field API
@@ -46,9 +46,7 @@ require_once __DIR__ . '/field.form.inc';
  * type 'image'. The administrator (again, via a UI) creates two Field
  * Instances, one attaching the field 'subtitle' to the 'node' bundle 'article'
  * and one attaching the field 'photo' to the 'node' bundle 'article'. When the
- * node system uses the Field Attach API to load all fields for an Article node,
- * it passes the node's entity type (which is 'node') and content type (which is
- * 'article') as the node's bundle. field_attach_load() then loads the
+ * node storage controller loads an Article node, it loads the values of the
  * 'subtitle' and 'photo' fields because they are both attached to the 'node'
  * bundle 'article'.
  *
@@ -70,10 +68,6 @@ require_once __DIR__ . '/field.form.inc';
  * - @link field_info Field Info API @endlink: Exposes information about all
  *   fields, instances, widgets, and related information defined by or with the
  *   Field API.
- *
- * - @link field_storage Field Storage API @endlink: Provides a pluggable back
- *   -end storage system for actual field data. The default implementation,
- *   field_sql_storage.module, stores field data in the local SQL database.
  *
  * - @link field_purge Field API bulk data deletion @endlink: Cleans up after
  *   bulk deletion operations such as deletion of field or field_instance.
@@ -115,15 +109,11 @@ const FIELD_BEHAVIOR_CUSTOM = 0x0004;
 
 /**
  * Load the most recent version of an entity's field data.
- *
- * @see field_attach_load().
  */
 const FIELD_LOAD_CURRENT = 'FIELD_LOAD_CURRENT';
 
 /**
  * Load the version of an entity's field data specified in the entity.
- *
- * @see field_attach_load().
  */
 const FIELD_LOAD_REVISION = 'FIELD_LOAD_REVISION';
 
@@ -161,10 +151,7 @@ function field_help($path, $arg) {
         '#theme' => 'item_list',
         '#items' => $items['items'],
       );
-      $output .= drupal_render($item_list) . '</dd>';
-      $output .= '<dt>' . t('Managing field data storage') . '</dt>';
-      $output .= '<dd>' . t('Developers of field modules can either use the default <a href="@sql-store">Field SQL Storage module</a> to store data for their fields, or a contributed or custom module developed using the <a href="@storage-api">field storage API</a>.', array('@storage-api' => 'http://api.drupal.org/api/group/field_storage/8', '@sql-store' => url('admin/help/field_sql_storage'))) . '</dd>';
-      $output .= '</dl>';
+      $output .= drupal_render($item_list);
       return $output;
   }
 }
@@ -191,7 +178,7 @@ function field_cron() {
   field_sync_field_status();
 
   // Do a pass of purging on deleted Field API data, if any exists.
-  $limit = config('field.settings')->get('purge_batch_size');
+  $limit = Drupal::config('field.settings')->get('purge_batch_size');
   field_purge_batch($limit);
 }
 
@@ -229,44 +216,6 @@ function field_system_info_alter(&$info, $file, $type) {
         $explanation = t('Fields pending deletion');
       }
       $info['explanation'] = $explanation;
-    }
-  }
-}
-
-/**
- * Implements hook_entity_create().
- */
-function field_entity_create(EntityInterface $entity) {
-  $info = $entity->entityInfo();
-  if (!empty($info['fieldable'])) {
-    field_populate_default_values($entity, $entity->language()->id);
-  }
-}
-
-/**
- * Inserts a default value for each entity field not having one.
- *
- * @param \Drupal\Core\Entity\EntityInterface $entity
- *   The entity for the operation.
- * @param string $langcode
- *   (optional) The field language code to fill-in with the default value.
- *   Defaults to the entity language.
- */
-function field_populate_default_values(EntityInterface $entity, $langcode = NULL) {
-  // Ensure we are working with a BC mode entity.
-  $entity = $entity->getBCEntity();
-
-  $entity_type = $entity->entityType();
-  $langcode = $langcode ?: $entity->language()->id;
-  foreach (field_info_instances($entity_type, $entity->bundle()) as $field_name => $instance) {
-    $field = field_info_field($field_name);
-    $field_langcode = field_is_translatable($entity_type, $field) ? $langcode : Language::LANGCODE_NOT_SPECIFIED;
-    // We need to preserve existing values.
-    if (empty($entity->{$field_name}) || !array_key_exists($field_langcode, $entity->{$field_name})) {
-      $items = field_get_default_value($entity, $field, $instance, $field_langcode);
-      if (!empty($items)) {
-        $entity->{$field_name}[$field_langcode] = $items;
-      }
     }
   }
 }
@@ -310,7 +259,7 @@ function field_entity_field_info($entity_type) {
 function _field_generate_entity_field_definition(FieldInterface $field, FieldInstanceInterface $instance = NULL) {
   // @todo: Allow for adding field type settings.
   $definition = array(
-    'label' => t('Field !name', array('!name' => $field->id())),
+    'label' => t('Field !name', array('!name' => $field->name)),
     'type' => 'field_item:' . $field->type,
     'list' => TRUE,
     'configurable' => TRUE,
@@ -332,46 +281,61 @@ function field_field_widget_info_alter(&$info) {
 }
 
 /**
- * Applies language fallback rules to the fields attached to the given entity.
- *
- * Core language fallback rules simply check if fields have a field translation
- * for the requested language code. If so, the requested language is returned,
- * otherwise all the fallback candidates are inspected to see if there is a
- * field translation available in another language.
- * By default this is called by field_field_language_alter(), but this
- * behavior can be disabled by setting the 'field.settings.language_fallback'
- * variable to FALSE.
- *
- * @param $field_langcodes
- *   A reference to an array of language codes keyed by field name.
- * @param \Drupal\Core\Entity\EntityInterface $entity
- *   The entity to be displayed.
- * @param $langcode
- *   The language code $entity has to be displayed in.
+ * Implements hook_entity_bundle_create().
  */
-function field_language_fallback(&$field_langcodes, EntityInterface $entity, $langcode) {
-  // Lazily init fallback candidates to avoid unnecessary calls.
-  $fallback_candidates = NULL;
+function field_entity_bundle_create($entity_type, $bundle) {
+  // Clear the cache.
+  field_cache_clear();
+}
 
-  foreach ($field_langcodes as $field_name => $field_langcode) {
-    // If the requested language is defined for the current field use it,
-    // otherwise search for a fallback value among the fallback candidates.
-    if (isset($entity->{$field_name}[$langcode])) {
-      $field_langcodes[$field_name] = $langcode;
-    }
-    elseif (!empty($entity->{$field_name})) {
-      if (!isset($fallback_candidates)) {
-        require_once DRUPAL_ROOT . '/core/includes/language.inc';
-        $fallback_candidates = language_fallback_get_candidates();
-      }
-      foreach ($fallback_candidates as $fallback_langcode) {
-        if (isset($entity->{$field_name}[$fallback_langcode])) {
-          $field_langcodes[$field_name] = $fallback_langcode;
-          break;
-        }
-      }
+/**
+ * Implements hook_entity_bundle_rename().
+ */
+function field_entity_bundle_rename($entity_type, $bundle_old, $bundle_new) {
+  $instances = field_read_instances();
+  foreach ($instances as $instance) {
+    if ($instance->entity_type == $entity_type && $instance->bundle == $bundle_old) {
+      $id_new = $instance['entity_type'] . '.' . $bundle_new . '.' . $instance['field_name'];
+      $instance->id = $id_new;
+      $instance->bundle = $bundle_new;
+      $instance->allowBundleRename();
+      $instance->save();
     }
   }
+
+  // Clear the field cache.
+  field_cache_clear();
+
+  // Update bundle settings.
+  $settings = variable_get('field_bundle_settings_' . $entity_type . '__' . $bundle_old, array());
+  variable_set('field_bundle_settings_' . $entity_type . '__' . $bundle_new, $settings);
+  variable_del('field_bundle_settings_' . $entity_type . '__' . $bundle_old);
+}
+
+/**
+ * Implements hook_entity_bundle_delete().
+ *
+ * This deletes the data for the field instances as well as the field instances
+ * themselves. This function actually just marks the data and field instances as
+ * deleted, leaving the garbage collection for a separate process, because it is
+ * not always possible to delete this much data in a single page request
+ * (particularly since for some field types, the deletion is more than just a
+ * simple DELETE query).
+ */
+function field_entity_bundle_delete($entity_type, $bundle) {
+  // Get the instances on the bundle. field_read_instances() must be used
+  // here since field_info_instances() does not return instances for disabled
+  // entity types or bundles.
+  $instances = field_read_instances(array('entity_type' => $entity_type, 'bundle' => $bundle), array('include_inactive' => TRUE));
+  foreach ($instances as $instance) {
+    $instance->delete();
+  }
+
+  // Clear the cache.
+  field_cache_clear();
+
+  // Clear bundle display settings.
+  variable_del('field_bundle_settings_' . $entity_type . '__' . $bundle);
 }
 
 /**
@@ -422,24 +386,8 @@ function field_sync_field_status() {
   // modules.
   $changed = array();
   $modules = $module_handler->getModuleList();
-  foreach ($modules as $module => $module_info) {
-    // Collect storage backends exposed by the module.
-    $storage_types = (array) $module_handler->invoke($module, 'field_storage_info');
-
-    if ($storage_types) {
-      foreach ($fields as $uuid => &$field) {
-        // Associate storage backends.
-        if (isset($storage_types[$field['storage']['type']]) && ($field['storage']['module'] !== $module || !$field['storage']['active'])) {
-          $field['storage']['module'] = $module;
-          $field['storage']['active'] = TRUE;
-          $changed[$uuid] = $field;
-        }
-      }
-    }
-  }
-
   $field_types = Drupal::service('plugin.manager.entity.field.field_type')->getDefinitions();
-  // Set fields with missing field type or storage modules to inactive.
+  // Set fields with missing field type modules to inactive.
   foreach ($fields as $uuid => &$field) {
     // Associate field types.
     if (isset($field_types[$field['type']]) && ($field['module'] != $field_types[$field['type']]['provider'] || !$field['active'])) {
@@ -449,11 +397,6 @@ function field_sync_field_status() {
     }
     if (!isset($modules[$field['module']]) && $field['active']) {
       $field['active'] = FALSE;
-      $changed[$uuid] = $field;
-    }
-    // Disassociate storage backends.
-    if (!isset($modules[$field['storage']['module']]) && $field['storage']['active']) {
-      $field['storage']['active'] = FALSE;
       $changed[$uuid] = $field;
     }
   }
@@ -467,49 +410,12 @@ function field_sync_field_status() {
       Drupal::config('field.field.' . $field['id'])
         ->set('module', $field['module'])
         ->set('active', $field['active'])
-        ->set('storage.module', $field['storage']['module'])
-        ->set('storage.active', $field['storage']['active'])
         ->save();
     }
   }
   $state->set('field.field.deleted', $deleted_fields);
 
   field_cache_clear();
-}
-
-/**
- * Helper function to get the default value for a field on an entity.
- *
- * @param \Drupal\Core\Entity\EntityInterface $entity
- *   The entity for the operation.
- * @param $field
- *   The field structure.
- * @param $instance
- *   The instance structure.
- * @param $langcode
- *   The field language to fill-in with the default value.
- */
-function field_get_default_value(EntityInterface $entity, $field, $instance, $langcode = NULL) {
-  $items = array();
-  if (!empty($instance['default_value_function'])) {
-    $function = $instance['default_value_function'];
-    $items = $function($entity, $field, $instance, $langcode);
-  }
-  elseif (!empty($instance['default_value'])) {
-    $items = $instance['default_value'];
-  }
-  return $items;
-}
-
-/**
- * Callback for usort() within theme_field_multiple_value_form().
- *
- * Sorts using ['_weight']['#value']
- */
-function _field_sort_items_value_helper($a, $b) {
-  $a_weight = (is_array($a) && isset($a['_weight']['#value']) ? $a['_weight']['#value'] : 0);
-  $b_weight = (is_array($b) && isset($b['_weight']['#value']) ? $b['_weight']['#value'] : 0);
-  return $a_weight - $b_weight;
 }
 
 /**
@@ -699,7 +605,7 @@ function field_view_value(EntityInterface $entity, $field_name, $item, $display 
   // Ensure we are working with a BC mode entity.
   $entity = $entity->getBCEntity();
 
-  if ($field = field_info_field($field_name)) {
+  if ($field = field_info_field($entity->entityType(), $field_name)) {
     // Determine the langcode that will be used by language fallback.
     $langcode = field_language($entity, $field_name, $langcode);
 
@@ -726,9 +632,9 @@ function field_view_value(EntityInterface $entity, $field_name, $item, $display 
  *
  * This function can be used by third-party modules that need to output an
  * isolated field.
- * - Do not use inside node (or other entities) templates, use
+ * - Do not use inside node (or any other entity) templates; use
  *   render($content[FIELD_NAME]) instead.
- * - Do not use to display all fields in an entity, use
+ * - Do not use to display all fields in an entity; use
  *   field_attach_prepare_view() and field_attach_view() instead.
  * - The field_view_value() function can be used to output a single formatted
  *   field value, without label or wrapping field markup.
@@ -789,7 +695,7 @@ function field_view_field(EntityInterface $entity, $field_name, $display_options
     $view_mode = '_custom';
     // hook_field_attach_display_alter() needs to receive the 'prepared'
     // $display_options, so we cannot let preparation happen internally.
-    $field = field_info_field($field_name);
+    $field = field_info_field($entity_type, $field_name);
     $formatter_manager = drupal_container()->get('plugin.manager.field.formatter');
     $display_options = $formatter_manager->prepareConfiguration($field['type'], $display_options);
     $formatter = $formatter_manager->getInstance(array(
@@ -825,29 +731,6 @@ function field_view_field(EntityInterface $entity, $field_name, $display_options
   }
 
   return $output;
-}
-
-/**
- * Returns the field items in the language they currently would be displayed.
- *
- * @param \Drupal\Core\Entity\EntityInterface $entity
- *   The entity containing the data to be displayed.
- * @param $field_name
- *   The field to be displayed.
- * @param $langcode
- *   (optional) The language code $entity->{$field_name} has to be displayed in.
- *   Defaults to the current language.
- *
- * @return
- *   An array with available field items keyed by delta.
- *
- * @deprecated as of Drupal 8.0. Use
- *   $entity->getTranslation($langcode)->{$field_name}
- */
-function field_get_items(EntityInterface $entity, $field_name, $langcode = NULL) {
-  $entity = $entity->getBCEntity();
-  $langcode = field_language($entity, $field_name, $langcode);
-  return isset($entity->{$field_name}[$langcode]) ? $entity->{$field_name}[$langcode] : array();
 }
 
 /**
@@ -957,10 +840,12 @@ function template_preprocess_field(&$variables, $hook) {
   // Add default CSS classes. Since there can be many fields rendered on a page,
   // save some overhead by calling strtr() directly instead of
   // drupal_html_class().
+  $variables['entity_type_css'] = strtr($element['#entity_type'], '_', '-');
   $variables['field_name_css'] = strtr($element['#field_name'], '_', '-');
   $variables['field_type_css'] = strtr($element['#field_type'], '_', '-');
   $variables['attributes']['class'] = array(
     'field',
+    'field-' . $variables['entity_type_css'] . '--' . $variables['field_name_css'],
     'field-name-' . $variables['field_name_css'],
     'field-type-' . $variables['field_type_css'],
     'field-label-' . $element['#label_display'],
@@ -975,8 +860,9 @@ function template_preprocess_field(&$variables, $hook) {
   $variables['theme_hook_suggestions'] = array(
     'field__' . $element['#field_type'],
     'field__' . $element['#field_name'],
-    'field__' . $element['#bundle'],
-    'field__' . $element['#field_name'] . '__' . $element['#bundle'],
+    'field__' . $element['#entity_type'] . '__' . $element['#bundle'],
+    'field__' . $element['#entity_type'] . '__' . $element['#field_name'],
+    'field__' . $element['#entity_type'] . '__' . $element['#field_name'] . '__' . $element['#bundle'],
   );
 
   static $default_attributes;

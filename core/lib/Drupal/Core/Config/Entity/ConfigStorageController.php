@@ -351,17 +351,17 @@ class ConfigStorageController extends EntityStorageControllerBase {
 
     $entity_class = $this->entityInfo['class'];
     $entity_class::preDelete($this, $entities);
-    foreach ($entities as $id => $entity) {
+    foreach ($entities as $entity) {
       $this->invokeHook('predelete', $entity);
     }
 
-    foreach ($entities as $id => $entity) {
+    foreach ($entities as $entity) {
       $config = $this->configFactory->get($this->getConfigPrefix() . $entity->id());
       $config->delete();
     }
 
     $entity_class::postDelete($this, $entities);
-    foreach ($entities as $id => $entity) {
+    foreach ($entities as $entity) {
       $this->invokeHook('delete', $entity);
     }
   }
@@ -435,14 +435,6 @@ class ConfigStorageController extends EntityStorageControllerBase {
     unset($entity->original);
 
     return $return;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function baseFieldDefinitions() {
-    // @todo: Define abstract once all entity types have been converted.
-    return array();
   }
 
   /**

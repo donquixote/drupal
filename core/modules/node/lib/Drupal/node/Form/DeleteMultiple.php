@@ -8,18 +8,17 @@
 namespace Drupal\node\Form;
 
 use Drupal\Core\Form\ConfirmFormBase;
-use Drupal\Core\Controller\ControllerInterface;
+use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\Core\Entity\EntityManager;
 use Drupal\Component\Utility\String;
 use Drupal\user\TempStoreFactory;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Provides a node deletion confirmation form.
  */
-class DeleteMultiple extends ConfirmFormBase implements ControllerInterface {
+class DeleteMultiple extends ConfirmFormBase implements ContainerInjectionInterface {
 
   /**
    * The array of nodes to delete.
@@ -61,7 +60,7 @@ class DeleteMultiple extends ConfirmFormBase implements ControllerInterface {
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('user.tempstore'),
-      $container->get('plugin.manager.entity')
+      $container->get('entity.manager')
     );
   }
 
@@ -96,7 +95,7 @@ class DeleteMultiple extends ConfirmFormBase implements ControllerInterface {
   /**
    * {@inheritdoc}
    */
-  public function buildForm(array $form, array &$form_state, Request $request = NULL) {
+  public function buildForm(array $form, array &$form_state) {
     $this->nodes = $this->tempStoreFactory->get('node_multiple_delete_confirm')->get($GLOBALS['user']->id());
     if (empty($this->nodes)) {
       return new RedirectResponse(url($this->getCancelPath(), array('absolute' => TRUE)));
@@ -108,7 +107,7 @@ class DeleteMultiple extends ConfirmFormBase implements ControllerInterface {
         return String::checkPlain($node->label());
       }, $this->nodes),
     );
-    return parent::buildForm($form, $form_state, $request);
+    return parent::buildForm($form, $form_state);
   }
 
   /**

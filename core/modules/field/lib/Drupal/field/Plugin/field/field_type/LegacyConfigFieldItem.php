@@ -9,7 +9,7 @@ namespace Drupal\field\Plugin\field\field_type;
 
 use Drupal\Core\Entity\Field\PrepareCacheInterface;
 use Drupal\field\Plugin\Type\FieldType\ConfigFieldItemBase;
-use Drupal\field\Plugin\Core\Entity\Field;
+use Drupal\field\FieldInterface;
 
 /**
  * Plugin implementation for legacy field types.
@@ -29,7 +29,7 @@ abstract class LegacyConfigFieldItem extends ConfigFieldItemBase implements Prep
   /**
    * {@inheritdoc}
    */
-  public static function schema(Field $field) {
+  public static function schema(FieldInterface $field) {
     $definition = \Drupal::service('plugin.manager.entity.field.field_type')->getDefinition($field->type);
     $module = $definition['provider'];
     module_load_install($module);
@@ -55,11 +55,11 @@ abstract class LegacyConfigFieldItem extends ConfigFieldItemBase implements Prep
   /**
    * {@inheritdoc}
    */
-  public function settingsForm(array $form, array &$form_state) {
+  public function settingsForm(array $form, array &$form_state, $has_data) {
     if ($callback = $this->getLegacyCallback('settings_form')) {
       // hook_field_settings_form() used to receive the $instance (not actually
       // needed), and the value of field_has_data().
-      return $callback($this->getInstance()->getField(), $this->getInstance(), $this->getInstance()->getField()->hasData());
+      return $callback($this->getInstance()->getField(), $this->getInstance(), $has_data);
     }
     return array();
   }
@@ -90,8 +90,8 @@ abstract class LegacyConfigFieldItem extends ConfigFieldItemBase implements Prep
       $langcode = $entity->language()->id;
       $entity_id = $entity->id();
 
-      // hook_field_attach_load() receives items keyed by entity id, and alter
-      // then by reference.
+      // hook_field_load() receives items keyed by entity id, and alters then by
+      // reference.
       $items = array($entity_id => array(0 => $this->getValue(TRUE)));
       $args = array(
         $entity->entityType(),
@@ -104,6 +104,22 @@ abstract class LegacyConfigFieldItem extends ConfigFieldItemBase implements Prep
       );
       call_user_func_array($callback, $args);
       $this->setValue($items[$entity_id][0]);
+    }
+  }
+
+  /**
+   * Returns options provided via the legacy callback hook_options_list().
+   *
+   * @todo: Convert all legacy callback implementations to methods.
+   *
+   * @see \Drupal\Core\TypedData\AllowedValuesInterface
+   */
+  public function getSettableOptions() {
+    $definition = $this->getPluginDefinition();
+    $callback = "{$definition['provider']}_options_list";
+    if (function_exists($callback)) {
+      $entity = $this->getParent()->getParent();
+      return $callback($this->getInstance(), $entity);
     }
   }
 

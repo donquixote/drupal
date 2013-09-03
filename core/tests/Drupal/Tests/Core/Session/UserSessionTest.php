@@ -67,7 +67,7 @@ class UserSessionTest extends UnitTestCase {
     parent::setUp();
 
     $roles = array();
-    $roles['role_one'] = $this->getMockBuilder('Drupal\user\Plugin\Core\Entity\Role')
+    $roles['role_one'] = $this->getMockBuilder('Drupal\user\Entity\Role')
       ->disableOriginalConstructor()
       ->setMethods(array('hasPermission'))
       ->getMock();
@@ -79,7 +79,7 @@ class UserSessionTest extends UnitTestCase {
         array('last example permission', FALSE),
       )));
 
-    $roles['role_two'] = $this->getMockBuilder('Drupal\user\Plugin\Core\Entity\Role')
+    $roles['role_two'] = $this->getMockBuilder('Drupal\user\Entity\Role')
       ->disableOriginalConstructor()
       ->setMethods(array('hasPermission'))
       ->getMock();
@@ -113,7 +113,7 @@ class UserSessionTest extends UnitTestCase {
       ->with($this->equalTo('user_role'))
       ->will($this->returnValue($role_storage));
     $container = new ContainerBuilder();
-    $container->set('plugin.manager.entity', $entity_manager);
+    $container->set('entity.manager', $entity_manager);
     \Drupal::setContainer($container);
 
     $this->users['user_one'] = $this->createUserSession(array('role_one'));

@@ -62,7 +62,8 @@ class NodeAccessFieldTest extends NodeTestBase {
     // Add a custom field to the page content type.
     $this->field_name = drupal_strtolower($this->randomName() . '_field_name');
     entity_create('field_entity', array(
-      'field_name' => $this->field_name,
+      'name' => $this->field_name,
+      'entity_type' => 'node',
       'type' => 'text'
     ))->save();
     entity_create('field_instance', array(
@@ -101,7 +102,7 @@ class NodeAccessFieldTest extends NodeTestBase {
     // Modify the field default as the content admin.
     $edit = array();
     $default = 'Sometimes words have two meanings';
-    $edit["{$this->field_name}[$langcode][0][value]"] = $default;
+    $edit["default_value_input[{$this->field_name}][$langcode][0][value]"] = $default;
     $this->drupalPost(
       "admin/structure/types/manage/page/fields/node.page.{$this->field_name}",
       $edit,

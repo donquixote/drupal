@@ -13,7 +13,7 @@ use Drupal\block_test\Plugin\Block\TestHtmlIdBlock;
 use Drupal\Component\Plugin\Exception\PluginException;
 use Drupal\block\BlockStorageController;
 use Drupal\Core\Entity\EntityMalformedException;
-use Drupal\block\Plugin\Core\Entity\Block;
+use Drupal\block\Entity\Block;
 use Drupal\block\BlockInterface;
 
 /**
@@ -48,7 +48,7 @@ class BlockStorageUnitTest extends DrupalUnitTestBase {
   protected function setUp() {
     parent::setUp();
 
-    $this->controller = $this->container->get('plugin.manager.entity')->getStorageController('block');
+    $this->controller = $this->container->get('entity.manager')->getStorageController('block');
   }
 
   /**
@@ -88,7 +88,7 @@ class BlockStorageUnitTest extends DrupalUnitTestBase {
     $this->assertTrue($entity instanceof Block, 'The newly created entity is a Block.');
 
     // Verify all of the block properties.
-    $actual_properties = config('block.block.stark.test_block')->get();
+    $actual_properties = \Drupal::config('block.block.stark.test_block')->get();
     $this->assertTrue(!empty($actual_properties['uuid']), 'The block UUID is set.');
     unset($actual_properties['uuid']);
 

@@ -10,7 +10,7 @@ namespace Drupal\user\Tests\Views\Argument;
 use Drupal\Component\Utility\String;
 use Drupal\Core\DependencyInjection\ContainerBuilder;
 use Drupal\Tests\UnitTestCase;
-use Drupal\user\Plugin\Core\Entity\Role;
+use Drupal\user\Entity\Role;
 use Drupal\user\Plugin\views\argument\RolesRid;
 
 /**
@@ -31,7 +31,7 @@ class RolesRidTest extends UnitTestCase {
       'label' => 'label',
     ),
     'config_prefix' => 'user.role',
-    'class' => 'Drupal\user\Plugin\Core\Entity\Role',
+    'class' => 'Drupal\user\Entity\Role',
   );
 
   public static function getInfo() {
@@ -86,7 +86,7 @@ class RolesRidTest extends UnitTestCase {
     //   entity_get_info(), which in turn wraps \Drupal::entityManager(). Set
     //   the entity manager until this is fixed.
     $container = new ContainerBuilder();
-    $container->set('plugin.manager.entity', $entity_manager);
+    $container->set('entity.manager', $entity_manager);
     \Drupal::setContainer($container);
 
     $roles_rid_argument = new RolesRid(array(), 'users_roles_rid', array(), $entity_manager);

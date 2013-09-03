@@ -35,7 +35,7 @@ class FileFieldWidgetTest extends FileFieldTestBase {
   function testSingleValuedWidget() {
     $type_name = 'article';
     $field_name = strtolower($this->randomName());
-    $this->createFileField($field_name, $type_name);
+    $this->createFileField($field_name, 'node', $type_name);
 
     $test_file = $this->getTestFile('text');
 
@@ -46,7 +46,7 @@ class FileFieldWidgetTest extends FileFieldTestBase {
       //   does not yet support file uploads.
       $nid = $this->uploadNodeFile($test_file, $field_name, $type_name);
       $node = node_load($nid, TRUE);
-      $node_file = file_load($node->{$field_name}[Language::LANGCODE_NOT_SPECIFIED][0]['target_id']);
+      $node_file = file_load($node->{$field_name}->target_id);
       $this->assertFileExists($node_file, 'New file saved to disk on node creation.');
 
       // Ensure the file can be downloaded.
@@ -79,7 +79,7 @@ class FileFieldWidgetTest extends FileFieldTestBase {
       // Save the node and ensure it does not have the file.
       $this->drupalPost(NULL, array(), t('Save and keep published'));
       $node = node_load($nid, TRUE);
-      $this->assertTrue(empty($node->{$field_name}[Language::LANGCODE_NOT_SPECIFIED][0]['target_id']), 'File was successfully removed from the node.');
+      $this->assertTrue(empty($node->{$field_name}->target_id), 'File was successfully removed from the node.');
     }
   }
 
@@ -96,8 +96,8 @@ class FileFieldWidgetTest extends FileFieldTestBase {
     // names).
     $field_name = 'test_file_field_1';
     $field_name2 = 'test_file_field_2';
-    $this->createFileField($field_name, $type_name, array('cardinality' => 3));
-    $this->createFileField($field_name2, $type_name, array('cardinality' => 3));
+    $this->createFileField($field_name, 'node', $type_name, array('cardinality' => 3));
+    $this->createFileField($field_name2, 'node', $type_name, array('cardinality' => 3));
 
     $test_file = $this->getTestFile('text');
 
@@ -196,7 +196,7 @@ class FileFieldWidgetTest extends FileFieldTestBase {
       preg_match('/node\/([0-9]+)/', $this->getUrl(), $matches);
       $nid = $matches[1];
       $node = node_load($nid, TRUE);
-      $this->assertTrue(empty($node->{$field_name}[Language::LANGCODE_NOT_SPECIFIED][0]['target_id']), 'Node was successfully saved without any files.');
+      $this->assertTrue(empty($node->{$field_name}->target_id), 'Node was successfully saved without any files.');
     }
   }
 
@@ -206,7 +206,7 @@ class FileFieldWidgetTest extends FileFieldTestBase {
   function testPrivateFileSetting() {
     $type_name = 'article';
     $field_name = strtolower($this->randomName());
-    $this->createFileField($field_name, $type_name);
+    $this->createFileField($field_name, 'node', $type_name);
     $instance = field_info_instance('node', $field_name, $type_name);
 
     $test_file = $this->getTestFile('text');
@@ -216,7 +216,7 @@ class FileFieldWidgetTest extends FileFieldTestBase {
     $this->drupalPost("admin/structure/types/manage/$type_name/fields/$instance->id/field", $edit, t('Save field settings'));
     $nid = $this->uploadNodeFile($test_file, $field_name, $type_name);
     $node = node_load($nid, TRUE);
-    $node_file = file_load($node->{$field_name}[Language::LANGCODE_NOT_SPECIFIED][0]['target_id']);
+    $node_file = file_load($node->{$field_name}->target_id);
     $this->assertFileExists($node_file, 'New file saved to disk on node creation.');
 
     // Ensure the private file is available to the user who uploaded it.
@@ -264,7 +264,6 @@ class FileFieldWidgetTest extends FileFieldTestBase {
     field_info_cache_clear();
 
     // Create node.
-    $text_file = $this->getTestFile('text');
     $edit = array(
       'title' => $this->randomName(),
     );
@@ -316,7 +315,7 @@ class FileFieldWidgetTest extends FileFieldTestBase {
   function testWidgetValidation() {
     $type_name = 'article';
     $field_name = strtolower($this->randomName());
-    $this->createFileField($field_name, $type_name);
+    $this->createFileField($field_name, 'node', $type_name);
     $this->updateFileField($field_name, $type_name, array('file_extensions' => 'txt'));
 
     foreach (array('nojs', 'js') as $type) {
@@ -326,7 +325,6 @@ class FileFieldWidgetTest extends FileFieldTestBase {
       $this->drupalGet("node/$nid/edit");
       $test_file_text = $this->getTestFile('text');
       $test_file_image = $this->getTestFile('image');
-      $field = field_info_field($field_name);
       $name = 'files[' . $field_name . '_' . Language::LANGCODE_NOT_SPECIFIED . '_0]';
 
       // Upload file with incorrect extension, check for validation error.

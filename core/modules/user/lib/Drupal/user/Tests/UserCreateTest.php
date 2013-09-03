@@ -40,7 +40,8 @@ class UserCreateTest extends WebTestBase {
     // Create a field and an instance.
     $field_name = 'test_field';
     $field = array(
-      'field_name' => $field_name,
+      'name' => $field_name,
+      'entity_type' => 'user',
       'module' => 'image',
       'type' => 'image',
       'cardinality' => 1,
@@ -80,7 +81,7 @@ class UserCreateTest extends WebTestBase {
     $this->assertFieldByXPath('//input[@type="radio" and @id="edit-status-1" and @checked="checked"]', NULL, 'Default setting for user status is active.');
 
     // Test that the password strength indicator displays.
-    $config = config('user.settings');
+    $config = \Drupal::config('user.settings');
 
     $config->set('password_strength', TRUE)->save();
     $this->drupalGet('admin/people/create');

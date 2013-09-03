@@ -333,8 +333,7 @@ class Entity implements IteratorAggregate, EntityInterface {
       // Go through translatable properties and determine all languages for
       // which translated values are available.
       foreach (field_info_instances($this->entityType, $this->bundle()) as $field_name => $instance) {
-        $field = field_info_field($field_name);
-        if (field_is_translatable($this->entityType, $field) && isset($this->$field_name)) {
+        if (field_is_translatable($this->entityType, $instance->getField()) && isset($this->$field_name)) {
           foreach (array_filter($this->$field_name) as $langcode => $value)  {
             $languages[$langcode] = TRUE;
           }
@@ -431,24 +430,16 @@ class Entity implements IteratorAggregate, EntityInterface {
   /**
    * {@inheritdoc}
    */
-  public function getType() {
-    // @todo: This does not make much sense, so remove once TypedDataInterface
-    // is removed. See https://drupal.org/node/2002138.
-    if ($this->bundle() != $this->entityType()) {
-      return 'entity:' . $this->entityType() . ':' . $this->bundle();
-    }
-    return 'entity:' . $this->entityType();
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   public function getDefinition() {
     // @todo: This does not make much sense, so remove once TypedDataInterface
     // is removed. See https://drupal.org/node/2002138.
-    return array(
-      'type' => $this->getType()
-    );
+    if ($this->bundle() != $this->entityType()) {
+      $type = 'entity:' . $this->entityType() . ':' . $this->bundle();
+    }
+    else {
+      $type = 'entity:' . $this->entityType();
+    }
+    return array('type' => $type);
   }
 
   /**
@@ -640,6 +631,13 @@ class Entity implements IteratorAggregate, EntityInterface {
     // @todo Config entities do not support entity translation hence we need to
     //   move the TranslatableInterface implementation to EntityNG. See
     //   http://drupal.org/node/2004244
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function baseFieldDefinitions($entity_type) {
+    return array();
   }
 
 }

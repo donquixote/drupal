@@ -30,6 +30,7 @@ function file_field_info() {
       'default_widget' => 'file_generic',
       'default_formatter' => 'file_default',
       'class' => '\Drupal\file\Type\FileItem',
+      'list_class' => '\Drupal\file\Type\FileField',
     ),
   );
 }
@@ -355,7 +356,7 @@ function file_field_widget_multiple_count_validate($element, &$form_state, $form
   array_pop($parents);
   $current = count(element_children(NestedArray::getValue($form, $parents))) - 1;
 
-  $field = field_info_field($element['#field_name']);
+  $field = field_info_field($element['#entity_type'], $element['#field_name']);
   $uploaded = count($values['fids']);
   $count = $uploaded + $current;
   if ($count > $field['cardinality']) {
@@ -414,7 +415,7 @@ function file_field_widget_process($element, &$form_state, $form) {
 
   // Add the description field if enabled.
   if ($element['#description_field'] && $item['fids']) {
-    $config = config('file.settings');
+    $config = Drupal::config('file.settings');
     $element['description'] = array(
       '#type' => $config->get('description.type'),
       '#title' => t('Description'),

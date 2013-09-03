@@ -5,11 +5,10 @@
  * Defines a "managed_file" Form API field and a "file" field for Field module.
  */
 
-use Drupal\file\Plugin\Core\Entity\File;
+use Drupal\file\Entity\File;
 use Drupal\Component\Utility\NestedArray;
 use Drupal\Core\Template\Attribute;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Drupal\file\FileUsage\DatabaseFileUsageBackend;
 use Drupal\file\FileUsage\FileUsageInterface;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\ReplaceCommand;
@@ -50,11 +49,6 @@ function file_menu() {
     'theme callback' => 'ajax_base_page_theme',
     'type' => MENU_CALLBACK,
   );
-  $items['file/progress'] = array(
-    'route name' => 'file.ajax.progress',
-    'theme callback' => 'ajax_base_page_theme',
-    'type' => MENU_CALLBACK,
-  );
 
   return $items;
 }
@@ -65,7 +59,6 @@ function file_menu() {
  * The managed file element may be used anywhere in Drupal.
  */
 function file_element_info() {
-  $file_path = drupal_get_path('module', 'file');
   $types['managed_file'] = array(
     '#input' => TRUE,
     '#process' => array('file_managed_file_process'),
@@ -390,7 +383,7 @@ function file_validate_extensions(File $file, $extensions) {
  * @see hook_file_validate()
  */
 function file_validate_size(File $file, $file_limit = 0, $user_limit = 0) {
-  global $user;
+  $user = Drupal::currentUser();
   $errors = array();
 
   if ($file_limit && $file->getSize() > $file_limit) {
@@ -406,7 +399,7 @@ function file_validate_size(File $file, $file_limit = 0, $user_limit = 0) {
 }
 
 /**
- * Checks that the file is recognized by image_get_info() as an image.
+ * Checks that the file is recognized by Image::getInfo() as an image.
  *
  * @param Drupal\file\File $file
  *   A file entity.
@@ -419,8 +412,8 @@ function file_validate_size(File $file, $file_limit = 0, $user_limit = 0) {
 function file_validate_is_image(File $file) {
   $errors = array();
 
-  $info = image_get_info($file->getFileUri());
-  if (!$info || empty($info['extension'])) {
+  $image = Drupal::service('image.factory')->get($file->getFileUri());
+  if (!$image->getExtension()) {
     $errors[] = t('Only JPEG, PNG and GIF images are allowed.');
   }
 
@@ -454,16 +447,19 @@ function file_validate_image_resolution(File $file, $maximum_dimensions = 0, $mi
   $errors = array();
 
   // Check first that the file is an image.
-  if ($info = image_get_info($file->getFileUri())) {
+  $image_factory = Drupal::service('image.factory');
+  $image = $image_factory->get($file->getFileUri());
+  if ($image->getExtension()) {
     if ($maximum_dimensions) {
       // Check that it is smaller than the given dimensions.
       list($width, $height) = explode('x', $maximum_dimensions);
-      if ($info['width'] > $width || $info['height'] > $height) {
+      if ($image->getWidth() > $width || $image->getHeight() > $height) {
         // Try to resize the image to fit the dimensions.
-        if ($image = image_load($file->getFileUri())) {
-          image_scale($image, $width, $height);
-          image_save($image);
-          $file->filesize = $image->info['file_size'];
+        $image = $image_factory->get($file->getFileUri());
+        if ($image->getResource()) {
+          $image->scale($width, $height);
+          $image->save();
+          $file->filesize = $image->getFileSize();
           drupal_set_message(t('The image was resized to fit within the maximum allowed dimensions of %dimensions pixels.', array('%dimensions' => $maximum_dimensions)));
         }
         else {
@@ -475,7 +471,7 @@ function file_validate_image_resolution(File $file, $maximum_dimensions = 0, $mi
     if ($minimum_dimensions) {
       // Check that it is larger than the given dimensions.
       list($width, $height) = explode('x', $minimum_dimensions);
-      if ($info['width'] < $width || $info['height'] < $height) {
+      if ($image->getWidth() < $width || $image->getHeight() < $height) {
         $errors[] = t('The image is too small; the minimum dimensions are %dimensions pixels.', array('%dimensions' => $minimum_dimensions));
       }
     }
@@ -508,7 +504,7 @@ function file_validate_image_resolution(File $file, $maximum_dimensions = 0, $mi
  * @see file_unmanaged_save_data()
  */
 function file_save_data($data, $destination = NULL, $replace = FILE_EXISTS_RENAME) {
-  global $user;
+  $user = Drupal::currentUser();
 
   if (empty($destination)) {
     $destination = file_default_scheme() . '://';
@@ -558,7 +554,6 @@ function file_save_data($data, $destination = NULL, $replace = FILE_EXISTS_RENAM
  *   \Symfony\Component\HttpFoundation\StreamedResponse.
  */
 function file_get_content_headers(File $file) {
-  $name = mime_header_encode($file->getFilename());
   $type = mime_header_encode($file->getMimeType());
 
   return array(
@@ -607,7 +602,7 @@ function file_theme() {
  * be re-used by other File-like modules, such as Image.
  */
 function file_file_download($uri, $field_type = 'file') {
-  global $user;
+  $user = Drupal::currentUser();
 
   // Get the file record based on the URI. If not in the database just return.
   $files = entity_load_multiple_by_properties('file', array('uri' => $uri));
@@ -648,7 +643,7 @@ function file_file_download($uri, $field_type = 'file') {
   foreach ($references as $field_name => $field_references) {
     foreach ($field_references as $entity_type => $entities) {
       foreach ($entities as $entity) {
-        $field = field_info_field($field_name);
+        $field = field_info_field($entity_type, $field_name);
         // Check if access to this field is not disallowed.
         if (!field_access('view', $field, $entity_type, $entity)) {
           $denied = TRUE;
@@ -765,7 +760,7 @@ function file_cron() {
  *   - destination: Path to the file after it is moved (same as 'uri').
  */
 function file_save_upload($form_field_name, $validators = array(), $destination = FALSE, $delta = NULL, $replace = FILE_EXISTS_RENAME) {
-  global $user;
+  $user = Drupal::currentUser();
   static $upload_cache;
 
   // Make sure there's an upload to process.
@@ -864,7 +859,7 @@ function file_save_upload($form_field_name, $validators = array(), $destination 
     // rename filename.php.foo and filename.php to filename.php.foo.txt and
     // filename.php.txt, respectively). Don't rename if 'allow_insecure_uploads'
     // evaluates to TRUE.
-    if (!config('system.file')->get('allow_insecure_uploads') && preg_match('/\.(php|pl|py|cgi|asp|js)(\.|$)/i', $file->getFilename()) && (substr($file->getFilename(), -4) != '.txt')) {
+    if (!Drupal::config('system.file')->get('allow_insecure_uploads') && preg_match('/\.(php|pl|py|cgi|asp|js)(\.|$)/i', $file->getFilename()) && (substr($file->getFilename(), -4) != '.txt')) {
       $file->setMimeType('text/plain');
       $file->setFileUri($file->getFileUri() . '.txt');
       $file->setFilename($file->getFilename() . '.txt');
@@ -1308,7 +1303,7 @@ function file_managed_file_value(&$element, $input = FALSE, $form_state = NULL) 
       // Load files if the FIDs have changed to confirm they exist.
       if (!empty($input['fids'])) {
         $fids = array();
-        foreach ($input['fids'] as $key => $fid) {
+        foreach ($input['fids'] as $fid) {
           if ($file = file_load($fid)) {
             $fids[] = $file->id();
           }
@@ -1331,7 +1326,7 @@ function file_managed_file_value(&$element, $input = FALSE, $form_state = NULL) 
     // Confirm that the file exists when used as a default value.
     if (!empty($default_fids)) {
       $fids = array();
-      foreach ($default_fids as $key => $fid) {
+      foreach ($default_fids as $fid) {
         if ($file = file_load($fid)) {
           $fids[] = $file->id();
         }
@@ -1652,7 +1647,7 @@ function file_icon_url(File $file, $icon_directory = NULL) {
 function file_icon_path(File $file, $icon_directory = NULL) {
   // Use the default set of icons if none specified.
   if (!isset($icon_directory)) {
-    $icon_directory = config('file.settings')->get('icon.directory');
+    $icon_directory = Drupal::config('file.settings')->get('icon.directory');
   }
 
   // If there's an icon matching the exact mimetype, go for it.
@@ -1867,7 +1862,7 @@ function file_get_file_references(File $file, $field = NULL, $age = FIELD_LOAD_R
           // This contains the possible field names.
           $instances = field_info_instances($entity_type, $bundle);
           foreach ($instances as $field_name => $instance) {
-            $current_field = field_info_field($field_name);
+            $current_field = $instance->getField();
             // If this is the first time this field type is seen, check
             // whether it references files.
             if (!isset($field_columns[$current_field['type']])) {
@@ -1905,9 +1900,11 @@ function file_get_file_references(File $file, $field = NULL, $age = FIELD_LOAD_R
   // cache is very small so this will be very fast.
   if ($field || $field_type) {
     foreach ($return as $field_name => $data) {
-      $current_field = field_info_field($field_name);
-      if (($field_type && $current_field['type'] != $field_type) || ($field && $field['id'] != $current_field['id'])) {
-        unset($return[$field_name]);
+      foreach (array_keys($data) as $entity_type) {
+        $current_field = field_info_field($entity_type, $field_name);
+        if (($field_type && $current_field['type'] != $field_type) || ($field && $field['id'] != $current_field['id'])) {
+          unset($return[$field_name][$entity_type]);
+        }
       }
     }
   }

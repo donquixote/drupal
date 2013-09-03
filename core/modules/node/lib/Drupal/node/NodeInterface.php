@@ -2,18 +2,36 @@
 
 /**
  * @file
- * Contains \Drupal\node\Plugin\Core\Entity\NodeInterface.
+ * Contains \Drupal\node\Entity\NodeInterface.
  */
 
 namespace Drupal\node;
 
+use Drupal\Core\Entity\EntityChangedInterface;
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\user\UserInterface;
 
 /**
  * Provides an interface defining a node entity.
  */
-interface NodeInterface extends ContentEntityInterface {
+interface NodeInterface extends ContentEntityInterface, EntityChangedInterface {
+
+  /**
+   * Returns the node type.
+   *
+   * @return string
+   *   The node type.
+   */
+  public function getType();
+
+  /**
+   *
+   * Returns the node title.
+   *
+   * @return string
+   *   Title of the node.
+   */
+  public function getTitle();
 
   /**
    * Sets the node title.
@@ -44,14 +62,6 @@ interface NodeInterface extends ContentEntityInterface {
    *   The called node entity.
    */
   public function setCreatedTime($timestamp);
-
-  /**
-   * Returns the node modification timestamp.
-   *
-   * @return int
-   *   Node creation timestamp.
-   */
-  public function getChangedTime();
 
   /**
    * Returns the node promotion status.
@@ -176,5 +186,13 @@ interface NodeInterface extends ContentEntityInterface {
    *   The called node entity.
    */
   public function setRevisionAuthorId($uid);
+
+  /**
+   * Prepares the langcode for a node.
+   *
+   * @return string
+   *   The langcode for this node.
+   */
+  public function prepareLangcode();
 
 }

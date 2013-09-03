@@ -5,13 +5,13 @@
  * User page callbacks for the Aggregator module.
  */
 
-use Drupal\aggregator\Plugin\Core\Entity\Feed;
+use Drupal\aggregator\Entity\Feed;
 use Drupal\Core\Entity\EntityInterface;
 
 /**
  * Page callback: Displays all the items captured from the particular feed.
  *
- * @param \Drupal\aggregator\Plugin\Core\Entity\Feed $feed
+ * @param \Drupal\aggregator\Entity\Feed $feed
  *   The feed for which to display all items.
  *
  * @return string
@@ -30,23 +30,6 @@ function aggregator_page_source(Feed $feed) {
 }
 
 /**
- * Form constructor to show all items captured from a feed.
- *
- * @param $feed
- *   The feed for which to list all of the aggregated items.
- *
- * @return string
- *   The rendered list of items for the feed.
- *
- * @see aggregator_menu()
- * @see aggregator_page_source()
- * @ingroup forms
- */
-function aggregator_page_source_form($form, $form_state, $feed) {
-  return aggregator_page_source($feed);
-}
-
-/**
  * Form constructor to list items aggregated in a category.
  *
  * @param $category
@@ -59,30 +42,13 @@ function aggregator_page_source_form($form, $form_state, $feed) {
  * @ingroup forms
  */
 function aggregator_page_category($category) {
-  drupal_add_feed('aggregator/rss/' . $category->cid, config('system.site')->get('name') . ' ' . t('aggregator - @title', array('@title' => $category->title)));
+  drupal_add_feed('aggregator/rss/' . $category->cid, Drupal::config('system.site')->get('name') . ' ' . t('aggregator - @title', array('@title' => $category->title)));
 
   // It is safe to include the cid in the query because it's loaded from the
   // database by aggregator_category_load().
   $items = aggregator_load_feed_items('category', $category);
 
   return _aggregator_page_list($items, arg(3));
-}
-
-/**
- * Form constructor to list items aggregated in a category.
- *
- * @param $category
- *   The category for which to list all of the aggregated items.
- *
- * @return string
- *   The rendered list of items for the feed.
- *
- * @see aggregator_menu()
- * @see aggregator_page_category()
- * @ingroup forms
- */
-function aggregator_page_category_form($form, $form_state, $category) {
-  return aggregator_page_category($category);
 }
 
 /**
@@ -144,111 +110,17 @@ function aggregator_load_feed_items($type, $data = NULL, $limit = 20) {
  *   The rendered list of items for the feed.
  */
 function _aggregator_page_list($items, $op, $feed_source = '') {
-  if (user_access('administer news feeds') && ($op == 'categorize')) {
-    // Get form data.
-    $build = aggregator_categorize_items($items, $feed_source);
+  // Assemble output.
+  $build = array(
+    '#type' => 'container',
+    '#attributes' => array('class' => array('aggregator-wrapper')),
+  );
+  $build['feed_source'] = is_array($feed_source) ? $feed_source : array('#markup' => $feed_source);
+  if ($items) {
+    $build['items'] = entity_view_multiple($items, 'default');
+    $build['pager'] = array('#theme' => 'pager');
   }
-  else {
-    // Assemble output.
-    $build = array(
-      '#type' => 'container',
-      '#attributes' => array('class' => array('aggregator-wrapper')),
-    );
-    $build['feed_source'] = is_array($feed_source) ? $feed_source : array('#markup' => $feed_source);
-    if ($items) {
-      $build['items'] = entity_view_multiple($items, 'default');
-      $build['pager']['#markup'] = theme('pager');
-    }
-  }
-
   return $build;
-}
-
-/**
- * Form constructor to build the page list form.
- *
- * @param array $items
- *   An array of the feed items.
- * @param string $feed_source
- *   (optional) The feed source URL. Defaults to an empty string.
- *
- * @return array
- *   An array of FAPI elements.
- *
- * @see aggregator_categorize_items_submit()
- * @see theme_aggregator_categorize_items()
- * @ingroup forms
- */
-function aggregator_categorize_items($items, $feed_source = '') {
-  $form['#submit'][] = 'aggregator_categorize_items_submit';
-  $form['feed_source'] = array(
-    '#value' => $feed_source,
-  );
-  $categories = array();
-  $done = FALSE;
-
-  $form['items'] = array(
-    '#type' => 'table',
-    '#header' => array('', t('Categorize')),
-  );
-  if ($items && $form_items = entity_view_multiple($items, 'default')) {
-    foreach (element_children($form_items) as $iid) {
-      $categories_result = db_query('SELECT c.cid, c.title, ci.iid FROM {aggregator_category} c LEFT JOIN {aggregator_category_item} ci ON c.cid = ci.cid AND ci.iid = :iid', array(':iid' => $iid));
-      $selected = array();
-      foreach ($categories_result as $category) {
-        if (!$done) {
-          $categories[$category->cid] = check_plain($category->title);
-        }
-        if ($category->iid) {
-          $selected[] = $category->cid;
-        }
-      }
-      $done = TRUE;
-      $form['items'][$iid]['item'] = $form_items[$iid];
-      $form['items'][$iid]['categories'] = array(
-        '#type' => config('aggregator.settings')->get('source.category_selector'),
-        '#default_value' => $selected,
-        '#options' => $categories,
-        '#size' => 10,
-        '#multiple' => TRUE,
-        '#parents' => array('categories', $iid),
-      );
-    }
-  }
-
-  $form['actions'] = array('#type' => 'actions');
-  $form['actions']['submit'] = array('#type' => 'submit', '#value' => t('Save categories'));
-  $form['pager'] = array('#theme' => 'pager');
-
-  return $form;
-}
-
-/**
- * Form submission handler for aggregator_categorize_items().
- */
-function aggregator_categorize_items_submit($form, &$form_state) {
-  if (!empty($form_state['values']['categories'])) {
-    foreach ($form_state['values']['categories'] as $iid => $selection) {
-      db_delete('aggregator_category_item')
-        ->condition('iid', $iid)
-        ->execute();
-      $insert = db_insert('aggregator_category_item')->fields(array('iid', 'cid'));
-      $has_values = FALSE;
-      foreach ($selection as $cid) {
-        if ($cid && $iid) {
-          $has_values = TRUE;
-          $insert->values(array(
-            'iid' => $iid,
-            'cid' => $cid,
-          ));
-        }
-      }
-      if ($has_values) {
-        $insert->execute();
-      }
-    }
-  }
-  drupal_set_message(t('The categories have been saved.'));
 }
 
 /**
@@ -349,7 +221,7 @@ function theme_aggregator_page_opml($variables) {
   $output  = "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n";
   $output .= "<opml version=\"1.1\">\n";
   $output .= "<head>\n";
-  $output .= '<title>' . check_plain(config('system.site')->get('name')) . "</title>\n";
+  $output .= '<title>' . check_plain(Drupal::config('system.site')->get('name')) . "</title>\n";
   $output .= '<dateModified>' . gmdate(DATE_RFC2822, REQUEST_TIME) . "</dateModified>\n";
   $output .= "</head>\n";
   $output .= "<body>\n";
@@ -369,7 +241,7 @@ function theme_aggregator_page_opml($variables) {
  *
  * @param array $variables
  *   An associative array containing:
- *   - source: A Drupal\aggregator\Plugin\Core\Entity\Feed instance representing
+ *   - source: A Drupal\aggregator\Entity\Feed instance representing
  *     the feed source.
  *   - summary_items: An array of feed items.
  */
@@ -423,7 +295,7 @@ function template_preprocess_aggregator_summary_item(&$variables) {
  *
  * @param array $variables
  *   An associative array containing:
- *   - aggregator_feed: A Drupal\aggregator\Plugin\Core\Entity\Feed instance
+ *   - aggregator_feed: A Drupal\aggregator\Entity\Feed instance
  *     representing the feed source.
  */
 function template_preprocess_aggregator_feed_source(&$variables) {

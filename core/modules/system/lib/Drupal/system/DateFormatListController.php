@@ -54,7 +54,7 @@ class DateFormatListController extends ConfigEntityListController {
     return new static(
       $entity_type,
       $entity_info,
-      $container->get('plugin.manager.entity')->getStorageController($entity_type),
+      $container->get('entity.manager')->getStorageController($entity_type),
       $container->get('module_handler'),
       $container->get('date')
     );
@@ -76,8 +76,7 @@ class DateFormatListController extends ConfigEntityListController {
     $header['id'] = t('Machine name');
     $header['label'] = t('Name');
     $header['pattern'] = t('Pattern');
-    $header['operations'] = t('Operations');
-    return $header;
+    return $header + parent::buildHeader();
   }
 
   /**
@@ -85,10 +84,9 @@ class DateFormatListController extends ConfigEntityListController {
    */
   public function buildRow(EntityInterface $entity) {
     $row['id'] = $entity->id();
-    $row['label'] = String::checkPlain($entity->label());
+    $row['label'] = $this->getLabel($entity);
     $row['pattern'] = $this->dateService->format(REQUEST_TIME, $entity->id());
-    $row['operations']['data'] = $this->buildOperations($entity);
-    return $row;
+    return $row + parent::buildRow($entity);
   }
 
 }

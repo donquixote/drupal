@@ -7,7 +7,6 @@
 
 namespace Drupal\entity;
 
-use Drupal\Component\Utility\String;
 use Drupal\Core\Config\Entity\ConfigEntityListController;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityStorageControllerInterface;
@@ -50,7 +49,7 @@ class EntityDisplayModeListController extends ConfigEntityListController {
    * {@inheritdoc}
    */
   public static function createInstance(ContainerInterface $container, $entity_type, array $entity_info) {
-    $entity_manager = $container->get('plugin.manager.entity');
+    $entity_manager = $container->get('entity.manager');
     return new static(
       $entity_type,
       $entity_info,
@@ -64,18 +63,16 @@ class EntityDisplayModeListController extends ConfigEntityListController {
    * {@inheritdoc}
    */
   public function buildHeader() {
-    $header = parent::buildHeader();
-    unset($header['id']);
-    return $header;
+    $header['label'] = t('Label');
+    return $header + parent::buildHeader();
   }
 
   /**
    * {@inheritdoc}
    */
   public function buildRow(EntityInterface $entity) {
-    $row = parent::buildRow($entity);
-    unset($row['id']);
-    return $row;
+    $row['label'] = $this->getLabel($entity);
+    return $row + parent::buildRow($entity);
   }
 
   /**

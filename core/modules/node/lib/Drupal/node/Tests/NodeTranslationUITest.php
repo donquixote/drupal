@@ -69,7 +69,7 @@ class NodeTranslationUITest extends ContentTranslationUITest {
    * Overrides \Drupal\content_translation\Tests\ContentTranslationUITest::getFormSubmitAction().
    */
   protected function getFormSubmitAction(EntityInterface $entity) {
-    if ($entity->status) {
+    if ($entity->isPublished()) {
       return t('Save and unpublish');
     }
     return t('Save and keep unpublished');
@@ -169,7 +169,7 @@ class NodeTranslationUITest extends ContentTranslationUITest {
     $this->assertRaw('Not translated');
 
     // Delete the only translatable field.
-    field_info_field('field_test_et_ui_test')->delete();
+    field_info_field($this->entityType, 'field_test_et_ui_test')->delete();
 
     // Visit translation page.
     $this->drupalGet('node/' . $article->id() . '/translations');

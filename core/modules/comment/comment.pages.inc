@@ -6,7 +6,7 @@
  */
 
 use Drupal\Core\Entity\EntityInterface;
-use Drupal\comment\Plugin\Core\Entity\Comment;
+use Drupal\comment\Entity\Comment;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
@@ -84,7 +84,7 @@ function comment_reply(EntityInterface $node, $pid = NULL) {
     }
 
     // Should we show the reply box?
-    if ($node->comment != COMMENT_NODE_OPEN) {
+    if ($node->comment->value != COMMENT_NODE_OPEN) {
       drupal_set_message(t("This discussion is closed: you can't post new comments."), 'error');
       return new RedirectResponse(url('node/' . $node->id(), array('absolute' => TRUE)));
     }

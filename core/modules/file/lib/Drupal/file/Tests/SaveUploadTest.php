@@ -80,7 +80,6 @@ class SaveUploadTest extends FileManagedTestBase {
     file_test_reset();
 
     // Upload a second file.
-    $max_fid_before = db_query('SELECT MAX(fid) AS fid FROM {file_managed}')->fetchField();
     $image2 = current($this->drupalGetTestFiles('image'));
     $edit = array('files[file_test_upload]' => drupal_realpath($image2->uri));
     $this->drupalPost('file-test/upload', $edit, t('Submit'));
@@ -180,7 +179,7 @@ class SaveUploadTest extends FileManagedTestBase {
    * Test dangerous file handling.
    */
   function testHandleDangerousFile() {
-    $config = config('system.file');
+    $config = \Drupal::config('system.file');
     // Allow the .php extension and make sure it gets renamed to .txt for
     // safety. Also check to make sure its MIME type was changed.
     $edit = array(
@@ -224,7 +223,7 @@ class SaveUploadTest extends FileManagedTestBase {
    */
   function testHandleFileMunge() {
     // Ensure insecure uploads are disabled for this test.
-    config('system.file')->set('allow_insecure_uploads', 0)->save();
+    \Drupal::config('system.file')->set('allow_insecure_uploads', 0)->save();
     $this->image = file_move($this->image, $this->image->getFileUri() . '.foo.' . $this->image_extension);
 
     // Reset the hook counters to get rid of the 'move' we just called.

@@ -8,16 +8,15 @@
 namespace Drupal\filter;
 
 use Drupal\Core\Config\ConfigFactory;
-use Drupal\Core\Entity\EntityControllerInterface;
 use Drupal\Core\Entity\EntityFormController;
 use Drupal\Core\Entity\Query\QueryFactory;
-use Drupal\Core\Extension\ModuleHandlerInterface;
+use Drupal\filter\Plugin\Filter\FilterNull;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides a base form controller for a filter format.
  */
-abstract class FilterFormatFormControllerBase extends EntityFormController implements EntityControllerInterface {
+abstract class FilterFormatFormControllerBase extends EntityFormController {
 
   /**
    * The config factory.
@@ -36,15 +35,12 @@ abstract class FilterFormatFormControllerBase extends EntityFormController imple
   /**
    * Constructs a new FilterFormatFormControllerBase.
    *
-   * @param \Drupal\Core\Extension\ModuleHandlerInterface
-   *   The module handler service.
    * @param \Drupal\Core\Config\ConfigFactory $config_factory
    *   The config factory.
    * @param \Drupal\Core\Entity\Query\QueryFactory $query_factory
    *   The entity query factory.
    */
-  public function __construct(ModuleHandlerInterface $module_handler, ConfigFactory $config_factory, QueryFactory $query_factory) {
-    parent::__construct($module_handler);
+  public function __construct(ConfigFactory $config_factory, QueryFactory $query_factory) {
     $this->configFactory = $config_factory;
     $this->queryFactory = $query_factory;
   }
@@ -52,9 +48,8 @@ abstract class FilterFormatFormControllerBase extends EntityFormController imple
   /**
    * {@inheritdoc}
    */
-  public static function createInstance(ContainerInterface $container, $entity_type, array $entity_info) {
+  public static function create(ContainerInterface $container) {
     return new static(
-      $container->get('module_handler'),
       $container->get('config.factory'),
       $container->get('entity.query')
     );
@@ -83,7 +78,7 @@ abstract class FilterFormatFormControllerBase extends EntityFormController imple
       '#default_value' => $format->id(),
       '#maxlength' => 255,
       '#machine_name' => array(
-        'exists' => 'filter_format_exists',
+        'exists' => array($this, 'exists'),
         'source' => array('name'),
       ),
       '#disabled' => !$format->isNew(),
@@ -115,6 +110,14 @@ abstract class FilterFormatFormControllerBase extends EntityFormController imple
     // Create filter plugin instances for all available filters, including both
     // enabled/configured ones as well as new and not yet unconfigured ones.
     $filters = $format->filters()->sort();
+    foreach ($filters as $filter_id => $filter) {
+      // When a filter is missing, it is replaced by the null filter. Remove it
+      // here, so that saving the form will remove the missing filter.
+      if ($filter instanceof FilterNull) {
+        drupal_set_message(t('The %filter filter is missing, and will be removed once this format is saved.', array('%filter' => $filter_id)), 'warning');
+        $filters->removeInstanceID($filter_id);
+      }
+    }
 
     // Filter status.
     $form['filters']['status'] = array(
@@ -194,6 +197,22 @@ abstract class FilterFormatFormControllerBase extends EntityFormController imple
   }
 
   /**
+   * Determines if the format already exists.
+   *
+   * @param string $format_id
+   *   The format ID
+   *
+   * @return bool
+   *   TRUE if the format exists, FALSE otherwise.
+   */
+  public function exists($format_id) {
+    return (bool) $this->queryFactory
+      ->get('filter_format')
+      ->condition('format', $format_id)
+      ->execute();
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function validate(array $form, array &$form_state) {
@@ -238,7 +257,7 @@ abstract class FilterFormatFormControllerBase extends EntityFormController imple
     $format->save();
 
     // Save user permissions.
-    if ($permission = filter_permission_name($format)) {
+    if ($permission = $format->getPermissionName()) {
       foreach ($form_state['values']['roles'] as $rid => $enabled) {
         user_role_change_permissions($rid, array($permission => $enabled));
       }

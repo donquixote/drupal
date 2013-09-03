@@ -7,6 +7,7 @@
 
 namespace Drupal\system\Tests\System;
 
+use Drupal\Core\StreamWrapper\PublicStream;
 use Drupal\simpletest\WebTestBase;
 
 /**
@@ -45,7 +46,7 @@ class ThemeTest extends WebTestBase {
   function testThemeSettings() {
     // Specify a filesystem path to be used for the logo.
     $file = current($this->drupalGetTestFiles('image'));
-    $file_relative = strtr($file->uri, array('public:/' => variable_get('file_public_path', conf_path() . '/files')));
+    $file_relative = strtr($file->uri, array('public:/' => PublicStream::basePath()));
     $default_theme_path = 'core/themes/stark';
 
     $supported_paths = array(
@@ -97,7 +98,7 @@ class ThemeTest extends WebTestBase {
       if (file_uri_scheme($input) == 'public') {
         $implicit_public_file = file_uri_target($input);
         $explicit_file = $input;
-        $local_file = strtr($input, array('public:/' => variable_get('file_public_path', conf_path() . '/files')));
+        $local_file = strtr($input, array('public:/' => PublicStream::basePath()));
       }
       // Adjust for fully qualified stream wrapper URI elsewhere.
       elseif (file_uri_scheme($input) !== FALSE) {
@@ -107,7 +108,7 @@ class ThemeTest extends WebTestBase {
       elseif ($input == file_uri_target($file->uri)) {
         $implicit_public_file = $input;
         $explicit_file = 'public://' . $input;
-        $local_file = variable_get('file_public_path', conf_path() . '/files') . '/' . $input;
+        $local_file = PublicStream::basePath() . '/' . $input;
       }
       $this->assertEqual((string) $elements[0], $implicit_public_file);
       $this->assertEqual((string) $elements[1], $explicit_file);
@@ -134,9 +135,9 @@ class ThemeTest extends WebTestBase {
       // Relative path within the public filesystem to non-existing file.
       'whatever.png',
       // Relative path to non-existing file in public filesystem.
-      variable_get('file_public_path', conf_path() . '/files') . '/whatever.png',
+      PublicStream::basePath() . '/whatever.png',
       // Semi-absolute path to non-existing file in public filesystem.
-      '/' . variable_get('file_public_path', conf_path() . '/files') . '/whatever.png',
+      '/' . PublicStream::basePath() . '/whatever.png',
       // Relative path to arbitrary non-existing file.
       'core/misc/whatever.png',
       // Semi-absolute path to arbitrary non-existing file.
@@ -182,7 +183,7 @@ class ThemeTest extends WebTestBase {
     // Enable an administration theme and show it on the node admin pages.
     $edit = array(
       'admin_theme' => 'seven',
-      'node_admin_theme' => TRUE,
+      'use_admin_theme' => TRUE,
     );
     $this->drupalPost('admin/appearance', $edit, t('Save configuration'));
 
@@ -200,7 +201,7 @@ class ThemeTest extends WebTestBase {
 
     // Disable the admin theme on the node admin pages.
     $edit = array(
-      'node_admin_theme' => FALSE,
+      'use_admin_theme' => FALSE,
     );
     $this->drupalPost('admin/appearance', $edit, t('Save configuration'));
 
@@ -211,12 +212,12 @@ class ThemeTest extends WebTestBase {
     $this->assertRaw('core/themes/stark', 'Site default theme used on the add content page.');
 
     // Reset to the default theme settings.
-    config('system.theme')
+    \Drupal::config('system.theme')
       ->set('default', 'bartik')
       ->save();
     $edit = array(
       'admin_theme' => '0',
-      'node_admin_theme' => FALSE,
+      'use_admin_theme' => FALSE,
     );
     $this->drupalPost('admin/appearance', $edit, t('Save configuration'));
 
@@ -235,7 +236,7 @@ class ThemeTest extends WebTestBase {
     theme_enable(array('bartik'));
     $this->drupalGet('admin/appearance');
     $this->clickLink(t('Set default'));
-    $this->assertEqual(config('system.theme')->get('default'), 'bartik');
+    $this->assertEqual(\Drupal::config('system.theme')->get('default'), 'bartik');
 
     drupal_flush_all_caches();
 

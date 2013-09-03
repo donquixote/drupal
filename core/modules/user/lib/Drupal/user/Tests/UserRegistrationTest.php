@@ -28,7 +28,7 @@ class UserRegistrationTest extends WebTestBase {
   }
 
   function testRegistrationWithEmailVerification() {
-    $config = config('user.settings');
+    $config = \Drupal::config('user.settings');
     // Require e-mail verification.
     $config->set('verify_mail', TRUE)->save();
 
@@ -54,14 +54,14 @@ class UserRegistrationTest extends WebTestBase {
     $edit['name'] = $name = $this->randomName();
     $edit['mail'] = $mail = $edit['name'] . '@example.com';
     $this->drupalPost('user/register', $edit, t('Create new account'));
-    $this->container->get('plugin.manager.entity')->getStorageController('user')->resetCache();
+    $this->container->get('entity.manager')->getStorageController('user')->resetCache();
     $accounts = entity_load_multiple_by_properties('user', array('name' => $name, 'mail' => $mail));
     $new_user = reset($accounts);
     $this->assertFalse($new_user->isActive(), 'New account is blocked until approved by an administrator.');
   }
 
   function testRegistrationWithoutEmailVerification() {
-    $config = config('user.settings');
+    $config = \Drupal::config('user.settings');
     // Don't require e-mail verification and allow registration by site visitors
     // without administrator approval.
     $config
@@ -83,7 +83,7 @@ class UserRegistrationTest extends WebTestBase {
     $edit['pass[pass1]'] = $new_pass = $this->randomName();
     $edit['pass[pass2]'] = $new_pass;
     $this->drupalPost('user/register', $edit, t('Create new account'));
-    $this->container->get('plugin.manager.entity')->getStorageController('user')->resetCache();
+    $this->container->get('entity.manager')->getStorageController('user')->resetCache();
     $accounts = entity_load_multiple_by_properties('user', array('name' => $name, 'mail' => $mail));
     $new_user = reset($accounts);
     $this->assertText(t('Registration successful. You are now logged in.'), 'Users are logged in after registering.');
@@ -126,7 +126,7 @@ class UserRegistrationTest extends WebTestBase {
   function testRegistrationEmailDuplicates() {
     // Don't require e-mail verification and allow registration by site visitors
     // without administrator approval.
-    config('user.settings')
+    \Drupal::config('user.settings')
       ->set('verify_mail', FALSE)
       ->set('register', USER_REGISTER_VISITORS)
       ->save();
@@ -152,13 +152,13 @@ class UserRegistrationTest extends WebTestBase {
   function testRegistrationDefaultValues() {
     // Don't require e-mail verification and allow registration by site visitors
     // without administrator approval.
-    $config_user_settings = config('user.settings')
+    $config_user_settings = \Drupal::config('user.settings')
       ->set('verify_mail', FALSE)
       ->set('register', USER_REGISTER_VISITORS)
       ->save();
 
     // Set the default timezone to Brussels.
-    $config_system_date = config('system.date')
+    $config_system_date = \Drupal::config('system.date')
       ->set('timezone.user.configurable', 1)
       ->set('timezone.default', 'Europe/Brussels')
       ->save();
@@ -196,8 +196,9 @@ class UserRegistrationTest extends WebTestBase {
   function testRegistrationWithUserFields() {
     // Create a field, and an instance on 'user' entity type.
     $field = entity_create('field_entity', array(
+      'name' => 'test_user_field',
+      'entity_type' => 'user',
       'type' => 'test_field',
-      'field_name' => 'test_user_field',
       'cardinality' => 1,
     ));
     $field->save();

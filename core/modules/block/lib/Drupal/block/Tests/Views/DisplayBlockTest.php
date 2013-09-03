@@ -66,7 +66,7 @@ class DisplayBlockTest extends ViewTestBase {
     $this->assertBlockAppears($block_3);
     $this->assertBlockAppears($block_4);
 
-    $block_storage_controller = $this->container->get('plugin.manager.entity')->getStorageController('block');
+    $block_storage_controller = $this->container->get('entity.manager')->getStorageController('block');
 
     // Remove the block display, so both block entities from the first view
     // should both dissapear.
@@ -104,7 +104,7 @@ class DisplayBlockTest extends ViewTestBase {
    */
   public function testViewsBlockForm() {
     $this->drupalLogin($this->drupalCreateUser(array('administer blocks')));
-    $default_theme = config('system.theme')->get('default');
+    $default_theme = \Drupal::config('system.theme')->get('default');
     $this->drupalGet('admin/structure/block/add/views_block:test_view_block-block_1/' . $default_theme);
     $elements = $this->xpath('//input[@name="label"]');
     $this->assertTrue(empty($elements), 'The label field is not found for Views blocks.');
@@ -113,7 +113,7 @@ class DisplayBlockTest extends ViewTestBase {
     $this->assertNoFieldById('edit-machine-name', 'stark.views_block__test_view_block_1', 'The machine name is hidden on the views block form.');
     // Save the block.
     $this->drupalPost(NULL, array(), t('Save block'));
-    $storage = $this->container->get('plugin.manager.entity')->getStorageController('block');
+    $storage = $this->container->get('entity.manager')->getStorageController('block');
     $block = $storage->load('stark.views_block__test_view_block_block_1');
     // This will only return a result if our new block has been created with the
     // expected machine name.

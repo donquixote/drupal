@@ -39,7 +39,6 @@ use Drupal\Core\Entity\EntityInterface;
  *   - hook_node_presave() (all)
  *   - hook_entity_presave() (all)
  *   - Node and revision records are written to the database
- *   - field_attach_insert()
  *   - hook_node_insert() (all)
  *   - hook_entity_insert() (all)
  *   - hook_node_access_records() (all)
@@ -49,7 +48,6 @@ use Drupal\Core\Entity\EntityInterface;
  *   - hook_node_presave() (all)
  *   - hook_entity_presave() (all)
  *   - Node and revision records are written to the database
- *   - field_attach_update()
  *   - hook_node_update() (all)
  *   - hook_entity_update() (all)
  *   - hook_node_access_records() (all)
@@ -57,7 +55,6 @@ use Drupal\Core\Entity\EntityInterface;
  * - Loading a node (calling node_load(), node_load_multiple(), entity_load(),
  *   or entity_load_multiple() with $entity_type of 'node'):
  *   - Node and revision information is read from database.
- *   - field_attach_load_revision() and field_attach_load()
  *   - hook_entity_load() (all)
  *   - hook_node_load() (all)
  * - Viewing a single node (calling node_view() - note that the input to
@@ -83,7 +80,6 @@ use Drupal\Core\Entity\EntityInterface;
  *   - Node is loaded (see Loading section above)
  *   - hook_node_predelete() (all)
  *   - hook_entity_predelete() (all)
- *   - field_attach_delete()
  *   - Node and revision information are deleted from database
  *   - hook_node_delete() (all)
  *   - hook_entity_delete() (all)
@@ -91,7 +87,6 @@ use Drupal\Core\Entity\EntityInterface;
  *   - Node is loaded (see Loading section above)
  *   - Revision information is deleted from database
  *   - hook_node_revision_delete() (all)
- *   - field_attach_delete_revision()
  * - Preparing a node for editing (calling node_form() - note that if it is an
  *   existing node, it will already be loaded; see the Loading section above):
  *   - hook_node_prepare_form() (all)
@@ -214,7 +209,7 @@ function hook_node_grants($account, $op) {
  * - 'gid': A 'grant ID' from hook_node_grants().
  * - 'grant_view': If set to 1 a user that has been identified as a member
  *   of this gid within this realm can view this node. This should usually be
- *   set to $node->status. Failure to do so may expose unpublished content
+ *   set to $node->isPublished(). Failure to do so may expose unpublished content
  *   to some users.
  * - 'grant_update': If set to 1 a user that has been identified as a member
  *   of this gid within this realm can edit this node.
@@ -257,15 +252,15 @@ function hook_node_grants($account, $op) {
  * @see hook_node_access_records_alter()
  * @ingroup node_access
  */
-function hook_node_access_records(\Drupal\Core\Entity\EntityInterface $node) {
+function hook_node_access_records(\Drupal\node\NodeInterface $node) {
   // We only care about the node if it has been marked private. If not, it is
   // treated just like any other node and we completely ignore it.
-  if ($node->private) {
+  if ($node->private->value) {
     $grants = array();
     // Only published Catalan translations of private nodes should be viewable
-    // to all users. If we fail to check $node->status, all users would be able
+    // to all users. If we fail to check $node->isPublished(), all users would be able
     // to view an unpublished node.
-    if ($node->status) {
+    if ($node->isPublished()) {
       $grants[] = array(
         'realm' => 'example',
         'gid' => 1,
@@ -281,7 +276,7 @@ function hook_node_access_records(\Drupal\Core\Entity\EntityInterface $node) {
     // have status unpublished.
     $grants[] = array(
       'realm' => 'example_author',
-      'gid' => $node->uid,
+      'gid' => $node->getAuthorId(),
       'grant_view' => 1,
       'grant_update' => 1,
       'grant_delete' => 1,
@@ -391,7 +386,7 @@ function hook_node_grants_alter(&$grants, $account, $op) {
  * Act before node deletion.
  *
  * This hook is invoked from entity_delete_multiple() before
- * hook_entity_predelete() and field_attach_delete() are called, and before
+ * hook_entity_predelete() is called and field values are deleted, and before
  * the node is removed from the node table in the database.
  *
  * @param \Drupal\Core\Entity\EntityInterface $node
@@ -410,8 +405,8 @@ function hook_node_predelete(\Drupal\Core\Entity\EntityInterface $node) {
 /**
  * Respond to node deletion.
  *
- * This hook is invoked from entity_delete_multiple() after field_attach_delete()
- * has been called and after the node has been removed from the database.
+ * This hook is invoked from entity_delete_multiple() after field values are
+ * deleted and after the node has been removed from the database.
  *
  * @param \Drupal\Core\Entity\EntityInterface $node
  *   The node that has been deleted.
@@ -428,8 +423,7 @@ function hook_node_delete(\Drupal\Core\Entity\EntityInterface $node) {
  * Respond to deletion of a node revision.
  *
  * This hook is invoked from node_revision_delete() after the revision has been
- * removed from the node_revision table, and before
- * field_attach_delete_revision() is called.
+ * removed from the node_revision table, and before field values are deleted.
  *
  * @param \Drupal\Core\Entity\EntityInterface $node
  *   The node revision (node object) that is being deleted.
@@ -438,7 +432,7 @@ function hook_node_delete(\Drupal\Core\Entity\EntityInterface $node) {
  */
 function hook_node_revision_delete(\Drupal\Core\Entity\EntityInterface $node) {
   db_delete('mytable')
-    ->condition('vid', $node->vid)
+    ->condition('vid', $node->getRevisionId())
     ->execute();
 }
 
@@ -447,7 +441,7 @@ function hook_node_revision_delete(\Drupal\Core\Entity\EntityInterface $node) {
  *
  * This hook is invoked from $node->save() after the database query that will
  * insert the node into the node table is scheduled for execution, and after
- * field_attach_insert() is called.
+ * field values are saved.
  *
  * Note that when this hook is invoked, the changes have not yet been written to
  * the database, because a database transaction is still in progress. The
@@ -498,11 +492,10 @@ function hook_node_create(\Drupal\Core\Entity\EntityInterface $node) {
  *
  * This hook is invoked during node loading, which is handled by entity_load(),
  * via classes Drupal\node\NodeStorageController and
- * Drupal\Core\Entity\DatabaseStorageController. After the node information is
- * read from the database or the entity cache, then field_attach_load_revision()
- * or field_attach_load() is called, then hook_entity_load() is invoked on all
- * implementing modules, and finally hook_node_load() is invoked on all
- * implementing modules.
+ * Drupal\Core\Entity\DatabaseStorageController. After the node information and
+ * field values are read from the database or the entity cache,
+ * hook_entity_load() is invoked on all implementing modules, and finally
+ * hook_node_load() is invoked on all implementing modules.
  *
  * @param $nodes
  *   An array of the nodes being loaded, keyed by nid.
@@ -567,8 +560,8 @@ function hook_node_load($nodes, $types) {
  *
  * @ingroup node_access
  */
-function hook_node_access($node, $op, $account, $langcode) {
-  $type = is_string($node) ? $node : $node->type;
+function hook_node_access(\Drupal\node\NodeInterface $node, $op, $account, $langcode) {
+  $type = is_string($node) ? $node : $node->getType();
 
   $configured_types = node_permissions_get_configured_types();
   if (isset($configured_types[$type])) {
@@ -577,13 +570,13 @@ function hook_node_access($node, $op, $account, $langcode) {
     }
 
     if ($op == 'update') {
-      if (user_access('edit any ' . $type . ' content', $account) || (user_access('edit own ' . $type . ' content', $account) && ($account->id() == $node->uid))) {
+      if (user_access('edit any ' . $type . ' content', $account) || (user_access('edit own ' . $type . ' content', $account) && ($account->id() == $node->getAuthorId()))) {
         return NODE_ACCESS_ALLOW;
       }
     }
 
     if ($op == 'delete') {
-      if (user_access('delete any ' . $type . ' content', $account) || (user_access('delete own ' . $type . ' content', $account) && ($account->id() == $node->uid))) {
+      if (user_access('delete any ' . $type . ' content', $account) || (user_access('delete own ' . $type . ' content', $account) && ($account->id() == $node->getAuthorId()))) {
         return NODE_ACCESS_ALLOW;
       }
     }
@@ -611,8 +604,8 @@ function hook_node_access($node, $op, $account, $langcode) {
  * @ingroup node_api_hooks
  */
 function hook_node_prepare_form(\Drupal\node\NodeInterface $node, $form_display, $operation, array &$form_state) {
-  if (!isset($node->comment)) {
-    $node->comment = variable_get("comment_$node->type", COMMENT_NODE_OPEN);
+  if (!isset($node->comment->value)) {
+    $node->comment = variable_get('comment_' . $node->getType(), COMMENT_NODE_OPEN);
   }
 }
 
@@ -667,8 +660,8 @@ function hook_node_presave(\Drupal\Core\Entity\EntityInterface $node) {
  * Respond to updates to a node.
  *
  * This hook is invoked from $node->save() after the database query that will
- * update node in the node table is scheduled for execution, and after
- * field_attach_update() is called.
+ * update node in the node table is scheduled for execution, and after field
+ * values are saved.
  *
  * Note that when this hook is invoked, the changes have not yet been written to
  * the database, because a database transaction is still in progress. The
@@ -788,7 +781,7 @@ function hook_node_submit(\Drupal\Core\Entity\EntityInterface $node, $form, &$fo
  *
  * @param \Drupal\Core\Entity\EntityInterface $node
  *   The node that is being assembled for rendering.
- * @param \Drupal\entity\Plugin\Core\Entity\EntityDisplay $display
+ * @param \Drupal\entity\Entity\EntityDisplay $display
  *   The entity_display object holding the display options configured for the
  *   node components.
  * @param string $view_mode
@@ -802,7 +795,7 @@ function hook_node_submit(\Drupal\Core\Entity\EntityInterface $node, $form, &$fo
  *
  * @ingroup node_api_hooks
  */
-function hook_node_view(\Drupal\Core\Entity\EntityInterface $node, \Drupal\entity\Plugin\Core\Entity\EntityDisplay $display, $view_mode, $langcode) {
+function hook_node_view(\Drupal\Core\Entity\EntityInterface $node, \Drupal\entity\Entity\EntityDisplay $display, $view_mode, $langcode) {
   // Only do the extra work if the component is configured to be displayed.
   // This assumes a 'mymodule_addition' extra field has been defined for the
   // node type in hook_field_extra_fields().
@@ -831,7 +824,7 @@ function hook_node_view(\Drupal\Core\Entity\EntityInterface $node, \Drupal\entit
  *   A renderable array representing the node content.
  * @param \Drupal\Core\Entity\EntityInterface $node
  *   The node being rendered.
- * @param \Drupal\entity\Plugin\Core\Entity\EntityDisplay $display
+ * @param \Drupal\entity\Entity\EntityDisplay $display
  *   The entity_display object holding the display options configured for the
  *   node components.
  *
@@ -840,7 +833,7 @@ function hook_node_view(\Drupal\Core\Entity\EntityInterface $node, \Drupal\entit
  *
  * @ingroup node_api_hooks
  */
-function hook_node_view_alter(&$build, \Drupal\Core\Entity\EntityInterface $node, \Drupal\entity\Plugin\Core\Entity\EntityDisplay $display) {
+function hook_node_view_alter(&$build, \Drupal\Core\Entity\EntityInterface $node, \Drupal\entity\Entity\EntityDisplay $display) {
   if ($build['#view_mode'] == 'full' && isset($build['an_additional_field'])) {
     // Change its weight.
     $build['an_additional_field']['#weight'] = -10;

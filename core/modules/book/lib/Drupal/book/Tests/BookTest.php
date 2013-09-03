@@ -206,7 +206,7 @@ class BookTest extends WebTestBase {
     // Check printer friendly version.
     $this->drupalGet('book/export/html/' . $node->id());
     $this->assertText($node->label(), 'Printer friendly title found.');
-    $this->assertRaw(check_markup($node->body[Language::LANGCODE_NOT_SPECIFIED][0]['value'], $node->body[Language::LANGCODE_NOT_SPECIFIED][0]['format']), 'Printer friendly body found.');
+    $this->assertRaw($node->body->processed, 'Printer friendly body found.');
 
     $number++;
   }
@@ -281,7 +281,7 @@ class BookTest extends WebTestBase {
     // Make sure each part of the book is there.
     foreach ($nodes as $node) {
       $this->assertText($node->label(), 'Node title found in printer friendly version.');
-      $this->assertRaw(check_markup($node->body[Language::LANGCODE_NOT_SPECIFIED][0]['value'], $node->body[Language::LANGCODE_NOT_SPECIFIED][0]['format']), 'Node body found in printer friendly version.');
+      $this->assertRaw($node->body->processed, 'Node body found in printer friendly version.');
     }
 
     // Make sure we can't export an unsupported format.
@@ -435,9 +435,9 @@ class BookTest extends WebTestBase {
     //   'page',
     // );
     // @endcode
-    $current_config = config('book.settings')->init()->get();
+    $current_config = \Drupal::config('book.settings')->init()->get();
     $this->drupalPost('admin/structure/book/settings', array(), t('Save configuration'));
-    $this->assertIdentical($current_config, config('book.settings')->init()->get());
+    $this->assertIdentical($current_config, \Drupal::config('book.settings')->init()->get());
 
     // Change the name, machine name and description.
     $edit = array(
@@ -456,9 +456,9 @@ class BookTest extends WebTestBase {
     //   'zebra',
     // );
     // @endcode
-    $current_config = config('book.settings')->init()->get();
+    $current_config = \Drupal::config('book.settings')->init()->get();
     $this->drupalPost('admin/structure/book/settings', array(), t('Save configuration'));
-    $this->assertIdentical($current_config, config('book.settings')->init()->get());
+    $this->assertIdentical($current_config, \Drupal::config('book.settings')->init()->get());
 
     $edit = array(
       'name' => 'Animal book',
@@ -474,13 +474,13 @@ class BookTest extends WebTestBase {
     //   'zebra',
     // );
     // @endcode
-    $current_config = config('book.settings')->init()->get();
+    $current_config = \Drupal::config('book.settings')->init()->get();
     $this->drupalPost('admin/structure/book/settings', array(), t('Save configuration'));
-    $this->assertIdentical($current_config, config('book.settings')->init()->get());
+    $this->assertIdentical($current_config, \Drupal::config('book.settings')->init()->get());
 
     // Ensure that after all the node type changes book.settings:child_type has
     // the expected value.
-    $this->assertEqual(config('book.settings')->get('child_type'), 'zebra');
+    $this->assertEqual(\Drupal::config('book.settings')->get('child_type'), 'zebra');
   }
 
   /**

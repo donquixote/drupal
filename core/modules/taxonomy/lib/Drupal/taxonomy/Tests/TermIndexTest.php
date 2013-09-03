@@ -34,7 +34,8 @@ class TermIndexTest extends TaxonomyTestBase {
 
     $this->field_name_1 = drupal_strtolower($this->randomName());
     entity_create('field_entity', array(
-      'field_name' => $this->field_name_1,
+      'name' => $this->field_name_1,
+      'entity_type' => 'node',
       'type' => 'taxonomy_term_reference',
       'cardinality' => FIELD_CARDINALITY_UNLIMITED,
       'settings' => array(
@@ -64,7 +65,8 @@ class TermIndexTest extends TaxonomyTestBase {
 
     $this->field_name_2 = drupal_strtolower($this->randomName());
     entity_create('field_entity', array(
-      'field_name' => $this->field_name_2,
+      'name' => $this->field_name_2,
+      'entity_type' => 'node',
       'type' => 'taxonomy_term_reference',
       'cardinality' => FIELD_CARDINALITY_UNLIMITED,
       'settings' => array(
@@ -170,7 +172,7 @@ class TermIndexTest extends TaxonomyTestBase {
     $this->assertEqual(1, $index_count, 'Term 2 is indexed once.');
 
     // Update the article to change one term.
-    $node->{$this->field_name_1}[$langcode] = array(array('target_id' => $term_1->id()));
+    $node->{$this->field_name_1} = array(array('target_id' => $term_1->id()));
     $node->save();
 
     // Check that both terms are indexed.
@@ -186,7 +188,7 @@ class TermIndexTest extends TaxonomyTestBase {
     $this->assertEqual(1, $index_count, 'Term 2 is indexed.');
 
     // Update the article to change another term.
-    $node->{$this->field_name_2}[$langcode] = array(array('target_id' => $term_1->id()));
+    $node->{$this->field_name_2} = array(array('target_id' => $term_1->id()));
     $node->save();
 
     // Check that only one term is indexed.

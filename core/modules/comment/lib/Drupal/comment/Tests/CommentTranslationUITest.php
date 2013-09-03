@@ -63,7 +63,7 @@ class CommentTranslationUITest extends ContentTranslationUITest {
    */
   function setupTestFields() {
     parent::setupTestFields();
-    $field = field_info_field('comment_body');
+    $field = field_info_field('comment', 'comment_body');
     $field['translatable'] = TRUE;
     $field->save();
   }
@@ -77,7 +77,7 @@ class CommentTranslationUITest extends ContentTranslationUITest {
     }
     $node = $this->drupalCreateNode(array('type' => $node_bundle));
     $values['nid'] = $node->id();
-    $values['uid'] = $node->uid;
+    $values['uid'] = $node->getAuthorId();
     return parent::createEntity($values, $langcode);
   }
 

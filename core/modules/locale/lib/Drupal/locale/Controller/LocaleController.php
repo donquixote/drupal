@@ -6,15 +6,15 @@
 
 namespace Drupal\locale\Controller;
 
-use Drupal\Core\Controller\ControllerInterface;
-use Drupal\Core\Routing\PathBasedGeneratorInterface;
+use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
+use Drupal\Core\Routing\UrlGeneratorInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 /**
  * Return response for manual check translations.
  */
-class LocaleController implements ControllerInterface {
+class LocaleController implements ContainerInjectionInterface {
 
   /**
    * The module handler.
@@ -29,7 +29,7 @@ class LocaleController implements ControllerInterface {
    * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
    *   The module handler.
    */
-  public function __construct(ModuleHandlerInterface $module_handler, PathBasedGeneratorInterface $url_generator) {
+  public function __construct(ModuleHandlerInterface $module_handler, UrlGeneratorInterface $url_generator) {
     $this->moduleHandler = $module_handler;
     $this->urlGenerator = $url_generator;
   }

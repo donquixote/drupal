@@ -69,12 +69,12 @@ class EntityTranslationFormTest extends WebTestBase {
     $this->drupalPost(NULL, $edit, t('Save'));
 
     $node = $this->drupalGetNodeByTitle($edit["title"]);
-    $this->assertTrue($node->langcode == $form_langcode, 'Form language is the same as the entity language.');
+    $this->assertTrue($node->language()->id == $form_langcode, 'Form language is the same as the entity language.');
 
     // Edit the node and test the form language.
     $this->drupalGet($this->langcodes[0] . '/node/' . $node->id() . '/edit');
     $form_langcode = \Drupal::state()->get('entity_test.form_langcode') ?: FALSE;
-    $this->assertTrue($node->langcode == $form_langcode, 'Form language is the same as the entity language.');
+    $this->assertTrue($node->language()->id == $form_langcode, 'Form language is the same as the entity language.');
 
     // Explicitly set form langcode.
     $langcode = $this->langcodes[0];
@@ -104,10 +104,10 @@ class EntityTranslationFormTest extends WebTestBase {
     $this->assertTrue($node, 'Node found in database.');
 
     // Make body translatable.
-    $field = field_info_field('body');
+    $field = field_info_field('node', 'body');
     $field->translatable = TRUE;
     $field->save();
-    $field = field_info_field('body');
+    $field = field_info_field('node', 'body');
     $this->assertTrue($field['translatable'], 'Field body is translatable.');
 
     // Create a body translation and check the form language.

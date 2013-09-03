@@ -20,8 +20,6 @@ use Drupal\views\ViewExecutable;
  *   - view: The ViewExecutable object.
  */
 function template_preprocess_views_view(&$variables) {
-  global $base_path;
-
   $view = $variables['view'];
 
   $variables['rows'] = (!empty($view->result) || $view->style_plugin->evenEmpty()) ? $view->style_plugin->render($view->result) : array();
@@ -306,7 +304,7 @@ function theme_views_view_fields($variables) {
   $fields = $variables['fields'];
   $output = '';
 
-  foreach ($fields as $id => $field) {
+  foreach ($fields as $field) {
     if (!empty($field->separator)) {
       $output .= $field->separator;
     }
@@ -347,9 +345,6 @@ function template_preprocess_views_view_grouping(&$variables) {
  * this: @code { $row->{$field->field_alias} @endcode
  */
 function theme_views_view_field($variables) {
-  $view = $variables['view'];
-  $field = $variables['field'];
-  $row = $variables['row'];
   return $variables['output'];
 }
 
@@ -514,7 +509,6 @@ function template_preprocess_views_view_table(&$variables) {
   $options = $view->style_plugin->options;
   $handler = $view->style_plugin;
 
-  $default_row_class = isset($options['default_row_class']) ? $options['default_row_class'] : TRUE;
   $row_class_special = isset($options['row_class_special']) ? $options['row_class_special'] : TRUE;
 
   $fields = &$view->field;
@@ -675,11 +669,11 @@ function template_preprocess_views_view_table(&$variables) {
     // field is not empty.
     if (!empty($options['info'][$field]['empty_column'])) {
       $empty = TRUE;
-      foreach ($variables['rows'] as $num => $columns) {
+      foreach ($variables['rows'] as $columns) {
         $empty &= empty($columns[$column]);
       }
       if ($empty) {
-        foreach ($variables['rows'] as $num => &$column_items) {
+        foreach ($variables['rows'] as &$column_items) {
           unset($column_items[$column]);
           unset($variables['header'][$column]);
         }
@@ -966,14 +960,12 @@ function template_preprocess_views_view_list(&$variables) {
  *   - rows: The raw row data.
 */
 function template_preprocess_views_view_rss(&$variables) {
-  global $base_url;
-
   $view = $variables['view'];
   $items = $variables['rows'];
 
   $style = $view->style_plugin;
 
-  $config = config('system.site');
+  $config = Drupal::config('system.site');
 
   // The RSS 2.0 "spec" doesn't indicate HTML can be used in the description.
   // We strip all HTML tags, but need to prevent double encoding from properly
@@ -1063,7 +1055,7 @@ function template_preprocess_views_exposed_form(&$variables) {
   // Include basic theming for exposed forms.
   $form['#attached']['library'][] = array('views', 'views.exposed-form');
 
-  foreach ($form['#info'] as $id => $info) {
+  foreach ($form['#info'] as $info) {
     if (!empty($info['label'])) {
       $form[$info['value']]['#title'] = $info['label'];
     }
@@ -1071,41 +1063,18 @@ function template_preprocess_views_exposed_form(&$variables) {
 }
 
 /**
- * Theme function for a View with form elements: replace the placeholders.
+ * Prepares variables for views mini-pager templates.
+ *
+ * Default template: views-mini-pager.html.twig.
+ *
+ * @param array $variables
+ *   An associative array containing:
+ *   - tags: Provides link text for the next/previous links.
+ *   - element: The pager's id.
+ *   - parameters: Any extra GET parameters that should be retained, such as
+ *     exposed input.
  */
-function theme_views_form_views_form($variables) {
-  $form = $variables['form'];
-
-  // Placeholders and their substitutions (usually rendered form elements).
-  $search = array();
-  $replace = array();
-
-  // Add in substitutions provided by the form.
-  foreach ($form['#substitutions']['#value'] as $substitution) {
-    $field_name = $substitution['field_name'];
-    $row_id = $substitution['row_id'];
-
-    $search[] = $substitution['placeholder'];
-    $replace[] = isset($form[$field_name][$row_id]) ? drupal_render($form[$field_name][$row_id]) : '';
-  }
-  // Add in substitutions from hook_views_form_substitutions().
-  $substitutions = Drupal::moduleHandler()->invokeAll('views_form_substitutions');
-  foreach ($substitutions as $placeholder => $substitution) {
-    $search[] = $placeholder;
-    $replace[] = $substitution;
-  }
-
-  // Apply substitutions to the rendered output.
-  $form['output']['#markup'] = str_replace($search, $replace, $form['output']['#markup']);
-
-  // Render and add remaining form fields.
-  return drupal_render_children($form);
-}
-
-/**
- * Theme function for the Mini pager.
- */
-function theme_views_mini_pager($variables) {
+function template_preprocess_views_mini_pager(&$variables) {
   global $pager_page_array, $pager_total;
 
   $tags = &$variables['tags'];
@@ -1172,9 +1141,10 @@ function theme_views_mini_pager($variables) {
   // link, which means that we are on the first page and there is no next page
   // available/wanted.
   if (empty($li_next) && empty($li_previous)) {
-    return '';
+    return;
   }
 
+  $items = array();
   $items[] = array(
     '#wrapper_attributes' => array('class' => array('pager-previous')),
   ) + $li_previous;
@@ -1188,16 +1158,11 @@ function theme_views_mini_pager($variables) {
     '#wrapper_attributes' => array('class' => array('pager-next')),
   ) + $li_next;
 
-  $item_list = array(
+  $variables['items'] = array(
     '#theme' => 'item_list__pager',
     '#items' => $items,
-    '#title' => NULL,
-    '#list_type' => 'ul',
-    '#attributes' => array(
-      'class' => array('pager'),
-    ),
+    '#attributes' => array('class' => array('pager')),
   );
-  return drupal_render($item_list);
 }
 
 /**

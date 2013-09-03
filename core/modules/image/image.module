@@ -6,11 +6,10 @@
  */
 
 use Drupal\Core\Entity\EntityInterface;
-use Drupal\field\Plugin\Core\Entity\Field;
-use Drupal\field\Plugin\Core\Entity\FieldInstance;
-use Drupal\file\Plugin\Core\Entity\File;
-use Drupal\image\ImageStyleInterface;
-use Drupal\image\Plugin\Core\Entity\ImageStyle;
+use Drupal\field\Entity\Field;
+use Drupal\field\Entity\FieldInstance;
+use Drupal\file\Entity\File;
+use Drupal\image\Entity\ImageStyle;
 use Drupal\field\FieldInterface;
 use Drupal\field\FieldInstanceInterface;
 
@@ -228,25 +227,6 @@ function image_permission() {
 }
 
 /**
- * Implements hook_form_FORM_ID_alter().
- */
-function image_form_system_file_system_settings_alter(&$form, &$form_state) {
-  $form['#submit'][] = 'image_system_file_system_settings_submit';
-}
-
-/**
- * Form submission handler for system_file_system_settings().
- *
- * Adds a menu rebuild after the public file path has been changed, so that the
- * menu router item depending on that file path will be regenerated.
- */
-function image_system_file_system_settings_submit($form, &$form_state) {
-  if ($form['file_public_path']['#default_value'] !== $form_state['values']['file_public_path']) {
-    Drupal::state()->set('menu_rebuild_needed', TRUE);
-  }
-}
-
-/**
  * Implements hook_file_download().
  *
  * Control the access to files underneath the styles directory.
@@ -268,15 +248,16 @@ function image_file_download($uri) {
     $original_uri = file_uri_scheme($uri) . '://' . implode('/', $args);
 
     // Check that the file exists and is an image.
-    if ($info = image_get_info($uri)) {
+    $image = Drupal::service('image.factory')->get($uri);
+    if ($image->getExtension()) {
       // Check the permissions of the original to grant access to this image.
       $headers = Drupal::moduleHandler()->invokeAll('file_download', array($original_uri));
       // Confirm there's at least one module granting access and none denying access.
       if (!empty($headers) && !in_array(-1, $headers)) {
         return array(
           // Send headers describing the image's size, and MIME-type...
-          'Content-Type' => $info['mime_type'],
-          'Content-Length' => $info['file_size'],
+          'Content-Type' => $image->getMimeType(),
+          'Content-Length' => $image->getFileSize(),
           // By not explicitly setting them here, this uses normal Drupal
           // Expires, Cache-Control and ETag headers to prevent proxy or
           // browser caching of private images.

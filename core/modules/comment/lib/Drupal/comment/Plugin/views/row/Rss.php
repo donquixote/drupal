@@ -8,18 +8,19 @@
 namespace Drupal\comment\Plugin\views\row;
 
 use Drupal\views\Plugin\views\row\RowPluginBase;
-use Drupal\Component\Annotation\Plugin;
+use Drupal\views\Annotation\ViewsRow;
 use Drupal\Core\Annotation\Translation;
 
 /**
  * Plugin which formats the comments as RSS items.
  *
- * @Plugin(
+ * @ViewsRow(
  *   id = "comment_rss",
  *   module = "comment",
  *   title = @Translation("Comment"),
  *   help = @Translation("Display the comment as RSS."),
  *   theme = "views_view_row_rss",
+ *   register_theme = FALSE,
  *   base = {"comment"},
  *   display_types = {"feed"}
  * )
@@ -97,7 +98,7 @@ class Rss extends RowPluginBase {
 
     $item_length = $this->options['item_length'];
     if ($item_length == 'default') {
-      $item_length = config('system.rss')->get('items.view_mode');
+      $item_length = \Drupal::config('system.rss')->get('items.view_mode');
     }
 
     // Load the specified comment and its associated node:

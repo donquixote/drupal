@@ -56,7 +56,7 @@ class FilterSecurityTest extends WebTestBase {
     ));
     $filtered_html_format->save();
 
-    $filtered_html_permission = filter_permission_name($filtered_html_format);
+    $filtered_html_permission = $filtered_html_format->getPermissionName();
     user_role_grant_permissions(DRUPAL_ANONYMOUS_RID, array($filtered_html_permission));
 
     $this->admin_user = $this->drupalCreateUser(array('administer modules', 'administer filters', 'administer site configuration'));
@@ -72,8 +72,8 @@ class FilterSecurityTest extends WebTestBase {
   function testDisableFilterModule() {
     // Create a new node.
     $node = $this->drupalCreateNode(array('promote' => 1));
-    $body_raw = $node->body[Language::LANGCODE_NOT_SPECIFIED][0]['value'];
-    $format_id = $node->body[Language::LANGCODE_NOT_SPECIFIED][0]['format'];
+    $body_raw = $node->body->value;
+    $format_id = $node->body->format;
     $this->drupalGet('node/' . $node->id());
     $this->assertText($body_raw, 'Node body found.');
 

@@ -11,60 +11,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 /**
- * Menu callback; Provide the administration overview page.
- */
-function system_admin_config_page() {
-  // Check for status report errors.
-  // @todo Use depedancy injection in http://drupal.org/node/1987810.
-  if (Drupal::service('system.manager')->checkRequirements() && user_access('administer site configuration')) {
-    drupal_set_message(t('One or more problems were detected with your Drupal installation. Check the <a href="@status">status report</a> for more information.', array('@status' => url('admin/reports/status'))), 'error');
-  }
-  $blocks = array();
-  if ($system_link = entity_load_multiple_by_properties('menu_link', array('link_path' => 'admin/config', 'module' => 'system'))) {
-    $system_link = reset($system_link);
-    $query = Drupal::entityQuery('menu_link')
-      ->condition('link_path', 'admin/help', '<>')
-      ->condition('menu_name', $system_link->menu_name)
-      ->condition('plid', $system_link->id())
-      ->condition('hidden', 0);
-    $result = $query->execute();
-    if (!empty($result)) {
-      $menu_links = menu_link_load_multiple($result);
-
-      foreach ($menu_links as $item) {
-        _menu_link_translate($item);
-        if (!$item['access']) {
-          continue;
-        }
-        // The link description, either derived from 'description' in hook_menu()
-        // or customized via menu module is used as title attribute.
-        if (!empty($item['localized_options']['attributes']['title'])) {
-          $item['description'] = $item['localized_options']['attributes']['title'];
-          unset($item['localized_options']['attributes']['title']);
-        }
-        $block = $item;
-        $block['content'] = '';
-        $block['content'] .= theme('admin_block_content', array('content' => system_admin_menu_block($item)));
-        if (!empty($block['content'])) {
-          $block['show'] = TRUE;
-        }
-
-        // Prepare for sorting as in function _menu_tree_check_access().
-        // The weight is offset so it is always positive, with a uniform 5-digits.
-        $blocks[(50000 + $item['weight']) . ' ' . $item['title'] . ' ' . $item['mlid']] = $block;
-      }
-    }
-  }
-  if ($blocks) {
-    ksort($blocks);
-    return theme('admin_page', array('blocks' => $blocks));
-  }
-  else {
-    return t('You do not have any administrative items.');
-  }
-}
-
-/**
  * Provide a single block from the administration menu as a page.
  *
  * This function is often a destination for these blocks.
@@ -94,9 +40,9 @@ function system_themes_page() {
   $themes = system_rebuild_theme_data();
   uasort($themes, 'system_sort_modules_by_info_name');
 
-  $theme_default = config('system.theme')->get('default');
+  $theme_default = Drupal::config('system.theme')->get('default');
   $theme_groups  = array();
-  $admin_theme = config('system.theme')->get('admin');
+  $admin_theme = Drupal::config('system.theme')->get('admin');
 
   foreach ($themes as &$theme) {
     if (!empty($theme->info['hidden'])) {
@@ -233,7 +179,7 @@ function system_themes_admin_form($form, &$form_state, $theme_options) {
     '#options' => array(0 => t('Default theme')) + $theme_options,
     '#title' => t('Administration theme'),
     '#description' => t('Choose "Default theme" to always use the same theme as the rest of the site.'),
-    '#default_value' => config('system.theme')->get('admin'),
+    '#default_value' => Drupal::config('system.theme')->get('admin'),
   );
   $form['admin_theme']['actions'] = array('#type' => 'actions');
   $form['admin_theme']['actions']['submit'] = array(
@@ -248,7 +194,7 @@ function system_themes_admin_form($form, &$form_state, $theme_options) {
  */
 function system_themes_admin_form_submit($form, &$form_state) {
   drupal_set_message(t('The configuration options have been saved.'));
-  config('system.theme')->set('admin', $form_state['values']['admin_theme'])->save();
+  Drupal::config('system.theme')->set('admin', $form_state['values']['admin_theme'])->save();
 }
 
 /**
@@ -269,7 +215,7 @@ function system_theme_default() {
        theme_enable(array($theme));
       }
       // Set the default theme.
-      config('system.theme')
+      Drupal::config('system.theme')
         ->set('default', $theme)
         ->save();
 
@@ -283,7 +229,7 @@ function system_theme_default() {
 
       // The status message depends on whether an admin theme is currently in use:
       // a value of 0 means the admin theme is set to be the default theme.
-      $admin_theme = config('system.theme')->get('admin');
+      $admin_theme = Drupal::config('system.theme')->get('admin');
       if ($admin_theme != 0 && $admin_theme != $theme) {
         drupal_set_message(t('Please note that the administration theme is still set to the %admin_theme theme; consequently, the theme on this page remains unchanged. All non-administrative sections of the site, however, will show the selected %selected_theme theme by default.', array(
           '%admin_theme' => $themes[$admin_theme]->info['name'],
@@ -400,7 +346,7 @@ function theme_admin_block($variables) {
     $output .= '<h3>' . $block['title'] . '</h3>';
   }
   if (!empty($block['content'])) {
-    $output .= '<div class="body">' . $block['content'] . '</div>';
+    $output .= '<div class="body">' . render($block['content']) . '</div>';
   }
   else {
     $output .= '<div class="description">' . $block['description'] . '</div>';
@@ -981,7 +927,7 @@ function theme_system_date_format_localize_form($variables) {
  */
 function system_date_format_localize_form_save($langcode, $date_format_id, DateFormatInterface $format) {
   $format->addLocale($langcode)->save();
-  config('locale.config.' . $langcode . '.system.date_format.' . $date_format_id)
+  Drupal::config('locale.config.' . $langcode . '.system.date_format.' . $date_format_id)
     ->set('pattern', $format->get('pattern'))
     ->save();
 }

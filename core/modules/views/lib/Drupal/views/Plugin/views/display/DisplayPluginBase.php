@@ -10,7 +10,7 @@ namespace Drupal\views\Plugin\views\display;
 use Drupal\Core\Language\Language;
 use Drupal\views\Plugin\views\area\AreaPluginBase;
 use Drupal\views\ViewExecutable;
-use \Drupal\views\Plugin\views\PluginBase;
+use Drupal\views\Plugin\views\PluginBase;
 use Drupal\views\Views;
 
 /**
@@ -1741,11 +1741,11 @@ abstract class DisplayPluginBase extends PluginBase {
         break;
       case 'analyze-theme':
         $form['#title'] .= t('Theming information');
-        if ($theme = drupal_container()->get('request')->request->get('theme')) {
+        if ($theme = \Drupal::request()->request->get('theme')) {
           $this->theme = $theme;
         }
         elseif (empty($this->theme)) {
-          $this->theme = config('system.theme')->get('default');
+          $this->theme = \Drupal::config('system.theme')->get('default');
         }
 
         if (isset($GLOBALS['theme']) && $GLOBALS['theme'] == $this->theme) {

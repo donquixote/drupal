@@ -8,10 +8,8 @@
 namespace Drupal\menu;
 
 use Drupal\Component\Utility\NestedArray;
-use Drupal\Core\Entity\EntityControllerInterface;
 use Drupal\Core\Entity\EntityFormController;
 use Drupal\Core\Entity\Query\QueryFactory;
-use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Language\Language;
 use Drupal\menu_link\MenuLinkStorageControllerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -19,7 +17,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 /**
  * Base form controller for menu edit forms.
  */
-class MenuFormController extends EntityFormController implements EntityControllerInterface {
+class MenuFormController extends EntityFormController {
 
   /**
    * The factory for entity queries.
@@ -45,16 +43,12 @@ class MenuFormController extends EntityFormController implements EntityControlle
   /**
    * Constructs a MenuFormController object.
    *
-   * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
-   *   The module handler to invoke hooks on.
    * @param \Drupal\Core\Entity\Query\QueryFactory $entity_query_factory
    *   The factory for entity queries.
    * @param \Drupal\menu_link\MenuLinkStorageControllerInterface $menu_link_storage
    *   The menu link storage controller.
    */
-  public function __construct(ModuleHandlerInterface $module_handler, QueryFactory $entity_query_factory, MenuLinkStorageControllerInterface $menu_link_storage) {
-    parent::__construct($module_handler);
-
+  public function __construct(QueryFactory $entity_query_factory, MenuLinkStorageControllerInterface $menu_link_storage) {
     $this->entityQueryFactory = $entity_query_factory;
     $this->menuLinkStorage = $menu_link_storage;
   }
@@ -62,11 +56,10 @@ class MenuFormController extends EntityFormController implements EntityControlle
   /**
    * {@inheritdoc}
    */
-  public static function createInstance(ContainerInterface $container, $entity_type, array $entity_info) {
+  public static function create(ContainerInterface $container) {
     return new static(
-      $container->get('module_handler'),
       $container->get('entity.query'),
-      $container->get('plugin.manager.entity')->getStorageController('menu_link')
+      $container->get('entity.manager')->getStorageController('menu_link')
     );
   }
 
@@ -174,10 +167,8 @@ class MenuFormController extends EntityFormController implements EntityControlle
    */
   protected function actions(array $form, array &$form_state) {
     $actions = parent::actions($form, $form_state);
-    $menu = $this->entity;
 
-    $system_menus = menu_list_system_menus();
-    $actions['delete']['#access'] = !$menu->isNew() && !isset($system_menus[$menu->id()]);
+    $actions['delete']['#access'] = !$this->entity->isNew() && $this->entity->access('delete');
 
     // Add the language configuration submit handler. This is needed because the
     // submit button has custom submit handlers.
@@ -223,8 +214,10 @@ class MenuFormController extends EntityFormController implements EntityControlle
    */
   public function save(array $form, array &$form_state) {
     $menu = $this->entity;
+    // @todo Get rid of menu_list_system_menus() https://drupal.org/node/1882552
+    //   Supposed menu item declared by hook_menu()
+    //   Should be moved to submitOverviewForm()
     $system_menus = menu_list_system_menus();
-
     if (!$menu->isNew() || isset($system_menus[$menu->id()])) {
       $this->submitOverviewForm($form, $form_state);
     }
@@ -354,31 +347,27 @@ class MenuFormController extends EntityFormController implements EntityControlle
         );
         // Build a list of operations.
         $operations = array();
-        $links = array();
-        $links['edit'] = array(
+        $operations['edit'] = array(
           'title' => t('Edit'),
           'href' => 'admin/structure/menu/item/' . $item['mlid'] . '/edit',
         );
-        $operations['edit'] = array('#type' => 'link', '#title' => t('Edit'), '#href' => 'admin/structure/menu/item/' . $item['mlid'] . '/edit');
         // Only items created by the menu module can be deleted.
-        if ($item['module'] == 'menu' || $item['updated'] == 1) {
-          $links['delete'] = array(
+        if ($item->access('delete')) {
+          $operations['delete'] = array(
             'title' => t('Delete'),
             'href' => 'admin/structure/menu/item/' . $item['mlid'] . '/delete',
           );
-          $operations['delete'] = array('#type' => 'link', '#title' => t('Delete'), '#href' => 'admin/structure/menu/item/' . $item['mlid'] . '/delete');
         }
         // Set the reset column.
-        elseif ($item['module'] == 'system' && $item['customized']) {
-          $links['reset'] = array(
+        elseif ($item->access('reset')) {
+          $operations['reset'] = array(
             'title' => t('Reset'),
             'href' => 'admin/structure/menu/item/' . $item['mlid'] . '/reset',
           );
-          $operations['reset'] = array('#type' => 'link', '#title' => t('Reset'), '#href' => 'admin/structure/menu/item/' . $item['mlid'] . '/reset');
         }
         $form[$mlid]['operations'] = array(
           '#type' => 'operations',
-          '#links' => $links,
+          '#links' => $operations,
         );
       }
 

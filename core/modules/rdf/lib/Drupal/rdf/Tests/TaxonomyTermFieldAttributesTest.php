@@ -147,14 +147,15 @@ class TaxonomyTermFieldAttributesTest extends TaxonomyTestBase {
    *
    * @param string $field_name
    *   The name of the field to create.
-   * @param \Drupal\taxonomy\Plugin\Core\Entity\Vocabulary $vocabulary
+   * @param \Drupal\taxonomy\Entity\Vocabulary $vocabulary
    *   The vocabulary that the field should use.
    *
    * @todo Move this to TaxonomyTestBase, like the other field modules.
    */
   protected function createTaxonomyTermReferenceField($field_name, $vocabulary) {
     entity_create('field_entity', array(
-      'field_name' => $field_name,
+      'name' => $field_name,
+      'entity_type' => 'node',
       'type' => 'taxonomy_term_reference',
       'cardinality' => FIELD_CARDINALITY_UNLIMITED,
       'settings' => array(

@@ -127,6 +127,9 @@ class Connection extends DatabaseConnection {
     return parent::serialize();
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function __destruct() {
     if ($this->needsCleanup) {
       $this->nextIdDelete();
@@ -157,7 +160,7 @@ class Connection extends DatabaseConnection {
    * @param string $database
    *   The name of the database to create.
    *
-   * @throws DatabaseNotFoundException
+   * @throws \Drupal\Core\Database\DatabaseNotFoundException
    */
   public function createDatabase($database) {
     // Escape the database name.

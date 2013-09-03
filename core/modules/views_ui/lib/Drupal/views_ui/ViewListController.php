@@ -34,7 +34,7 @@ class ViewListController extends ConfigEntityListController implements EntityCon
   public static function createInstance(ContainerInterface $container, $entity_type, array $entity_info) {
     return new static(
       $entity_type,
-      $container->get('plugin.manager.entity')->getStorageController($entity_type),
+      $container->get('entity.manager')->getStorageController($entity_type),
       $entity_info,
       $container->get('plugin.manager.views.display'),
       $container->get('module_handler')
@@ -84,6 +84,7 @@ class ViewListController extends ConfigEntityListController implements EntityCon
    * {@inheritdoc}
    */
   public function buildRow(EntityInterface $view) {
+    $row = parent::buildRow($view);
     return array(
       'data' => array(
         'view_name' => array(
@@ -96,9 +97,7 @@ class ViewListController extends ConfigEntityListController implements EntityCon
         'description' => $view->get('description'),
         'tag' => $view->get('tag'),
         'path' => implode(', ', $this->getDisplayPaths($view)),
-        'operations' => array(
-          'data' => $this->buildOperations($view),
-        ),
+        'operations' => $row['operations'],
       ),
       'title' => t('Machine name: @name', array('@name' => $view->id())),
       'class' => array($view->status() ? 'views-ui-list-enabled' : 'views-ui-list-disabled'),
