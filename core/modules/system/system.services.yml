@@ -10,6 +10,11 @@ services:
     class: Drupal\system\LegacyBreadcrumbBuilder
     tags:
       - {name: breadcrumb_builder, priority: 500}
+  system.breadcrumb.default:
+    class: Drupal\system\PathBasedBreadcrumbBuilder
+    arguments: ['@request', '@plugin.manager.entity', '@access_manager', '@string_translation', '@router', '@path_processor_manager', '@config.factory']
+    tags:
+      - { name: breadcrumb_builder, priority: 0 }
   path_processor.files:
     class: Drupal\system\PathProcessor\PathProcessorFiles
     tags:
