@@ -38,6 +38,7 @@ node_overview_types:
   defaults:
     _content: '\Drupal\Core\Entity\Controller\EntityListController::listing'
     entity_type: 'node_type'
+    _title: 'Content types'
   requirements:
     _permission: 'administer content types'
 

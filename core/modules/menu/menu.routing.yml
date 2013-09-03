@@ -9,6 +9,7 @@ menu_overview_page:
   pattern: '/admin/structure/menu'
   defaults:
     _entity_list: 'menu'
+    _title: 'Menus'
   requirements:
     _permission: 'administer menu'
 

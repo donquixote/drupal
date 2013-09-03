@@ -232,5 +232,6 @@ system_admin_config:
   pattern: '/admin/config'
   defaults:
     _content: '\Drupal\system\Controller\SystemController::overview'
+    _title: 'Configuration'
   requirements:
     _permission: 'access administration pages'
