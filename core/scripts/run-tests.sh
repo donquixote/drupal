@@ -4,7 +4,7 @@
  * This script runs Drupal tests from command line.
  */
 
-require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../autoload.php';
 
 use Drupal\Core\StreamWrapper\PublicStream;
 
