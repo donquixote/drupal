@@ -8,7 +8,7 @@
 // Change the directory to the Drupal root.
 chdir('..');
 
-require_once __DIR__ . '/vendor/autoload.php';
+require_once __DIR__ . '/autoload.php';
 
 /**
  * Global flag to indicate the site is in installation mode.

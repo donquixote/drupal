@@ -25,7 +25,7 @@ use Symfony\Component\HttpFoundation\Request;
 // Change the directory to the Drupal root.
 chdir('..');
 
-require_once __DIR__ . '/vendor/autoload.php';
+require_once __DIR__ . '/autoload.php';
 
 /**
  * Global flag to identify update.php and authorize.php runs.
