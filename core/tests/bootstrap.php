@@ -1,7 +1,7 @@
 <?php
 
 // Register the namespaces we'll need to autoload from.
-$loader = require __DIR__ . "/../vendor/autoload.php";
+$loader = require __DIR__ . "/../autoload.php";
 $loader->add('Drupal\\Tests', __DIR__);
 
 foreach (scandir(__DIR__ . "/../modules") as $module) {
