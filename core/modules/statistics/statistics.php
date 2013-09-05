@@ -9,7 +9,7 @@
 chdir('../../..');
 
 // Load the Drupal bootstrap.
-require_once dirname(dirname(__DIR__)) . '/vendor/autoload.php';
+require_once dirname(dirname(__DIR__)) . '/autoload.php';
 require_once dirname(dirname(__DIR__)) . '/includes/bootstrap.inc';
 drupal_bootstrap(DRUPAL_BOOTSTRAP_VARIABLES);
 
