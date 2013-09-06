@@ -527,7 +527,12 @@ function simpletest_classloader_register() {
     $matches = drupal_system_listing('/^' . DRUPAL_PHP_FUNCTION_PATTERN . '\.' . $info['extension'] . '$/', $info['dir']);
     foreach ($matches as $name => $file) {
       drupal_classloader_register($name, dirname($file->uri));
-      $classloader->add('Drupal\\' . $name . '\\Tests', DRUPAL_ROOT . '/' . dirname($file->uri) . '/tests');
+      $extension_dir = dirname($file->uri);
+      $dirs = array();
+      $dirs[] = $extension_dir . '/tests/Drupal/' . $name . '/Tests';
+      $dirs[] = $extension_dir . '/tests/lib';
+      $dirs[] = $extension_dir . '/tests/src';
+      $classloader->addPsr4('Drupal\\' . $name . '\\Tests\\', $dirs);
       // While being there, prime drupal_get_filename().
       drupal_get_filename($type, $name, $file->uri);
     }
