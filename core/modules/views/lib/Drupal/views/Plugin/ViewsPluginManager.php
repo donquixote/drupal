@@ -34,9 +34,9 @@ class ViewsPluginManager extends DefaultPluginManager {
    *   The module handler to invoke the alter hook with.
    */
   public function __construct($type, \Traversable $namespaces, CacheBackendInterface $cache_backend, LanguageManager $language_manager, ModuleHandlerInterface $module_handler) {
-    $annotation_namespaces = array('Drupal\views\Annotation' => $namespaces['Drupal\views'] . '/Annotation');
     $plugin_definition_annotation_name = 'Drupal\views\Annotation\Views' . Container::camelize($type);
-    parent::__construct("Plugin/views/$type", $namespaces, $annotation_namespaces, $plugin_definition_annotation_name);
+    parent::__construct($namespaces, "Plugin\\views\\$type", $plugin_definition_annotation_name);
+    $this->addAnnotationNamespace('Drupal\views\Annotation');
 
     $this->defaults += array(
       'parent' => 'parent',
