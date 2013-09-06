@@ -80,46 +80,12 @@ class AnnotatedClassDiscovery extends AbstractAnnotatedClassDiscovery {
   /**
    * @param string $namespace
    *   The namespace.
-   * @param string $dir
-   *   Optional: The directory.
-   * @throws \Exception
+   * @param bool|string|array $dir
+   *   The PSR-4 directory, or an array of PSR-4 directories, or
+   *   TRUE, to use the regular class loader via class_exists().
    */
-  public function addAnnotationNamespace($namespace, $dir = NULL) {
-
-    if (!empty($dir)) {
-      $this->annotationNamespaces[$namespace] = $dir;
-      return;
-    }
-
-    if ('Drupal\Core\\' === substr($namespace, 0, 12)) {
-      $this->annotationNamespaces[$namespace] = DRUPAL_ROOT . '/core/lib/' . str_replace('\\', '/', $namespace);
-      return;
-    }
-
-    if ('Drupal\Component\\' === substr($namespace, 0, 17)) {
-      $this->annotationNamespaces[$namespace] = DRUPAL_ROOT . '/core/lib/' . str_replace('\\', '/', $namespace);
-      return;
-    }
-
-    if (!empty($this->rootNamespacesIterator[$namespace])) {
-      $this->annotationNamespaces[$namespace] = $this->rootNamespacesIterator[$namespace];
-      return;
-    }
-
-    $fragments = explode('\\', $namespace);
-    $relativePath = array_pop($fragments);
-    while (!empty($fragments)) {
-      $prefix = implode('\\', $fragments);
-      if (!empty($this->rootNamespacesIterator[$prefix])) {
-        foreach ((array)$this->rootNamespacesIterator[$prefix] as $path) {
-          $this->annotationNamespaces[$namespace][] = $path . '/' . $relativePath;
-        }
-        return;
-      }
-      $relativePath = array_pop($fragments) . '/' . $relativePath;
-    }
-
-    throw new \Exception("Unable to find base directory for annotation namespace '$namespace'.");
+  public function addAnnotationNamespace($namespace, $dir = TRUE) {
+    $this->annotationNamespaces[$namespace] = $dir;
   }
 
   /**
