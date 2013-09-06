@@ -111,7 +111,9 @@ class AnnotatedClassDiscovery extends AbstractAnnotatedClassDiscovery {
     while (!empty($fragments)) {
       $prefix = implode('\\', $fragments);
       if (!empty($this->rootNamespacesIterator[$prefix])) {
-        $this->annotationNamespaces[$namespace] = $this->rootNamespacesIterator[$prefix] . '/' . $relativePath;
+        foreach ((array)$this->rootNamespacesIterator[$prefix] as $path) {
+          $this->annotationNamespaces[$namespace][] = $path . '/' . $relativePath;
+        }
         return;
       }
       $relativePath = array_pop($fragments) . '/' . $relativePath;
