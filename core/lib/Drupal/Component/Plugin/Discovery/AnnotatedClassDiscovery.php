@@ -71,6 +71,29 @@ class AnnotatedClassDiscovery implements DiscoveryInterface {
   }
 
   /**
+   * @param string $class
+   *   A string found during annotation parsing,
+   *   that could be an annotation class.
+   * @return bool
+   *   TRUE, if the class is "known" as an annotation class.
+   *   FALSE, otherwise.
+   */
+  public function loadAnnotationClass($class) {
+
+    if (class_exists($class, FALSE)) {
+      return TRUE;
+    }
+
+    foreach ($this->getAnnotationNamespaces() as $namespace => $dirs) {
+      if (0 === strpos($class, $namespace)) {
+        return class_exists($class);
+      }
+    }
+
+    return FALSE;
+  }
+
+  /**
    * Implements Drupal\Component\Plugin\Discovery\DiscoveryInterface::getDefinitions().
    */
   public function getDefinitions() {
@@ -82,6 +105,7 @@ class AnnotatedClassDiscovery implements DiscoveryInterface {
 
     // Register the namespaces of classes that can be used for annotations.
     AnnotationRegistry::registerAutoloadNamespaces($this->getAnnotationNamespaces());
+    AnnotationRegistry::registerLoader(array($this, 'loadAnnotationClass'));
 
     // Search for classes within all PSR-0 namespace locations.
     foreach ($this->getPluginNamespaces() as $namespace => $dirs) {
