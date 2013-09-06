@@ -105,8 +105,22 @@ class DefaultPluginManager extends PluginManagerBase implements PluginManagerInt
    * @param string $plugin_definition_annotation_name
    *   (optional) The name of the annotation that contains the plugin definition.
    *   Defaults to 'Drupal\Component\Annotation\Plugin'.
+   * @throws \Exception
+   *   Throws an exception, if the parameters are wrong.
    */
   public function __construct(\Traversable $namespaces, $namespace_suffix, $plugin_definition_annotation_name = 'Drupal\Component\Annotation\Plugin') {
+    if (!is_string($namespace_suffix)) {
+      throw new \Exception("Second argument must be a string.");
+    }
+    if (FALSE !== strpos($namespace_suffix, '/')) {
+      throw new \Exception("Second argument is a namespace suffix, and must not contain a directory separator.");
+    }
+    if (!is_string($plugin_definition_annotation_name)) {
+      throw new \Exception("Third argument must be a string.");
+    }
+    if (FALSE !== strpos($plugin_definition_annotation_name, '/')) {
+      throw new \Exception("Third argument is a class, and must not contain a directory separator.");
+    }
     $this->originalDiscovery = new AnnotatedClassDiscovery($namespaces, $namespace_suffix, $plugin_definition_annotation_name);
     $this->discovery = new ContainerDerivativeDiscoveryDecorator($this->originalDiscovery);
     $this->factory = new ContainerFactory($this);
