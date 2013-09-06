@@ -454,21 +454,29 @@ function simpletest_test_get_all() {
       $all_data = $module_data + system_rebuild_theme_data();
       $all_data += drupal_system_listing('/\.profile$/', 'profiles', 'name');
       foreach ($all_data as $name => $data) {
-        // Build directory in which the test files would reside.
-        $tests_dir = DRUPAL_ROOT . '/' . dirname($data->uri) . '/lib/Drupal/' . $name . '/Tests';
+        $extension_dir = DRUPAL_ROOT . '/' . dirname($data->uri);
+
+        // Build directories in which the test files would reside.
+        $tests_dirs = array();
+        $tests_dirs[] = $extension_dir . '/lib/Drupal/' . $name . '/Tests';
+        $tests_dirs[] = $extension_dir . '/lib/Tests';
+        $tests_dirs[] = $extension_dir . '/src/Tests';
+        $tests_dirs[] = $extension_dir . '/tests/Drupal/' . $name . '/Tests';
+        $tests_dirs[] = $extension_dir . '/tests/lib';
+        $tests_dirs[] = $extension_dir . '/tests/src';
+
+        $namespace = 'Drupal\\' . $name . '\Tests\\';
+
         // Scan it for test files if it exists.
-        if (is_dir($tests_dir)) {
-          $files = file_scan_directory($tests_dir, '/.*\.php/');
-          if (!empty($files)) {
-            $basedir = DRUPAL_ROOT . '/' . dirname($data->uri) . '/lib/';
-            foreach ($files as $file) {
-              // Convert the file name into the namespaced class name.
-              $replacements = array(
-                '/' => '\\',
-                $basedir => '',
-                '.php' => '',
-              );
-              $classes[] = strtr($file->uri, $replacements);
+        foreach ($tests_dirs as $tests_dir) {
+          if (is_dir($tests_dir)) {
+            $files = file_scan_directory($tests_dir, '/.*\.php/');
+            if (!empty($files)) {
+              $strlen = strlen($tests_dir) + 1;
+              // Convert the file names into the namespaced class names.
+              foreach ($files as $file) {
+                $classes[] = $namespace . str_replace('/', '\\', substr($file->uri, $strlen, -4));
+              }
             }
           }
         }
@@ -526,6 +534,8 @@ function simpletest_classloader_register() {
   foreach ($types as $type => $info) {
     $matches = drupal_system_listing('/^' . DRUPAL_PHP_FUNCTION_PATTERN . '\.' . $info['extension'] . '$/', $info['dir']);
     foreach ($matches as $name => $file) {
+      // @todo Register PSR-4 namespace directories, once our classloader supports it.
+      // See https://drupal.org/node/2058867
       drupal_classloader_register($name, dirname($file->uri));
       $extension_dir = dirname($file->uri);
       $dirs = array();
