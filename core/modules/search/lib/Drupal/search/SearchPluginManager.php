@@ -28,8 +28,8 @@ class SearchPluginManager extends DefaultPluginManager {
    * {@inheritdoc}
    */
   public function __construct(\Traversable $namespaces, ConfigFactory $config_factory) {
-    $annotation_namespaces = array('Drupal\search\Annotation' => $namespaces['Drupal\search'] . '/Annotation');
-    parent::__construct('Plugin/Search', $namespaces, $annotation_namespaces, 'Drupal\search\Annotation\SearchPlugin');
+    parent::__construct($namespaces, 'Plugin/Search', 'Drupal\search\Annotation\SearchPlugin');
+    $this->addAnnotationNamespace('Drupal\search\Annotation');
 
     $this->configFactory = $config_factory;
   }
