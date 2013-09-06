@@ -58,7 +58,11 @@ class AnnotatedClassDiscoveryTest extends DiscoveryTestBase {
       ),
     );
     $namespaces = new \ArrayObject(array(
-      'Drupal\plugin_test' => DRUPAL_ROOT . '/core/modules/system/tests/modules/plugin_test/lib/Drupal/plugin_test',
+      'Drupal\plugin_test' => array(
+        DRUPAL_ROOT . '/core/modules/system/tests/modules/plugin_test/lib/Drupal/plugin_test',
+        DRUPAL_ROOT . '/core/modules/system/tests/modules/plugin_test/lib',
+        DRUPAL_ROOT . '/core/modules/system/tests/modules/plugin_test/src',
+      ),
     ));
     $this->discovery = new AnnotatedClassDiscovery($namespaces, 'Plugin\plugin_test\fruit');
     $this->emptyDiscovery = new AnnotatedClassDiscovery($namespaces, 'Plugin\non_existing_module\non_existing_plugin_type');

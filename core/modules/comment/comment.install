@@ -13,7 +13,11 @@ function comment_uninstall() {
   variable_del('comment_block_count');
   $node_types = array_keys(node_type_get_types());
   Drupal::entityManager()->addNamespaces(new ArrayIterator(array(
-    'Drupal\comment' => DRUPAL_ROOT . '/core/modules/comment/lib/Drupal/comment',
+    'Drupal\comment' => array(
+      DRUPAL_ROOT . '/core/modules/comment/lib/Drupal/comment',
+      DRUPAL_ROOT . '/core/modules/comment/lib',
+      DRUPAL_ROOT . '/core/modules/comment/src',
+    ),
   )));
   drupal_classloader_register('comment', 'core/modules/comment');
   foreach ($node_types as $node_type) {
