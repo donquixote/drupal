@@ -25,6 +25,11 @@ use Drupal\Core\Plugin\Factory\ContainerFactory;
 class DefaultPluginManager extends PluginManagerBase implements PluginManagerInterface, CachedDiscoveryInterface {
 
   /**
+   * @var \Drupal\Core\Plugin\Discovery\AnnotatedClassDiscovery
+   */
+  protected $originalDiscovery;
+
+  /**
    * Cached definitions array.
    *
    * @var array
@@ -91,27 +96,28 @@ class DefaultPluginManager extends PluginManagerBase implements PluginManagerInt
   /**
    * Creates the discovery object.
    *
-   * @param string|bool $subdir
-   *   The plugin's subdirectory, for example Plugin/views/filter.
    * @param \Traversable $namespaces
    *   An object that implements \Traversable which contains the root paths
    *   keyed by the corresponding namespace to look for plugin implementations.
-   * @param array $annotation_namespaces
-   *   (optional) The namespaces of classes that can be used as annotations.
-   *   Defaults to an empty array.
+   * @param string|bool $namespace_suffix
+   *   The suffix to append to each of the root namespaces, to obtain the plugin
+   *   namespaces.
    * @param string $plugin_definition_annotation_name
    *   (optional) The name of the annotation that contains the plugin definition.
    *   Defaults to 'Drupal\Component\Annotation\Plugin'.
    */
-  public function __construct($subdir, \Traversable $namespaces, $annotation_namespaces = array(), $plugin_definition_annotation_name = 'Drupal\Component\Annotation\Plugin') {
-    $this->subdir = $subdir;
-    $namespace_suffix = str_replace('/', '\\', $subdir);
-    $this->discovery = new AnnotatedClassDiscovery($namespaces, $namespace_suffix, $plugin_definition_annotation_name);
-    foreach ($annotation_namespaces as $namespace => $dir) {
-      $this->discovery->addAnnotationNamespace($namespace, $dir);
-    }
-    $this->discovery = new ContainerDerivativeDiscoveryDecorator($this->discovery);
+  public function __construct(\Traversable $namespaces, $namespace_suffix, $plugin_definition_annotation_name = 'Drupal\Component\Annotation\Plugin') {
+    $this->originalDiscovery = new AnnotatedClassDiscovery($namespaces, $namespace_suffix, $plugin_definition_annotation_name);
+    $this->discovery = new ContainerDerivativeDiscoveryDecorator($this->originalDiscovery);
     $this->factory = new ContainerFactory($this);
+  }
+
+  /**
+   * @param string $namespace
+   * @param string $dir
+   */
+  protected function addAnnotationNamespace($namespace, $dir = NULL) {
+    $this->originalDiscovery->addAnnotationNamespace($namespace, $dir);
   }
 
   /**
