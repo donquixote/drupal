@@ -136,7 +136,7 @@ class EntityManager extends PluginManagerBase {
   }
 
   protected function doDiscovery($namespaces) {
-    $this->discovery = new AnnotatedClassDiscovery($namespaces, 'Plugin\Core\Entity', 'Drupal\Core\Entity\Annotation\EntityType');
+    $this->discovery = new AnnotatedClassDiscovery($namespaces, 'Entity', 'Drupal\Core\Entity\Annotation\EntityType');
     $this->discovery->addAnnotationNamespace('Drupal\Core\Entity\Annotation');
     $this->discovery = new InfoHookDecorator($this->discovery, 'entity_info');
 
