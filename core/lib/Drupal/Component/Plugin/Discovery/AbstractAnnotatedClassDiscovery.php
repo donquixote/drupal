@@ -60,6 +60,10 @@ abstract class AbstractAnnotatedClassDiscovery implements DiscoveryInterface {
 
     foreach ($this->getAnnotationNamespaces() as $namespace => $dirs) {
       if (0 === strpos($class, $namespace)) {
+        if (TRUE === $dirs) {
+          // Use the regular class loader.
+          return class_exists($class);
+        }
         // Treat $dirs as PSR-4 directories.
         $relativePath = str_replace('\\', '/', substr($class, strlen($namespace))) . '.php';
         foreach ((array) $dirs as $dir) {
