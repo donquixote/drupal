@@ -48,6 +48,10 @@ abstract class AbstractAnnotatedClassDiscovery implements DiscoveryInterface {
     return isset($plugins[$plugin_id]) ? $plugins[$plugin_id] : NULL;
   }
 
+  /**
+   * @param $class
+   * @return bool
+   */
   public function loadAnnotationClass($class) {
 
     if (class_exists($class, FALSE)) {
@@ -56,6 +60,7 @@ abstract class AbstractAnnotatedClassDiscovery implements DiscoveryInterface {
 
     foreach ($this->getAnnotationNamespaces() as $namespace => $dirs) {
       if (0 === strpos($class, $namespace)) {
+        // Treat $dirs as PSR-4 directories.
         $relativePath = str_replace('\\', '/', substr($class, strlen($namespace))) . '.php';
         foreach ((array) $dirs as $dir) {
           if (file_exists($file = $dir . '/' . $relativePath)) {
@@ -112,6 +117,10 @@ abstract class AbstractAnnotatedClassDiscovery implements DiscoveryInterface {
         }
       }
     }
+
+    // Don't let the loaders pile up.
+    AnnotationRegistry::reset();
+
     return $definitions;
   }
 
