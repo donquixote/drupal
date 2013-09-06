@@ -128,9 +128,11 @@ class DefaultPluginManager extends PluginManagerBase implements PluginManagerInt
 
   /**
    * @param string $namespace
-   * @param string $dir
+   * @param bool|string|array $dir
+   *   The PSR-4 directory, or an array of PSR-4 directories, or
+   *   TRUE, to use the regular class loader via class_exists().
    */
-  protected function addAnnotationNamespace($namespace, $dir = NULL) {
+  protected function addAnnotationNamespace($namespace, $dir = TRUE) {
     $this->originalDiscovery->addAnnotationNamespace($namespace, $dir);
   }
 
