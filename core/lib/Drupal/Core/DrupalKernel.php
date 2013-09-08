@@ -642,7 +642,11 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
   protected function getModuleNamespacesPsr4($moduleFileNames) {
     $namespaces = array();
     foreach ($moduleFileNames as $module => $filename) {
-      $namespaces["Drupal\\$module"] = DRUPAL_ROOT . '/' . dirname($filename) . '/lib/Drupal/' . $module;
+      $namespaces["Drupal\\$module"][] = DRUPAL_ROOT . '/' . dirname($filename) . '/lib/Drupal/' . $module;
+      // For the time being, register lib and src likewise,
+      // until this is decided in https://drupal.org/node/1971198
+      $namespaces["Drupal\\$module"][] = DRUPAL_ROOT . '/' . dirname($filename) . '/lib';
+      $namespaces["Drupal\\$module"][] = DRUPAL_ROOT . '/' . dirname($filename) . '/src';
     }
     return $namespaces;
   }
