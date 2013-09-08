@@ -632,6 +632,21 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
   }
 
   /**
+   * Gets the namespaces of each enabled module,
+   * each with their PSR-4 directories.
+   *
+   * @param array $moduleFileNames
+   * @return array
+   */
+  protected function getModuleNamespacesPsr4($moduleFileNames) {
+    $namespaces = array();
+    foreach ($moduleFileNames as $module => $filename) {
+      $namespaces["Drupal\\$module"] = DRUPAL_ROOT . '/' . dirname($filename) . '/lib/Drupal/' . $module;
+    }
+    return $namespaces;
+  }
+
+  /**
    * Gets the namespaces of each enabled module.
    */
   protected function getModuleNamespaces($moduleFileNames) {
