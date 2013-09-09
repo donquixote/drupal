@@ -46,6 +46,9 @@ class AnnotatedClassDiscovery extends ComponentAnnotatedClassDiscovery {
    *   Defaults to 'Drupal\Component\Annotation\Plugin'.
    */
   function __construct($subdir, \Traversable $root_namespaces, $plugin_definition_annotation_name = 'Drupal\Component\Annotation\Plugin') {
+    if (!is_string($plugin_definition_annotation_name)) {
+      throw new \InvalidArgumentException("Argument 2 must be a string.");
+    }
     if ($subdir) {
       $this->subdir = str_replace('/', '\\', $subdir);
     }

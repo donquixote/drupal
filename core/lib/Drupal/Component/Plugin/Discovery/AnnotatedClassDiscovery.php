@@ -47,6 +47,9 @@ class AnnotatedClassDiscovery implements DiscoveryInterface {
    *   Defaults to 'Drupal\Component\Annotation\Plugin'.
    */
   function __construct($plugin_namespaces = array(), $plugin_definition_annotation_name = 'Drupal\Component\Annotation\Plugin') {
+    if (!is_string($plugin_definition_annotation_name)) {
+      throw new \InvalidArgumentException("Argument 1 must be a string.");
+    }
     $this->pluginNamespaces = $plugin_namespaces;
     $this->pluginDefinitionAnnotationName = $plugin_definition_annotation_name;
   }
