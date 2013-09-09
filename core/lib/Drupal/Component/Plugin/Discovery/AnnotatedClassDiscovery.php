@@ -49,16 +49,12 @@ class AnnotatedClassDiscovery implements DiscoveryInterface {
    * @param array $plugin_namespaces
    *   (optional) An array of namespace that may contain plugin implementations.
    *   Defaults to an empty array.
-   * @param array $annotation_namespaces
-   *   (optional) The namespaces of classes that can be used as annotations.
-   *   Defaults to an empty array.
    * @param string $plugin_definition_annotation_name
    *   (optional) The name of the annotation that contains the plugin definition.
    *   Defaults to 'Drupal\Component\Annotation\Plugin'.
    */
-  function __construct($plugin_namespaces = array(), $annotation_namespaces = array(), $plugin_definition_annotation_name = 'Drupal\Component\Annotation\Plugin') {
+  function __construct($plugin_namespaces = array(), $plugin_definition_annotation_name = 'Drupal\Component\Annotation\Plugin') {
     $this->pluginNamespaces = $plugin_namespaces;
-    $this->annotationNamespaces = $annotation_namespaces;
     $this->pluginDefinitionAnnotationName = $plugin_definition_annotation_name;
   }
 
@@ -81,7 +77,11 @@ class AnnotatedClassDiscovery implements DiscoveryInterface {
     $reader->addGlobalIgnoredName('file');
 
     // Register the namespaces of classes that can be used for annotations.
-    AnnotationRegistry::registerAutoloadNamespaces($this->getAnnotationNamespaces());
+    AnnotationRegistry::registerLoader(
+      function ($className) {
+        return class_exists($className);
+      }
+    );
 
     // Search for classes within all PSR-0 namespace locations.
     foreach ($this->getPluginNamespaces() as $namespace => $dirs) {
@@ -119,13 +119,6 @@ class AnnotatedClassDiscovery implements DiscoveryInterface {
    */
   protected function getPluginNamespaces() {
     return $this->pluginNamespaces;
-  }
-
-  /**
-   * Returns an array of PSR-0 namespaces to search for annotation classes.
-   */
-  protected function getAnnotationNamespaces() {
-    return $this->annotationNamespaces;
   }
 
 }
