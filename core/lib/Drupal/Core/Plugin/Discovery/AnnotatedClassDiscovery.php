@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Definition of Drupal\Core\Plugin\Discovery\AnnotatedClassDiscovery.
+ * Contains \Drupal\Core\Plugin\Discovery\AnnotatedClassDiscovery.
  */
 
 namespace Drupal\Core\Plugin\Discovery;
@@ -41,24 +41,17 @@ class AnnotatedClassDiscovery extends ComponentAnnotatedClassDiscovery {
    *   An object that implements \Traversable which contains the root paths
    *   keyed by the corresponding namespace to look for plugin implementations.
    *   If $subdir is not an empty string, it will be appended to each namespace.
-   * @param array $annotation_namespaces
-   *   (optional) The namespaces of classes that can be used as annotations.
-   *   Defaults to an empty array.
    * @param string $plugin_definition_annotation_name
    *   (optional) The name of the annotation that contains the plugin definition.
    *   Defaults to 'Drupal\Component\Annotation\Plugin'.
    */
-  function __construct($subdir, \Traversable $root_namespaces, $annotation_namespaces = array(), $plugin_definition_annotation_name = 'Drupal\Component\Annotation\Plugin') {
+  function __construct($subdir, \Traversable $root_namespaces, $plugin_definition_annotation_name = 'Drupal\Component\Annotation\Plugin') {
     if ($subdir) {
       $this->subdir = str_replace('/', '\\', $subdir);
     }
     $this->rootNamespacesIterator = $root_namespaces;
-    $annotation_namespaces += array(
-      'Drupal\Component\Annotation' => DRUPAL_ROOT . '/core/lib',
-      'Drupal\Core\Annotation' => DRUPAL_ROOT . '/core/lib',
-    );
     $plugin_namespaces = array();
-    parent::__construct($plugin_namespaces, $annotation_namespaces, $plugin_definition_annotation_name);
+    parent::__construct($plugin_namespaces, $plugin_definition_annotation_name);
   }
 
   /**
@@ -73,6 +66,21 @@ class AnnotatedClassDiscovery extends ComponentAnnotatedClassDiscovery {
       }
     }
     return $definitions;
+  }
+
+  /**
+   * Annotation loader callback
+   *
+   * @param string $class
+   * @return bool
+   *   TRUE, if $class should be accepted as an annotation class.
+   */
+  public function loadAnnotationClass($class) {
+    return 1
+      && 0 === strpos($class, 'Drupal\\')
+      && FALSE !== strpos($class, '\Annotation\\')
+      && class_exists($class)
+    ;
   }
 
   /**
