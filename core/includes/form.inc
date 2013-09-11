@@ -4708,6 +4708,50 @@ function theme_form_element($variables) {
     '#title_display' => 'before',
   );
 
+  // If #title is not set, we don't display any label or required marker.
+  if (!isset($element['#title'])) {
+    $element['#title_display'] = 'none';
+  }
+
+  // Start with the main content of the element.
+  $output = $element['#children'];
+
+  // Add prefix and suffix.
+  if (isset($element['#field_prefix'])) {
+    $output = '<span class="field-prefix">' . $element['#field_prefix'] . '</span>' . $output;
+  }
+  if (isset($element['#field_suffix'])) {
+    $output .= '<span class="field-suffix">' . $element['#field_suffix'] . '</span>';
+  }
+
+  switch ($element['#title_display']) {
+    case 'before':
+    case 'invisible':
+      $output = ' ' . theme('form_element_label', $variables) . ' ' . $output . "\n";
+      break;
+
+    case 'after':
+      $output = ' ' . $output . ' ' . theme('form_element_label', $variables) . "\n";
+      break;
+
+    case 'none':
+    case 'attribute':
+      // Output no label and no required marker, only the children.
+      $output = ' ' . $output . "\n";
+      break;
+  }
+
+  // Append the description, if any.
+  if (!empty($element['#description'])) {
+    $attributes = array('class' => 'description');
+    if (!empty($element['#id'])) {
+      $attributes['id'] = $element['#id'] . '--description';
+    }
+    $output .= '<div' . new Attribute($attributes) . '>' . $element['#description'] . "</div>\n";
+  }
+
+  // Build attributes for the outer wrapper div.
+  $attributes = array();
   // Take over any #wrapper_attributes defined by the element.
   // @todo Temporary hack for #type 'item'.
   // @see http://drupal.org/node/1829202
@@ -4730,43 +4774,8 @@ function theme_form_element($variables) {
   if (!empty($element['#attributes']['disabled'])) {
     $attributes['class'][] = 'form-disabled';
   }
-  $output = '<div' . new Attribute($attributes) . '>' . "\n";
 
-  // If #title is not set, we don't display any label or required marker.
-  if (!isset($element['#title'])) {
-    $element['#title_display'] = 'none';
-  }
-  $prefix = isset($element['#field_prefix']) ? '<span class="field-prefix">' . $element['#field_prefix'] . '</span> ' : '';
-  $suffix = isset($element['#field_suffix']) ? ' <span class="field-suffix">' . $element['#field_suffix'] . '</span>' : '';
-
-  switch ($element['#title_display']) {
-    case 'before':
-    case 'invisible':
-      $output .= ' ' . theme('form_element_label', $variables);
-      $output .= ' ' . $prefix . $element['#children'] . $suffix . "\n";
-      break;
-
-    case 'after':
-      $output .= ' ' . $prefix . $element['#children'] . $suffix;
-      $output .= ' ' . theme('form_element_label', $variables) . "\n";
-      break;
-
-    case 'none':
-    case 'attribute':
-      // Output no label and no required marker, only the children.
-      $output .= ' ' . $prefix . $element['#children'] . $suffix . "\n";
-      break;
-  }
-
-  if (!empty($element['#description'])) {
-    $attributes = array('class' => 'description');
-    if (!empty($element['#id'])) {
-      $attributes['id'] = $element['#id'] . '--description';
-    }
-    $output .= '<div' . new Attribute($attributes) . '>' . $element['#description'] . "</div>\n";
-  }
-
-  $output .= "</div>\n";
+  $output = '<div' . new Attribute($attributes) . '>' . "\n" . $output . "</div>\n";
 
   return $output;
 }
