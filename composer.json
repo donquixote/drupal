@@ -36,5 +36,8 @@
   "config": {
     "vendor-dir": "core/vendor",
     "preferred-install": "dist"
+  },
+  "scripts": {
+    "post-autoload-dump": "Drupal\\Core\\Autoload\\GeneratorScript::postAutoloadDump"
   }
 }
