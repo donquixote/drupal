@@ -2745,7 +2745,7 @@ function arg($index = NULL, $path = NULL) {
  *   loader class when calling drupal_classloader() from settings.php. It is
  *   ignored otherwise.
  *
- * @return \Composer\Autoload\ClassLoader
+ * @return \Drupal\Core\Autoload\ClassLoader
  *   A ClassLoader class instance (or extension thereof).
  */
 function drupal_classloader($class_loader = NULL) {
