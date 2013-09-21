@@ -72,22 +72,11 @@ function process_extension($name, $dir) {
     }
   }
 
-  // Move class files in tests directory.
-  if (is_dir("$dir/tests/Drupal/$name/Tests")) {
-    // Move to tests/src/ as a temporary location.
-    if (!rename($src = "$dir/tests/Drupal/$name/Tests", $dest = "$dir/tests/src")) {
-      throw new Exception("Rename $src to $dest failed.");
-    }
-  }
-
   // Clean up empty directories.
   foreach (array(
     "lib/Drupal/$name",
     'lib/Drupal',
     'lib',
-    "tests/Drupal/$name/Tests",
-    "tests/Drupal/$name",
-    "tests/Drupal",
   ) as $subdir) {
     if (!is_dir("$dir/$subdir")) {
       continue;
@@ -98,12 +87,9 @@ function process_extension($name, $dir) {
     rmdir("$dir/$subdir");
   }
 
-  // Move back to lib/ or tests/lib/.
+  // Move back to lib/.
   if (is_dir("$dir/src")) {
     rename("$dir/src", "$dir/lib");
-  }
-  if (is_dir("$dir/tests/src")) {
-    rename("$dir/tests/src", "$dir/tests/lib");
   }
 }
 
