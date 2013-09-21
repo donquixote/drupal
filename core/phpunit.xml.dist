@@ -18,7 +18,7 @@
       <!-- Exclude Drush tests. -->
       <exclude>./drush/tests</exclude>
       <!-- Exclude special-case files from config's test modules. -->
-      <exclude>./modules/config/tests/config_test/lib/Drupal/config_test</exclude>
+      <exclude>./modules/config/tests/config_test/lib</exclude>
     </testsuite>
   </testsuites>
   <!-- Filter for coverage reports. -->
