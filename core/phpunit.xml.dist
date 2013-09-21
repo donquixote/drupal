@@ -8,8 +8,8 @@
       <directory>../modules/*/tests/*</directory>
       <directory>../sites/*/modules/*/tests/*</directory>
       <!-- Exclude files that end in Test.php that aren't actually phpunit tests. -->
-      <exclude>./modules/config/tests/config_test/lib/Drupal/config_test</exclude>
-      <exclude>./modules/views/tests/views_test_data/lib/Drupal/views_test_data</exclude>
+      <exclude>./modules/config/tests/config_test/lib</exclude>
+      <exclude>./modules/views/tests/modules/views_test_data/lib</exclude>
     </testsuite>
   </testsuites>
 </phpunit>
