@@ -5,12 +5,18 @@ $loader = require __DIR__ . "/../vendor/autoload.php";
 $loader->add('Drupal\\Tests', __DIR__);
 
 foreach (scandir(__DIR__ . "/../modules") as $module) {
-  $loader->add('Drupal\\' . $module, __DIR__ . "/../modules/" . $module . "/lib");
+  $loader->addPsr4('Drupal\\' . $module . '\\', array(
+    __DIR__ . '/../modules/' . $module . '/lib',
+    __DIR__ . '/../modules/' . $module . '/lib/Drupal/' . $module,
+  ));
   // Add test module classes.
   $test_modules_dir = __DIR__ . "/../modules/$module/tests/modules";
   if (is_dir($test_modules_dir)) {
     foreach (scandir($test_modules_dir) as $test_module) {
-      $loader->add('Drupal\\' . $test_module, $test_modules_dir . '/' . $test_module . '/lib');
+      $loader->addPsr4('Drupal\\' . $test_module . '\\', array(
+        $test_modules_dir . '/' . $test_module . '/lib',
+        $test_modules_dir . '/' . $test_module . '/lib/Drupal/' . $test_module,
+      ));
     }
   }
 }
