@@ -22,7 +22,7 @@ class GeneratorScript {
    */
   public static function postAutoloadDump(Event $event) {
     $core_dir = dirname(dirname(dirname(dirname(__DIR__))));
-    // Copy Drupal's
+    // Replace the generated core/vendor/autoload.php.
     copy($core_dir . '/autoload.drupal.php', $core_dir . '/vendor/autoload.php');
   }
 } 
