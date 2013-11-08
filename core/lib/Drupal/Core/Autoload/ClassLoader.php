@@ -197,8 +197,10 @@ class ClassLoader {
   }
 
   /**
-   * Registers a set of PSR-0 directories for a given prefix, either
-   * appending or prepending to the ones previously set for this prefix.
+   * Adds a set of PSR-0 directories for a given prefix.
+   *
+   * The directories will be appended or prepended to the ones previously set
+   * for this prefix, depending on the $prepend parameter.
    *
    * @param string $prefix
    *   The prefix.
@@ -246,8 +248,10 @@ class ClassLoader {
   }
 
   /**
-   * Registers a set of PSR-4 directories for a given namespace, either
-   * appending or prepending to the ones previously set for this namespace.
+   * Adds a set of PSR-4 directories for a given namespace.
+   *
+   * The directories will be appended or prepended to the ones previously set
+   * for this prefix, depending on the $prepend parameter.
    *
    * @param string $prefix
    *   The prefix/namespace, with trailing '\\'
@@ -309,8 +313,9 @@ class ClassLoader {
   }
 
   /**
-   * Registers a set of PSR-0 directories for a given prefix,
-   * replacing any others previously set for this prefix.
+   * Sets/Overwrites the PSR-0 directories for a given prefix.
+   *
+   * This will replace any directories that were previously set for this prefix.
    *
    * @param string $prefix
    *   The classes prefix.
@@ -331,8 +336,9 @@ class ClassLoader {
   }
 
   /**
-   * Registers a set of PSR-4 directories for a given namespace,
-   * replacing any others previously set for this namespace.
+   * Sets/Overwrites the PSR-4 directories for a given prefix.
+   *
+   * This will replace any directories that were previously set for this prefix.
    *
    * @param string $prefix
    *   The prefix/namespace, with trailing '\\'
