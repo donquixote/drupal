@@ -181,7 +181,7 @@ class ClassLoader {
    * @param array|string $paths
    *   The PSR-0 root directories.
    * @param bool $prepend
-   *   Whether to prepend the directories.
+   *   (optional) Whether to prepend the directories.
    */
   public function add($prefix, $paths, $prepend = FALSE) {
     if (!$prefix) {
@@ -228,11 +228,12 @@ class ClassLoader {
    * for this prefix, depending on the $prepend parameter.
    *
    * @param string $prefix
-   *   The prefix/namespace, with trailing '\\'
+   *   The prefix/namespace, with trailing '\\'.
    * @param array|string $paths
-   *   The PSR-0 base directories
+   *   The PSR-0 base directories.
    * @param bool $prepend
-   *   Whether to prepend the directories
+   *   (optional) Whether to prepend the directories.
+   *
    * @throws \Exception
    *   Throws an exception if the prefix does not end with a trailing namespace
    *   separator.
@@ -284,13 +285,9 @@ class ClassLoader {
    * This will replace any directories that were previously set for this prefix.
    *
    * @param string $prefix
-   *   The classes prefix.
-   * @param array|string $paths
-   *   The location(s) of the classes.
-   * @param string $prefix
    *   The prefix.
    * @param array|string $paths
-   *   The PSR-0 base directories
+   *   The PSR-0 base directories.
    */
   public function set($prefix, $paths) {
     if (!$prefix) {
@@ -310,6 +307,7 @@ class ClassLoader {
    *   The prefix/namespace, with trailing '\\'
    * @param array|string $paths
    *   The PSR-4 base directories
+   *
    * @throws \Exception
    *   Throws an exception if the prefix does not end with a trailing namespace
    *   separator.
@@ -351,9 +349,9 @@ class ClassLoader {
    * Registers this instance as an autoloader.
    *
    * @param bool $prepend
-   *   Whether to prepend the autoloader or not
+   *   (optional) Whether to prepend the autoloader or not
    */
-  public function register($prepend = false) {
+  public function register($prepend = FALSE) {
     spl_autoload_register(array($this, 'loadClass'), TRUE, $prepend);
   }
 
