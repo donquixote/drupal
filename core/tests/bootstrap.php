@@ -49,17 +49,17 @@ function drupal_phpunit_contrib_extension_directory_roots() {
 /**
  * Registers the namespace for each extension directory with the autoloader.
  *
- * @param Composer\Autoload\ClassLoader $loader
+ * @param Drupal\Core\Autoload\ClassLoader $loader
  *   The supplied autoloader.
  * @param array $dirs
  *   An associative array of extension directories, keyed by extension name.
  */
-function drupal_phpunit_register_extension_dirs(Composer\Autoload\ClassLoader $loader, $dirs) {
+function drupal_phpunit_register_extension_dirs(Drupal\Core\Autoload\ClassLoader $loader, $dirs) {
   foreach ($dirs as $extension => $dir) {
     $lib_path = $dir . '/lib';
     if (is_dir($lib_path)) {
       $loader->add('Drupal\\' . $extension, $lib_path);
-      $loader->addPsr4('Drupal\\' . $extension, $lib_path);
+      $loader->addPsr4('Drupal\\' . $extension . '\\', $lib_path);
     }
     $tests_path = $dir . '/tests';
     if (is_dir($tests_path)) {
