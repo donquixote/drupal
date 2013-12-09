@@ -18,6 +18,11 @@ while (!defined('DRUPAL_ROOT')) {
 process_extensions_base_dir(DRUPAL_ROOT . '/core/modules');
 process_extensions_base_dir(DRUPAL_ROOT . '/core/profiles');
 
+/**
+ * @param string $dir
+ *   A directory that could contain Drupal extensions (modules, themes) at the
+ *   top level or further down the hierarchy.
+ */
 function process_extensions_base_dir($dir) {
   /**
    * @var SplFileInfo $fileinfo
@@ -32,6 +37,10 @@ function process_extensions_base_dir($dir) {
   }
 }
 
+/**
+ * @param string $dir
+ *   A directory that could be a Drupal extension directory.
+ */
 function process_candidate_dir($dir) {
   foreach (new \DirectoryIterator($dir) as $fileinfo) {
     if ($fileinfo->isDot()) {
@@ -61,13 +70,27 @@ function process_candidate_dir($dir) {
   }
 }
 
+/**
+ * @param string $name
+ *   Name of the extension.
+ * @param string $dir
+ *   Directory of the extension.
+ */
 function process_extension($name, $dir) {
 
-  // Move main module class files.
-  if (is_dir("$dir/lib/Drupal/$name")) {
-    // This is a module directory with a PSR-0 /lib/ folder.
-    // Move to src/ as a temporary location.
-    if (!rename($src = "$dir/lib/Drupal/$name", $dest = "$dir/src")) {
+  if (!is_dir("$dir/lib/Drupal/$name")) {
+    // Nothing to move.
+    return;
+  }
+
+  foreach (scandir("$dir/lib/Drupal/$name") as $candidate) {
+    if ('.' === $candidate || '..' === $candidate) {
+      continue;
+    }
+    if (file_exists("$dir/$candidate")) {
+      print "'$dir/$candidate' already exists. Ignoring.\n";
+    }
+    if (!rename($src = "$dir/lib/Drupal/$name/$candidate", $dest = "$dir/$candidate")) {
       throw new Exception("Rename $src to $dest failed.");
     }
   }
@@ -86,13 +109,15 @@ function process_extension($name, $dir) {
     }
     rmdir("$dir/$subdir");
   }
-
-  // Move back to lib/.
-  if (is_dir("$dir/src")) {
-    rename("$dir/src", "$dir/lib");
-  }
 }
 
+/**
+ * @param string $dir
+ *   Directory to check.
+ *
+ * @return bool
+ *   TRUE, if the directory is empty.
+ */
 function is_dir_empty($dir) {
   if (!is_readable($dir)) {
     return NULL;
