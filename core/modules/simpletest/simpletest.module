@@ -574,7 +574,10 @@ function simpletest_classloader_register() {
   foreach ($types as $type) {
     foreach ($extensions[$type] as $name => $uri) {
       drupal_classloader_register($name, dirname($uri));
-      $classloader->add('Drupal\\' . $name . '\\Tests', DRUPAL_ROOT . '/' . dirname($uri) . '/tests');
+      $classloader->addPsr4('Drupal\\' . $name . '\\Tests\\', array(
+        DRUPAL_ROOT . '/' . dirname($uri) . '/tests/Drupal/' . $name . '/Tests',
+        DRUPAL_ROOT . '/' . dirname($uri) . '/tests/lib',
+      ));
       // While being there, prime drupal_get_filename().
       drupal_get_filename($type, $name, $uri);
     }

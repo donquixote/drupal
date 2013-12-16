@@ -81,6 +81,7 @@ function process_candidate_dir($dir) {
   }
   if (isset($extension_name)) {
     process_extension($extension_name, $dir);
+    process_extension_phpunit($extension_name, $dir);
   }
 }
 
@@ -94,7 +95,6 @@ function process_candidate_dir($dir) {
  *   Name of the extension.
  * @param string $dir
  *   Directory of the extension.
- * @throws \Exception
  */
 function process_extension($name, $dir) {
 
@@ -109,6 +109,38 @@ function process_extension($name, $dir) {
   // Clean up.
   require_dir_empty("$dir/lib/Drupal");
   rmdir("$dir/lib/Drupal");
+}
+
+/**
+ * Process a Drupal extension (module, theme) in a directory.
+ *
+ * This will move all PHPUnit class files in this extension from
+ * tests/Drupal/$name/Tests/ to tests/lib/.
+ *
+ * @param string $name
+ *   Name of the extension.
+ * @param string $dir
+ *   Directory of the extension.
+ */
+function process_extension_phpunit($name, $dir) {
+
+  if (!is_dir($src = "$dir/tests/Drupal/$name/Tests")) {
+    // Nothing to do in this module.
+    return;
+  }
+
+  if (!is_dir($dest = "$dir/tests/lib")) {
+    mkdir($dest);
+  }
+
+  // Move class files two levels up.
+  move_directory_contents($src, $dest);
+
+  // Clean up.
+  require_dir_empty("$dir/tests/Drupal/$name");
+  rmdir("$dir/tests/Drupal/$name");
+  require_dir_empty("$dir/tests/Drupal");
+  rmdir("$dir/tests/Drupal");
 }
 
 /**
