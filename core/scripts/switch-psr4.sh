@@ -1,9 +1,15 @@
 #!/bin/php
 <?php
 
+namespace Drupal\Core;
+
 /**
  * @file
- * Moves class files in extensions to their PSR-4 location.
+ * Moves module-provided class files to their PSR-4 location.
+ *
+ * E.g.:
+ * core/modules/action/lib/{Drupal/action → }/ActionAccessController.php
+ * core/modules/action/lib/{Drupal/action → }/ActionAddFormController.php
  */
 
 // Determine DRUPAL_ROOT.
@@ -18,9 +24,16 @@ while (!defined('DRUPAL_ROOT')) {
 process_extensions_base_dir(DRUPAL_ROOT . '/core/modules');
 process_extensions_base_dir(DRUPAL_ROOT . '/core/profiles');
 
+/**
+ * Scans all subdirectories of a given directory for Drupal extensions, and runs
+ * process_extension() for each one that it finds.
+ *
+ * @param string $dir
+ *   A directory whose subdirectories could contain Drupal extensions.
+ */
 function process_extensions_base_dir($dir) {
   /**
-   * @var SplFileInfo $fileinfo
+   * @var \DirectoryIterator $fileinfo
    */
   foreach (new \DirectoryIterator($dir) as $fileinfo) {
     if ($fileinfo->isDot()) {
@@ -32,7 +45,17 @@ function process_extensions_base_dir($dir) {
   }
 }
 
+/**
+ * Recursively scans a directory for Drupal extensions, and runs
+ * process_extension() for each one that it finds.
+ *
+ * @param string $dir
+ *   A directory that could be a Drupal extension directory.
+ */
 function process_candidate_dir($dir) {
+  /**
+   * @var \DirectoryIterator $fileinfo
+   */
   foreach (new \DirectoryIterator($dir) as $fileinfo) {
     if ($fileinfo->isDot()) {
       // Ignore "." and "..".
@@ -61,47 +84,112 @@ function process_candidate_dir($dir) {
   }
 }
 
+/**
+ * Process a Drupal extension (module, theme) in a directory.
+ *
+ * This will move all class files in this extension two levels up, from
+ * lib/Drupal/$name/ to lib/.
+ *
+ * @param string $name
+ *   Name of the extension.
+ * @param string $dir
+ *   Directory of the extension.
+ * @throws \Exception
+ */
 function process_extension($name, $dir) {
 
-  // Move main module class files.
-  if (is_dir("$dir/lib/Drupal/$name")) {
-    // This is a module directory with a PSR-0 /lib/ folder.
-    // Move to src/ as a temporary location.
-    if (!rename($src = "$dir/lib/Drupal/$name", $dest = "$dir/src")) {
-      throw new Exception("Rename $src to $dest failed.");
-    }
+  if (!is_dir($src = "$dir/lib/Drupal/$name")) {
+    // Nothing to do in this module.
+    return;
   }
 
-  // Clean up empty directories.
-  foreach (array(
-    "lib/Drupal/$name",
-    'lib/Drupal',
-    'lib',
-  ) as $subdir) {
-    if (!is_dir("$dir/$subdir")) {
-      continue;
-    }
-    if (!is_dir_empty("$dir/$subdir")) {
-      throw new Exception("$dir/$subdir is not empty.");
-    }
-    rmdir("$dir/$subdir");
-  }
+  // Move class files two levels up.
+  move_directory_contents($src, "$dir/lib");
 
-  // Move back to lib/.
-  if (is_dir("$dir/src")) {
-    rename("$dir/src", "$dir/lib");
-  }
+  // Clean up.
+  require_dir_empty("$dir/lib/Drupal");
+  rmdir("$dir/lib/Drupal");
 }
 
-function is_dir_empty($dir) {
-  if (!is_readable($dir)) {
-    return NULL;
+/**
+ * Move directory contents from an existing source directory to an existing
+ * destination directory.
+ *
+ * @param string $source
+ *   An existing source directory.
+ * @param string $destination
+ *   An existing destination directory.
+ *
+ * @throws \Exception
+ */
+function move_directory_contents($source, $destination) {
+
+  if (!is_dir($source)) {
+    throw new \Exception("The source '$source' is not a directory.");
   }
-  $handle = opendir($dir);
-  while (false !== ($entry = readdir($handle))) {
-    if ($entry != "." && $entry != "..") {
-      return FALSE;
+
+  if (!is_dir($destination)) {
+    throw new \Exception("The destination '$destination' is not a directory.");
+  }
+
+  /**
+   * @var \DirectoryIterator $fileinfo
+   */
+  foreach (new \DirectoryIterator($source) as $fileinfo) {
+    if ($fileinfo->isDot()) {
+      continue;
+    }
+    $dest_path = $destination . '/' . $fileinfo->getFilename();
+    if (!file_exists($dest_path)) {
+      rename($fileinfo->getPathname(), $dest_path);
+    }
+    elseif ($fileinfo->isFile()) {
+      throw new \Exception("Destination '$dest_path' already exists, cannot overwrite.");
+    }
+    elseif ($fileinfo->isDir()) {
+      if (!is_dir($dest_path)) {
+        throw new \Exception("Destination '$dest_path' is not a directory.");
+      }
+      move_directory_contents($fileinfo->getPathname(), $dest_path);
     }
   }
-  return TRUE;
+
+  require_dir_empty($source);
+
+  rmdir($source);
+}
+
+/**
+ * Throws an exception if a directory is not empty.
+ *
+ * @param string $dir
+ *   Directory to check.
+ *
+ * @throws \Exception
+ */
+function require_dir_empty($dir) {
+  if (is_file($dir)) {
+    throw new \Exception("The path '$dir' is a file, when it should be a directory.");
+  }
+  if (!is_dir($dir)) {
+    throw new \Exception("The directory '$dir' does not exist.");
+  }
+  if (!is_readable($dir)) {
+    throw new \Exception("The directory '$dir' is not readable.");
+  }
+  /**
+   * @var \DirectoryIterator $fileinfo
+   */
+  foreach (new \DirectoryIterator($dir) as $fileinfo) {
+    if ($fileinfo->isDot()) {
+      continue;
+    }
+    $path = $fileinfo->getPathname();
+    if ($fileinfo->isFile()) {
+      throw new \Exception("File '$path' found in a directory that should be empty.");
+    }
+    elseif ($fileinfo->isDir()) {
+      throw new \Exception("Subdirectory '$path' found in a directory that should be empty.");
+    }
+  }
 }
