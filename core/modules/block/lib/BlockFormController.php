@@ -87,8 +87,12 @@ class BlockFormController extends EntityFormController {
     );
   }
 
+  // bogus line added.
+
   /**
    * {@inheritdoc}
+   *
+   * ddadfafdsafd
    */
   public function form(array $form, array &$form_state) {
     $entity = $this->entity;
