@@ -30,7 +30,7 @@ class MigrateSystemConfigsTest extends MigrateDrupalTestBase {
   public function testSystemCron() {
     $migration = entity_load('migration', 'd6_system_cron');
     $dumps = array(
-      drupal_get_path('module', 'migrate_drupal') . '/lib/Drupal/migrate_drupal/Tests/Dump/Drupal6SystemCron.php',
+      dirname(__DIR__) . '/Dump/Drupal6SystemCron.php',
     );
     $this->prepare($migration, $dumps);
     $executable = new MigrateExecutable($migration, new MigrateMessage());
@@ -46,7 +46,7 @@ class MigrateSystemConfigsTest extends MigrateDrupalTestBase {
   public function testSystemRss() {
     $migration = entity_load('migration', 'd6_system_rss');
     $dumps = array(
-      drupal_get_path('module', 'migrate_drupal') . '/lib/Drupal/migrate_drupal/Tests/Dump/Drupal6SystemRss.php',
+      dirname(__DIR__) . '/Dump/Drupal6SystemRss.php',
     );
     $this->prepare($migration, $dumps);
     $executable = new MigrateExecutable($migration, new MigrateMessage());
@@ -61,7 +61,7 @@ class MigrateSystemConfigsTest extends MigrateDrupalTestBase {
   public function testSystemPerformance() {
     $migration = entity_load('migration', 'd6_system_performance');
     $dumps = array(
-      drupal_get_path('module', 'migrate_drupal') . '/lib/Drupal/migrate_drupal/Tests/Dump/Drupal6SystemPerformance.php',
+      dirname(__DIR__) . '/Dump/Drupal6SystemPerformance.php',
     );
     $this->prepare($migration, $dumps);
     $executable = new MigrateExecutable($migration, new MigrateMessage());
@@ -78,7 +78,7 @@ class MigrateSystemConfigsTest extends MigrateDrupalTestBase {
   public function testSystemTheme() {
     $migration = entity_load('migration', 'd6_system_theme');
     $dumps = array(
-      drupal_get_path('module', 'migrate_drupal') . '/lib/Drupal/migrate_drupal/Tests/Dump/Drupal6SystemTheme.php',
+      dirname(__DIR__) . '/Dump/Drupal6SystemTheme.php',
     );
     $this->prepare($migration, $dumps);
     $executable = new MigrateExecutable($migration, new MigrateMessage());
@@ -94,7 +94,7 @@ class MigrateSystemConfigsTest extends MigrateDrupalTestBase {
   public function testSystemMaintenance() {
     $migration = entity_load('migration', 'd6_system_maintenance');
     $dumps = array(
-      drupal_get_path('module', 'migrate_drupal') . '/lib/Drupal/migrate_drupal/Tests/Dump/Drupal6SystemMaintenance.php',
+      dirname(__DIR__) . '/Dump/Drupal6SystemMaintenance.php',
     );
     $this->prepare($migration, $dumps);
     $executable = new MigrateExecutable($migration, new MigrateMessage());
@@ -110,7 +110,7 @@ class MigrateSystemConfigsTest extends MigrateDrupalTestBase {
   public function testSystemSite() {
     $migration = entity_load('migration', 'd6_system_site');
     $dumps = array(
-      drupal_get_path('module', 'migrate_drupal') . '/lib/Drupal/migrate_drupal/Tests/Dump/Drupal6SystemSite.php',
+      dirname(__DIR__) . '/Dump/Drupal6SystemSite.php',
     );
     $this->prepare($migration, $dumps);
     $executable = new MigrateExecutable($migration, new MigrateMessage());
@@ -131,7 +131,7 @@ class MigrateSystemConfigsTest extends MigrateDrupalTestBase {
   public function testSystemFilter() {
     $migration = entity_load('migration', 'd6_system_filter');
     $dumps = array(
-      drupal_get_path('module', 'migrate_drupal') . '/lib/Drupal/migrate_drupal/Tests/Dump/Drupal6SystemFilter.php',
+      dirname(__DIR__) . '/Dump/Drupal6SystemFilter.php',
     );
     $this->prepare($migration, $dumps);
     $executable = new MigrateExecutable($migration, new MigrateMessage());
@@ -146,7 +146,7 @@ class MigrateSystemConfigsTest extends MigrateDrupalTestBase {
   public function testSystemImage() {
     $migration = entity_load('migration', 'd6_system_image');
     $dumps = array(
-      drupal_get_path('module', 'migrate_drupal') . '/lib/Drupal/migrate_drupal/Tests/Dump/Drupal6SystemImage.php',
+      dirname(__DIR__) . '/Dump/Drupal6SystemImage.php',
     );
     $this->prepare($migration, $dumps);
     $executable = new MigrateExecutable($migration, new MigrateMessage());
@@ -161,7 +161,7 @@ class MigrateSystemConfigsTest extends MigrateDrupalTestBase {
   public function testSystemImageGd() {
     $migration = entity_load('migration', 'd6_system_image_gd');
     $dumps = array(
-      drupal_get_path('module', 'migrate_drupal') . '/lib/Drupal/migrate_drupal/Tests/Dump/Drupal6SystemImageGd.php',
+      dirname(__DIR__) . '/Dump/Drupal6SystemImageGd.php',
     );
     $this->prepare($migration, $dumps);
     $executable = new MigrateExecutable($migration, new MigrateMessage());
@@ -176,7 +176,7 @@ class MigrateSystemConfigsTest extends MigrateDrupalTestBase {
   public function testSystemFile() {
     $migration = entity_load('migration', 'd6_system_file');
     $dumps = array(
-      drupal_get_path('module', 'migrate_drupal') . '/lib/Drupal/migrate_drupal/Tests/Dump/Drupal6SystemFile.php',
+      dirname(__DIR__) . '/Dump/Drupal6SystemFile.php',
     );
     $this->prepare($migration, $dumps);
     $executable = new MigrateExecutable($migration, new MigrateMessage());
