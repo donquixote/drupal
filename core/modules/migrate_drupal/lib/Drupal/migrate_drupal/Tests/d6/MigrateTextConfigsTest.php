@@ -40,7 +40,7 @@ class MigrateTextConfigsTest extends MigrateDrupalTestBase {
   public function testTextSettings() {
     $migration = entity_load('migration', 'd6_text_settings');
     $dumps = array(
-      drupal_get_path('module', 'migrate_drupal') . '/lib/Drupal/migrate_drupal/Tests/Dump/Drupal6TextSettings.php',
+      dirname(__DIR__) . '/Dump/Drupal6TextSettings.php',
     );
     $this->prepare($migration, $dumps);
     $executable = new MigrateExecutable($migration, new MigrateMessage());

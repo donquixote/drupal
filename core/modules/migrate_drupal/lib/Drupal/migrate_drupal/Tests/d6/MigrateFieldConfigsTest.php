@@ -33,7 +33,7 @@ class MigrateFieldConfigsTest extends MigrateDrupalTestBase {
   public function testFieldSettings() {
     $migration = entity_load('migration', 'd6_field_settings');
     $dumps = array(
-      drupal_get_path('module', 'migrate_drupal') . '/lib/Drupal/migrate_drupal/Tests/Dump/Drupal6FieldSettings.php',
+      dirname(__DIR__) . '/Dump/Drupal6FieldSettings.php',
     );
     $this->prepare($migration, $dumps);
     $executable = new MigrateExecutable($migration, new MigrateMessage());
