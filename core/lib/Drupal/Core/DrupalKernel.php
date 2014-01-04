@@ -697,6 +697,28 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
   }
 
   /**
+   * Gets the PSR-4 base directories for module namespaces.
+   *
+   * @param array $module_file_names
+   *   Array where each key is a module name, and each value is a path to the
+   *   respective *.module or *.profile file.
+   *
+   * @return array
+   *   Array where each key is a module namespace like 'Drupal\system', and each
+   *   value is an array of PSR-4 base directories associated with the module
+   *   namespace.
+   */
+  protected function getModuleNamespacesPsr4($module_file_names) {
+    $namespaces = array();
+    foreach ($module_file_names as $module => $filename) {
+      // @todo Remove lib/Drupal/$module, once the switch to PSR-4 is complete.
+      $namespaces["Drupal\\$module"][] = DRUPAL_ROOT . '/' . dirname($filename) . '/lib/Drupal/' . $module;
+      $namespaces["Drupal\\$module"][] = DRUPAL_ROOT . '/' . dirname($filename) . '/lib';
+    }
+    return $namespaces;
+  }
+
+  /**
    * Gets the PSR-0 base directories for module namespaces.
    *
    * @param array $module_file_names
