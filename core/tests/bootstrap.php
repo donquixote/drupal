@@ -59,6 +59,7 @@ function drupal_phpunit_register_extension_dirs(Composer\Autoload\ClassLoader $l
     $lib_path = $dir . '/lib';
     if (is_dir($lib_path)) {
       $loader->add('Drupal\\' . $extension, $lib_path);
+      $loader->addPsr4('Drupal\\' . $extension . '\\', $lib_path);
     }
     $tests_path = $dir . '/tests';
     if (is_dir($tests_path)) {
