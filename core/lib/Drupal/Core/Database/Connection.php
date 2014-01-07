@@ -506,7 +506,7 @@ abstract class Connection implements \Serializable {
    *   An associative array of options to control how the query is run. See
    *   the documentation for DatabaseConnection::defaultOptions() for details.
    *
-   * @return \Drupal\Core\Database\StatementInterface
+   * @return \Drupal\Core\Database\StatementInterface|int
    *   This method will return one of: the executed statement, the number of
    *   rows affected by the query (not the number matched), or the generated
    *   insert ID of the last query, depending on the value of
