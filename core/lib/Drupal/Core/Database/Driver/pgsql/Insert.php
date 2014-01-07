@@ -18,6 +18,16 @@ use Drupal\Core\Database\Query\Insert as QueryInsert;
 class Insert extends QueryInsert {
 
   /**
+   * The connection object on which to run this query.
+   *
+   * Overrides \Drupal\Core\Database\Query\Insert->$connection, to allow for a
+   * pgsql-specific type hint.
+   *
+   * @var \Drupal\Core\Database\Driver\pgsql\Connection
+   */
+  protected $connection;
+
+  /**
    * {@inheritdoc}
    */
   public function execute() {
