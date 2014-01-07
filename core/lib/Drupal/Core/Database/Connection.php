@@ -546,7 +546,12 @@ abstract class Connection implements \Serializable {
         case Database::RETURN_STATEMENT:
           return $stmt;
         case Database::RETURN_AFFECTED:
-          $stmt->allowRowCount = TRUE;
+          // The public property ->allowRowCount is present only on some
+          // implementations of StatementInterface.
+          // @todo Turn this into a protected property with a setter.
+          if (isset($stmt->allowRowCount)) {
+            $stmt->allowRowCount = TRUE;
+          }
           return $stmt->rowCount();
         case Database::RETURN_INSERT_ID:
           return $this->connection->lastInsertId();
