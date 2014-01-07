@@ -125,7 +125,7 @@ class Insert extends Query {
    * @param array $values
    *   An array of values to add to the query.
    *
-   * @return \Drupal\Core\Database\Query\Insert
+   * @return $this
    *   The called object.
    */
   public function values(array $values) {
