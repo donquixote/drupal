@@ -104,6 +104,7 @@ abstract class Database {
       // Every target already active for this connection key needs to have the
       // logging object associated with it.
       if (!empty(self::$connections[$key])) {
+        /** @var \Drupal\Core\Database\Connection $connection */
         foreach (self::$connections[$key] as $connection) {
           $connection->setLogger(self::$logs[$key]);
         }
@@ -382,7 +383,9 @@ abstract class Database {
       $driver_class = "Drupal\\Core\\Database\\Driver\\{$driver}\\Connection";
     }
 
+    /** @var \Drupal\Core\Database\Connection $driver_class */
     $pdo_connection = $driver_class::open(self::$databaseInfo[$key][$target]);
+    /** @var \Drupal\Core\Database\Connection $new_connection */
     $new_connection = new $driver_class($pdo_connection, self::$databaseInfo[$key][$target]);
     $new_connection->setTarget($target);
     $new_connection->setKey($key);
@@ -416,15 +419,18 @@ abstract class Database {
     // yet and we just ensure that the connection key is undefined.
     if (isset($target)) {
       if (isset(self::$connections[$key][$target])) {
-        self::$connections[$key][$target]->destroy();
+        /** @var \Drupal\Core\Database\Connection $connection */
+        $connection = self::$connections[$key][$target];
+        $connection->destroy();
         self::$connections[$key][$target] = NULL;
       }
       unset(self::$connections[$key][$target]);
     }
     else {
       if (isset(self::$connections[$key])) {
+        /** @var \Drupal\Core\Database\Connection $connection */
         foreach (self::$connections[$key] as $target => $connection) {
-          self::$connections[$key][$target]->destroy();
+          $connection->destroy();
           self::$connections[$key][$target] = NULL;
         }
       }
