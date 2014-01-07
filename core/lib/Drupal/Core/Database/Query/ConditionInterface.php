@@ -24,19 +24,19 @@ interface ConditionInterface {
    * Do not use this method to test for NULL values. Instead, use
    * QueryConditionInterface::isNull() or QueryConditionInterface::isNotNull().
    *
-   * @param $field
+   * @param string $field
    *   The name of the field to check. If you would like to add a more complex
    *   condition involving operators or functions, use where().
-   * @param $value
+   * @param mixed $value
    *   The value to test the field against. In most cases, this is a scalar.
    *   For more complex options, it is an array. The meaning of each element in
    *   the array is dependent on the $operator.
-   * @param $operator
+   * @param string $operator
    *   The comparison operator, such as =, <, or >=. It also accepts more
    *   complex options such as IN, LIKE, or BETWEEN. Defaults to IN if $value is
    *   an array, and = otherwise.
    *
-   * @return \Drupal\Core\Database\Query\ConditionInterface
+   * @return $this
    *   The called object.
    *
    * @see \Drupal\Core\Database\Query\ConditionInterface::isNull()
@@ -47,13 +47,13 @@ interface ConditionInterface {
   /**
    * Adds an arbitrary WHERE clause to the query.
    *
-   * @param $snippet
+   * @param string $snippet
    *   A portion of a WHERE clause as a prepared statement. It must use named
    *   placeholders, not ? placeholders.
-   * @param $args
+   * @param string[] $args
    *   An associative array of arguments.
    *
-   * @return \Drupal\Core\Database\Query\ConditionInterface
+   * @return $this
    *   The called object.
    */
   public function where($snippet, $args = array());
@@ -61,10 +61,10 @@ interface ConditionInterface {
   /**
    * Sets a condition that the specified field be NULL.
    *
-   * @param $field
+   * @param string $field
    *   The name of the field to check.
    *
-   * @return \Drupal\Core\Database\Query\ConditionInterface
+   * @return $this
    *   The called object.
    */
   public function isNull($field);
@@ -72,10 +72,10 @@ interface ConditionInterface {
   /**
    * Sets a condition that the specified field be NOT NULL.
    *
-   * @param $field
+   * @param string $field
    *   The name of the field to check.
    *
-   * @return \Drupal\Core\Database\Query\ConditionInterface
+   * @return $this
    *   The called object.
    */
   public function isNotNull($field);
@@ -86,7 +86,7 @@ interface ConditionInterface {
    * @param \Drupal\Core\Database\Query\SelectInterface $select
    *   The subquery that must contain results.
    *
-   * @return \Drupal\Core\Database\Query\ConditionInterface
+   * @return $this
    *   The called object.
    */
   public function exists(SelectInterface $select);
@@ -97,7 +97,7 @@ interface ConditionInterface {
    * @param \Drupal\Core\Database\Query\SelectInterface $select
    *   The subquery that must not contain results.
    *
-   * @return \Drupal\Core\Database\Query\ConditionInterface
+   * @return $this
    *   The called object.
    */
   public function notExists(SelectInterface $select);
@@ -124,13 +124,15 @@ interface ConditionInterface {
    *
    * There will also be a single array entry of #conjunction, which is the
    * conjunction that will be applied to the array, such as AND.
+   *
+   * @return array
    */
   public function &conditions();
 
   /**
    * Gets a complete list of all values to insert into the prepared statement.
    *
-   * @return
+   * @return string[]
    *   An associative array of placeholders and values.
    */
   public function arguments();
@@ -141,9 +143,9 @@ interface ConditionInterface {
    * This method does not return anything, but simply prepares data to be
    * retrieved via __toString() and arguments().
    *
-   * @param $connection
+   * @param \Drupal\Core\Database\Connection $connection
    *   The database connection for which to compile the conditionals.
-   * @param $queryPlaceholder
+   * @param \Drupal\Core\Database\Query\PlaceholderInterface $queryPlaceholder
    *   The query this condition belongs to. If not given, the current query is
    *   used.
    */
@@ -152,7 +154,7 @@ interface ConditionInterface {
   /**
    * Check whether a condition has been previously compiled.
    *
-   * @return
+   * @return bool
    *   TRUE if the condition has been previously compiled.
    */
   public function compiled();
@@ -162,9 +164,9 @@ interface ConditionInterface {
    *
    * See andConditionGroup() and orConditionGroup() for more.
    *
-   * @param $conjunction
-   *   - AND (default): this is the equivalent of andConditionGroup().
-   *   - OR: this is the equivalent of andConditionGroup().
+   * @param string $conjunction
+   *   - 'AND' (default): this is the equivalent of andConditionGroup().
+   *   - 'OR': this is the equivalent of andConditionGroup().
    *
    * @return \Drupal\Core\Database\Query\ConditionInterface
    *   An object holding a group of conditions.

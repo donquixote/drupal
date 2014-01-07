@@ -39,9 +39,19 @@ class Condition implements ConditionInterface, \Countable {
   protected $changed = TRUE;
 
   /**
-   * The identifier of the query placeholder this condition has been compiled against.
+   * The identifier of the query placeholder this condition has been compiled
+   * against.
+   *
+   * @var string
    */
   protected $queryPlaceholderIdentifier;
+
+  /**
+   * SQL snippet representing the condition. Not available before ->compile().
+   *
+   * @var string
+   */
+  protected $stringVersion;
 
   /**
    * Constructs a Condition object.
@@ -59,13 +69,15 @@ class Condition implements ConditionInterface, \Countable {
    * Returns the size of this conditional. The size of the conditional is the
    * size of its conditional array minus one, because one element is the the
    * conjunction.
+   *
+   * @return int
    */
   public function count() {
     return count($this->conditions) - 1;
   }
 
   /**
-   * Implements Drupal\Core\Database\Query\ConditionInterface::condition().
+   * {@inheritdoc}
    */
   public function condition($field, $value = NULL, $operator = NULL) {
     if (!isset($operator)) {
@@ -88,7 +100,7 @@ class Condition implements ConditionInterface, \Countable {
   }
 
   /**
-   * Implements Drupal\Core\Database\Query\ConditionInterface::where().
+   * {@inheritdoc}
    */
   public function where($snippet, $args = array()) {
     $this->conditions[] = array(
@@ -102,42 +114,42 @@ class Condition implements ConditionInterface, \Countable {
   }
 
   /**
-   * Implements Drupal\Core\Database\Query\ConditionInterface::isNull().
+   * {@inheritdoc}
    */
   public function isNull($field) {
     return $this->condition($field, NULL, 'IS NULL');
   }
 
   /**
-   * Implements Drupal\Core\Database\Query\ConditionInterface::isNotNull().
+   * {@inheritdoc}
    */
   public function isNotNull($field) {
     return $this->condition($field, NULL, 'IS NOT NULL');
   }
 
   /**
-   * Implements Drupal\Core\Database\Query\ConditionInterface::exists().
+   * {@inheritdoc}
    */
   public function exists(SelectInterface $select) {
     return $this->condition('', $select, 'EXISTS');
   }
 
   /**
-   * Implements Drupal\Core\Database\Query\ConditionInterface::notExists().
+   * {@inheritdoc}
    */
   public function notExists(SelectInterface $select) {
     return $this->condition('', $select, 'NOT EXISTS');
   }
 
   /**
-   * Implements Drupal\Core\Database\Query\ConditionInterface::conditions().
+   * {@inheritdoc}
    */
   public function &conditions() {
     return $this->conditions;
   }
 
   /**
-   * Implements Drupal\Core\Database\Query\ConditionInterface::arguments().
+   * {@inheritdoc}
    */
   public function arguments() {
     // If the caller forgot to call compile() first, refuse to run.
@@ -148,7 +160,7 @@ class Condition implements ConditionInterface, \Countable {
   }
 
   /**
-   * Implements Drupal\Core\Database\Query\ConditionInterface::compile().
+   * {@inheritdoc}
    */
   public function compile(Connection $connection, PlaceholderInterface $queryPlaceholder) {
     // Re-compile if this condition changed or if we are compiled against a
@@ -228,7 +240,7 @@ class Condition implements ConditionInterface, \Countable {
   }
 
   /**
-   * Implements Drupal\Core\Database\Query\ConditionInterface::compiled().
+   * {@inheritdoc}
    */
   public function compiled() {
     return !$this->changed;
@@ -275,10 +287,10 @@ class Condition implements ConditionInterface, \Countable {
    * the value data they pass in is not a simple value. This is a simple
    * overridable lookup function.
    *
-   * @param $operator
+   * @param string $operator
    *   The condition operator, such as "IN", "BETWEEN", etc. Case-sensitive.
    *
-   * @return
+   * @return array
    *   The extra handling directives for the specified operator, or NULL.
    */
   protected function mapConditionOperator($operator) {

@@ -34,7 +34,10 @@ class Schema extends DatabaseSchema {
   /**
    * Get information about the table and database name from the prefix.
    *
-   * @return
+   * @param string $table
+   * @param bool $add_prefix
+   *
+   * @return array
    *   A keyed array with information about the database, table name and prefix.
    */
   protected function getPrefixInfo($table = 'default', $add_prefix = TRUE) {
@@ -74,11 +77,12 @@ class Schema extends DatabaseSchema {
   /**
    * Generate SQL to create a new table from a Drupal schema definition.
    *
-   * @param $name
+   * @param string $name
    *   The name of the table to create.
-   * @param $table
+   * @param array $table
    *   A Schema API table definition array.
-   * @return
+   *
+   * @return string[]
    *   An array of SQL statements to create the table.
    */
   protected function createTableSql($name, $table) {
@@ -133,6 +137,9 @@ class Schema extends DatabaseSchema {
    *   Name of the field.
    * @param $spec
    *   The field specification, as per the schema data structure format.
+   *
+   * @return string
+   *   Generated SQL string.
    */
   protected function createFieldSql($name, $spec) {
     $sql = "`" . $name . "` " . $spec['mysql_type'];

@@ -7,9 +7,6 @@
 
 namespace Drupal\Core\Database;
 
-use Drupal\Core\Database\TransactionNoActiveException;
-use Drupal\Core\Database\TransactionOutOfOrderException;
-
 /**
  * Base Database API class.
  *
@@ -224,7 +221,7 @@ abstract class Connection implements \Serializable {
    *   that behavior and simply return NULL on failure, set this option to
    *   FALSE.
    *
-   * @return
+   * @return array
    *   An array of default query options.
    */
   protected function defaultOptions() {
@@ -244,7 +241,7 @@ abstract class Connection implements \Serializable {
    * is for requesting the connection information of this specific
    * open connection object.
    *
-   * @return
+   * @return array
    *   An array of the connection information. The exact list of
    *   properties is driver-dependent.
    */
@@ -292,10 +289,10 @@ abstract class Connection implements \Serializable {
    * tables, allowing Drupal to coexist with other systems in the same database
    * and/or schema if necessary.
    *
-   * @param $sql
+   * @param string $sql
    *   A string containing a partial or entire SQL query.
    *
-   * @return
+   * @return string
    *   The properly-prefixed string.
    */
   public function prefixTables($sql) {
@@ -344,7 +341,7 @@ abstract class Connection implements \Serializable {
    * signature. We therefore also ensure that this function is only ever
    * called once.
    *
-   * @param $target
+   * @param string $target
    *   The target this connection is for. Set to NULL (default) to disable
    *   logging entirely.
    */
@@ -357,7 +354,7 @@ abstract class Connection implements \Serializable {
   /**
    * Returns the target this connection is associated with.
    *
-   * @return
+   * @return string
    *   The target string of this connection.
    */
   public function getTarget() {
@@ -367,7 +364,7 @@ abstract class Connection implements \Serializable {
   /**
    * Tells this connection object what its key is.
    *
-   * @param $target
+   * @param string $key
    *   The key this connection is for.
    */
   public function setKey($key) {
@@ -379,7 +376,7 @@ abstract class Connection implements \Serializable {
   /**
    * Returns the key this connection is associated with.
    *
-   * @return
+   * @return string
    *   The key of this connection.
    */
   public function getKey() {
@@ -413,12 +410,12 @@ abstract class Connection implements \Serializable {
    * This information is exposed to all database drivers, although it is only
    * useful on some of them. This method is table prefix-aware.
    *
-   * @param $table
+   * @param string $table
    *   The table name to use for the sequence.
-   * @param $field
+   * @param string $field
    *   The field name to use for the sequence.
    *
-   * @return
+   * @return string
    *   A table prefix-parsed string for the sequence name.
    */
   public function makeSequenceName($table, $field) {
@@ -430,10 +427,10 @@ abstract class Connection implements \Serializable {
    *
    * The comment string will be sanitized to avoid SQL injection attacks.
    *
-   * @param $comments
+   * @param string[] $comments
    *   An array of query comment strings.
    *
-   * @return
+   * @return string
    *   A sanitized comment string.
    */
   public function makeComment($comments) {
@@ -472,10 +469,10 @@ abstract class Connection implements \Serializable {
    * Unless the comment is sanitised first, the SQL server would drop the
    * node table and ignore the rest of the SQL statement.
    *
-   * @param $comment
+   * @param string $comment
    *   A query comment string.
    *
-   * @return
+   * @return string
    *   A sanitized version of the query comment string.
    */
   protected function filterComment($comment = '') {
@@ -498,7 +495,7 @@ abstract class Connection implements \Serializable {
    *   It is extremely rare that module code will need to pass a statement
    *   object to this method. It is used primarily for database drivers for
    *   databases that require special LOB field handling.
-   * @param $args
+   * @param array $args
    *   An array of arguments for the prepared statement. If the prepared
    *   statement uses ? placeholders, this array must be an indexed array.
    *   If it contains named placeholders, it must be an associative array.
@@ -506,14 +503,16 @@ abstract class Connection implements \Serializable {
    *   An associative array of options to control how the query is run. See
    *   the documentation for DatabaseConnection::defaultOptions() for details.
    *
-   * @return \Drupal\Core\Database\StatementInterface
-   *   This method will return one of: the executed statement, the number of
-   *   rows affected by the query (not the number matched), or the generated
-   *   insert ID of the last query, depending on the value of
-   *   $options['return']. Typically that value will be set by default or a
-   *   query builder and should not be set by a user. If there is an error,
-   *   this method will return NULL and may throw an exception if
-   *   $options['throw_exception'] is TRUE.
+   * @return \Drupal\Core\Database\StatementInterface|int
+   *   Depending on the value of $options['return'], this method will return one
+   *   of:
+   *   - the executed statement,
+   *   - the number of rows affected by the query (not the number matched), or
+   *   - the generated insert ID of the last query.
+   *   Typically, this option will be set by default or by a query builder, and
+   *   should not be set by a user. If there is an error, this method will
+   *   return NULL and may throw an exception if $options['throw_exception'] is
+   *   TRUE.
    *
    * @throws \PDOException
    * @throws \Drupal\Core\Database\IntegrityConstraintViolationException
@@ -544,12 +543,17 @@ abstract class Connection implements \Serializable {
         case Database::RETURN_STATEMENT:
           return $stmt;
         case Database::RETURN_AFFECTED:
-          $stmt->allowRowCount = TRUE;
+          // The public property ->allowRowCount is present only on some
+          // implementations of StatementInterface.
+          // @todo Turn this into a protected property with a setter.
+          if (isset($stmt->allowRowCount)) {
+            $stmt->allowRowCount = TRUE;
+          }
           return $stmt->rowCount();
         case Database::RETURN_INSERT_ID:
           return $this->connection->lastInsertId();
         case Database::RETURN_NULL:
-          return;
+          return NULL;
         default:
           throw new \PDOException('Invalid return directive: ' . $options['return']);
       }
@@ -559,7 +563,9 @@ abstract class Connection implements \Serializable {
         // Wrap the exception in another exception, because PHP does not allow
         // overriding Exception::getMessage(). Its message is the extra database
         // debug information.
-        $query_string = ($query instanceof StatementInterface) ? $stmt->getQueryString() : $query;
+        $query_string = (isset($stmt) && $stmt instanceof StatementInterface)
+          ? $stmt->getQueryString()
+          : $query;
         $message = $e->getMessage() . ": " . $query_string . "; " . print_r($args, TRUE);
         // Match all SQLSTATE 23xxx errors.
         if (substr($e->getCode(), -6, -3) == '23') {
@@ -581,12 +587,12 @@ abstract class Connection implements \Serializable {
    * Drupal supports an alternate syntax for doing arrays of values. We
    * therefore need to expand them out into a full, executable query string.
    *
-   * @param $query
+   * @param string $query
    *   The query string to modify.
-   * @param $args
+   * @param array $args
    *   The arguments for the query.
    *
-   * @return
+   * @return bool
    *   TRUE if the query was modified, FALSE otherwise.
    */
   protected function expandArguments(&$query, &$args) {
@@ -674,7 +680,8 @@ abstract class Connection implements \Serializable {
   /**
    * Prepares and returns an INSERT query object.
    *
-   * @param $options
+   * @param string $table
+   * @param array $options
    *   An array of options on the query.
    *
    * @return \Drupal\Core\Database\Query\Insert
@@ -690,7 +697,8 @@ abstract class Connection implements \Serializable {
   /**
    * Prepares and returns a MERGE query object.
    *
-   * @param $options
+   * @param string $table
+   * @param array $options
    *   An array of options on the query.
    *
    * @return \Drupal\Core\Database\Query\Merge
@@ -707,7 +715,8 @@ abstract class Connection implements \Serializable {
   /**
    * Prepares and returns an UPDATE query object.
    *
-   * @param $options
+   * @param string $table
+   * @param array $options
    *   An array of options on the query.
    *
    * @return \Drupal\Core\Database\Query\Update
@@ -723,7 +732,8 @@ abstract class Connection implements \Serializable {
   /**
    * Prepares and returns a DELETE query object.
    *
-   * @param $options
+   * @param string $table
+   * @param array $options
    *   An array of options on the query.
    *
    * @return \Drupal\Core\Database\Query\Delete
@@ -739,7 +749,8 @@ abstract class Connection implements \Serializable {
   /**
    * Prepares and returns a TRUNCATE query object.
    *
-   * @param $options
+   * @param string $table
+   * @param array $options
    *   An array of options on the query.
    *
    * @return \Drupal\Core\Database\Query\Truncate
@@ -775,8 +786,11 @@ abstract class Connection implements \Serializable {
    * For some database drivers, it may also wrap the database name in
    * database-specific escape characters.
    *
+   * @param string $database
+   *   An unsanitized database name.
+   *
    * @return string
-   *   The sanitized database name string.
+   *   The sanitized database name.
    */
   public function escapeDatabase($database) {
     return preg_replace('/[^A-Za-z0-9_.]+/', '', $database);
@@ -789,8 +803,11 @@ abstract class Connection implements \Serializable {
    * For some database drivers, it may also wrap the table name in
    * database-specific escape characters.
    *
-   * @return
-   *   The sanitized table name string.
+   * @param string $table
+   *   An unsanitized table name.
+   *
+   * @return string
+   *   The sanitized table name.
    */
   public function escapeTable($table) {
     return preg_replace('/[^A-Za-z0-9_.]+/', '', $table);
@@ -803,8 +820,10 @@ abstract class Connection implements \Serializable {
    * For some database drivers, it may also wrap the field name in
    * database-specific escape characters.
    *
-   * @return
-   *   The sanitized field name string.
+   * @param string $field
+   *
+   * @return string
+   *   The sanitized field name.
    */
   public function escapeField($field) {
     return preg_replace('/[^A-Za-z0-9_.]+/', '', $field);
@@ -818,8 +837,11 @@ abstract class Connection implements \Serializable {
    * DatabaseConnection::escapeTable(), this doesn't allow the period (".")
    * because that is not allowed in aliases.
    *
-   * @return
-   *   The sanitized field name string.
+   * @param $field
+   *   An unsanitized alias name.
+   *
+   * @return string
+   *   The sanitized alias name.
    */
   public function escapeAlias($field) {
     return preg_replace('/[^A-Za-z0-9_]+/', '', $field);
@@ -844,10 +866,10 @@ abstract class Connection implements \Serializable {
    * Backslash is defined as escape character for LIKE patterns in
    * Drupal\Core\Database\Query\Condition::mapConditionOperator().
    *
-   * @param $string
+   * @param string $string
    *   The string to escape.
    *
-   * @return
+   * @return string
    *   The escaped string.
    */
   public function escapeLike($string) {
@@ -857,7 +879,7 @@ abstract class Connection implements \Serializable {
   /**
    * Determines if there is an active transaction open.
    *
-   * @return
+   * @return bool
    *   TRUE if we're currently in a transaction, FALSE otherwise.
    */
   public function inTransaction() {
@@ -892,12 +914,12 @@ abstract class Connection implements \Serializable {
    *
    * This method throws an exception if no transaction is active.
    *
-   * @param $savepoint_name
+   * @param string $savepoint_name
    *   The name of the savepoint. The default, 'drupal_transaction', will roll
    *   the entire transaction back.
    *
-   * @throws \Drupal\Core\Database\TransactionNoActiveException
-   *
+   * @throws TransactionOutOfOrderException
+   * @throws TransactionNoActiveException
    * @see \Drupal\Core\Database\Transaction::rollback()
    */
   public function rollback($savepoint_name = 'drupal_transaction') {
@@ -1053,7 +1075,7 @@ abstract class Connection implements \Serializable {
   /**
    * Generates a temporary table name.
    *
-   * @return
+   * @return string
    *   A table name.
    */
   protected function generateTemporaryTableName() {
@@ -1105,7 +1127,7 @@ abstract class Connection implements \Serializable {
   /**
    * Determines if this driver supports transactions.
    *
-   * @return
+   * @return bool
    *   TRUE if this connection supports transactions, FALSE otherwise.
    */
   public function supportsTransactions() {
@@ -1117,7 +1139,7 @@ abstract class Connection implements \Serializable {
    *
    * DDL queries are those that change the schema, such as ALTER queries.
    *
-   * @return
+   * @return bool
    *   TRUE if this connection supports transactions for DDL queries, FALSE
    *   otherwise.
    */
