@@ -229,7 +229,7 @@ abstract class Schema implements PlaceholderInterface {
   /**
    * Get information about the table name and schema from the prefix.
    *
-   * @param
+   * @param string $table
    *   Name of table to look prefix up for. Defaults to 'default' because thats
    *   default key for prefix.
    * @param bool $add_prefix
