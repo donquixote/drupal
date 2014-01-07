@@ -8,7 +8,6 @@
 namespace Drupal\Core\Database\Driver\sqlite;
 
 use Drupal\Core\Database\StatementPrefetch;
-use Drupal\Core\Database\StatementInterface;
 
 /**
  * Specific SQLite implementation of DatabaseConnection.
@@ -19,7 +18,7 @@ use Drupal\Core\Database\StatementInterface;
  * user-space mock of PDOStatement that buffers all the data and doesn't
  * have those limitations.
  */
-class Statement extends StatementPrefetch implements \Iterator, StatementInterface {
+class Statement extends StatementPrefetch {
 
   /**
    * SQLite specific implementation of getStatement().
