@@ -337,7 +337,7 @@ class StatementPrefetch implements \Iterator, ExtendedStatementInterface {
             return $this->currentRow[$k][$this->columnNames[$this->fetchOptions['column']]];
           }
           else {
-            return;
+            return NULL;
           }
       }
     }

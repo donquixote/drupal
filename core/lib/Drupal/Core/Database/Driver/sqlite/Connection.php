@@ -387,7 +387,7 @@ class Connection extends DatabaseConnection {
    */
   public function rollback($savepoint_name = 'drupal_transaction') {
     if ($this->savepointSupport) {
-      return parent::rollBack($savepoint_name);
+      parent::rollBack($savepoint_name);
     }
 
     if (!$this->inTransaction()) {
@@ -424,7 +424,7 @@ class Connection extends DatabaseConnection {
    */
   public function pushTransaction($name) {
     if ($this->savepointSupport) {
-      return parent::pushTransaction($name);
+      parent::pushTransaction($name);
     }
     if (!$this->supportsTransactions()) {
       return;
@@ -443,7 +443,7 @@ class Connection extends DatabaseConnection {
    */
   public function popTransaction($name) {
     if ($this->savepointSupport) {
-      return parent::popTransaction($name);
+      parent::popTransaction($name);
     }
     if (!$this->supportsTransactions()) {
       return;

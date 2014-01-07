@@ -361,7 +361,7 @@ class Select extends Query implements SelectInterface {
    * {@inheritdoc}
    */
   public function havingCompile(Connection $connection) {
-    return $this->having->compile($connection, $this);
+    $this->having->compile($connection, $this);
   }
 
   /* Implementations of Drupal\Core\Database\Query\ExtendableInterface. */
