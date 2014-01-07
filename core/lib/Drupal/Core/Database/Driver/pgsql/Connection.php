@@ -58,6 +58,17 @@ class Connection extends DatabaseConnection {
   }
 
   /**
+   * Returns a DatabaseSchema object for manipulating the schema.
+   *
+   * @return \Drupal\Core\Database\Driver\pgsql\Schema
+   *   The database Schema object for this connection. Unlike the parent
+   *   implementation, this returns a pgsql-specific Schema implementation.
+   */
+  public function schema() {
+    return parent::schema();
+  }
+
+  /**
    * {@inheritdoc}
    */
   public static function open(array &$connection_options = array()) {
