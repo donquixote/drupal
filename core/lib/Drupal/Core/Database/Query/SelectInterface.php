@@ -7,6 +7,8 @@
 
 namespace Drupal\Core\Database\Query;
 
+use Drupal\Core\Database\Connection;
+
 /**
  * Interface definition for a Select Query object.
  */
@@ -489,6 +491,49 @@ interface SelectInterface extends ConditionInterface, AlterableInterface, Extend
    *   The called object.
    */
   public function havingCondition($field, $value = NULL, $operator = NULL);
+
+  /**
+   * Gets a complete list of all conditions in the HAVING condition.
+   *
+   * @return array
+   *
+   * @see \Drupal\Core\Database\Query\ConditionInterface::conditions()
+   */
+  public function havingConditions();
+
+  /**
+   * Gets the placeholder replacement values for the HAVING condition.
+   *
+   * @return string[]
+   *   An associative array of placeholders and values.
+   *
+   * @see \Drupal\Core\Database\Query\ConditionInterface::arguments()
+   */
+  public function havingArguments();
+
+  /**
+   * Adds an arbitrary WHERE clause to the HAVING condition.
+   *
+   * @param string $snippet
+   *   A portion of a WHERE clause as a prepared statement. It must use named
+   *   placeholders, not ? placeholders.
+   * @param string[] $args
+   *   An associative array of arguments.
+   *
+   * @return $this
+   *   The called object.
+   *
+   * @see \Drupal\Core\Database\Query\ConditionInterface::where()
+   */
+  public function having($snippet, $args = array());
+
+  /**
+   * Compiles the HAVING condition.
+   *
+   * @param \Drupal\Core\Database\Connection $connection
+   *   The database connection for which to compile the conditionals.
+   */
+  public function havingCompile(Connection $connection);
 
   /**
    * Clone magic method.
