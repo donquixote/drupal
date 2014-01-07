@@ -87,14 +87,14 @@ interface StatementInterface extends \Traversable {
    * See http://php.net/manual/pdo.constants.php for the definition of the
    * constants used.
    *
-   * @param $mode
+   * @param int $mode
    *   One of the PDO::FETCH_* constants.
-   * @param $a1
+   * @param int|string|object $a1
    *   An option depending of the fetch mode specified by $mode:
    *   - for PDO::FETCH_COLUMN, the index of the column to fetch
    *   - for PDO::FETCH_CLASS, the name of the class to create
    *   - for PDO::FETCH_INTO, the object to add the data to
-   * @param $a2
+   * @param array $a2
    *   If $mode is PDO::FETCH_CLASS, the optional arguments to pass to the
    *   constructor.
    */
@@ -114,7 +114,7 @@ interface StatementInterface extends \Traversable {
    * @param $cursor_offset
    *   Not implemented in all database drivers, don't use.
    *
-   * @return
+   * @return mixed
    *   A result, formatted according to $mode.
    */
   // public function fetch($mode = NULL, $cursor_orientation = NULL, $cursor_offset = NULL);
@@ -153,14 +153,14 @@ interface StatementInterface extends \Traversable {
   /**
    * Returns an array containing all of the result set rows.
    *
-   * @param $mode
+   * @param int $mode
    *   One of the PDO::FETCH_* constants.
-   * @param $column_index
+   * @param int $column_index
    *   If $mode is PDO::FETCH_COLUMN, the index of the column to fetch.
-   * @param $constructor_arguments
+   * @param array $constructor_arguments
    *   If $mode is PDO::FETCH_CLASS, the arguments to pass to the constructor.
    *
-   * @return
+   * @return array[]|object[]|mixed[]
    *   An array of results.
    */
   // function fetchAll($mode = NULL, $column_index = NULL, array $constructor_arguments);
@@ -170,10 +170,10 @@ interface StatementInterface extends \Traversable {
    *
    * Note that this method will run the result set to the end.
    *
-   * @param $index
+   * @param int $index
    *   The index of the column number to fetch.
    *
-   * @return
+   * @return mixed[]
    *   An indexed array, or an empty array if there is no result set.
    */
   public function fetchCol($index = 0);
@@ -188,12 +188,12 @@ interface StatementInterface extends \Traversable {
    *
    * Note that this method will run the result set to the end.
    *
-   * @param $key_index
+   * @param int $key_index
    *   The numeric index of the field to use as the array key.
-   * @param $value_index
+   * @param int $value_index
    *   The numeric index of the field to use as the array value.
    *
-   * @return
+   * @return mixed[]
    *   An associative array, or an empty array if there is no result set.
    */
   public function fetchAllKeyed($key_index = 0, $value_index = 1);
@@ -204,15 +204,15 @@ interface StatementInterface extends \Traversable {
    * If the given key appears multiple times, later records will overwrite
    * earlier ones.
    *
-   * @param $key
+   * @param string $key
    *   The name of the field on which to index the array.
-   * @param $fetch
+   * @param int $fetch
    *   The fetchmode to use. If set to PDO::FETCH_ASSOC, PDO::FETCH_NUM, or
    *   PDO::FETCH_BOTH the returned value with be an array of arrays. For any
    *   other value it will be an array of objects. By default, the fetch mode
    *   set for the query will be used.
    *
-   * @return
+   * @return array[]|object[]
    *   An associative array, or an empty array if there is no result set.
    */
   public function fetchAllAssoc($key, $fetch = NULL);
