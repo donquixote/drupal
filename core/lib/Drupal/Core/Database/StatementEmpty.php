@@ -43,7 +43,7 @@ class StatementEmpty implements \Iterator, StatementInterface {
     throw new RowCountException();
   }
 
-  public function setFetchMode($mode, $a1 = NULL, $a2 = array()) {
+  public function setFetchMode($mode, $a1 = NULL, array $a2 = array()) {
     return;
   }
 
@@ -63,7 +63,7 @@ class StatementEmpty implements \Iterator, StatementInterface {
     return NULL;
   }
 
-  function fetchAll($mode = NULL, $column_index = NULL, array $constructor_arguments = array()) {
+  function fetchAll($mode = NULL, $column_index = NULL, $constructor_arguments = NULL) {
     return array();
   }
 
