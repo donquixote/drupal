@@ -48,6 +48,13 @@ class Condition implements ConditionInterface, \Countable {
   protected $queryPlaceholderIdentifier;
 
   /**
+   * SQL snippet representing the condition. Not available before ->compile().
+   *
+   * @var string
+   */
+  protected $stringVersion;
+
+  /**
    * Constructs a Condition object.
    *
    * @param string $conjunction
