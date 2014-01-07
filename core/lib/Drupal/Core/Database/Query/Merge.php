@@ -405,7 +405,7 @@ class Merge extends Query implements ConditionInterface {
    * {@inheritdoc}
    */
   public function compile(Connection $connection, PlaceholderInterface $queryPlaceholder) {
-    return $this->condition->compile($connection, $queryPlaceholder);
+    $this->condition->compile($connection, $queryPlaceholder);
   }
 
   /**
