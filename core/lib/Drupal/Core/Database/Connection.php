@@ -674,7 +674,8 @@ abstract class Connection implements \Serializable {
   /**
    * Prepares and returns an INSERT query object.
    *
-   * @param $options
+   * @param string $table
+   * @param array $options
    *   An array of options on the query.
    *
    * @return \Drupal\Core\Database\Query\Insert
@@ -690,7 +691,8 @@ abstract class Connection implements \Serializable {
   /**
    * Prepares and returns a MERGE query object.
    *
-   * @param $options
+   * @param string $table
+   * @param array $options
    *   An array of options on the query.
    *
    * @return \Drupal\Core\Database\Query\Merge
@@ -707,7 +709,8 @@ abstract class Connection implements \Serializable {
   /**
    * Prepares and returns an UPDATE query object.
    *
-   * @param $options
+   * @param string $table
+   * @param array $options
    *   An array of options on the query.
    *
    * @return \Drupal\Core\Database\Query\Update
@@ -723,7 +726,8 @@ abstract class Connection implements \Serializable {
   /**
    * Prepares and returns a DELETE query object.
    *
-   * @param $options
+   * @param string $table
+   * @param array $options
    *   An array of options on the query.
    *
    * @return \Drupal\Core\Database\Query\Delete
@@ -739,7 +743,8 @@ abstract class Connection implements \Serializable {
   /**
    * Prepares and returns a TRUNCATE query object.
    *
-   * @param $options
+   * @param string $table
+   * @param array $options
    *   An array of options on the query.
    *
    * @return \Drupal\Core\Database\Query\Truncate
@@ -775,6 +780,9 @@ abstract class Connection implements \Serializable {
    * For some database drivers, it may also wrap the database name in
    * database-specific escape characters.
    *
+   * @param string $database
+   *   An unsanitized database name.
+   *
    * @return string
    *   The sanitized database name string.
    */
@@ -789,7 +797,10 @@ abstract class Connection implements \Serializable {
    * For some database drivers, it may also wrap the table name in
    * database-specific escape characters.
    *
-   * @return
+   * @param string $table
+   *   An unsanitized table name.
+   *
+   * @return string
    *   The sanitized table name string.
    */
   public function escapeTable($table) {
@@ -803,7 +814,9 @@ abstract class Connection implements \Serializable {
    * For some database drivers, it may also wrap the field name in
    * database-specific escape characters.
    *
-   * @return
+   * @param string $field
+   *
+   * @return string
    *   The sanitized field name string.
    */
   public function escapeField($field) {
@@ -818,7 +831,10 @@ abstract class Connection implements \Serializable {
    * DatabaseConnection::escapeTable(), this doesn't allow the period (".")
    * because that is not allowed in aliases.
    *
-   * @return
+   * @param $field
+   *   An unsanitized alias name.
+   *
+   * @return string
    *   The sanitized field name string.
    */
   public function escapeAlias($field) {
@@ -892,10 +908,11 @@ abstract class Connection implements \Serializable {
    *
    * This method throws an exception if no transaction is active.
    *
-   * @param $savepoint_name
+   * @param string $savepoint_name
    *   The name of the savepoint. The default, 'drupal_transaction', will roll
    *   the entire transaction back.
    *
+   * @throws \Drupal\Core\Database\TransactionOutOfOrderException
    * @throws \Drupal\Core\Database\TransactionNoActiveException
    *
    * @see \Drupal\Core\Database\Transaction::rollback()

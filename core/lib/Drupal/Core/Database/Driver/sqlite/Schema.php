@@ -55,6 +55,12 @@ class Schema extends DatabaseSchema {
 
   /**
    * Build the SQL expression for indexes.
+   *
+   * @param string $tablename
+   * @param array $schema
+   *
+   * @return string[]
+   *   Array of SQL statements to create the indexes.
    */
   protected function createIndexSql($tablename, $schema) {
     $sql = array();
@@ -74,6 +80,12 @@ class Schema extends DatabaseSchema {
 
   /**
    * Build the SQL expression for creating columns.
+   *
+   * @param string $tablename
+   * @param array $schema
+   *
+   * @return string
+   *   Generated SQL snippet.
    */
   protected function createColumsSql($tablename, $schema) {
     $sql_array = array();
@@ -565,6 +577,9 @@ class Schema extends DatabaseSchema {
    *   The key definition.
    * @param $mapping
    *   The new mapping.
+   *
+   * @return array
+   *   The modified key definition.
    */
   protected function mapKeyDefinition(array $key_definition, array $mapping) {
     foreach ($key_definition as &$field) {

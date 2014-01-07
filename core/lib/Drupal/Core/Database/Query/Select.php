@@ -106,21 +106,30 @@ class Select extends Query implements SelectInterface {
    * first query to union on the right of the original query, the second union
    * to the right of the first, etc.
    *
-   * @var array
+   * @var array[]
    */
   protected $union = array();
 
   /**
    * Indicates if preExecute() has already been called.
-   * @var boolean
+   *
+   * @var bool
    */
   protected $prepared = FALSE;
 
   /**
    * The FOR UPDATE status
+   *
+   * @var bool
    */
   protected $forUpdate = FALSE;
 
+  /**
+   * @param Connection $table
+   * @param string $alias
+   * @param Connection $connection
+   * @param array $options
+   */
   public function __construct($table, $alias = NULL, Connection $connection, $options = array()) {
     $options['return'] = Database::RETURN_STATEMENT;
     parent::__construct($connection, $options);
@@ -368,21 +377,41 @@ class Select extends Query implements SelectInterface {
     return new $extender_name($this, $this->connection);
   }
 
+  /**
+   * @param string $field
+   *
+   * @return $this
+   */
   public function havingIsNull($field) {
     $this->having->isNull($field);
     return $this;
   }
 
+  /**
+   * @param string $field
+   *
+   * @return $this
+   */
   public function havingIsNotNull($field) {
     $this->having->isNotNull($field);
     return $this;
   }
 
+  /**
+   * @param SelectInterface $select
+   *
+   * @return $this
+   */
   public function havingExists(SelectInterface $select) {
     $this->having->exists($select);
     return $this;
   }
 
+  /**
+   * @param SelectInterface $select
+   *
+   * @return $this
+   */
   public function havingNotExists(SelectInterface $select) {
     $this->having->notExists($select);
     return $this;
