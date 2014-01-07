@@ -45,14 +45,14 @@ class SelectExtender implements SelectInterface {
   }
 
   /**
-   * Implements Drupal\Core\Database\Query\PlaceholderInterface::uniqueIdentifier().
+   * {@inheritdoc}
    */
   public function uniqueIdentifier() {
     return $this->uniqueIdentifier;
   }
 
   /**
-   * Implements Drupal\Core\Database\Query\PlaceholderInterface::nextPlaceholder().
+   * {@inheritdoc}
    */
   public function nextPlaceholder() {
     return $this->placeholder++;
@@ -60,86 +60,140 @@ class SelectExtender implements SelectInterface {
 
   /* Implementations of Drupal\Core\Database\Query\AlterableInterface. */
 
+  /**
+   * {@inheritdoc}
+   */
   public function addTag($tag) {
     $this->query->addTag($tag);
     return $this;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function hasTag($tag) {
     return $this->query->hasTag($tag);
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function hasAllTags() {
     return call_user_func_array(array($this->query, 'hasAllTags'), func_get_args());
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function hasAnyTag() {
     return call_user_func_array(array($this->query, 'hasAnyTags'), func_get_args());
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function addMetaData($key, $object) {
     $this->query->addMetaData($key, $object);
     return $this;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function getMetaData($key) {
     return $this->query->getMetaData($key);
   }
 
   /* Implementations of Drupal\Core\Database\Query\ConditionInterface for the WHERE clause. */
 
+  /**
+   * {@inheritdoc}
+   */
   public function condition($field, $value = NULL, $operator = NULL) {
     $this->query->condition($field, $value, $operator);
     return $this;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function &conditions() {
     return $this->query->conditions();
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function arguments() {
     return $this->query->arguments();
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function where($snippet, $args = array()) {
     $this->query->where($snippet, $args);
     return $this;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function compile(Connection $connection, PlaceholderInterface $queryPlaceholder) {
     return $this->query->compile($connection, $queryPlaceholder);
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function compiled() {
     return $this->query->compiled();
   }
 
-  /* Implementations of Drupal\Core\Database\Query\ConditionInterface for the HAVING clause. */
+  /* Implementations of Drupal\Core\Database\Query\SelectInterface for the HAVING clause. */
 
+  /**
+   * {@inheritdoc}
+   */
   public function havingCondition($field, $value = NULL, $operator = '=') {
     $this->query->havingCondition($field, $value, $operator);
     return $this;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function &havingConditions() {
     return $this->query->havingConditions();
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function havingArguments() {
     return $this->query->havingArguments();
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function having($snippet, $args = array()) {
     $this->query->having($snippet, $args);
     return $this;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function havingCompile(Connection $connection) {
     return $this->query->havingCompile($connection);
   }
 
   /* Implementations of Drupal\Core\Database\Query\ExtendableInterface. */
 
+  /**
+   * {@inheritdoc}
+   */
   public function extend($extender_name) {
     $class = $this->connection->getDriverClass($extender_name);
     return new $class($this, $this->connection);

@@ -358,10 +358,16 @@ class StatementPrefetch implements \Iterator, StatementInterface {
 
   /* Implementations of StatementInterface. */
 
+  /**
+   * {@inheritdoc}
+   */
   public function rowCount() {
     return $this->rowCount;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function fetch($fetch_style = NULL, $cursor_orientation = \PDO::FETCH_ORI_NEXT, $cursor_offset = NULL) {
     if (isset($this->currentRow)) {
       // Set the fetch parameter.
@@ -395,10 +401,16 @@ class StatementPrefetch implements \Iterator, StatementInterface {
     }
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function fetchField($index = 0) {
     return $this->fetchColumn($index);
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function fetchObject($class_name = NULL, $constructor_args = array()) {
     if (isset($this->currentRow)) {
       if (!isset($class_name)) {
@@ -424,6 +436,9 @@ class StatementPrefetch implements \Iterator, StatementInterface {
     }
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function fetchAssoc() {
     if (isset($this->currentRow)) {
       $result = $this->currentRow;
@@ -459,6 +474,9 @@ class StatementPrefetch implements \Iterator, StatementInterface {
     return $result;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function fetchCol($index = 0) {
     if (isset($this->columnNames[$index])) {
       $result = array();
@@ -474,6 +492,9 @@ class StatementPrefetch implements \Iterator, StatementInterface {
     }
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function fetchAllKeyed($key_index = 0, $value_index = 1) {
     if (!isset($this->columnNames[$key_index]) || !isset($this->columnNames[$value_index]))
       return array();
@@ -490,6 +511,9 @@ class StatementPrefetch implements \Iterator, StatementInterface {
     return $result;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function fetchAllAssoc($key, $fetch_style = NULL) {
     $this->fetchStyle = isset($fetch_style) ? $fetch_style : $this->defaultFetchStyle;
     $this->fetchOptions = $this->defaultFetchOptions;

@@ -12,6 +12,9 @@ use Drupal\Core\Database\Query\Update as QueryUpdate;
 
 class Update extends QueryUpdate {
 
+  /**
+   * {@inheritdoc}
+   */
   public function execute() {
     $max_placeholder = 0;
     $blobs = array();

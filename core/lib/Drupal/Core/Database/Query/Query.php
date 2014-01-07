@@ -121,17 +121,14 @@ abstract class Query implements PlaceholderInterface {
   abstract public function __toString();
 
   /**
-   * Returns a unique identifier for this object.
+   * {@inheritdoc}
    */
   public function uniqueIdentifier() {
     return $this->uniqueIdentifier;
   }
 
   /**
-   * Gets the next placeholder value for this query object.
-   *
-   * @return int
-   *   Next placeholder value.
+   * {@inheritdoc}
    */
   public function nextPlaceholder() {
     return $this->nextPlaceholder++;
