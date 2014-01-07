@@ -50,7 +50,7 @@ abstract class Database {
   /**
    * A processed copy of the database connection information from settings.php.
    *
-   * @var array
+   * @var array[]
    */
   static protected $databaseInfo = array();
 
@@ -78,7 +78,7 @@ abstract class Database {
    *   '$db_key' => DatabaseLog object.
    * );
    *
-   * @var array
+   * @var \Drupal\Core\Database\Log[]
    */
   static protected $logs = array();
 
