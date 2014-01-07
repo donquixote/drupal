@@ -288,10 +288,10 @@ abstract class Tasks {
    * Checks to ensure correct basic database settings and that a proper
    * connection to the database can be established.
    *
-   * @param $database
+   * @param array $database
    *   An array of driver specific configuration options.
    *
-   * @return
+   * @return string[]
    *   An array of driver configuration errors, keyed by form element name.
    */
   public function validateDatabaseSettings($database) {

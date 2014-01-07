@@ -145,11 +145,12 @@ class StatementPrefetch implements \Iterator, StatementInterface {
   /**
    * Executes a prepared statement.
    *
-   * @param $args
+   * @param array $args
    *   An array of values with as many elements as there are bound parameters in the SQL statement being executed.
-   * @param $options
+   * @param array $options
    *   An array of options for this query.
-   * @return
+   *
+   * @return bool
    *   TRUE on success, or FALSE on failure.
    */
   public function execute($args = array(), $options = array()) {
@@ -228,7 +229,7 @@ class StatementPrefetch implements \Iterator, StatementInterface {
    * Some drivers (including SQLite) will need to perform some preparation
    * themselves to get the statement right.
    *
-   * @param $query
+   * @param string $query
    *   The query.
    * @param array $args
    *   An array of arguments.
