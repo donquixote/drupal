@@ -237,6 +237,9 @@ class Select extends Query implements SelectInterface {
     // If there are any dependent queries to UNION,
     // incorporate their arguments recursively.
     foreach ($this->union as $union) {
+      if (!$union['query'] instanceof SelectInterface) {
+        continue;
+      }
       $args += $union['query']->arguments();
     }
 
@@ -299,6 +302,10 @@ class Select extends Query implements SelectInterface {
 
     // If there are any dependent queries to UNION, compile it recursively.
     foreach ($this->union as $union) {
+      // @todo Solve this with PHPDoc instead?
+      if (!$union['query'] instanceof SelectInterface) {
+        continue;
+      }
       $union['query']->compile($connection, $queryPlaceholder);
     }
   }
@@ -321,6 +328,10 @@ class Select extends Query implements SelectInterface {
     }
 
     foreach ($this->union as $union) {
+      // @todo Solve this with PHPDoc instead?
+      if (!$union['query'] instanceof SelectInterface) {
+        continue;
+      }
       if (!$union['query']->compiled()) {
         return FALSE;
       }
@@ -540,7 +551,10 @@ class Select extends Query implements SelectInterface {
     }
 
     foreach ($this->union as $union) {
-      $union['query']->preExecute();
+      // @todo Use PHPDoc instead?
+      if ($union['query'] instanceof SelectInterface) {
+        $union['query']->preExecute();
+      }
     }
 
     return $this->prepared;
@@ -833,6 +847,10 @@ class Select extends Query implements SelectInterface {
     // If there are any dependent queries to UNION, prepare each of those for
     // the count query also.
     foreach ($count->union as &$union) {
+      // The method ->prepareCountQuery() is not guaranteed by SelectInterface.
+      if (!$union['query'] instanceof Select) {
+        continue;
+      }
       $union['query'] = $union['query']->prepareCountQuery();
     }
 
