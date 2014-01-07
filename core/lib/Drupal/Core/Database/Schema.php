@@ -165,10 +165,15 @@ use Drupal\Core\Database\Query\PlaceholderInterface;
 
 abstract class Schema implements PlaceholderInterface {
 
+  /**
+   * @var \Drupal\Core\Database\Driver\Sqlite\Connection
+   */
   protected $connection;
 
   /**
    * The placeholder counter.
+   *
+   * @var int
    */
   protected $placeholder = 0;
 
@@ -185,9 +190,14 @@ abstract class Schema implements PlaceholderInterface {
 
   /**
    * A unique identifier for this query object.
+   *
+   * @var string
    */
   protected $uniqueIdentifier;
 
+  /**
+   * @param \Drupal\Core\Database\Driver\Sqlite\Connection $connection
+   */
   public function __construct($connection) {
     $this->uniqueIdentifier = uniqid('', TRUE);
     $this->connection = $connection;
@@ -202,6 +212,8 @@ abstract class Schema implements PlaceholderInterface {
 
   /**
    * Implements PlaceHolderInterface::uniqueIdentifier().
+   *
+   * @return string
    */
   public function uniqueIdentifier() {
     return $this->uniqueIdentifier;

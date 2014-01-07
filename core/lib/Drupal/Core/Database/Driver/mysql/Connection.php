@@ -36,6 +36,9 @@ class Connection extends DatabaseConnection {
 
   /**
    * Constructs a Connection object.
+   *
+   * @param \PDO $connection
+   * @param array $connection_options
    */
   public function __construct(\PDO $connection, array $connection_options = array()) {
     parent::__construct($connection, $connection_options);
@@ -241,6 +244,10 @@ class Connection extends DatabaseConnection {
 
   /**
    * Overridden to work around issues to MySQL not supporting transactional DDL.
+   *
+   * @throws \Drupal\Core\Database\DatabaseExceptionWrapper
+   * @throws \Exception
+   * @throws \Drupal\Core\Database\TransactionCommitFailedException
    */
   protected function popCommittableTransactions() {
     // Commit all the committable layers.

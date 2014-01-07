@@ -168,6 +168,12 @@ class Connection extends DatabaseConnection {
 
   /**
    * SQLite compatibility implementation for the IF() SQL function.
+   *
+   * @param bool $condition
+   * @param mixed $expr1
+   * @param mixed $expr2
+   *
+   * @return null
    */
   public static function sqlFunctionIf($condition, $expr1, $expr2 = NULL) {
     return $condition ? $expr1 : $expr2;
@@ -175,6 +181,12 @@ class Connection extends DatabaseConnection {
 
   /**
    * SQLite compatibility implementation for the GREATEST() SQL function.
+   *
+   * @param ...
+   *   Variadic parameters.
+   *
+   * @return mixed|NULL
+   *   The maximum of the given arguments.
    */
   public static function sqlFunctionGreatest() {
     $args = func_get_args();
@@ -193,6 +205,12 @@ class Connection extends DatabaseConnection {
 
   /**
    * SQLite compatibility implementation for the CONCAT() SQL function.
+   *
+   * @param ...
+   *   Variadic parameters.
+   *
+   * @return string
+   *   Concatenated input arguments.
    */
   public static function sqlFunctionConcat() {
     $args = func_get_args();
@@ -201,6 +219,12 @@ class Connection extends DatabaseConnection {
 
   /**
    * SQLite compatibility implementation for the SUBSTRING() SQL function.
+   *
+   * @param string $string
+   * @param int $from
+   * @param int $length
+   *
+   * @return string
    */
   public static function sqlFunctionSubstring($string, $from, $length) {
     return substr($string, $from - 1, $length);
@@ -208,6 +232,12 @@ class Connection extends DatabaseConnection {
 
   /**
    * SQLite compatibility implementation for the SUBSTRING_INDEX() SQL function.
+   *
+   * @param string $string
+   * @param string $delimiter
+   * @param int $count
+   *
+   * @return string
    */
   public static function sqlFunctionSubstringIndex($string, $delimiter, $count) {
     // If string is empty, simply return an empty string.
@@ -249,6 +279,18 @@ class Connection extends DatabaseConnection {
    * We don't use prepared statements at all at this stage. We just create
    * a Statement object, that will create a PDOStatement
    * using the semi-private PDOPrepare() method below.
+   *
+   * @param string $statement
+   *   This must be a valid SQLite statement.
+   * @param array $driver_options
+   *   See parent method.
+   *
+   * @return \PDOStatement|false
+   *   See parent method.
+   *
+   * @throws \PDOException
+   *
+   * @see \Drupal\Core\Database\Connection::prepare()
    */
   public function prepare($statement, array $driver_options = array()) {
     return new Statement($this->connection, $this, $statement, $driver_options);

@@ -106,18 +106,21 @@ class Select extends Query implements SelectInterface {
    * first query to union on the right of the original query, the second union
    * to the right of the first, etc.
    *
-   * @var array
+   * @var array[]
    */
   protected $union = array();
 
   /**
    * Indicates if preExecute() has already been called.
-   * @var boolean
+   *
+   * @var bool
    */
   protected $prepared = FALSE;
 
   /**
    * The FOR UPDATE status
+   *
+   * @var bool
    */
   protected $forUpdate = FALSE;
 
@@ -383,7 +386,7 @@ class Select extends Query implements SelectInterface {
   /**
    * Sets a condition in the HAVING clause that the specified field be NULL.
    *
-   * @param $field
+   * @param string $field
    *   The name of the field to check.
    *
    * @return $this
@@ -396,7 +399,7 @@ class Select extends Query implements SelectInterface {
   /**
    * Sets a condition in the HAVING clause that the specified field be NOT NULL.
    *
-   * @param $field
+   * @param string $field
    *   The name of the field to check.
    *
    * @return $this

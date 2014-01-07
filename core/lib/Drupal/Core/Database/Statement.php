@@ -36,6 +36,9 @@ class Statement extends \PDOStatement implements StatementInterface {
    */
   public $allowRowCount = FALSE;
 
+  /**
+   * @param \Drupal\Core\Database\Connection $dbh
+   */
   protected function __construct(Connection $dbh) {
     $this->dbh = $dbh;
     $this->setFetchMode(\PDO::FETCH_OBJ);

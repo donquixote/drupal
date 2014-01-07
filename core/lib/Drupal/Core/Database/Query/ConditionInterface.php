@@ -124,6 +124,8 @@ interface ConditionInterface {
    *
    * There will also be a single array entry of #conjunction, which is the
    * conjunction that will be applied to the array, such as AND.
+   *
+   * @return array
    */
   public function &conditions();
 
