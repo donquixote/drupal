@@ -5,6 +5,7 @@
  * Contains Drupal.
  */
 
+use Drupal\Core\DependencyInjection\EmptyContainer;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -558,3 +559,6 @@ class Drupal {
   }
 
 }
+
+// Set an empty container to throw exceptions.
+Drupal::setContainer(new EmptyContainer());
