@@ -100,7 +100,7 @@ interface StatementInterface extends \Traversable {
    *
    * @see \PDOStatement::setFetchMode()
    */
-  // public function setFetchMode($mode, $a1 = NULL, $a2 = array());
+  public function setFetchMode($mode, $a1 = NULL, array $a2 = NULL);
 
   /**
    * Fetches the next row from a result set.
@@ -119,7 +119,7 @@ interface StatementInterface extends \Traversable {
    * @return mixed
    *   A result, formatted according to $mode.
    */
-  // public function fetch($mode = NULL, $cursor_orientation = NULL, $cursor_offset = NULL);
+  public function fetch($mode = NULL, $cursor_orientation = NULL, $cursor_offset = NULL);
 
   /**
    * Returns a single field from the next record of a result set.
@@ -138,7 +138,7 @@ interface StatementInterface extends \Traversable {
    * The object will be of the class specified by StatementInterface::setFetchMode()
    * or stdClass if not specified.
    */
-  // public function fetchObject();
+  public function fetchObject();
 
   /**
    * Fetches the next row and returns it as an associative array.
@@ -165,7 +165,7 @@ interface StatementInterface extends \Traversable {
    * @return array[]|object[]|mixed[]
    *   An array of results.
    */
-  // function fetchAll($mode = NULL, $column_index = NULL, array $constructor_arguments);
+  function fetchAll($mode = NULL, $column_index = NULL, $constructor_arguments = NULL);
 
   /**
    * Returns an entire single column of a result set as an indexed array.
