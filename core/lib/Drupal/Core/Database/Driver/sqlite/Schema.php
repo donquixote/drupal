@@ -39,11 +39,12 @@ class Schema extends DatabaseSchema {
   /**
    * Generate SQL to create a new table from a Drupal schema definition.
    *
-   * @param $name
+   * @param string $name
    *   The name of the table to create.
-   * @param $table
+   * @param array $table
    *   A Schema API table definition array.
-   * @return
+   *
+   * @return array
    *   An array of SQL statements to create the table.
    */
   public function createTableSql($name, $table) {
@@ -356,13 +357,13 @@ class Schema extends DatabaseSchema {
    * As SQLite does not support ALTER TABLE (with a few exceptions) it is
    * necessary to create a new table and copy over the old content.
    *
-   * @param $table
+   * @param string $table
    *   Name of the table to be altered.
-   * @param $old_schema
+   * @param array $old_schema
    *   The old schema array for the table.
-   * @param $new_schema
+   * @param array $new_schema
    *   The new schema array for the table.
-   * @param $mapping
+   * @param array $mapping
    *   An optional mapping between the fields of the old specification and the
    *   fields of the new specification. An associative array, whose keys are
    *   the fields of the new table, and values can take two possible forms:
@@ -421,9 +422,10 @@ class Schema extends DatabaseSchema {
    * create a schema array. This is useful, for example, during update when
    * the old schema is not available.
    *
-   * @param $table
+   * @param string $table
    *   Name of the table.
-   * @return
+   *
+   * @return array
    *   An array representing the schema, from drupal_get_schema().
    * @see drupal_get_schema()
    */
