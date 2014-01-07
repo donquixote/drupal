@@ -38,7 +38,7 @@ class Schema extends DatabaseSchema {
    * We introspect the database to collect the information required by insert
    * and update queries.
    *
-   * @param $table_name
+   * @param string $table
    *   The non-prefixed name of the table.
    *
    * @return \stdClass
