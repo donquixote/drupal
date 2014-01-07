@@ -15,6 +15,7 @@ use Drupal\Core\Entity\EntityControllerInterface;
 use Drupal\Core\Entity\EntityStorageControllerInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
+use Drupal\views\Entity\View;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -82,6 +83,9 @@ class ViewListController extends ConfigEntityListController implements EntityCon
    * {@inheritdoc}
    */
   public function buildRow(EntityInterface $view) {
+    if (!$view instanceof View) {
+      throw new \Exception('$view must be an instance of \Drupal\views\Entity\View.');
+    }
     $row = parent::buildRow($view);
     return array(
       'data' => array(
@@ -210,6 +214,7 @@ class ViewListController extends ConfigEntityListController implements EntityCon
         '#header' => $this->buildHeader(),
         '#rows' => array(),
       );
+      /** @var EntityInterface $entity */
       foreach ($entities[$status] as $entity) {
         $list[$status]['table']['#rows'][$entity->id()] = $this->buildRow($entity);
       }
@@ -225,13 +230,13 @@ class ViewListController extends ConfigEntityListController implements EntityCon
   /**
    * Gets a list of displays included in the view.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $view
+   * @param \Drupal\views\Entity\View $view
    *   The view entity instance to get a list of displays for.
    *
    * @return array
    *   An array of display types that this view includes.
    */
-  protected function getDisplaysList(EntityInterface $view) {
+  protected function getDisplaysList(View $view) {
     $displays = array();
     foreach ($view->get('display') as $display) {
       $definition = $this->displayManager->getDefinition($display['display_plugin']);
@@ -247,13 +252,13 @@ class ViewListController extends ConfigEntityListController implements EntityCon
   /**
    * Gets a list of paths assigned to the view.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $view
+   * @param \Drupal\views\Entity\View $view
    *   The view entity.
    *
    * @return array
    *   An array of paths for this view.
    */
-  protected function getDisplayPaths(EntityInterface $view) {
+  protected function getDisplayPaths(View $view) {
     $all_paths = array();
     $executable = $view->getExecutable();
     $executable->initDisplay();

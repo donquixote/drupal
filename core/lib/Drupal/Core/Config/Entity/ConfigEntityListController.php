@@ -17,6 +17,8 @@ class ConfigEntityListController extends EntityListController {
 
   /**
    * Overrides Drupal\Core\Entity\EntityListController::load().
+   *
+   * @return \Drupal\Core\Config\Entity\ConfigEntityBase[]
    */
   public function load() {
     $entities = parent::load();

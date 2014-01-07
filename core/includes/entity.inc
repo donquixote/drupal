@@ -329,7 +329,7 @@ function entity_load_multiple($entity_type, array $ids = NULL, $reset = FALSE) {
  *   An associative array where the keys are the property names and the
  *   values are the values those properties must have.
  *
- * @return array
+ * @return \Drupal\Core\Entity\EntityInterface[]
  *   An array of entity objects indexed by their ids.
  */
 function entity_load_multiple_by_properties($entity_type, array $values) {
@@ -351,7 +351,7 @@ function entity_load_multiple_by_properties($entity_type, array $values) {
  * @param $id
  *   The ID of the entity to load.
  *
- * @return
+ * @return \Drupal\Core\Entity\EntityInterface|false
  *   The unchanged entity, or FALSE if the entity cannot be loaded.
  */
 function entity_load_unchanged($entity_type, $id) {
@@ -365,7 +365,7 @@ function entity_load_unchanged($entity_type, $id) {
  *
  * @param string $entity_type
  *   The type of the entity.
- * @param array $ids
+ * @param int[] $ids
  *   An array of entity IDs of the entities to delete.
  */
 function entity_delete_multiple($entity_type, array $ids) {
@@ -377,7 +377,7 @@ function entity_delete_multiple($entity_type, array $ids) {
 /**
  * Constructs a new entity object, without permanently saving it.
  *
- * @param $entity_type
+ * @param string $entity_type
  *   The type of the entity.
  * @param $values
  *   An array of values to set, keyed by property name. If the entity type has

@@ -204,7 +204,7 @@ class ViewExecutable {
    * An array containing Drupal\views\Plugin\views\display\DisplayPluginBase
    * objects.
    *
-   * @var \Drupal\views\DisplayBag
+   * @var \Drupal\views\DisplayBag|\Drupal\views\Plugin\views\display\DisplayPluginBase[]
    */
   public $displayHandlers;
 
