@@ -24,6 +24,15 @@ class Truncate extends Query {
   protected $table;
 
   /**
+   * The condition object for this query.
+   *
+   * Condition handling is handled via composition.
+   *
+   * @var Condition
+   */
+  protected $condition;
+
+  /**
    * Constructs a Truncate query object.
    *
    * @param \Drupal\Core\Database\Connection $connection
@@ -40,14 +49,14 @@ class Truncate extends Query {
   }
 
   /**
-   * Implements Drupal\Core\Database\Query\ConditionInterface::compile().
+   * {@inheritdoc}
    */
   public function compile(Connection $connection, PlaceholderInterface $queryPlaceholder) {
-    return $this->condition->compile($connection, $queryPlaceholder);
+    $this->condition->compile($connection, $queryPlaceholder);
   }
 
   /**
-   * Implements Drupal\Core\Database\Query\ConditionInterface::compiled().
+   * {@inheritdoc}
    */
   public function compiled() {
     return $this->condition->compiled();
@@ -56,7 +65,7 @@ class Truncate extends Query {
   /**
    * Executes the TRUNCATE query.
    *
-   * @return
+   * @return \Drupal\Core\Database\StatementInterface|int
    *   Return value is dependent on the database type.
    */
   public function execute() {

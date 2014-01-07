@@ -7,7 +7,6 @@
 
 namespace Drupal\Core\Database;
 
-use Drupal\Core\Database\SchemaObjectExistsException;
 use Drupal\Core\Database\Query\Condition;
 use Drupal\Core\Database\Query\PlaceholderInterface;
 
@@ -165,10 +164,15 @@ use Drupal\Core\Database\Query\PlaceholderInterface;
 
 abstract class Schema implements PlaceholderInterface {
 
+  /**
+   * @var \Drupal\Core\Database\Driver\Sqlite\Connection
+   */
   protected $connection;
 
   /**
    * The placeholder counter.
+   *
+   * @var int
    */
   protected $placeholder = 0;
 
@@ -185,9 +189,14 @@ abstract class Schema implements PlaceholderInterface {
 
   /**
    * A unique identifier for this query object.
+   *
+   * @var string
    */
   protected $uniqueIdentifier;
 
+  /**
+   * @param \Drupal\Core\Database\Driver\Sqlite\Connection $connection
+   */
   public function __construct($connection) {
     $this->uniqueIdentifier = uniqid('', TRUE);
     $this->connection = $connection;
@@ -202,6 +211,8 @@ abstract class Schema implements PlaceholderInterface {
 
   /**
    * Implements PlaceHolderInterface::uniqueIdentifier().
+   *
+   * @return string
    */
   public function uniqueIdentifier() {
     return $this->uniqueIdentifier;
@@ -215,15 +226,28 @@ abstract class Schema implements PlaceholderInterface {
   }
 
   /**
+   * Generate SQL to create a new table from a Drupal schema definition.
+   *
+   * @param string $name
+   *   The name of the table to create.
+   * @param array $table
+   *   A Schema API table definition array.
+   *
+   * @return string[]
+   *   An array of SQL statements to create the table.
+   */
+  abstract protected function createTableSql($name, $table);
+
+  /**
    * Get information about the table name and schema from the prefix.
    *
-   * @param
+   * @param string $table
    *   Name of table to look prefix up for. Defaults to 'default' because thats
    *   default key for prefix.
-   * @param $add_prefix
-   *   Boolean that indicates whether the given table name should be prefixed.
+   * @param bool $add_prefix
+   *   TRUE, if the given table name should be prefixed. FALSE, otherwise.
    *
-   * @return
+   * @return array
    *   A keyed array with information about the schema, table name and prefix.
    */
   protected function getPrefixInfo($table = 'default', $add_prefix = TRUE) {
@@ -278,7 +302,7 @@ abstract class Schema implements PlaceholderInterface {
    * to make all the others work. For example see
    * core/includes/databases/mysql/schema.inc.
    *
-   * @param $table_name
+   * @param string $table_name
    *   The name of the table in question.
    * @param $operator
    *   The operator to apply on the 'table' part of the condition.
@@ -304,10 +328,10 @@ abstract class Schema implements PlaceholderInterface {
   /**
    * Check if a table exists.
    *
-   * @param $table
+   * @param string $table
    *   The name of the table in drupal (no prefixing).
    *
-   * @return
+   * @return bool
    *   TRUE if the given table exists, otherwise FALSE.
    */
   public function tableExists($table) {
@@ -346,12 +370,12 @@ abstract class Schema implements PlaceholderInterface {
   /**
    * Check if a column exists in the given table.
    *
-   * @param $table
+   * @param string $table
    *   The name of the table in drupal (no prefixing).
-   * @param $name
+   * @param string $column
    *   The name of the column.
    *
-   * @return
+   * @return bool
    *   TRUE if the given column exists, otherwise FALSE.
    */
   public function fieldExists($table, $column) {
@@ -689,10 +713,12 @@ abstract class Schema implements PlaceholderInterface {
    * This is usually an identity function but if a key/index uses a column prefix
    * specification, this function extracts just the name.
    *
-   * @param $fields
-   *   An array of key/index column specifiers.
+   * @param array $fields
+   *   An array of key/index column specifiers. Each array value can be either
+   *   - a string field name.
+   *   - an of two strings: array($field_name, $field_alias).
    *
-   * @return
+   * @return string[]
    *   An array of field names.
    */
   public function fieldNames($fields) {
@@ -711,13 +737,13 @@ abstract class Schema implements PlaceholderInterface {
   /**
    * Prepare a table or column comment for database query.
    *
-   * @param $comment
+   * @param string $comment
    *   The comment string to prepare.
-   * @param $length
+   * @param int $length
    *   Optional upper limit on the returned string length.
    *
-   * @return
-   *   The prepared comment.
+   * @return string|false
+   *   The prepared comment, or FALSE if the driver does not support it.
    */
   public function prepareComment($comment, $length = NULL) {
     return $this->connection->quote($comment);

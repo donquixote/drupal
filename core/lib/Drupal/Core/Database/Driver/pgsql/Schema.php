@@ -7,9 +7,6 @@
 
 namespace Drupal\Core\Database\Driver\pgsql;
 
-use Drupal\Component\Utility\String;
-use Drupal\Core\Database\Database;
-use Drupal\Core\Database\Query\Condition;
 use Drupal\Core\Database\SchemaObjectExistsException;
 use Drupal\Core\Database\SchemaObjectDoesNotExistException;
 use Drupal\Core\Database\Schema as DatabaseSchema;
@@ -38,9 +35,10 @@ class Schema extends DatabaseSchema {
    * We introspect the database to collect the information required by insert
    * and update queries.
    *
-   * @param $table_name
+   * @param string $table
    *   The non-prefixed name of the table.
-   * @return
+   *
+   * @return \stdClass
    *   An object with two member variables:
    *     - 'blob_fields' that lists all the blob fields in the table.
    *     - 'sequences' that lists the sequences used in that table.
@@ -115,11 +113,12 @@ class Schema extends DatabaseSchema {
   /**
    * Generate SQL to create a new table from a Drupal schema definition.
    *
-   * @param $name
+   * @param string $name
    *   The name of the table to create.
-   * @param $table
+   * @param array $table
    *   A Schema API table definition array.
-   * @return
+   *
+   * @return string[]
    *   An array of SQL statements to create the table.
    */
   protected function createTableSql($name, $table) {
@@ -176,9 +175,12 @@ class Schema extends DatabaseSchema {
    * function it has to be processed by _db_process_field().
    *
    * @param $name
-   *    Name of the field.
+   *   Name of the field.
    * @param $spec
-   *    The field specification, as per the schema data structure format.
+   *   The field specification, as per the schema data structure format.
+   *
+   * @return string
+   *   Generated SQL string.
    */
   protected function createFieldSql($name, $spec) {
     $sql = $name . ' ' . $spec['pgsql_type'];
@@ -305,6 +307,15 @@ class Schema extends DatabaseSchema {
     return $map;
   }
 
+  /**
+   * @param array $fields
+   *   Array of field definitions. Each array value is either
+   *   - a field name (string), or
+   *   - an array of two strings, array($field_name, $alias).
+   *
+   * @return string
+   *   Generated SQL snippet.
+   */
   protected function _createKeySql($fields) {
     $return = array();
     foreach ($fields as $field) {
@@ -443,6 +454,9 @@ class Schema extends DatabaseSchema {
    *   The name of the table.
    * @param $name
    *   The name of the constraint (typically 'pkey' or '[constraint]_key').
+   *
+   * @return bool
+   *   TRUE, if the constraint exists.
    */
   protected function constraintExists($table, $name) {
     $constraint_name = '{' . $table . '}_' . $name;
@@ -611,6 +625,17 @@ class Schema extends DatabaseSchema {
     }
   }
 
+  /**
+   * @param string $table
+   * @param string $name
+   * @param array $fields
+   *   Array of field definitions. Each array value is either
+   *   - a field name (string), or
+   *   - an array of two strings, array($field_name, $alias).
+   *
+   * @return string
+   *   Generated SQL snippet.
+   */
   protected function _createIndexSql($table, $name, $fields) {
     $query = 'CREATE INDEX "' . $this->prefixNonTable($table, $name, 'idx') . '" ON {' . $table . '} (';
     $query .= $this->_createKeySql($fields) . ')';

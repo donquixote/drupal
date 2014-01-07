@@ -84,13 +84,13 @@ class Insert extends Query {
    * ignored. To queue up multiple sets of values to be inserted at once,
    * use the values() method.
    *
-   * @param $fields
+   * @param array $fields
    *   An array of fields on which to insert. This array may be indexed or
    *   associative. If indexed, the array is taken to be the list of fields.
    *   If associative, the keys of the array are taken to be the fields and
    *   the values are taken to be corresponding values to insert. If a
    *   $values argument is provided, $fields must be indexed.
-   * @param $values
+   * @param array $values
    *   An array of fields to insert into the database. The values must be
    *   specified in the same order as the $fields array.
    *
@@ -122,10 +122,10 @@ class Insert extends Query {
    * in any order as long as the keys of the array match the names of the
    * fields.
    *
-   * @param $values
+   * @param array $values
    *   An array of values to add to the query.
    *
-   * @return \Drupal\Core\Database\Query\Insert
+   * @return $this
    *   The called object.
    */
   public function values(array $values) {
@@ -134,6 +134,7 @@ class Insert extends Query {
     }
     else {
       // Reorder the submitted values to match the fields array.
+      $insert_values = array();
       foreach ($this->insertFields as $key) {
         $insert_values[$key] = $values[$key];
       }
@@ -184,7 +185,8 @@ class Insert extends Query {
   /**
    * Executes the insert query.
    *
-   * @return
+   * @throws \Exception
+   * @return \Drupal\Core\Database\StatementInterface|int|NULL
    *   The last insert ID of the query, if one exists. If the query
    *   was given multiple sets of values to insert, the return value is
    *   undefined. If no fields are specified, this method will do nothing and
@@ -263,7 +265,7 @@ class Insert extends Query {
   /**
    * Preprocesses and validates the query.
    *
-   * @return
+   * @return bool
    *   TRUE if the validation was successful, FALSE if not.
    *
    * @throws \Drupal\Core\Database\Query\FieldsOverlapException

@@ -32,6 +32,9 @@ class Connection extends DatabaseConnection {
 
   /**
    * Constructs a connection object.
+   *
+   * @param \PDO $connection
+   * @param array $connection_options
    */
   public function __construct(\PDO $connection, array $connection_options) {
     parent::__construct($connection, $connection_options);
@@ -52,6 +55,17 @@ class Connection extends DatabaseConnection {
     if (isset($connection_options['init_commands'])) {
       $this->connection->exec(implode('; ', $connection_options['init_commands']));
     }
+  }
+
+  /**
+   * Returns a DatabaseSchema object for manipulating the schema.
+   *
+   * @return \Drupal\Core\Database\Driver\pgsql\Schema
+   *   The database Schema object for this connection. Unlike the parent
+   *   implementation, this returns a pgsql-specific Schema implementation.
+   */
+  public function schema() {
+    return parent::schema();
   }
 
   /**
@@ -101,7 +115,9 @@ class Connection extends DatabaseConnection {
     return $pdo;
   }
 
-
+  /**
+   * {@inheritdoc}
+   */
   public function query($query, array $args = array(), $options = array()) {
 
     $options += $this->defaultOptions();
@@ -130,7 +146,10 @@ class Connection extends DatabaseConnection {
 
       switch ($options['return']) {
         case Database::RETURN_STATEMENT:
-          $stmt->allowRowCount = FALSE;
+          // Only some statement types expose the ->allowRowCount property.
+          if (isset($stmt->allowRowCount)) {
+            $stmt->allowRowCount = FALSE;
+          }
           return $stmt;
         case Database::RETURN_AFFECTED:
           return $stmt->rowCount();
@@ -149,7 +168,7 @@ class Connection extends DatabaseConnection {
           $e = new IntegrityConstraintViolationException($e->getMessage(), $e->getCode(), $e);
         }
         // Add additional debug information.
-        if ($query instanceof StatementInterface) {
+        if (isset($stmt) && $stmt instanceof StatementInterface) {
           $e->query_string = $stmt->getQueryString();
         }
         else {
@@ -162,6 +181,9 @@ class Connection extends DatabaseConnection {
     }
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function prepareQuery($query) {
     // mapConditionOperator converts LIKE operations to ILIKE for consistency
     // with MySQL. However, Postgres does not support ILIKE on bytea (blobs)
@@ -173,20 +195,32 @@ class Connection extends DatabaseConnection {
     return parent::prepareQuery(preg_replace('/ ([^ ]+) +(I*LIKE|NOT +I*LIKE) /i', ' ${1}::text ${2} ', $query));
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function queryRange($query, $from, $count, array $args = array(), array $options = array()) {
     return $this->query($query . ' LIMIT ' . (int) $count . ' OFFSET ' . (int) $from, $args, $options);
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function queryTemporary($query, array $args = array(), array $options = array()) {
     $tablename = $this->generateTemporaryTableName();
     $this->query(preg_replace('/^SELECT/i', 'CREATE TEMPORARY TABLE {' . $tablename . '} AS SELECT', $query), $args, $options);
     return $tablename;
   }
 
+  /**
+   * @return string
+   */
   public function driver() {
     return 'pgsql';
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function databaseType() {
     return 'pgsql';
   }
@@ -214,13 +248,16 @@ class Connection extends DatabaseConnection {
 
     try {
       // Create the database and set it as active.
-      $this->exec("CREATE DATABASE $database WITH TEMPLATE template0 ENCODING='utf8' LC_CTYPE='$locale.utf8' LC_COLLATE='$locale.utf8'");
+      $this->connection->exec("CREATE DATABASE $database WITH TEMPLATE template0 ENCODING='utf8' LC_CTYPE='$locale.utf8' LC_COLLATE='$locale.utf8'");
     }
     catch (\Exception $e) {
       throw new DatabaseNotFoundException($e->getMessage());
     }
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function mapConditionOperator($operator) {
     static $specials = array(
       // In PostgreSQL, 'LIKE' is case-sensitive. For case-insensitive LIKE
@@ -237,6 +274,10 @@ class Connection extends DatabaseConnection {
    *
    * PostgreSQL has built in sequences. We'll use these instead of inserting
    * and updating a sequences table.
+   *
+   * @param int $existing
+   *
+   * @return int
    */
   public function nextId($existing = 0) {
 

@@ -7,11 +7,23 @@
 
 namespace Drupal\Core\Database\Driver\pgsql;
 
-use Drupal\Core\Database\Database;
 use Drupal\Core\Database\Query\Update as QueryUpdate;
 
 class Update extends QueryUpdate {
 
+  /**
+   * The connection object on which to run this query.
+   *
+   * Overrides \Drupal\Core\Database\Query\Insert->$connection, to allow for a
+   * pgsql-specific type hint.
+   *
+   * @var \Drupal\Core\Database\Driver\pgsql\Connection
+   */
+  protected $connection;
+
+  /**
+   * {@inheritdoc}
+   */
   public function execute() {
     $max_placeholder = 0;
     $blobs = array();
@@ -19,6 +31,7 @@ class Update extends QueryUpdate {
 
     // Because we filter $fields the same way here and in __toString(), the
     // placeholders will all match up properly.
+    /** @var \Drupal\Core\Database\Statement $stmt */
     $stmt = $this->connection->prepareQuery((string) $this);
 
     // Fetch the list of blobs and sequences used on that table.

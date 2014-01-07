@@ -50,7 +50,7 @@ abstract class Database {
   /**
    * A processed copy of the database connection information from settings.php.
    *
-   * @var array
+   * @var array[]
    */
   static protected $databaseInfo = NULL;
 
@@ -78,7 +78,7 @@ abstract class Database {
    *   '$db_key' => DatabaseLog object.
    * );
    *
-   * @var array
+   * @var \Drupal\Core\Database\Log[]
    */
   static protected $logs = array();
 
@@ -104,6 +104,7 @@ abstract class Database {
       // Every target already active for this connection key needs to have the
       // logging object associated with it.
       if (!empty(self::$connections[$key])) {
+        /** @var \Drupal\Core\Database\Connection $connection */
         foreach (self::$connections[$key] as $connection) {
           $connection->setLogger(self::$logs[$key]);
         }
@@ -179,7 +180,7 @@ abstract class Database {
    * Note that this method will return FALSE if no connection has been
    * established yet, even if one could be.
    *
-   * @return
+   * @return bool
    *   TRUE if there is at least one database connection established, FALSE
    *   otherwise.
    */
@@ -190,7 +191,9 @@ abstract class Database {
   /**
    * Sets the active connection to the specified key.
    *
-   * @return
+   * @param string $key
+   *
+   * @return string
    *   The previous database connection key.
    */
   final public static function setActiveConnection($key = 'default') {
@@ -282,8 +285,10 @@ abstract class Database {
   /**
    * Gets information on the specified database connection.
    *
-   * @param $connection
+   * @param string $key
    *   The connection key for which we want information.
+   *
+   * @return array
    */
   final public static function getConnectionInfo($key = 'default') {
     if (empty(self::$databaseInfo)) {
@@ -298,11 +303,12 @@ abstract class Database {
   /**
    * Rename a connection and its corresponding connection information.
    *
-   * @param $old_key
+   * @param string $old_key
    *   The old connection key.
-   * @param $new_key
+   * @param string $new_key
    *   The new connection key.
-   * @return
+   *
+   * @return bool
    *   TRUE in case of success, FALSE otherwise.
    */
   final public static function renameConnection($old_key, $new_key) {
@@ -331,9 +337,10 @@ abstract class Database {
   /**
    * Remove a connection and its corresponding connection information.
    *
-   * @param $key
+   * @param string $key
    *   The connection key.
-   * @return
+   *
+   * @return bool
    *   TRUE in case of success, FALSE otherwise.
    */
   final public static function removeConnection($key) {
@@ -350,11 +357,13 @@ abstract class Database {
   /**
    * Opens a connection to the server specified by the given key and target.
    *
-   * @param $key
+   * @param string $key
    *   The database connection key, as specified in settings.php. The default is
    *   "default".
-   * @param $target
+   * @param string $target
    *   The database target to open.
+   *
+   * @return \Drupal\Core\Database\Connection
    *
    * @throws \Drupal\Core\Database\ConnectionNotDefinedException
    * @throws \Drupal\Core\Database\DriverNotSpecifiedException
@@ -382,7 +391,9 @@ abstract class Database {
       $driver_class = "Drupal\\Core\\Database\\Driver\\{$driver}\\Connection";
     }
 
+    /** @var \Drupal\Core\Database\Connection $driver_class */
     $pdo_connection = $driver_class::open(self::$databaseInfo[$key][$target]);
+    /** @var \Drupal\Core\Database\Connection $new_connection */
     $new_connection = new $driver_class($pdo_connection, self::$databaseInfo[$key][$target]);
     $new_connection->setTarget($target);
     $new_connection->setKey($key);
@@ -416,15 +427,18 @@ abstract class Database {
     // yet and we just ensure that the connection key is undefined.
     if (isset($target)) {
       if (isset(self::$connections[$key][$target])) {
-        self::$connections[$key][$target]->destroy();
+        /** @var \Drupal\Core\Database\Connection $connection */
+        $connection = self::$connections[$key][$target];
+        $connection->destroy();
         self::$connections[$key][$target] = NULL;
       }
       unset(self::$connections[$key][$target]);
     }
     else {
       if (isset(self::$connections[$key])) {
+        /** @var \Drupal\Core\Database\Connection $connection */
         foreach (self::$connections[$key] as $target => $connection) {
-          self::$connections[$key][$target]->destroy();
+          $connection->destroy();
           self::$connections[$key][$target] = NULL;
         }
       }

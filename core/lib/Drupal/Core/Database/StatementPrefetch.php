@@ -7,15 +7,13 @@
 
 namespace Drupal\Core\Database;
 
-use Drupal\Core\Database\Connection;
-
 /**
  * An implementation of StatementInterface that prefetches all data.
  *
  * This class behaves very similar to a \PDOStatement but as it always fetches
  * every row it is possible to manipulate those results.
  */
-class StatementPrefetch implements \Iterator, StatementInterface {
+class StatementPrefetch implements \Iterator, ExtendedStatementInterface {
 
   /**
    * The query string.
@@ -135,6 +133,12 @@ class StatementPrefetch implements \Iterator, StatementInterface {
    */
   public $allowRowCount = FALSE;
 
+  /**
+   * @param \PDO $dbh
+   * @param \Drupal\Core\Database\Connection $connection
+   * @param string $query
+   * @param array $driver_options
+   */
   public function __construct(\PDO $dbh, Connection $connection, $query, array $driver_options = array()) {
     $this->dbh = $dbh;
     $this->connection = $connection;
@@ -145,11 +149,12 @@ class StatementPrefetch implements \Iterator, StatementInterface {
   /**
    * Executes a prepared statement.
    *
-   * @param $args
+   * @param array $args
    *   An array of values with as many elements as there are bound parameters in the SQL statement being executed.
-   * @param $options
+   * @param array $options
    *   An array of options for this query.
-   * @return
+   *
+   * @return bool
    *   TRUE on success, or FALSE on failure.
    */
   public function execute($args = array(), $options = array()) {
@@ -241,12 +246,19 @@ class StatementPrefetch implements \Iterator, StatementInterface {
 
   /**
    * Return the object's SQL query string.
+   *
+   * @return string
    */
   public function getQueryString() {
     return $this->queryString;
   }
 
   /**
+   * @param int $fetchStyle
+   *   One of the PDO::FETCH_* constants.
+   * @param $a2
+   * @param $a3
+   *
    * @see \PDOStatement::setFetchMode()
    */
   public function setFetchMode($fetchStyle, $a2 = NULL, $a3 = NULL) {
@@ -278,8 +290,8 @@ class StatementPrefetch implements \Iterator, StatementInterface {
    * array position in $this->data and format it according to $this->fetchStyle
    * and $this->fetchMode.
    *
-   * @return
-   *  The current row formatted as requested.
+   * @return array|mixed|object
+   *   The current row formatted as requested.
    */
   public function current() {
     if (isset($this->currentRow)) {
@@ -297,8 +309,9 @@ class StatementPrefetch implements \Iterator, StatementInterface {
           // \PDO::FETCH_OBJ.
         case \PDO::FETCH_OBJ:
           return (object) $this->currentRow;
+        /** @noinspection PhpMissingBreakStatementInspection */
         case \PDO::FETCH_CLASS | \PDO::FETCH_CLASSTYPE:
-          $class_name = array_unshift($this->currentRow);
+          $class_name = array_shift($this->currentRow);
           // Deliberate no break.
         case \PDO::FETCH_CLASS:
           if (!isset($class_name)) {
@@ -321,11 +334,11 @@ class StatementPrefetch implements \Iterator, StatementInterface {
           }
           return $this->fetchOptions['object'];
         case \PDO::FETCH_COLUMN:
-          if (isset($this->columnNames[$this->fetchOptions['column']])) {
+          if (isset($this->columnNames[$this->fetchOptions['column']]) && isset($k)) {
             return $this->currentRow[$k][$this->columnNames[$this->fetchOptions['column']]];
           }
           else {
-            return;
+            return NULL;
           }
       }
     }
@@ -358,10 +371,16 @@ class StatementPrefetch implements \Iterator, StatementInterface {
 
   /* Implementations of StatementInterface. */
 
+  /**
+   * {@inheritdoc}
+   */
   public function rowCount() {
     return $this->rowCount;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function fetch($fetch_style = NULL, $cursor_orientation = \PDO::FETCH_ORI_NEXT, $cursor_offset = NULL) {
     if (isset($this->currentRow)) {
       // Set the fetch parameter.
@@ -383,6 +402,17 @@ class StatementPrefetch implements \Iterator, StatementInterface {
     }
   }
 
+  /**
+   * Returns a single field value from the next row of a result set.
+   *
+   * Mimicks the \PDO::fetchColumn() method.
+   * @link http://php.net/manual/en/pdostatement.fetchcolumn.php
+   *
+   * @param int $index
+   *   The column index.
+   * @return string|false
+   *   The fetched field value, or FALSE, if no further row was found.
+   */
   public function fetchColumn($index = 0) {
     if (isset($this->currentRow) && isset($this->columnNames[$index])) {
       // We grab the value directly from $this->data, and format it.
@@ -395,10 +425,16 @@ class StatementPrefetch implements \Iterator, StatementInterface {
     }
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function fetchField($index = 0) {
     return $this->fetchColumn($index);
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function fetchObject($class_name = NULL, $constructor_args = array()) {
     if (isset($this->currentRow)) {
       if (!isset($class_name)) {
@@ -424,6 +460,9 @@ class StatementPrefetch implements \Iterator, StatementInterface {
     }
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function fetchAssoc() {
     if (isset($this->currentRow)) {
       $result = $this->currentRow;
@@ -435,7 +474,10 @@ class StatementPrefetch implements \Iterator, StatementInterface {
     }
   }
 
-  public function fetchAll($fetch_style = NULL, $fetch_column = NULL, $constructor_args = NULL) {
+  /**
+   * {@inheritdoc}
+   */
+  public function fetchAll($fetch_style = NULL, $fetch_column = NULL, array $constructor_args = NULL) {
     $this->fetchStyle = isset($fetch_style) ? $fetch_style : $this->defaultFetchStyle;
     $this->fetchOptions = $this->defaultFetchOptions;
     if (isset($fetch_column)) {
@@ -459,6 +501,9 @@ class StatementPrefetch implements \Iterator, StatementInterface {
     return $result;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function fetchCol($index = 0) {
     if (isset($this->columnNames[$index])) {
       $result = array();
@@ -474,6 +519,9 @@ class StatementPrefetch implements \Iterator, StatementInterface {
     }
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function fetchAllKeyed($key_index = 0, $value_index = 1) {
     if (!isset($this->columnNames[$key_index]) || !isset($this->columnNames[$value_index]))
       return array();
@@ -490,6 +538,9 @@ class StatementPrefetch implements \Iterator, StatementInterface {
     return $result;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function fetchAllAssoc($key, $fetch_style = NULL) {
     $this->fetchStyle = isset($fetch_style) ? $fetch_style : $this->defaultFetchStyle;
     $this->fetchOptions = $this->defaultFetchOptions;
