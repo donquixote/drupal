@@ -134,6 +134,7 @@ class Insert extends Query {
     }
     else {
       // Reorder the submitted values to match the fields array.
+      $insert_values = array();
       foreach ($this->insertFields as $key) {
         $insert_values[$key] = $values[$key];
       }
