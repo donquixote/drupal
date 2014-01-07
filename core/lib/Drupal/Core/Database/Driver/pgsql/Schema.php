@@ -40,7 +40,8 @@ class Schema extends DatabaseSchema {
    *
    * @param $table_name
    *   The non-prefixed name of the table.
-   * @return
+   *
+   * @return \stdClass
    *   An object with two member variables:
    *     - 'blob_fields' that lists all the blob fields in the table.
    *     - 'sequences' that lists the sequences used in that table.
@@ -88,11 +89,12 @@ class Schema extends DatabaseSchema {
    * We introspect the database to collect the information required by field
    * alteration.
    *
-   * @param $table
+   * @param string $table
    *   The non-prefixed name of the table.
-   * @param $field
+   * @param string $field
    *   The name of the field.
-   * @return
+   *
+   * @return mixed[]
    *   An array of all the checks for the field.
    */
   public function queryFieldInformation($table, $field) {
@@ -115,11 +117,12 @@ class Schema extends DatabaseSchema {
   /**
    * Generate SQL to create a new table from a Drupal schema definition.
    *
-   * @param $name
+   * @param string $name
    *   The name of the table to create.
-   * @param $table
+   * @param array $table
    *   A Schema API table definition array.
-   * @return
+   *
+   * @return string[]
    *   An array of SQL statements to create the table.
    */
   protected function createTableSql($name, $table) {

@@ -275,10 +275,10 @@ class Condition implements ConditionInterface, \Countable {
    * the value data they pass in is not a simple value. This is a simple
    * overridable lookup function.
    *
-   * @param $operator
+   * @param string $operator
    *   The condition operator, such as "IN", "BETWEEN", etc. Case-sensitive.
    *
-   * @return
+   * @return array
    *   The extra handling directives for the specified operator, or NULL.
    */
   protected function mapConditionOperator($operator) {
