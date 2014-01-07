@@ -146,7 +146,10 @@ class Connection extends DatabaseConnection {
 
       switch ($options['return']) {
         case Database::RETURN_STATEMENT:
-          $stmt->allowRowCount = FALSE;
+          // Only some statement types expose the ->allowRowCount property.
+          if (isset($stmt->allowRowCount)) {
+            $stmt->allowRowCount = FALSE;
+          }
           return $stmt;
         case Database::RETURN_AFFECTED:
           return $stmt->rowCount();
