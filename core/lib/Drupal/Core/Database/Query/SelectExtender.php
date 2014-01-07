@@ -38,6 +38,10 @@ class SelectExtender implements SelectInterface {
    */
   protected $placeholder = 0;
 
+  /**
+   * @param \Drupal\Core\Database\Query\SelectInterface $query
+   * @param \Drupal\Core\Database\Connection $connection
+   */
   public function __construct(SelectInterface $query, Connection $connection) {
     $this->uniqueIdentifier = uniqid('', TRUE);
     $this->query = $query;
