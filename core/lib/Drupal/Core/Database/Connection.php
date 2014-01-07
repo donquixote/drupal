@@ -553,7 +553,7 @@ abstract class Connection implements \Serializable {
         case Database::RETURN_INSERT_ID:
           return $this->connection->lastInsertId();
         case Database::RETURN_NULL:
-          return;
+          return NULL;
         default:
           throw new \PDOException('Invalid return directive: ' . $options['return']);
       }
