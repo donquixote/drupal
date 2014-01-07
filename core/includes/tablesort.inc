@@ -96,7 +96,7 @@ function tablesort_cell($cell, $header, $ts, $i) {
 /**
  * Composes a URL query parameter array for table sorting links.
  *
- * @return
+ * @return string[]
  *   A URL query parameter array that consists of all components of the current
  *   page request except for those pertaining to table sorting.
  */
@@ -110,7 +110,7 @@ function tablesort_get_query_parameters() {
  * @param $headers
  *   An array of column headers in the format described in theme_table().
  *
- * @return
+ * @return array
  *   An associative array describing the criterion, containing the keys:
  *   - "name": The localized title of the table column.
  *   - "sql": The name of the database field to sort on.
@@ -147,7 +147,7 @@ function tablesort_get_order($headers) {
  * @param $headers
  *   An array of column headers in the format described in theme_table().
  *
- * @return
+ * @return string
  *   The current sort direction ("asc" or "desc").
  */
 function tablesort_get_sort($headers) {
