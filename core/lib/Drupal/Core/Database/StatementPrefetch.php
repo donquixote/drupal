@@ -254,14 +254,9 @@ class StatementPrefetch implements \Iterator, StatementInterface {
   }
 
   /**
-   * @param int $fetchStyle
-   *   One of the PDO::FETCH_* constants.
-   * @param $a2
-   * @param $a3
-   *
-   * @see \PDOStatement::setFetchMode()
+   * {@inheritdoc}
    */
-  public function setFetchMode($fetchStyle, $a2 = NULL, $a3 = NULL) {
+  public function setFetchMode($fetchStyle, $a2 = NULL, array $a3 = NULL) {
     $this->defaultFetchStyle = $fetchStyle;
     switch ($fetchStyle) {
       case \PDO::FETCH_CLASS:
@@ -474,6 +469,9 @@ class StatementPrefetch implements \Iterator, StatementInterface {
     }
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function fetchAll($fetch_style = NULL, $fetch_column = NULL, $constructor_args = NULL) {
     $this->fetchStyle = isset($fetch_style) ? $fetch_style : $this->defaultFetchStyle;
     $this->fetchOptions = $this->defaultFetchOptions;
