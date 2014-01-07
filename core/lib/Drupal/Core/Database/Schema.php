@@ -223,7 +223,7 @@ abstract class Schema implements PlaceholderInterface {
    * @param $add_prefix
    *   Boolean that indicates whether the given table name should be prefixed.
    *
-   * @return
+   * @return array
    *   A keyed array with information about the schema, table name and prefix.
    */
   protected function getPrefixInfo($table = 'default', $add_prefix = TRUE) {
@@ -278,7 +278,7 @@ abstract class Schema implements PlaceholderInterface {
    * to make all the others work. For example see
    * core/includes/databases/mysql/schema.inc.
    *
-   * @param $table_name
+   * @param string $table_name
    *   The name of the table in question.
    * @param $operator
    *   The operator to apply on the 'table' part of the condition.
@@ -304,10 +304,10 @@ abstract class Schema implements PlaceholderInterface {
   /**
    * Check if a table exists.
    *
-   * @param $table
+   * @param string $table
    *   The name of the table in drupal (no prefixing).
    *
-   * @return
+   * @return bool
    *   TRUE if the given table exists, otherwise FALSE.
    */
   public function tableExists($table) {
@@ -324,11 +324,11 @@ abstract class Schema implements PlaceholderInterface {
   /**
    * Find all tables that are like the specified base table name.
    *
-   * @param $table_expression
+   * @param string $table_expression
    *   An SQL expression, for example "simpletest%" (without the quotes).
    *   BEWARE: this is not prefixed, the caller should take care of that.
    *
-   * @return
+   * @return string[]
    *   Array, both the keys and the values are the matching tables.
    */
   public function findTables($table_expression) {
@@ -346,12 +346,12 @@ abstract class Schema implements PlaceholderInterface {
   /**
    * Check if a column exists in the given table.
    *
-   * @param $table
+   * @param string $table
    *   The name of the table in drupal (no prefixing).
-   * @param $name
+   * @param string $column
    *   The name of the column.
    *
-   * @return
+   * @return bool
    *   TRUE if the given column exists, otherwise FALSE.
    */
   public function fieldExists($table, $column) {
@@ -692,7 +692,7 @@ abstract class Schema implements PlaceholderInterface {
    * @param $fields
    *   An array of key/index column specifiers.
    *
-   * @return
+   * @return string[]
    *   An array of field names.
    */
   public function fieldNames($fields) {
@@ -711,9 +711,9 @@ abstract class Schema implements PlaceholderInterface {
   /**
    * Prepare a table or column comment for database query.
    *
-   * @param $comment
+   * @param string $comment
    *   The comment string to prepare.
-   * @param $length
+   * @param int $length
    *   Optional upper limit on the returned string length.
    *
    * @return

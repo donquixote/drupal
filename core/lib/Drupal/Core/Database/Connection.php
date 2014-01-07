@@ -224,7 +224,7 @@ abstract class Connection implements \Serializable {
    *   that behavior and simply return NULL on failure, set this option to
    *   FALSE.
    *
-   * @return
+   * @return array
    *   An array of default query options.
    */
   protected function defaultOptions() {
@@ -244,7 +244,7 @@ abstract class Connection implements \Serializable {
    * is for requesting the connection information of this specific
    * open connection object.
    *
-   * @return
+   * @return array
    *   An array of the connection information. The exact list of
    *   properties is driver-dependent.
    */
@@ -292,10 +292,10 @@ abstract class Connection implements \Serializable {
    * tables, allowing Drupal to coexist with other systems in the same database
    * and/or schema if necessary.
    *
-   * @param $sql
+   * @param string $sql
    *   A string containing a partial or entire SQL query.
    *
-   * @return
+   * @return string
    *   The properly-prefixed string.
    */
   public function prefixTables($sql) {
@@ -344,7 +344,7 @@ abstract class Connection implements \Serializable {
    * signature. We therefore also ensure that this function is only ever
    * called once.
    *
-   * @param $target
+   * @param string $target
    *   The target this connection is for. Set to NULL (default) to disable
    *   logging entirely.
    */
@@ -357,7 +357,7 @@ abstract class Connection implements \Serializable {
   /**
    * Returns the target this connection is associated with.
    *
-   * @return
+   * @return string
    *   The target string of this connection.
    */
   public function getTarget() {
@@ -367,7 +367,7 @@ abstract class Connection implements \Serializable {
   /**
    * Tells this connection object what its key is.
    *
-   * @param $target
+   * @param string $key
    *   The key this connection is for.
    */
   public function setKey($key) {
@@ -379,7 +379,7 @@ abstract class Connection implements \Serializable {
   /**
    * Returns the key this connection is associated with.
    *
-   * @return
+   * @return string
    *   The key of this connection.
    */
   public function getKey() {
@@ -413,12 +413,12 @@ abstract class Connection implements \Serializable {
    * This information is exposed to all database drivers, although it is only
    * useful on some of them. This method is table prefix-aware.
    *
-   * @param $table
+   * @param string $table
    *   The table name to use for the sequence.
-   * @param $field
+   * @param string $field
    *   The field name to use for the sequence.
    *
-   * @return
+   * @return string
    *   A table prefix-parsed string for the sequence name.
    */
   public function makeSequenceName($table, $field) {
@@ -430,10 +430,10 @@ abstract class Connection implements \Serializable {
    *
    * The comment string will be sanitized to avoid SQL injection attacks.
    *
-   * @param $comments
+   * @param string[] $comments
    *   An array of query comment strings.
    *
-   * @return
+   * @return string
    *   A sanitized comment string.
    */
   public function makeComment($comments) {
@@ -472,10 +472,10 @@ abstract class Connection implements \Serializable {
    * Unless the comment is sanitised first, the SQL server would drop the
    * node table and ignore the rest of the SQL statement.
    *
-   * @param $comment
+   * @param string $comment
    *   A query comment string.
    *
-   * @return
+   * @return string
    *   A sanitized version of the query comment string.
    */
   protected function filterComment($comment = '') {
@@ -498,7 +498,7 @@ abstract class Connection implements \Serializable {
    *   It is extremely rare that module code will need to pass a statement
    *   object to this method. It is used primarily for database drivers for
    *   databases that require special LOB field handling.
-   * @param $args
+   * @param array $args
    *   An array of arguments for the prepared statement. If the prepared
    *   statement uses ? placeholders, this array must be an indexed array.
    *   If it contains named placeholders, it must be an associative array.
@@ -581,12 +581,12 @@ abstract class Connection implements \Serializable {
    * Drupal supports an alternate syntax for doing arrays of values. We
    * therefore need to expand them out into a full, executable query string.
    *
-   * @param $query
+   * @param string $query
    *   The query string to modify.
-   * @param $args
+   * @param array $args
    *   The arguments for the query.
    *
-   * @return
+   * @return bool
    *   TRUE if the query was modified, FALSE otherwise.
    */
   protected function expandArguments(&$query, &$args) {
@@ -844,10 +844,10 @@ abstract class Connection implements \Serializable {
    * Backslash is defined as escape character for LIKE patterns in
    * Drupal\Core\Database\Query\Condition::mapConditionOperator().
    *
-   * @param $string
+   * @param string $string
    *   The string to escape.
    *
-   * @return
+   * @return string
    *   The escaped string.
    */
   public function escapeLike($string) {
@@ -857,7 +857,7 @@ abstract class Connection implements \Serializable {
   /**
    * Determines if there is an active transaction open.
    *
-   * @return
+   * @return bool
    *   TRUE if we're currently in a transaction, FALSE otherwise.
    */
   public function inTransaction() {
@@ -1053,7 +1053,7 @@ abstract class Connection implements \Serializable {
   /**
    * Generates a temporary table name.
    *
-   * @return
+   * @return string
    *   A table name.
    */
   protected function generateTemporaryTableName() {
@@ -1105,7 +1105,7 @@ abstract class Connection implements \Serializable {
   /**
    * Determines if this driver supports transactions.
    *
-   * @return
+   * @return bool
    *   TRUE if this connection supports transactions, FALSE otherwise.
    */
   public function supportsTransactions() {
@@ -1117,7 +1117,7 @@ abstract class Connection implements \Serializable {
    *
    * DDL queries are those that change the schema, such as ALTER queries.
    *
-   * @return
+   * @return bool
    *   TRUE if this connection supports transactions for DDL queries, FALSE
    *   otherwise.
    */
