@@ -70,7 +70,7 @@ class SearchQuery extends SelectExtender {
    * This is always used for the second pass query but not for the first pass,
    * unless $this->simple is FALSE.
    *
-   * @var DatabaseCondition
+   * @var \Drupal\Core\Database\Query\Condition
    */
   protected $conditions;
 
