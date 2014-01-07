@@ -314,33 +314,7 @@ class Merge extends Query implements ConditionInterface {
   }
 
   /**
-   * Sets a single key field to be used as condition for this query.
-   *
-   * Same as \Drupal\Core\Database\Query\Merge::keys() but offering a signature
-   * that is more natural for the case of a single key.
-   *
-   * @param string $field
-   *   The name of the field to set.
-   * @param mixed $value
-   *   The value to set into the database.
-   *
-   * @return $this
-   *
-   * @see \Drupal\Core\Database\Query\Merge::keys()
-   */
-  public function key($field, $value = NULL) {
-    // @todo D9: Remove this backwards-compatibility shim.
-    if (is_array($field)) {
-      $this->keys($field, isset($value) ? $value : array());
-    }
-    else {
-      $this->keys(array($field => $value));
-    }
-    return $this;
-  }
-
-  /**
-   * Implements Drupal\Core\Database\Query\ConditionInterface::condition().
+   * {@inheritdoc}
    */
   public function condition($field, $value = NULL, $operator = NULL) {
     $this->condition->condition($field, $value, $operator);
@@ -348,7 +322,7 @@ class Merge extends Query implements ConditionInterface {
   }
 
   /**
-   * Implements Drupal\Core\Database\Query\ConditionInterface::isNull().
+   * {@inheritdoc}
    */
   public function isNull($field) {
     $this->condition->isNull($field);
@@ -356,7 +330,7 @@ class Merge extends Query implements ConditionInterface {
   }
 
   /**
-   * Implements Drupal\Core\Database\Query\ConditionInterface::isNotNull().
+   * {@inheritdoc}
    */
   public function isNotNull($field) {
     $this->condition->isNotNull($field);
@@ -364,7 +338,7 @@ class Merge extends Query implements ConditionInterface {
   }
 
   /**
-   * Implements Drupal\Core\Database\Query\ConditionInterface::exists().
+   * {@inheritdoc}
    */
   public function exists(SelectInterface $select) {
     $this->condition->exists($select);
@@ -372,7 +346,7 @@ class Merge extends Query implements ConditionInterface {
   }
 
   /**
-   * Implements Drupal\Core\Database\Query\ConditionInterface::notExists().
+   * {@inheritdoc}
    */
   public function notExists(SelectInterface $select) {
     $this->condition->notExists($select);
@@ -380,21 +354,21 @@ class Merge extends Query implements ConditionInterface {
   }
 
   /**
-   * Implements Drupal\Core\Database\Query\ConditionInterface::conditions().
+   * {@inheritdoc}
    */
   public function &conditions() {
     return $this->condition->conditions();
   }
 
   /**
-   * Implements Drupal\Core\Database\Query\ConditionInterface::arguments().
+   * {@inheritdoc}
    */
   public function arguments() {
     return $this->condition->arguments();
   }
 
   /**
-   * Implements Drupal\Core\Database\Query\ConditionInterface::where().
+   * {@inheritdoc}
    */
   public function where($snippet, $args = array()) {
     $this->condition->where($snippet, $args);
@@ -402,14 +376,14 @@ class Merge extends Query implements ConditionInterface {
   }
 
   /**
-   * Implements Drupal\Core\Database\Query\ConditionInterface::compile().
+   * {@inheritdoc}
    */
   public function compile(Connection $connection, PlaceholderInterface $queryPlaceholder) {
     return $this->condition->compile($connection, $queryPlaceholder);
   }
 
   /**
-   * Implements Drupal\Core\Database\Query\ConditionInterface::compiled().
+   * {@inheritdoc}
    */
   public function compiled() {
     return $this->condition->compiled();

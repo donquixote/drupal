@@ -142,6 +142,8 @@ class Select extends Query implements SelectInterface {
     $this->addJoin(NULL, $table, $alias);
   }
 
+  /* Implementations of Drupal\Core\Database\Query\AlterableInterface. */
+
   /**
    * {@inheritdoc}
    */
@@ -185,6 +187,8 @@ class Select extends Query implements SelectInterface {
   public function getMetaData($key) {
     return isset($this->alterMetaData[$key]) ? $this->alterMetaData[$key] : NULL;
   }
+
+  /* Implementations of Drupal\Core\Database\Query\ConditionInterface for the WHERE clause. */
 
   /**
    * {@inheritdoc}
@@ -322,6 +326,8 @@ class Select extends Query implements SelectInterface {
     return TRUE;
   }
 
+  /* Implementations of Drupal\Core\Database\Query\ConditionInterface for the HAVING clause. */
+
   /**
    * {@inheritdoc}
    */
@@ -330,41 +336,24 @@ class Select extends Query implements SelectInterface {
     return $this;
   }
 
+  /* Implementations of Drupal\Core\Database\Query\SelectInterface for the HAVING clause. */
+
   /**
-   * Gets a list of all conditions in the HAVING clause.
-   *
-   * This method returns by reference. That allows alter hooks to access the
-   * data structure directly and manipulate it before it gets compiled.
-   *
-   * @return array
-   *   An array of conditions.
-   *
-   * @see \Drupal\Core\Database\Query\ConditionInterface::conditions()
+   * {@inheritdoc}
    */
   public function &havingConditions() {
     return $this->having->conditions();
   }
 
   /**
-   * Gets a list of all values to insert into the HAVING clause.
-   *
-   * @return array
-   *   An associative array of placeholders and values.
+   * {@inheritdoc}
    */
   public function havingArguments() {
     return $this->having->arguments();
   }
 
   /**
-   * Adds an arbitrary HAVING clause to the query.
-   *
-   * @param $snippet
-   *   A portion of a HAVING clause as a prepared statement. It must use named
-   *   placeholders, not ? placeholders.
-   * @param $args
-   *   (optional) An associative array of arguments.
-   *
-   * @return $this
+   * {@inheritdoc}
    */
   public function having($snippet, $args = array()) {
     $this->having->where($snippet, $args);
@@ -372,14 +361,13 @@ class Select extends Query implements SelectInterface {
   }
 
   /**
-   * Compiles the HAVING clause for later retrieval.
-   *
-   * @param $connection
-   *   The database connection for which to compile the clause.
+   * {@inheritdoc}
    */
   public function havingCompile(Connection $connection) {
     $this->having->compile($connection, $this);
   }
+
+  /* Implementations of Drupal\Core\Database\Query\ExtendableInterface. */
 
   /**
    * {@inheritdoc}
@@ -453,6 +441,8 @@ class Select extends Query implements SelectInterface {
     }
     return $this;
   }
+
+  /* Alter accessors to expose the query data to alter hooks. */
 
   /**
    * {@inheritdoc}
