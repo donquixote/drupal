@@ -7,8 +7,6 @@
 
 namespace Drupal\Core\Database;
 
-use Drupal\Core\Database\Connection;
-
 /**
  * An implementation of StatementInterface that prefetches all data.
  *
