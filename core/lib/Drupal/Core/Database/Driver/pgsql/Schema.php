@@ -307,6 +307,15 @@ class Schema extends DatabaseSchema {
     return $map;
   }
 
+  /**
+   * @param array $fields
+   *   Array of field definitions. Each array value is either
+   *   - a field name (string), or
+   *   - an array of two strings, array($field_name, $alias).
+   *
+   * @return string
+   *   Generated SQL snippet.
+   */
   protected function _createKeySql($fields) {
     $return = array();
     foreach ($fields as $field) {
@@ -445,6 +454,9 @@ class Schema extends DatabaseSchema {
    *   The name of the table.
    * @param $name
    *   The name of the constraint (typically 'pkey' or '[constraint]_key').
+   *
+   * @return bool
+   *   TRUE, if the constraint exists.
    */
   protected function constraintExists($table, $name) {
     $constraint_name = '{' . $table . '}_' . $name;
@@ -613,6 +625,17 @@ class Schema extends DatabaseSchema {
     }
   }
 
+  /**
+   * @param string $table
+   * @param string $name
+   * @param array $fields
+   *   Array of field definitions. Each array value is either
+   *   - a field name (string), or
+   *   - an array of two strings, array($field_name, $alias).
+   *
+   * @return string
+   *   Generated SQL snippet.
+   */
   protected function _createIndexSql($table, $name, $fields) {
     $query = 'CREATE INDEX "' . $this->prefixNonTable($table, $name, 'idx') . '" ON {' . $table . '} (';
     $query .= $this->_createKeySql($fields) . ')';

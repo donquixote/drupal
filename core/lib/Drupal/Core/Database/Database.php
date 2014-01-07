@@ -190,7 +190,9 @@ abstract class Database {
   /**
    * Sets the active connection to the specified key.
    *
-   * @return
+   * @param string $key
+   *
+   * @return string
    *   The previous database connection key.
    */
   final public static function setActiveConnection($key = 'default') {
@@ -284,6 +286,8 @@ abstract class Database {
    *
    * @param $connection
    *   The connection key for which we want information.
+   *
+   * @return array
    */
   final public static function getConnectionInfo($key = 'default') {
     if (empty(self::$databaseInfo)) {
@@ -357,6 +361,8 @@ abstract class Database {
    *   "default".
    * @param string $target
    *   The database target to open.
+   *
+   * @return \Drupal\Core\Database\Connection
    *
    * @throws \Drupal\Core\Database\ConnectionNotDefinedException
    * @throws \Drupal\Core\Database\DriverNotSpecifiedException
