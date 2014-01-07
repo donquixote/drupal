@@ -226,6 +226,19 @@ abstract class Schema implements PlaceholderInterface {
   }
 
   /**
+   * Generate SQL to create a new table from a Drupal schema definition.
+   *
+   * @param string $name
+   *   The name of the table to create.
+   * @param array $table
+   *   A Schema API table definition array.
+   *
+   * @return string[]
+   *   An array of SQL statements to create the table.
+   */
+  abstract protected function createTableSql($name, $table);
+
+  /**
    * Get information about the table name and schema from the prefix.
    *
    * @param string $table
