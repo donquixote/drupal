@@ -292,8 +292,8 @@ class StatementPrefetch implements \Iterator, StatementInterface {
    * array position in $this->data and format it according to $this->fetchStyle
    * and $this->fetchMode.
    *
-   * @return
-   *  The current row formatted as requested.
+   * @return array|mixed|object
+   *   The current row formatted as requested.
    */
   public function current() {
     if (isset($this->currentRow)) {
