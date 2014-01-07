@@ -274,7 +274,7 @@ class Connection extends DatabaseConnection {
   }
 
   /**
-   * SQLite-specific implementation of DatabaseConnection::prepare().
+   * SQLite-specific implementation of \Drupal\Core\Database\Connection::prepare().
    *
    * We don't use prepared statements at all at this stage. We just create
    * a Statement object, that will create a PDOStatement
