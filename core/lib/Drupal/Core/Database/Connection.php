@@ -7,9 +7,6 @@
 
 namespace Drupal\Core\Database;
 
-use Drupal\Core\Database\TransactionNoActiveException;
-use Drupal\Core\Database\TransactionOutOfOrderException;
-
 /**
  * Base Database API class.
  *
