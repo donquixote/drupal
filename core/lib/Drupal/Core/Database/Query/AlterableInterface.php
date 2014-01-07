@@ -43,7 +43,7 @@ interface AlterableInterface {
   /**
    * Determines if a given query has all specified tags.
    *
-   * @param $tags
+   * @param ...
    *   A variable number of arguments, one for each tag to check.
    *
    * @return bool
@@ -55,7 +55,7 @@ interface AlterableInterface {
   /**
    * Determines if a given query has any specified tag.
    *
-   * @param $tags
+   * @param ...
    *   A variable number of arguments, one for each tag to check.
    *
    * @return bool
