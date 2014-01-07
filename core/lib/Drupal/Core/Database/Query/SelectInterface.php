@@ -63,8 +63,8 @@ interface SelectInterface extends ConditionInterface, AlterableInterface, Extend
    * $fields =& $query->getOrderBy();
    * @endcode
    *
-   * @return
-   *   A reference to the expression array structure.
+   * @return array[]
+   *   A reference to the order-by array structure.
    */
   public function &getOrderBy();
 
