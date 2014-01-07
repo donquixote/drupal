@@ -63,7 +63,7 @@ abstract class Query implements PlaceholderInterface {
   /**
    * An array of comments that can be prepended to a query.
    *
-   * @var array
+   * @var string[]
    */
   protected $comments = array();
 
