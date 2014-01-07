@@ -36,11 +36,17 @@ class Statement extends \PDOStatement implements StatementInterface {
    */
   public $allowRowCount = FALSE;
 
+  /**
+   * @param \Drupal\Core\Database\Connection $dbh
+   */
   protected function __construct(Connection $dbh) {
     $this->dbh = $dbh;
     $this->setFetchMode(\PDO::FETCH_OBJ);
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function execute($args = array(), $options = array()) {
     if (isset($options['fetch'])) {
       if (is_string($options['fetch'])) {
@@ -68,14 +74,23 @@ class Statement extends \PDOStatement implements StatementInterface {
     return $return;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function getQueryString() {
     return $this->queryString;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function fetchCol($index = 0) {
     return $this->fetchAll(\PDO::FETCH_COLUMN, $index);
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function fetchAllAssoc($key, $fetch = NULL) {
     $return = array();
     if (isset($fetch)) {
@@ -95,6 +110,9 @@ class Statement extends \PDOStatement implements StatementInterface {
     return $return;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function fetchAllKeyed($key_index = 0, $value_index = 1) {
     $return = array();
     $this->setFetchMode(\PDO::FETCH_NUM);
@@ -104,11 +122,17 @@ class Statement extends \PDOStatement implements StatementInterface {
     return $return;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function fetchField($index = 0) {
     // Call \PDOStatement::fetchColumn to fetch the field.
     return $this->fetchColumn($index);
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function fetchAssoc() {
     // Call \PDOStatement::fetch to fetch the row.
     return $this->fetch(\PDO::FETCH_ASSOC);

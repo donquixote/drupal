@@ -39,11 +39,12 @@ class Schema extends DatabaseSchema {
   /**
    * Generate SQL to create a new table from a Drupal schema definition.
    *
-   * @param $name
+   * @param string $name
    *   The name of the table to create.
-   * @param $table
+   * @param array $table
    *   A Schema API table definition array.
-   * @return
+   *
+   * @return array
    *   An array of SQL statements to create the table.
    */
   public function createTableSql($name, $table) {
@@ -54,6 +55,12 @@ class Schema extends DatabaseSchema {
 
   /**
    * Build the SQL expression for indexes.
+   *
+   * @param string $tablename
+   * @param array $schema
+   *
+   * @return string[]
+   *   Array of SQL statements to create the indexes.
    */
   protected function createIndexSql($tablename, $schema) {
     $sql = array();
@@ -73,6 +80,12 @@ class Schema extends DatabaseSchema {
 
   /**
    * Build the SQL expression for creating columns.
+   *
+   * @param string $tablename
+   * @param array $schema
+   *
+   * @return string
+   *   Generated SQL snippet.
    */
   protected function createColumsSql($tablename, $schema) {
     $sql_array = array();
@@ -146,9 +159,12 @@ class Schema extends DatabaseSchema {
    * to be processed by db_processField().
    *
    * @param $name
-   *    Name of the field.
+   *   Name of the field.
    * @param $spec
-   *    The field specification, as per the schema data structure format.
+   *   The field specification, as per the schema data structure format.
+   *
+   * @return string
+   *   Generated SQL string.
    */
   protected function createFieldSql($name, $spec) {
     if (!empty($spec['auto_increment'])) {
@@ -421,9 +437,10 @@ class Schema extends DatabaseSchema {
    * create a schema array. This is useful, for example, during update when
    * the old schema is not available.
    *
-   * @param $table
+   * @param string $table
    *   Name of the table.
-   * @return
+   *
+   * @return array
    *   An array representing the schema, from drupal_get_schema().
    * @see drupal_get_schema()
    */
@@ -563,6 +580,9 @@ class Schema extends DatabaseSchema {
    *   The key definition.
    * @param $mapping
    *   The new mapping.
+   *
+   * @return array
+   *   The modified key definition.
    */
   protected function mapKeyDefinition(array $key_definition, array $mapping) {
     foreach ($key_definition as &$field) {

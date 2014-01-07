@@ -7,6 +7,8 @@
 
 namespace Drupal\Core\Database\Query;
 
+use Drupal\Core\Database\Connection;
+
 /**
  * Interface definition for a Select Query object.
  */
@@ -27,7 +29,7 @@ interface SelectInterface extends ConditionInterface, AlterableInterface, Extend
    * $fields =& $query->getFields();
    * @endcode
    *
-   * @return
+   * @return array[]
    *   A reference to the fields array structure.
    */
   public function &getFields();
@@ -45,7 +47,7 @@ interface SelectInterface extends ConditionInterface, AlterableInterface, Extend
    * $fields =& $query->getExpressions();
    * @endcode
    *
-   * @return
+   * @return array[]
    *   A reference to the expression array structure.
    */
   public function &getExpressions();
@@ -63,8 +65,8 @@ interface SelectInterface extends ConditionInterface, AlterableInterface, Extend
    * $fields =& $query->getOrderBy();
    * @endcode
    *
-   * @return
-   *   A reference to the expression array structure.
+   * @return array[]
+   *   A reference to the order-by array structure.
    */
   public function &getOrderBy();
 
@@ -81,7 +83,7 @@ interface SelectInterface extends ConditionInterface, AlterableInterface, Extend
    * $fields =& $query->getGroupBy();
    * @endcode
    *
-   * @return
+   * @return array[]
    *   A reference to the group-by array structure.
    */
   public function &getGroupBy();
@@ -99,7 +101,7 @@ interface SelectInterface extends ConditionInterface, AlterableInterface, Extend
    * $fields =& $query->getTables();
    * @endcode
    *
-   * @return
+   * @return array[]
    *   A reference to the tables array structure.
    */
   public function &getTables();
@@ -118,7 +120,7 @@ interface SelectInterface extends ConditionInterface, AlterableInterface, Extend
    * $fields =& $query->getUnion();
    * @endcode
    *
-   * @return
+   * @return array[]
    *   A reference to the union query array structure.
    */
   public function &getUnion();
@@ -126,11 +128,11 @@ interface SelectInterface extends ConditionInterface, AlterableInterface, Extend
   /**
    * Compiles and returns an associative array of the arguments for this prepared statement.
    *
-   * @param $queryPlaceholder
+   * @param PlaceholderInterface $queryPlaceholder
    *   When collecting the arguments of a subquery, the main placeholder
    *   object should be passed as this parameter.
    *
-   * @return
+   * @return string[]
    *   An associative array of all placeholder arguments for this query.
    */
   public function getArguments(PlaceholderInterface $queryPlaceholder = NULL);
@@ -140,8 +142,9 @@ interface SelectInterface extends ConditionInterface, AlterableInterface, Extend
   /**
    * Sets this query to be DISTINCT.
    *
-   * @param $distinct
+   * @param bool $distinct
    *   TRUE to flag this query DISTINCT, FALSE to disable it.
+   *
    * @return \Drupal\Core\Database\Query\SelectInterface
    *   The called object.
    */
@@ -150,18 +153,19 @@ interface SelectInterface extends ConditionInterface, AlterableInterface, Extend
   /**
    * Adds a field to the list to be SELECTed.
    *
-   * @param $table_alias
+   * @param string $table_alias
    *   The name of the table from which the field comes, as an alias. Generally
    *   you will want to use the return value of join() here to ensure that it is
    *   valid.
-   * @param $field
+   * @param string $field
    *   The name of the field.
-   * @param $alias
+   * @param string $alias
    *   The alias for this field. If not specified, one will be generated
    *   automatically based on the $table_alias and $field. The alias will be
    *   checked for uniqueness, so the requested alias may not be the alias
    *   that is assigned in all cases.
-   * @return
+   *
+   * @return string
    *   The unique alias that was assigned for this field.
    */
   public function addField($table_alias, $field, $alias = NULL);
@@ -176,14 +180,15 @@ interface SelectInterface extends ConditionInterface, AlterableInterface, Extend
    * simply use addField() for the few fields you care about and this method for
    * the rest.
    *
-   * @param $table_alias
+   * @param string $table_alias
    *   The name of the table from which the field comes, as an alias. Generally
    *   you will want to use the return value of join() here to ensure that it is
    *   valid.
-   * @param $fields
+   * @param string[] $fields
    *   An indexed array of fields present in the specified table that should be
    *   included in this query. If not specified, $table_alias.* will be generated
    *   without any aliases.
+   *
    * @return \Drupal\Core\Database\Query\SelectInterface
    *   The called object.
    */
@@ -196,16 +201,17 @@ interface SelectInterface extends ConditionInterface, AlterableInterface, Extend
    * various functions, which may in some cases be database-dependent. This
    * method makes no effort to correct for database-specific functions.
    *
-   * @param $expression
+   * @param string $expression
    *   The expression string. May contain placeholders.
-   * @param $alias
+   * @param string $alias
    *   The alias for this expression. If not specified, one will be generated
    *   automatically in the form "expression_#". The alias will be checked for
    *   uniqueness, so the requested alias may not be the alias that is assigned
    *   in all cases.
-   * @param $arguments
+   * @param string[] $arguments
    *   Any placeholder arguments needed for this expression.
-   * @return
+   *
+   * @return string
    *   The unique alias that was assigned for this expression.
    */
   public function addExpression($expression, $alias = NULL, $arguments = array());
@@ -215,12 +221,12 @@ interface SelectInterface extends ConditionInterface, AlterableInterface, Extend
    *
    * This method is a convenience method for innerJoin().
    *
-   * @param $table
+   * @param string|SelectInterface $table
    *   The table against which to join.
-   * @param $alias
+   * @param string $alias
    *   The alias for the table. In most cases this should be the first letter
    *   of the table, or the first letter of each "word" in the table.
-   * @param $condition
+   * @param string $condition
    *   The condition on which to join this table. If the join requires values,
    *   this clause should use a named placeholder and the value or values to
    *   insert should be passed in the 4th parameter. For the first table joined
@@ -228,9 +234,10 @@ interface SelectInterface extends ConditionInterface, AlterableInterface, Extend
    *   table. The token %alias can be used in this string to be replaced with
    *   the actual alias. This is useful when $alias is modified by the database
    *   system, for example, when joining the same table more than once.
-   * @param $arguments
+   * @param string[] $arguments
    *   An array of arguments to replace into the $condition of this join.
-   * @return
+   *
+   * @return string
    *   The unique alias that was assigned for this table.
    */
   public function join($table, $alias = NULL, $condition = NULL, $arguments = array());
@@ -238,12 +245,12 @@ interface SelectInterface extends ConditionInterface, AlterableInterface, Extend
   /**
    * Inner Join against another table in the database.
    *
-   * @param $table
+   * @param string|SelectInterface $table
    *   The table against which to join.
-   * @param $alias
+   * @param string $alias
    *   The alias for the table. In most cases this should be the first letter
    *   of the table, or the first letter of each "word" in the table.
-   * @param $condition
+   * @param string $condition
    *   The condition on which to join this table. If the join requires values,
    *   this clause should use a named placeholder and the value or values to
    *   insert should be passed in the 4th parameter. For the first table joined
@@ -251,9 +258,10 @@ interface SelectInterface extends ConditionInterface, AlterableInterface, Extend
    *   table. The token %alias can be used in this string to be replaced with
    *   the actual alias. This is useful when $alias is modified by the database
    *   system, for example, when joining the same table more than once.
-   * @param $arguments
+   * @param string[] $arguments
    *   An array of arguments to replace into the $condition of this join.
-   * @return
+   *
+   * @return string
    *   The unique alias that was assigned for this table.
    */
   public function innerJoin($table, $alias = NULL, $condition = NULL, $arguments = array());
@@ -261,12 +269,12 @@ interface SelectInterface extends ConditionInterface, AlterableInterface, Extend
   /**
    * Left Outer Join against another table in the database.
    *
-   * @param $table
+   * @param string|SelectInterface $table
    *   The table against which to join.
-   * @param $alias
+   * @param string $alias
    *   The alias for the table. In most cases this should be the first letter
    *   of the table, or the first letter of each "word" in the table.
-   * @param $condition
+   * @param string $condition
    *   The condition on which to join this table. If the join requires values,
    *   this clause should use a named placeholder and the value or values to
    *   insert should be passed in the 4th parameter. For the first table joined
@@ -274,9 +282,10 @@ interface SelectInterface extends ConditionInterface, AlterableInterface, Extend
    *   table. The token %alias can be used in this string to be replaced with
    *   the actual alias. This is useful when $alias is modified by the database
    *   system, for example, when joining the same table more than once.
-   * @param $arguments
+   * @param string[] $arguments
    *   An array of arguments to replace into the $condition of this join.
-   * @return
+   *
+   * @return string
    *   The unique alias that was assigned for this table.
    */
   public function leftJoin($table, $alias = NULL, $condition = NULL, $arguments = array());
@@ -284,12 +293,12 @@ interface SelectInterface extends ConditionInterface, AlterableInterface, Extend
   /**
    * Right Outer Join against another table in the database.
    *
-   * @param $table
+   * @param string|SelectInterface $table
    *   The table against which to join.
-   * @param $alias
+   * @param string $alias
    *   The alias for the table. In most cases this should be the first letter
    *   of the table, or the first letter of each "word" in the table.
-   * @param $condition
+   * @param string $condition
    *   The condition on which to join this table. If the join requires values,
    *   this clause should use a named placeholder and the value or values to
    *   insert should be passed in the 4th parameter. For the first table joined
@@ -297,9 +306,10 @@ interface SelectInterface extends ConditionInterface, AlterableInterface, Extend
    *   table. The token %alias can be used in this string to be replaced with
    *   the actual alias. This is useful when $alias is modified by the database
    *   system, for example, when joining the same table more than once.
-   * @param $arguments
+   * @param string[] $arguments
    *   An array of arguments to replace into the $condition of this join.
-   * @return
+   *
+   * @return string
    *   The unique alias that was assigned for this table.
    */
   public function rightJoin($table, $alias = NULL, $condition = NULL, $arguments = array());
@@ -311,16 +321,16 @@ interface SelectInterface extends ConditionInterface, AlterableInterface, Extend
    * In some cases, that may include dipping into the Schema API to find the necessary
    * fields on which to join.
    *
-   * @param $type
+   * @param string $type
    *   The type of join. Typically one one of INNER, LEFT OUTER, and RIGHT OUTER.
-   * @param $table
+   * @param string|SelectInterface $table
    *   The table against which to join. May be a string or another SelectQuery
    *   object. If a query object is passed, it will be used as a subselect.
-   * @param $alias
+   * @param string $alias
    *   The alias for the table. In most cases this should be the first letter
    *   of the table, or the first letter of each "word" in the table. If omitted,
    *   one will be dynamically generated.
-   * @param $condition
+   * @param string $condition
    *   The condition on which to join this table. If the join requires values,
    *   this clause should use a named placeholder and the value or values to
    *   insert should be passed in the 4th parameter. For the first table joined
@@ -328,9 +338,10 @@ interface SelectInterface extends ConditionInterface, AlterableInterface, Extend
    *   table. The token %alias can be used in this string to be replaced with
    *   the actual alias. This is useful when $alias is modified by the database
    *   system, for example, when joining the same table more than once.
-   * @param $arguments
+   * @param string[] $arguments
    *   An array of arguments to replace into the $condition of this join.
-   * @return
+   *
+   * @return string
    *   The unique alias that was assigned for this table.
    */
   public function addJoin($type, $table, $alias = NULL, $condition = NULL, $arguments = array());
@@ -348,10 +359,11 @@ interface SelectInterface extends ConditionInterface, AlterableInterface, Extend
    * when ordering on an alias, the alias must be added before orderBy() is
    * called.
    *
-   * @param $field
+   * @param string $field
    *   The field on which to order.
-   * @param $direction
+   * @param string $direction
    *   The direction to sort. Legal values are "ASC" and "DESC".
+   *
    * @return \Drupal\Core\Database\Query\SelectInterface
    *   The called object.
    */
@@ -449,7 +461,10 @@ interface SelectInterface extends ConditionInterface, AlterableInterface, Extend
   /**
    * Generic preparation and validation for a SELECT query.
    *
-   * @return
+   * @param SelectInterface $query
+   *   Optional query object to use instead of $this.
+   *
+   * @return bool
    *   TRUE if the validation was successful, FALSE if not.
    */
   public function preExecute(SelectInterface $query = NULL);
@@ -478,6 +493,49 @@ interface SelectInterface extends ConditionInterface, AlterableInterface, Extend
   public function havingCondition($field, $value = NULL, $operator = NULL);
 
   /**
+   * Gets a complete list of all conditions in the HAVING condition.
+   *
+   * @return array
+   *
+   * @see \Drupal\Core\Database\Query\ConditionInterface::conditions()
+   */
+  public function havingConditions();
+
+  /**
+   * Gets the placeholder replacement values for the HAVING condition.
+   *
+   * @return string[]
+   *   An associative array of placeholders and values.
+   *
+   * @see \Drupal\Core\Database\Query\ConditionInterface::arguments()
+   */
+  public function havingArguments();
+
+  /**
+   * Adds an arbitrary WHERE clause to the HAVING condition.
+   *
+   * @param string $snippet
+   *   A portion of a WHERE clause as a prepared statement. It must use named
+   *   placeholders, not ? placeholders.
+   * @param string[] $args
+   *   An associative array of arguments.
+   *
+   * @return $this
+   *   The called object.
+   *
+   * @see \Drupal\Core\Database\Query\ConditionInterface::where()
+   */
+  public function having($snippet, $args = array());
+
+  /**
+   * Compiles the HAVING condition.
+   *
+   * @param \Drupal\Core\Database\Connection $connection
+   *   The database connection for which to compile the conditionals.
+   */
+  public function havingCompile(Connection $connection);
+
+  /**
    * Clone magic method.
    *
    * Select queries have dependent objects that must be deep-cloned.  The
@@ -501,4 +559,12 @@ interface SelectInterface extends ConditionInterface, AlterableInterface, Extend
    *   The called object.
    */
   public function forUpdate($set = TRUE);
+
+  /**
+   * Runs the query against the database.
+   *
+   * @return \Drupal\Core\Database\StatementInterface
+   *   The executed statement.
+   */
+  public function execute();
 }

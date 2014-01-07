@@ -36,6 +36,9 @@ class Connection extends DatabaseConnection {
 
   /**
    * Constructs a Connection object.
+   *
+   * @param \PDO $connection
+   * @param array $connection_options
    */
   public function __construct(\PDO $connection, array $connection_options = array()) {
     parent::__construct($connection, $connection_options);
@@ -134,20 +137,32 @@ class Connection extends DatabaseConnection {
     }
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function queryRange($query, $from, $count, array $args = array(), array $options = array()) {
     return $this->query($query . ' LIMIT ' . (int) $from . ', ' . (int) $count, $args, $options);
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function queryTemporary($query, array $args = array(), array $options = array()) {
     $tablename = $this->generateTemporaryTableName();
     $this->query(preg_replace('/^SELECT/i', 'CREATE TEMPORARY TABLE {' . $tablename . '} Engine=MEMORY SELECT', $query), $args, $options);
     return $tablename;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function driver() {
     return 'mysql';
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function databaseType() {
     return 'mysql';
   }
@@ -174,11 +189,17 @@ class Connection extends DatabaseConnection {
     }
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function mapConditionOperator($operator) {
     // We don't want to override any of the defaults.
     return NULL;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function nextId($existing_id = 0) {
     $new_id = $this->query('INSERT INTO {sequences} () VALUES ()', array(), array('return' => Database::RETURN_INSERT_ID));
     // This should only happen after an import or similar event.
@@ -223,6 +244,10 @@ class Connection extends DatabaseConnection {
 
   /**
    * Overridden to work around issues to MySQL not supporting transactional DDL.
+   *
+   * @throws \Drupal\Core\Database\DatabaseExceptionWrapper
+   * @throws \Exception
+   * @throws \Drupal\Core\Database\TransactionCommitFailedException
    */
   protected function popCommittableTransactions() {
     // Commit all the committable layers.
@@ -252,7 +277,12 @@ class Connection extends DatabaseConnection {
           //
           // To avoid exceptions when no actual error has occurred, we silently
           // succeed for MySQL error code 1305 ("SAVEPOINT does not exist").
-          if ($e->getPrevious()->errorInfo[1] == '1305') {
+          if (($e_prev = $e->getPrevious())
+            // Only \PDOException has the ->errorInfo property.
+            && $e_prev instanceof \PDOException
+            && isset($e_prev->errorInfo[1])
+            && $e_prev->errorInfo[1] == '1305'
+          ) {
             // If one SAVEPOINT was released automatically, then all were.
             // Therefore, clean the transaction stack.
             $this->transactionLayers = array();

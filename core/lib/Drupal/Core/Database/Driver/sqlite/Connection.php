@@ -7,12 +7,10 @@
 
 namespace Drupal\Core\Database\Driver\sqlite;
 
-use Drupal\Core\Database\Database;
 use Drupal\Core\Database\DatabaseNotFoundException;
 use Drupal\Core\Database\TransactionNoActiveException;
 use Drupal\Core\Database\TransactionNameNonUniqueException;
 use Drupal\Core\Database\TransactionCommitFailedException;
-use Drupal\Core\Database\Driver\sqlite\Statement;
 use Drupal\Core\Database\Connection as DatabaseConnection;
 
 /**
@@ -168,6 +166,12 @@ class Connection extends DatabaseConnection {
 
   /**
    * SQLite compatibility implementation for the IF() SQL function.
+   *
+   * @param bool $condition
+   * @param mixed $expr1
+   * @param mixed $expr2
+   *
+   * @return null
    */
   public static function sqlFunctionIf($condition, $expr1, $expr2 = NULL) {
     return $condition ? $expr1 : $expr2;
@@ -175,12 +179,18 @@ class Connection extends DatabaseConnection {
 
   /**
    * SQLite compatibility implementation for the GREATEST() SQL function.
+   *
+   * @param ...
+   *   Variadic parameters.
+   *
+   * @return mixed|NULL
+   *   The maximum of the given arguments.
    */
   public static function sqlFunctionGreatest() {
     $args = func_get_args();
-    foreach ($args as $v) {
+    foreach ($args as $i => $v) {
       if (!isset($v)) {
-        unset($args);
+        unset($args[$i]);
       }
     }
     if (count($args)) {
@@ -193,6 +203,12 @@ class Connection extends DatabaseConnection {
 
   /**
    * SQLite compatibility implementation for the CONCAT() SQL function.
+   *
+   * @param ...
+   *   Variadic parameters.
+   *
+   * @return string
+   *   Concatenated input arguments.
    */
   public static function sqlFunctionConcat() {
     $args = func_get_args();
@@ -201,6 +217,12 @@ class Connection extends DatabaseConnection {
 
   /**
    * SQLite compatibility implementation for the SUBSTRING() SQL function.
+   *
+   * @param string $string
+   * @param int $from
+   * @param int $length
+   *
+   * @return string
    */
   public static function sqlFunctionSubstring($string, $from, $length) {
     return substr($string, $from - 1, $length);
@@ -208,6 +230,12 @@ class Connection extends DatabaseConnection {
 
   /**
    * SQLite compatibility implementation for the SUBSTRING_INDEX() SQL function.
+   *
+   * @param string $string
+   * @param string $delimiter
+   * @param int $count
+   *
+   * @return string
    */
   public static function sqlFunctionSubstringIndex($string, $delimiter, $count) {
     // If string is empty, simply return an empty string.
@@ -244,20 +272,38 @@ class Connection extends DatabaseConnection {
   }
 
   /**
-   * SQLite-specific implementation of DatabaseConnection::prepare().
+   * SQLite-specific implementation of \Drupal\Core\Database\Connection::prepare().
    *
    * We don't use prepared statements at all at this stage. We just create
    * a Statement object, that will create a PDOStatement
    * using the semi-private PDOPrepare() method below.
+   *
+   * @param string $statement
+   *   This must be a valid SQLite statement.
+   * @param array $driver_options
+   *   See parent method.
+   *
+   * @return \PDOStatement|false
+   *   See parent method.
+   *
+   * @throws \PDOException
+   *
+   * @see \Drupal\Core\Database\Connection::prepare()
    */
   public function prepare($statement, array $driver_options = array()) {
     return new Statement($this->connection, $this, $statement, $driver_options);
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function queryRange($query, $from, $count, array $args = array(), array $options = array()) {
     return $this->query($query . ' LIMIT ' . (int) $from . ', ' . (int) $count, $args, $options);
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function queryTemporary($query, array $args = array(), array $options = array()) {
     // Generate a new temporary table name and protect it from prefixing.
     // SQLite requires that temporary tables to be non-qualified.
@@ -270,10 +316,16 @@ class Connection extends DatabaseConnection {
     return $tablename;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function driver() {
     return 'sqlite';
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function databaseType() {
     return 'sqlite';
   }
@@ -288,12 +340,15 @@ class Connection extends DatabaseConnection {
    */
   public function createDatabase($database) {
     // Verify the database is writable.
-    $db_directory = new SplFileInfo(dirname($database));
+    $db_directory = new \SplFileInfo(dirname($database));
     if (!$db_directory->isDir() && !drupal_mkdir($db_directory->getPathName(), 0755, TRUE)) {
       throw new DatabaseNotFoundException('Unable to create database directory ' . $db_directory->getPathName());
     }
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function mapConditionOperator($operator) {
     // We don't want to override any of the defaults.
     static $specials = array(
@@ -303,6 +358,9 @@ class Connection extends DatabaseConnection {
     return isset($specials[$operator]) ? $specials[$operator] : NULL;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function nextId($existing_id = 0) {
     $this->startTransaction();
     // We can safely use literal queries here instead of the slower query
@@ -324,9 +382,12 @@ class Connection extends DatabaseConnection {
     return $this->query('SELECT value FROM {sequences}')->fetchField();
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function rollback($savepoint_name = 'drupal_transaction') {
     if ($this->savepointSupport) {
-      return parent::rollBack($savepoint_name);
+      parent::rollBack($savepoint_name);
     }
 
     if (!$this->inTransaction()) {
@@ -358,9 +419,12 @@ class Connection extends DatabaseConnection {
     }
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function pushTransaction($name) {
     if ($this->savepointSupport) {
-      return parent::pushTransaction($name);
+      parent::pushTransaction($name);
     }
     if (!$this->supportsTransactions()) {
       return;
@@ -374,9 +438,12 @@ class Connection extends DatabaseConnection {
     $this->transactionLayers[$name] = $name;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function popTransaction($name) {
     if ($this->savepointSupport) {
-      return parent::popTransaction($name);
+      parent::popTransaction($name);
     }
     if (!$this->supportsTransactions()) {
       return;
