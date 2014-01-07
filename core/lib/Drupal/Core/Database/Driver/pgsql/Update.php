@@ -32,6 +32,7 @@ class Update extends QueryUpdate {
 
     // Because we filter $fields the same way here and in __toString(), the
     // placeholders will all match up properly.
+    /** @var \Drupal\Core\Database\Statement $stmt */
     $stmt = $this->connection->prepareQuery((string) $this);
 
     // Fetch the list of blobs and sequences used on that table.
