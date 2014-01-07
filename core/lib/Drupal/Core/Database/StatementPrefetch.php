@@ -309,6 +309,7 @@ class StatementPrefetch implements \Iterator, StatementInterface {
           // \PDO::FETCH_OBJ.
         case \PDO::FETCH_OBJ:
           return (object) $this->currentRow;
+        /** @noinspection PhpMissingBreakStatementInspection */
         case \PDO::FETCH_CLASS | \PDO::FETCH_CLASSTYPE:
           $class_name = array_unshift($this->currentRow);
           // Deliberate no break.
