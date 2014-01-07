@@ -232,8 +232,8 @@ abstract class Schema implements PlaceholderInterface {
    * @param
    *   Name of table to look prefix up for. Defaults to 'default' because thats
    *   default key for prefix.
-   * @param $add_prefix
-   *   Boolean that indicates whether the given table name should be prefixed.
+   * @param bool $add_prefix
+   *   TRUE, if the given table name should be prefixed. FALSE, otherwise.
    *
    * @return array
    *   A keyed array with information about the schema, table name and prefix.
@@ -701,8 +701,10 @@ abstract class Schema implements PlaceholderInterface {
    * This is usually an identity function but if a key/index uses a column prefix
    * specification, this function extracts just the name.
    *
-   * @param $fields
-   *   An array of key/index column specifiers.
+   * @param array $fields
+   *   An array of key/index column specifiers. Each array value can be either
+   *   - a string field name.
+   *   - an of two strings: array($field_name, $field_alias).
    *
    * @return string[]
    *   An array of field names.
@@ -728,8 +730,8 @@ abstract class Schema implements PlaceholderInterface {
    * @param int $length
    *   Optional upper limit on the returned string length.
    *
-   * @return
-   *   The prepared comment.
+   * @return string|false
+   *   The prepared comment, or FALSE if the driver does not support it.
    */
   public function prepareComment($comment, $length = NULL) {
     return $this->connection->quote($comment);
