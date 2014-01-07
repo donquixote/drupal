@@ -190,6 +190,8 @@ abstract class Database {
   /**
    * Sets the active connection to the specified key.
    *
+   * @param string $key
+   *
    * @return string|null
    *   The previous database connection key.
    */
@@ -355,6 +357,8 @@ abstract class Database {
    *   "default".
    * @param string $target
    *   The database target to open.
+   *
+   * @return \Drupal\Core\Database\Connection
    *
    * @throws \Drupal\Core\Database\ConnectionNotDefinedException
    * @throws \Drupal\Core\Database\DriverNotSpecifiedException

@@ -135,6 +135,12 @@ class StatementPrefetch implements \Iterator, StatementInterface {
    */
   public $allowRowCount = FALSE;
 
+  /**
+   * @param \PDO $dbh
+   * @param \Drupal\Core\Database\Connection $connection
+   * @param string $query
+   * @param array $driver_options
+   */
   public function __construct(\PDO $dbh, Connection $connection, $query, array $driver_options = array()) {
     $this->dbh = $dbh;
     $this->connection = $connection;
@@ -242,12 +248,19 @@ class StatementPrefetch implements \Iterator, StatementInterface {
 
   /**
    * Return the object's SQL query string.
+   *
+   * @return string
    */
   public function getQueryString() {
     return $this->queryString;
   }
 
   /**
+   * @param int $fetchStyle
+   *   One of the PDO::FETCH_* constants.
+   * @param $a2
+   * @param $a3
+   *
    * @see \PDOStatement::setFetchMode()
    */
   public function setFetchMode($fetchStyle, $a2 = NULL, $a3 = NULL) {
@@ -384,6 +397,17 @@ class StatementPrefetch implements \Iterator, StatementInterface {
     }
   }
 
+  /**
+   * Returns a single field value from the next row of a result set.
+   *
+   * Mimicks the \PDO::fetchColumn() method.
+   * @link http://php.net/manual/en/pdostatement.fetchcolumn.php
+   *
+   * @param int $index
+   *   The column index.
+   * @return string|false
+   *   The fetched field value, or FALSE, if no further row was found.
+   */
   public function fetchColumn($index = 0) {
     if (isset($this->currentRow) && isset($this->columnNames[$index])) {
       // We grab the value directly from $this->data, and format it.

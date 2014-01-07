@@ -32,6 +32,9 @@ class Connection extends DatabaseConnection {
 
   /**
    * Constructs a connection object.
+   *
+   * @param \PDO $connection
+   * @param array $connection_options
    */
   public function __construct(\PDO $connection, array $connection_options) {
     parent::__construct($connection, $connection_options);
@@ -183,6 +186,9 @@ class Connection extends DatabaseConnection {
     return $tablename;
   }
 
+  /**
+   * @return string
+   */
   public function driver() {
     return 'pgsql';
   }
@@ -237,6 +243,10 @@ class Connection extends DatabaseConnection {
    *
    * PostgreSQL has built in sequences. We'll use these instead of inserting
    * and updating a sequences table.
+   *
+   * @param int $existing
+   *
+   * @return int
    */
   public function nextId($existing = 0) {
 

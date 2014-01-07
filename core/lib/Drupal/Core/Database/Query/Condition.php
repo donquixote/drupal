@@ -60,6 +60,8 @@ class Condition implements ConditionInterface, \Countable {
    * Returns the size of this conditional. The size of the conditional is the
    * size of its conditional array minus one, because one element is the the
    * conjunction.
+   *
+   * @return int
    */
   public function count() {
     return count($this->conditions) - 1;
