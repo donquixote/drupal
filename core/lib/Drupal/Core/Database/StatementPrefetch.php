@@ -15,7 +15,7 @@ use Drupal\Core\Database\Connection;
  * This class behaves very similar to a \PDOStatement but as it always fetches
  * every row it is possible to manipulate those results.
  */
-class StatementPrefetch implements \Iterator, StatementInterface {
+class StatementPrefetch implements \Iterator, ExtendedStatementInterface {
 
   /**
    * The query string.
@@ -475,7 +475,10 @@ class StatementPrefetch implements \Iterator, StatementInterface {
     }
   }
 
-  public function fetchAll($fetch_style = NULL, $fetch_column = NULL, $constructor_args = NULL) {
+  /**
+   * {@inheritdoc}
+   */
+  public function fetchAll($fetch_style = NULL, $fetch_column = NULL, array $constructor_args = NULL) {
     $this->fetchStyle = isset($fetch_style) ? $fetch_style : $this->defaultFetchStyle;
     $this->fetchOptions = $this->defaultFetchOptions;
     if (isset($fetch_column)) {

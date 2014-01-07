@@ -19,7 +19,7 @@ namespace Drupal\Core\Database;
  *
  * @see \Drupal\search\SearchQuery
  */
-class StatementEmpty implements \Iterator, StatementInterface {
+class StatementEmpty implements \Iterator, ExtendedStatementInterface {
 
   /**
    * Is rowCount() execution allowed.
@@ -63,7 +63,7 @@ class StatementEmpty implements \Iterator, StatementInterface {
     return NULL;
   }
 
-  function fetchAll($mode = NULL, $column_index = NULL, array $constructor_arguments = array()) {
+  function fetchAll($mode = NULL, $column_index = NULL, array $constructor_arguments = NULL) {
     return array();
   }
 
