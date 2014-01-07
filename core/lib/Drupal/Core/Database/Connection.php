@@ -507,13 +507,15 @@ abstract class Connection implements \Serializable {
    *   the documentation for DatabaseConnection::defaultOptions() for details.
    *
    * @return \Drupal\Core\Database\StatementInterface|int
-   *   This method will return one of: the executed statement, the number of
-   *   rows affected by the query (not the number matched), or the generated
-   *   insert ID of the last query, depending on the value of
-   *   $options['return']. Typically that value will be set by default or a
-   *   query builder and should not be set by a user. If there is an error,
-   *   this method will return NULL and may throw an exception if
-   *   $options['throw_exception'] is TRUE.
+   *   Depending on the value of $options['return'], this method will return one
+   *   of:
+   *   - the executed statement,
+   *   - the number of rows affected by the query (not the number matched), or
+   *   - the generated insert ID of the last query.
+   *   Typically, this option will be set by default or by a query builder, and
+   *   should not be set by a user. If there is an error, this method will
+   *   return NULL and may throw an exception if $options['throw_exception'] is
+   *   TRUE.
    *
    * @throws \PDOException
    * @throws \Drupal\Core\Database\IntegrityConstraintViolationException
@@ -784,7 +786,7 @@ abstract class Connection implements \Serializable {
    *   An unsanitized database name.
    *
    * @return string
-   *   The sanitized database name string.
+   *   The sanitized database name.
    */
   public function escapeDatabase($database) {
     return preg_replace('/[^A-Za-z0-9_.]+/', '', $database);
@@ -801,7 +803,7 @@ abstract class Connection implements \Serializable {
    *   An unsanitized table name.
    *
    * @return string
-   *   The sanitized table name string.
+   *   The sanitized table name.
    */
   public function escapeTable($table) {
     return preg_replace('/[^A-Za-z0-9_.]+/', '', $table);
@@ -817,7 +819,7 @@ abstract class Connection implements \Serializable {
    * @param string $field
    *
    * @return string
-   *   The sanitized field name string.
+   *   The sanitized field name.
    */
   public function escapeField($field) {
     return preg_replace('/[^A-Za-z0-9_.]+/', '', $field);
@@ -835,7 +837,7 @@ abstract class Connection implements \Serializable {
    *   An unsanitized alias name.
    *
    * @return string
-   *   The sanitized field name string.
+   *   The sanitized alias name.
    */
   public function escapeAlias($field) {
     return preg_replace('/[^A-Za-z0-9_]+/', '', $field);
