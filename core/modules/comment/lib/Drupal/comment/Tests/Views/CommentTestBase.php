@@ -16,6 +16,26 @@ use Drupal\views\Tests\ViewTestData;
 abstract class CommentTestBase extends ViewTestBase {
 
   /**
+   * @var \Drupal\node\Entity\Node
+   */
+  protected $node_user_commented;
+
+  /**
+   * @var \Drupal\node\Entity\Node
+   */
+  protected $node_user_posted;
+
+  /**
+   * @var \Drupal\user\Entity\User
+   */
+  protected $account;
+
+  /**
+   * @var \Drupal\user\Entity\User
+   */
+  protected $account2;
+
+  /**
    * Modules to enable.
    *
    * @var array
