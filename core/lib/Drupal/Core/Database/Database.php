@@ -284,7 +284,7 @@ abstract class Database {
   /**
    * Gets information on the specified database connection.
    *
-   * @param $connection
+   * @param string $key
    *   The connection key for which we want information.
    *
    * @return array
