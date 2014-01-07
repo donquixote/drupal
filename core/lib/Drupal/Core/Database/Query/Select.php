@@ -86,7 +86,7 @@ class Select extends Query implements SelectInterface {
   /**
    * Whether or not this query should be DISTINCT
    *
-   * @var boolean
+   * @var bool
    */
   protected $distinct = FALSE;
 
