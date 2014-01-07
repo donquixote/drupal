@@ -19,6 +19,10 @@ class TableSortExtender extends SelectExtender {
    */
   protected $header = array();
 
+  /**
+   * @param \Drupal\Core\Database\Query\SelectInterface $query
+   * @param \Drupal\Core\Database\Connection $connection
+   */
   public function __construct(SelectInterface $query, Connection $connection) {
     parent::__construct($query, $connection);
 

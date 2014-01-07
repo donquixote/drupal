@@ -482,7 +482,10 @@ interface SelectInterface extends ConditionInterface, AlterableInterface, Extend
   /**
    * Generic preparation and validation for a SELECT query.
    *
-   * @return
+   * @param SelectInterface $query
+   *   Optional query object to use instead of $this.
+   *
+   * @return bool
    *   TRUE if the validation was successful, FALSE if not.
    */
   public function preExecute(SelectInterface $query = NULL);

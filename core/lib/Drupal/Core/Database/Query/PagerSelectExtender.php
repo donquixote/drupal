@@ -47,6 +47,10 @@ class PagerSelectExtender extends SelectExtender {
    */
   protected $customCountQuery = FALSE;
 
+  /**
+   * @param \Drupal\Core\Database\Query\SelectInterface $query
+   * @param \Drupal\Core\Database\Connection $connection
+   */
   public function __construct(SelectInterface $query, Connection $connection) {
     parent::__construct($query, $connection);
 
@@ -60,6 +64,8 @@ class PagerSelectExtender extends SelectExtender {
    *
    * Before we run the query, we need to add pager-based range() instructions
    * to it.
+   *
+   * @return \Drupal\Core\Database\StatementInterface|null
    */
   public function execute() {
 
@@ -138,6 +144,8 @@ class PagerSelectExtender extends SelectExtender {
    * @param int $limit
    *   An integer specifying the number of elements per page.  If passed a false
    *   value (FALSE, 0, NULL), the pager is disabled.
+   *
+   * @return $this
    */
   public function limit($limit = 10) {
     $this->limit = $limit;
@@ -160,7 +168,9 @@ class PagerSelectExtender extends SelectExtender {
    * explicitly, so it is possible for two pagers to end up using the same ID
    * if both are set explicitly.
    *
-   * @param $element
+   * @param int $element
+   *
+   * @return $this
    */
   public function element($element) {
     $this->element = $element;

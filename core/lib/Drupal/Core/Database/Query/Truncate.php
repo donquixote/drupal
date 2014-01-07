@@ -56,7 +56,7 @@ class Truncate extends Query {
   /**
    * Executes the TRUNCATE query.
    *
-   * @return
+   * @return \Drupal\Core\Database\StatementInterface|int
    *   Return value is dependent on the database type.
    */
   public function execute() {
