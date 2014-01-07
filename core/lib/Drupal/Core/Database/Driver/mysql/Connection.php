@@ -277,7 +277,12 @@ class Connection extends DatabaseConnection {
           //
           // To avoid exceptions when no actual error has occurred, we silently
           // succeed for MySQL error code 1305 ("SAVEPOINT does not exist").
-          if ($e->getPrevious()->errorInfo[1] == '1305') {
+          if (($e_prev = $e->getPrevious())
+            // Only \PDOException has the ->errorInfo property.
+            && $e_prev instanceof \PDOException
+            && isset($e_prev->errorInfo[1])
+            && $e_prev->errorInfo[1] == '1305'
+          ) {
             // If one SAVEPOINT was released automatically, then all were.
             // Therefore, clean the transaction stack.
             $this->transactionLayers = array();
