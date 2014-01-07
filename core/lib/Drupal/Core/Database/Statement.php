@@ -151,4 +151,30 @@ class Statement extends \PDOStatement implements StatementInterface {
     }
   }
 
+  /**
+   * Overrides both \PDO::setFetchMode() and StatementInterface::setFetchMode().
+   *
+   * This is necessary to allow the last optional parameter $a2 to be documented
+   * in the interface, without clashing with the \PDO signature of this method.
+   *
+   * @param int $mode
+   * @param null $a1
+   * @param array $a2
+   *
+   * @return bool
+   *
+   * @see \PDO::setFetchMode()
+   * @see \Drupal\Core\Database\StatementInterface::setFetchMode()
+   */
+  public function setFetchMode($mode, $a1 = NULL, array $a2 = NULL) {
+    switch (count(func_get_args())) {
+      case 1:
+        return parent::setFetchMode($mode);
+      case 2:
+        return parent::setFetchMode($mode, $a1);
+      case 3:
+        return parent::setFetchMode($mode, $a1, $a2);
+    }
+  }
+
 }
