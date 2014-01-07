@@ -125,6 +125,16 @@ class Select extends Query implements SelectInterface {
   protected $forUpdate = FALSE;
 
   /**
+   * @var array
+   */
+  protected $alterTags = array();
+
+  /**
+   * @var array
+   */
+  protected $alterMetaData = array();
+
+  /**
    * @param Connection $table
    * @param string $alias
    * @param Connection $connection

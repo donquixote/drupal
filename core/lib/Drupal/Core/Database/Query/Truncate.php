@@ -24,6 +24,15 @@ class Truncate extends Query {
   protected $table;
 
   /**
+   * The condition object for this query.
+   *
+   * Condition handling is handled via composition.
+   *
+   * @var Condition
+   */
+  protected $condition;
+
+  /**
    * Constructs a Truncate query object.
    *
    * @param \Drupal\Core\Database\Connection $connection
