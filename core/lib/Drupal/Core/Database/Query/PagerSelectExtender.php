@@ -70,7 +70,7 @@ class PagerSelectExtender extends SelectExtender {
     // Add convenience tag to mark that this is an extended query. We have to
     // do this in the constructor to ensure that it is set before preExecute()
     // gets called.
-    if (!$this->preExecute($this)) {
+    if (!$this->preExecute()) {
       return NULL;
     }
 
