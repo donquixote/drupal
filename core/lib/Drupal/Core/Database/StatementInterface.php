@@ -97,6 +97,8 @@ interface StatementInterface extends \Traversable {
    * @param array $a2
    *   If $mode is PDO::FETCH_CLASS, the optional arguments to pass to the
    *   constructor.
+   *
+   * @see \PDOStatement::setFetchMode()
    */
   // public function setFetchMode($mode, $a1 = NULL, $a2 = array());
 
