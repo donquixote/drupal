@@ -36,7 +36,7 @@ interface ConditionInterface {
    *   complex options such as IN, LIKE, or BETWEEN. Defaults to IN if $value is
    *   an array, and = otherwise.
    *
-   * @return \Drupal\Core\Database\Query\ConditionInterface
+   * @return $this
    *   The called object.
    *
    * @see \Drupal\Core\Database\Query\ConditionInterface::isNull()
@@ -53,7 +53,7 @@ interface ConditionInterface {
    * @param string[] $args
    *   An associative array of arguments.
    *
-   * @return \Drupal\Core\Database\Query\ConditionInterface
+   * @return $this
    *   The called object.
    */
   public function where($snippet, $args = array());
@@ -64,7 +64,7 @@ interface ConditionInterface {
    * @param string $field
    *   The name of the field to check.
    *
-   * @return \Drupal\Core\Database\Query\ConditionInterface
+   * @return $this
    *   The called object.
    */
   public function isNull($field);
@@ -75,7 +75,7 @@ interface ConditionInterface {
    * @param string $field
    *   The name of the field to check.
    *
-   * @return \Drupal\Core\Database\Query\ConditionInterface
+   * @return $this
    *   The called object.
    */
   public function isNotNull($field);
@@ -86,7 +86,7 @@ interface ConditionInterface {
    * @param \Drupal\Core\Database\Query\SelectInterface $select
    *   The subquery that must contain results.
    *
-   * @return \Drupal\Core\Database\Query\ConditionInterface
+   * @return $this
    *   The called object.
    */
   public function exists(SelectInterface $select);
@@ -97,7 +97,7 @@ interface ConditionInterface {
    * @param \Drupal\Core\Database\Query\SelectInterface $select
    *   The subquery that must not contain results.
    *
-   * @return \Drupal\Core\Database\Query\ConditionInterface
+   * @return $this
    *   The called object.
    */
   public function notExists(SelectInterface $select);
