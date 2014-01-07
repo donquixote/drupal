@@ -168,7 +168,7 @@ class Connection extends DatabaseConnection {
           $e = new IntegrityConstraintViolationException($e->getMessage(), $e->getCode(), $e);
         }
         // Add additional debug information.
-        if ($query instanceof StatementInterface) {
+        if (isset($stmt) && $stmt instanceof StatementInterface) {
           $e->query_string = $stmt->getQueryString();
         }
         else {

@@ -35,6 +35,7 @@ class Insert extends QueryInsert {
       return NULL;
     }
 
+    /** @var \Drupal\Core\Database\Statement $stmt */
     $stmt = $this->connection->prepareQuery((string) $this);
 
     // Fetch the list of blobs and sequences used on that table.

@@ -566,7 +566,9 @@ abstract class Connection implements \Serializable {
         // Wrap the exception in another exception, because PHP does not allow
         // overriding Exception::getMessage(). Its message is the extra database
         // debug information.
-        $query_string = ($query instanceof StatementInterface) ? $stmt->getQueryString() : $query;
+        $query_string = (isset($stmt) && $stmt instanceof StatementInterface)
+          ? $stmt->getQueryString()
+          : $query;
         $message = $e->getMessage() . ": " . $query_string . "; " . print_r($args, TRUE);
         // Match all SQLSTATE 23xxx errors.
         if (substr($e->getCode(), -6, -3) == '23') {
