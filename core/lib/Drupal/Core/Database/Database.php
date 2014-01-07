@@ -179,7 +179,7 @@ abstract class Database {
    * Note that this method will return FALSE if no connection has been
    * established yet, even if one could be.
    *
-   * @return
+   * @return bool
    *   TRUE if there is at least one database connection established, FALSE
    *   otherwise.
    */
@@ -298,11 +298,12 @@ abstract class Database {
   /**
    * Rename a connection and its corresponding connection information.
    *
-   * @param $old_key
+   * @param string $old_key
    *   The old connection key.
-   * @param $new_key
+   * @param string $new_key
    *   The new connection key.
-   * @return
+   *
+   * @return bool
    *   TRUE in case of success, FALSE otherwise.
    */
   final public static function renameConnection($old_key, $new_key) {
@@ -331,9 +332,10 @@ abstract class Database {
   /**
    * Remove a connection and its corresponding connection information.
    *
-   * @param $key
+   * @param string $key
    *   The connection key.
-   * @return
+   *
+   * @return bool
    *   TRUE in case of success, FALSE otherwise.
    */
   final public static function removeConnection($key) {
@@ -350,10 +352,10 @@ abstract class Database {
   /**
    * Opens a connection to the server specified by the given key and target.
    *
-   * @param $key
+   * @param string $key
    *   The database connection key, as specified in settings.php. The default is
    *   "default".
-   * @param $target
+   * @param string $target
    *   The database target to open.
    *
    * @throws \Drupal\Core\Database\ConnectionNotDefinedException

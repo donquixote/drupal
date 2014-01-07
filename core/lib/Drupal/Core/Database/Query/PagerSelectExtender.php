@@ -135,7 +135,7 @@ class PagerSelectExtender extends SelectExtender {
    *
    * The default if not specified is 10 items per page.
    *
-   * @param $limit
+   * @param int $limit
    *   An integer specifying the number of elements per page.  If passed a false
    *   value (FALSE, 0, NULL), the pager is disabled.
    */

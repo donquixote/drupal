@@ -145,7 +145,7 @@ abstract class Query implements PlaceholderInterface {
    * The comment string will be sanitized to remove * / and other characters
    * that may terminate the string early so as to avoid SQL injection attacks.
    *
-   * @param $comment
+   * @param string $comment
    *   The comment string to be inserted into the query.
    *
    * @return \Drupal\Core\Database\Query\Query
@@ -168,7 +168,7 @@ abstract class Query implements PlaceholderInterface {
    * $comments =& $query->getComments();
    * @endcode
    *
-   * @return
+   * @return string[]&
    *   A reference to the comments array structure.
    */
   public function &getComments() {
