@@ -1,7 +1,7 @@
 #!/bin/php
 <?php
 
-namespace Drupal\Core;
+namespace Drupal\Core\SwitchPsr4;
 
 /**
  * @file
@@ -21,8 +21,34 @@ while (!defined('DRUPAL_ROOT')) {
   $dir = dirname($dir);
 }
 
-process_extensions_base_dir(DRUPAL_ROOT . '/core/modules');
-process_extensions_base_dir(DRUPAL_ROOT . '/core/profiles');
+// Run the script.
+run();
+
+/**
+ * Runs the script.
+ */
+function run() {
+  $cmd_arguments = $_SERVER['argv'];
+  // The first argument is the script name.
+  array_shift($cmd_arguments);
+  if (!empty($cmd_arguments)) {
+    // If one or more arguments are given, treat those arguments as directories,
+    // and process all modules found within these directories.
+    foreach ($cmd_arguments as $dir) {
+      if (!is_dir($dir)) {
+        print "The argument '$dir' is not a directory.";
+        continue;
+      }
+      process_extensions_base_dir($dir);
+    }
+  }
+  else {
+    // If no arguments are given, process all modules and profiles in the core
+    // directories instead.
+    process_extensions_base_dir(DRUPAL_ROOT . '/core/modules');
+    process_extensions_base_dir(DRUPAL_ROOT . '/core/profiles');
+  }
+}
 
 /**
  * Scans all subdirectories of a given directory for Drupal extensions, and runs
