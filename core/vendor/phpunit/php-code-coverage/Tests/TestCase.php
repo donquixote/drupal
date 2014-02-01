@@ -2,7 +2,7 @@
 /**
  * PHP_CodeCoverage
  *
- * Copyright (c) 2009-2013, Sebastian Bergmann <sebastian@phpunit.de>.
+ * Copyright (c) 2009-2014, Sebastian Bergmann <sebastian@phpunit.de>.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,7 +38,7 @@
  * @package    CodeCoverage
  * @subpackage Tests
  * @author     Sebastian Bergmann <sebastian@phpunit.de>
- * @copyright  2009-2013 Sebastian Bergmann <sebastian@phpunit.de>
+ * @copyright  2009-2014 Sebastian Bergmann <sebastian@phpunit.de>
  * @license    http://www.opensource.org/licenses/BSD-3-Clause  The BSD 3-Clause License
  * @link       http://github.com/sebastianbergmann/php-code-coverage
  * @since      File available since Release 1.0.0
@@ -51,7 +51,7 @@
  * @package    CodeCoverage
  * @subpackage Tests
  * @author     Sebastian Bergmann <sebastian@phpunit.de>
- * @copyright  2009-2013 Sebastian Bergmann <sebastian@phpunit.de>
+ * @copyright  2009-2014 Sebastian Bergmann <sebastian@phpunit.de>
  * @license    http://www.opensource.org/licenses/BSD-3-Clause  The BSD 3-Clause License
  * @link       http://github.com/sebastianbergmann/php-code-coverage
  * @since      Class available since Release 1.0.0
@@ -257,6 +257,43 @@ abstract class PHP_CodeCoverage_TestCase extends PHPUnit_Framework_TestCase
                    4 => -1,
                    6 => -1,
                    7 => 1
+                 )
+               )
+            ));
+
+        return $stub;
+    }
+
+    protected function getCoverageForClassWithAnonymousFunction()
+    {
+        $coverage = new PHP_CodeCoverage(
+          $this->setUpXdebugStubForClassWithAnonymousFunction(),
+          new PHP_CodeCoverage_Filter
+        );
+
+        $coverage->start('ClassWithAnonymousFunction', TRUE);
+        $coverage->stop();
+
+        return $coverage;
+    }
+
+    protected function setUpXdebugStubForClassWithAnonymousFunction()
+    {
+        $stub = $this->getMock('PHP_CodeCoverage_Driver_Xdebug');
+        $stub->expects($this->any())
+             ->method('stop')
+             ->will($this->returnValue(
+               array(
+                 TEST_FILES_PATH . 'source_with_class_and_anonymous_function.php' => array(
+                    7  => 1,
+                    9  => 1,
+                    10 => -1,
+                    11 => 1,
+                    12 => 1,
+                    13 => 1,
+                    14 => 1,
+                    17 => 1,
+                    18 => 1
                  )
                )
             ));
