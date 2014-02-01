@@ -30,15 +30,28 @@ run();
 function run() {
   $cmd_arguments = $_SERVER['argv'];
   // The first argument is the script name.
-  array_shift($cmd_arguments);
-  if (!empty($cmd_arguments)) {
+  $scriptname = array_shift($cmd_arguments);
+  if (in_array('--help', $cmd_arguments)) {
+    print get_help_text($scriptname);
+  }
+  elseif (!empty($cmd_arguments)) {
     // If one or more arguments are given, treat those arguments as directories,
     // and process all modules found within these directories.
-    foreach ($cmd_arguments as $dir) {
-      if (!is_dir($dir)) {
-        print "The argument '$dir' is not a directory.";
+    $directories = array();
+    foreach ($cmd_arguments as $arg) {
+      if ('-' === $arg{0}) {
+        // The only valid option is '--help'.
+        print "Invalid option '$arg'";
+        return;
+      }
+      if (!is_dir($arg)) {
+        print "The argument '$arg' is not a directory.";
         continue;
       }
+      $directories[] = $arg;
+    }
+    // Process all directories that were found in the argument list.
+    foreach ($directories as $dir) {
       process_extensions_base_dir($dir);
     }
   }
@@ -48,6 +61,53 @@ function run() {
     process_extensions_base_dir(DRUPAL_ROOT . '/core/modules');
     process_extensions_base_dir(DRUPAL_ROOT . '/core/profiles');
   }
+}
+
+/**
+ * @param string $scriptname
+ *
+ * @return string
+ *   Help text in case the "--help" option is present.
+ */
+function get_help_text($scriptname) {
+  $script = basename($scriptname);
+  return <<<EOF
+
+Move module class files from PSR-0 to PSR-4.
+
+E.g. the following files would be moved.
+  - core/modules/action/lib/{Drupal/action → }/ActionListController.php
+  - core/modules/action/tests/{Drupal/action/Tests → lib}/Menu/ActionLocalTasksTest.php
+
+Class files which are already in the PSR-4 path remain where they are.
+
+Warning: Classes with an underscore in the class name (after the last namespace
+separator) will end up in an incorrect location, and need to be fixed manually.
+Such class names are not allowed in Drupal coding standards, but they may still
+occur in some custom and contrib modules.
+
+The script takes any number of arguments which, if present, specify the
+directories to scan for modules and module class files.
+
+If no arguments are given, the following directories will be processed:
+  - core/modules/
+  - core/profiles/
+
+See:
+  - https://drupal.org/node/2083547 Drupal issue
+  - https://drupal.org/node/2156625 Documentation of PSR-4 in Drupal
+
+Usage:        {$script} [OPTIONS] [DIRECTORIES]
+Examples:     {$script}
+              {$script} core/modules/views
+              {$script} modules/contrib modules/custom
+              {$script} modules/contrib/devel
+
+Options:
+  --help      Display this help page and exit.
+
+
+EOF;
 }
 
 /**
