@@ -2,7 +2,7 @@
 /**
  * PHP_CodeCoverage
  *
- * Copyright (c) 2009-2013, Sebastian Bergmann <sebastian@phpunit.de>.
+ * Copyright (c) 2009-2014, Sebastian Bergmann <sebastian@phpunit.de>.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -38,7 +38,7 @@
  * @package    CodeCoverage
  * @subpackage Tests
  * @author     Sebastian Bergmann <sebastian@phpunit.de>
- * @copyright  2009-2013 Sebastian Bergmann <sebastian@phpunit.de>
+ * @copyright  2009-2014 Sebastian Bergmann <sebastian@phpunit.de>
  * @license    http://www.opensource.org/licenses/BSD-3-Clause  The BSD 3-Clause License
  * @link       http://github.com/sebastianbergmann/php-code-coverage
  * @since      File available since Release 1.0.0
@@ -92,7 +92,7 @@ require_once TEST_FILES_PATH . 'CoverageNothingTest.php';
  * @package    CodeCoverage
  * @subpackage Tests
  * @author     Sebastian Bergmann <sebastian@phpunit.de>
- * @copyright  2009-2013 Sebastian Bergmann <sebastian@phpunit.de>
+ * @copyright  2009-2014 Sebastian Bergmann <sebastian@phpunit.de>
  * @license    http://www.opensource.org/licenses/BSD-3-Clause  The BSD 3-Clause License
  * @link       http://github.com/sebastianbergmann/php-code-coverage
  * @since      Class available since Release 1.0.0
@@ -155,6 +155,25 @@ class PHP_CodeCoverage_UtilTest extends PHPUnit_Framework_TestCase
           array(1 => TRUE),
           PHP_CodeCoverage_Util::getLinesToBeIgnored(
             TEST_FILES_PATH . 'source_without_ignore.php'
+          )
+        );
+    }
+
+    public function testGetLinesToBeIgnored3()
+    {
+        $this->assertEquals(
+          array(
+            1 => TRUE,
+            2 => TRUE,
+            8 => TRUE,
+            15 => TRUE,
+            3 => TRUE,
+            4 => TRUE,
+            19 => TRUE,
+            16 => TRUE
+          ),
+          PHP_CodeCoverage_Util::getLinesToBeIgnored(
+            TEST_FILES_PATH . 'source_with_class_and_anonymous_function.php'
           )
         );
     }
