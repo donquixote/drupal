@@ -9,6 +9,7 @@ namespace Drupal\simpletest;
 
 use Drupal\Core\Database\Database;
 use Drupal\Core\Database\ConnectionNotDefinedException;
+use Drupal\Core\Site\Site;
 
 /**
  * Base test case class for unit tests.
@@ -36,6 +37,9 @@ abstract class UnitTestBase extends TestBase {
    * setUp() method.
    */
   protected function setUp() {
+    // Initialize the test Site singleton, so that Site::getPath() works.
+    Site::init(DRUPAL_ROOT);
+
     file_prepare_directory($this->public_files_directory, FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS);
     $this->settingsSet('file_public_path', $this->public_files_directory);
   }

@@ -17,6 +17,7 @@ use Drupal\Core\Database\ConnectionNotDefinedException;
 use Drupal\Core\Config\StorageInterface;
 use Drupal\Core\DrupalKernel;
 use Drupal\Core\Language\Language;
+use Drupal\Core\Site\Site;
 use Drupal\Core\StreamWrapper\PublicStream;
 use Drupal\Core\Utility\Error;
 use Symfony\Component\HttpFoundation\Request;
@@ -983,7 +984,7 @@ abstract class TestBase {
     // Save further contextual information.
     // Use the original files directory to avoid nesting it within an existing
     // simpletest directory if a test is executed within a test.
-    $this->originalFileDirectory = settings()->get('file_public_path', conf_path() . '/files');
+    $this->originalFileDirectory = settings()->get('file_public_path', Site::getPath('files'));
     $this->originalProfile = drupal_get_profile();
     $this->originalUser = isset($user) ? clone $user : NULL;
 
@@ -1076,8 +1077,11 @@ abstract class TestBase {
 
     // After preparing the environment and changing the database prefix, we are
     // in a valid test environment.
+    if (!is_dir(DRUPAL_ROOT . '/' . $this->siteDirectory)) {
+      throw new \RuntimeException("Test site directory '$this->siteDirectory' does not exist.");
+    }
     drupal_valid_test_ua($this->databasePrefix);
-    conf_path(FALSE, TRUE);
+    Site::setUpTest();
 
     drupal_set_time_limit($this->timeLimit);
   }
@@ -1208,7 +1212,7 @@ abstract class TestBase {
     else {
       drupal_valid_test_ua(FALSE);
     }
-    conf_path(TRUE, TRUE);
+    Site::tearDownTest();
 
     // Restore original shutdown callbacks.
     $callbacks = &drupal_register_shutdown_function();

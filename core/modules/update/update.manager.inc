@@ -38,6 +38,7 @@
 
 use Drupal\Core\Updater\Updater;
 use Drupal\Core\FileTransfer\Local;
+use Drupal\Core\Site\Site;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
 /**
@@ -470,7 +471,7 @@ function update_manager_update_ready_form_submit($form, &$form_state) {
     // trying to install the code, there's no need to prompt for FTP/SSH
     // credentials. Instead, we instantiate a Drupal\Core\FileTransfer\Local and
     // invoke update_authorize_run_update() directly.
-    if (fileowner($project_real_location) == fileowner(conf_path())) {
+    if (fileowner($project_real_location) == fileowner(Site::getAbsolutePath())) {
       module_load_include('inc', 'update', 'update.authorize');
       $filetransfer = new Local(DRUPAL_ROOT);
       update_authorize_run_update($filetransfer, $updates);
@@ -748,7 +749,7 @@ function update_manager_install_form_submit($form, &$form_state) {
   // trying to install the code, there's no need to prompt for FTP/SSH
   // credentials. Instead, we instantiate a Drupal\Core\FileTransfer\Local and
   // invoke update_authorize_run_install() directly.
-  if (fileowner($project_real_location) == fileowner(conf_path())) {
+  if (fileowner($project_real_location) == fileowner(Site::getAbsolutePath())) {
     module_load_include('inc', 'update', 'update.authorize');
     $filetransfer = new Local(DRUPAL_ROOT);
     call_user_func_array('update_authorize_run_install', array_merge(array($filetransfer), $arguments));
@@ -947,7 +948,7 @@ function update_manager_local_transfers_allowed() {
   // the configuration directory to determine if local transfers will be
   // allowed.
   $temporary_file = drupal_tempnam('temporary://', 'update_');
-  $local_transfers_allowed = fileowner($temporary_file) === fileowner(conf_path());
+  $local_transfers_allowed = fileowner($temporary_file) === fileowner(Site::getAbsolutePath());
 
   // Clean up. If this fails, we can ignore it (since this is just a temporary
   // file anyway).

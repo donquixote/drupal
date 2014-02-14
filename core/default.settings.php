@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Drupal site-specific configuration file.
+ * Drupal configuration file.
  *
  * IMPORTANT NOTE:
  * This file may have been set to read-only by the Drupal installation program.
@@ -10,10 +10,9 @@
  * your modifications. Failure to remove write permissions to this file is a
  * security risk.
  *
- * In order to use the selection rules below the multisite aliasing file named
- * sites/sites.php must be present. Its optional settings will be loaded, and
- * the aliases in the array $sites will override the default directory rules
- * below. See sites/example.sites.php for more information about aliases.
+ * The configuration file to be loaded is based upon the rules below. However
+ * if the multisite aliasing is enabled, the aliases in the $sites array will
+ * override the default directory rules below.
  *
  * The configuration directory will be discovered by stripping the website's
  * hostname from left to right and pathname from right to left. The first
@@ -46,10 +45,61 @@
  * hostname with that number. For example,
  * http://www.drupal.org:8080/mysite/test/ could be loaded from
  * sites/8080.www.drupal.org.mysite.test/.
- *
- * @see example.sites.php
- * @see conf_path()
  */
+
+/**
+ * Multi-site functionality and aliases.
+ *
+ * Uncomment the $sites variable below to enable Drupal's multi-site
+ * functionality, which allows to serve multiple different sites from the same
+ * code-base.
+ *
+ * An empty $sites variable just enables the sites directory discovery process.
+ * You can additionally define aliases that map hostnames, ports, and path names
+ * to specific site directories. These aliases are applied prior to scanning for
+ * directories and exempt from the discovery rules.
+ *
+ * Aliases are useful on development servers, where the domain name may not be
+ * the same as the domain of the live server. Since Drupal stores file paths in
+ * the database (files, system table, etc.) this will ensure the paths are
+ * correct when the site is deployed to a live server.
+ *
+ * Aliases are defined in an associative array named $sites. The array is
+ * written in the format: '<port>.<domain>.<path>' => 'directory'. As an
+ * example, to map http://www.drupal.org:8080/mysite/test to the configuration
+ * directory sites/example.com, the array should be defined as:
+ * @code
+ * $sites = array(
+ *   '8080.www.drupal.org.mysite.test' => 'example.com',
+ * );
+ * @endcode
+ * The URL, http://www.drupal.org:8080/mysite/test/, could be a symbolic link or
+ * an Apache Alias directive that points to the Drupal root containing
+ * index.php. An alias could also be created for a subdomain. See the
+ * @link http://drupal.org/documentation/install online Drupal installation guide @endlink
+ * for more information on setting up domains, subdomains, and subdirectories.
+ *
+ * The following examples look for a site configuration in sites/example.com:
+ * @code
+ * URL: http://dev.drupal.org
+ * $sites['dev.drupal.org'] = 'example.com';
+ *
+ * URL: http://localhost/example
+ * $sites['localhost.example'] = 'example.com';
+ *
+ * URL: http://localhost:8080/example
+ * $sites['8080.localhost.example'] = 'example.com';
+ *
+ * URL: http://www.drupal.org:8080/mysite/test/
+ * $sites['8080.www.drupal.org.mysite.test'] = 'example.com';
+ * @endcode
+ *
+ * @see default.settings.php
+ * @see \Drupal\Core\Site\Site::getPath()
+ * @see http://drupal.org/documentation/install/multi-site
+ */
+# $sites = array();
+# $sites['localhost.example'] = 'example.com';
 
 /**
  * Database settings:

@@ -7,6 +7,7 @@
 
 namespace Drupal\file_test;
 
+use Drupal\Core\Site\Site;
 use Drupal\Core\StreamWrapper\LocalStream;
 
 /**
@@ -16,7 +17,7 @@ use Drupal\Core\StreamWrapper\LocalStream;
  */
 class DummyStreamWrapper extends LocalStream {
   function getDirectoryPath() {
-    return conf_path() . '/files';
+    return Site::getPath('files');
   }
 
   /**

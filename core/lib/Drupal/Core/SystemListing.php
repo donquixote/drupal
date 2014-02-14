@@ -7,6 +7,8 @@
 
 namespace Drupal\Core;
 
+use Drupal\Core\Site\Site;
+
 /**
  * Returns information about system object files (modules, themes, etc.).
  *
@@ -85,7 +87,6 @@ class SystemListing {
     if (!in_array($key, array('uri', 'filename', 'name'))) {
       $key = 'uri';
     }
-    $config = conf_path();
 
     // Search for the directory in core.
     $searchdir = array('core/' . $directory);
@@ -100,9 +101,12 @@ class SystemListing {
     $searchdir[] = $directory;
     $searchdir[] = 'sites/all/' . $directory;
 
-    if (file_exists("$config/$directory")) {
-      $searchdir[] = "$config/$directory";
+    if (Site::getPath() !== '') {
+      if (file_exists(Site::getPath($directory))) {
+        $searchdir[] = Site::getPath($directory);
+      }
     }
+
     // @todo Find a way to skip ./config directories (but not modules/config).
     $nomask = '/^(CVS|lib|templates|css|js)$/';
     $files = array();

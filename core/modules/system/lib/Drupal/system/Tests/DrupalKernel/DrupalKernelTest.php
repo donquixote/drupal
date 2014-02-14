@@ -8,6 +8,7 @@
 namespace Drupal\system\Tests\DrupalKernel;
 
 use Drupal\Core\DrupalKernel;
+use Drupal\Core\Site\Site;
 use Drupal\Component\PhpStorage\MTimeProtectedFastFileStorage;
 use Drupal\Component\PhpStorage\FileReadOnlyStorage;
 use Drupal\simpletest\DrupalUnitTestBase;
@@ -26,6 +27,9 @@ class DrupalKernelTest extends DrupalUnitTestBase {
   }
 
   function setUp() {
+    // Initialize the test Site singleton, so that Site::getPath() works.
+    Site::init(DRUPAL_ROOT);
+
     // DrupalKernel relies on global $config_directories and requires those
     // directories to exist. Therefore, create the directories, but do not
     // invoke DrupalUnitTestBase::setUp(), since that would set up further

@@ -6,6 +6,7 @@
  */
 
 use Drupal\Core\Language\Language;
+use Drupal\Core\Site\Site;
 use Drupal\language\Plugin\LanguageNegotiation\LanguageNegotiationSelected;
 
 /**
@@ -14,7 +15,7 @@ use Drupal\language\Plugin\LanguageNegotiation\LanguageNegotiationSelected;
 function locale_install() {
   // Create the interface translations directory and ensure it's writable.
   if (!$directory = \Drupal::config('locale.settings')->get('translation.path')) {
-    $directory = conf_path() . '/files/translations';
+    $directory = Site::getPath('files/translations');
     \Drupal::config('locale.settings')->set('translation.path', $directory)->save();
   }
   file_prepare_directory($directory, FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS);

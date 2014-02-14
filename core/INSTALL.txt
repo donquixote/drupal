@@ -151,12 +151,12 @@ INSTALLATION
       which is normally in the directory sites/default (to avoid problems when
       upgrading, Drupal is not packaged with this file). If auto-creation fails,
       you will need to create this file yourself, using the file
-      sites/default/default.settings.php as a template.
+      core/default.settings.php as a template.
 
       For example, on a Unix/Linux command line, you can make a copy of the
       default.settings.php file with the command:
 
-        cp sites/default/default.settings.php sites/default/settings.php
+        cp core/default.settings.php sites/default/settings.php
 
       Next, grant write privileges to the file to everyone (including the web
       server) with the command:
