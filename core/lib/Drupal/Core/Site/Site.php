@@ -58,7 +58,7 @@ abstract class Site {
       }
     }
     else {
-      self::initInstance($root_directory);
+      self::$instance = new SiteInstance($root_directory);
     }
     self::$instance->initializePath($sites, $custom_path);
   }
@@ -83,21 +83,8 @@ abstract class Site {
     }
     // Set a global state flag to denote that we are operating in the special
     // installer environment.
-    self::initInstance($root_directory, TRUE);
+    self::$instance = new SiteInstance($root_directory, TRUE);
     self::$instance->initializePath();
-  }
-
-  /**
-   * @param $root_directory
-   * @param bool $is_installer
-   *
-   * @throws \BadMethodCallException
-   */
-  private static function initInstance($root_directory, $is_installer = FALSE) {
-    if (isset(self::$instance)) {
-      throw new \BadMethodCallException('Site path is initialized already.');
-    }
-    self::$instance = new SiteInstance($root_directory, $is_installer);
   }
 
   /**
