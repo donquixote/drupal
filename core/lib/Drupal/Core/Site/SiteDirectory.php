@@ -7,16 +7,25 @@ namespace Drupal\Core\Site;
 class SiteDirectory {
 
   /**
+   * The absolute path to the Drupal root directory.
+   *
+   * @var string
+   */
+  private $root;
+
+  /**
    * @var string
    */
   private $path;
 
   /**
+   * @param string $root
    * @param string $path
    *
    * @throws \InvalidArgumentException
    */
-  function __construct($path) {
+  function __construct($root, $path) {
+    $this->root = $root;
     // Extra safety protection in case a script somehow manages to bypass all
     // other protections.
     if (!is_string($path)) {
@@ -64,4 +73,25 @@ class SiteDirectory {
     }
     return $filepath;
   }
+
+  /**
+   * Returns a given path as absolute path in the site directory.
+   *
+   * @param string $filepath
+   *   (optional) A relative filepath to append to the site path.
+   *
+   * @return string
+   *   The given $filepath, potentially prefixed with the site path, as an
+   *   absolute filesystem path.
+   */
+  public function getAbsolutePath($filepath = '') {
+    $filepath = $this->resolvePath($filepath);
+    if ($filepath !== '') {
+      return $this->root . '/' . $filepath;
+    }
+    else {
+      return $this->root;
+    }
+  }
+
 } 
