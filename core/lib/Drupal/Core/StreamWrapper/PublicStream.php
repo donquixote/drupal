@@ -7,6 +7,8 @@
 
 namespace Drupal\Core\StreamWrapper;
 
+use Drupal\Core\Site\Site;
+
 /**
  * Defines a Drupal public (public://) stream wrapper class.
  *
@@ -37,7 +39,7 @@ class PublicStream extends LocalStream {
    *   The base path for public:// typically sites/default/files.
    */
   public static function basePath() {
-    $base_path = settings()->get('file_public_path', conf_path() . '/files');
+    $base_path = settings()->get('file_public_path', Site::getPath('files'));
     return $base_path;
   }
 

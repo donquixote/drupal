@@ -7,6 +7,8 @@
 
 namespace Drupal\system\Tests\File;
 
+use Drupal\Core\Site\Site;
+
 /**
  * Directory related tests.
  */
@@ -23,7 +25,7 @@ class DirectoryTest extends FileTestBase {
    * Test local directory handling functions.
    */
   function testFileCheckLocalDirectoryHandling() {
-    $directory = conf_path() . '/files';
+    $directory = Site::getPath('files');
 
     // Check a new recursively created local directory for correct file system
     // permissions.

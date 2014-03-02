@@ -7,6 +7,7 @@
 
 namespace Drupal\file_test;
 
+use Drupal\Core\Site\Site;
 use Drupal\Core\StreamWrapper\LocalReadOnlyStream;
 
 /**
@@ -16,7 +17,7 @@ use Drupal\Core\StreamWrapper\LocalReadOnlyStream;
  */
 class DummyReadOnlyStreamWrapper extends LocalReadOnlyStream {
   function getDirectoryPath() {
-    return conf_path() . '/files';
+    return Site::getPath('files');
   }
 
   /**

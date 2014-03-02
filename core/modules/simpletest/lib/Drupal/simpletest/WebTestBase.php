@@ -9,6 +9,7 @@ namespace Drupal\simpletest;
 
 use Drupal\Component\Utility\Crypt;
 use Drupal\Component\Utility\NestedArray;
+use Drupal\Component\Utility\Settings;
 use Drupal\Component\Utility\String;
 use Drupal\Core\DrupalKernel;
 use Drupal\Core\Database\Database;
@@ -774,7 +775,7 @@ abstract class WebTestBase extends TestBase {
     // Copy and prepare an actual settings.php, so as to resemble a regular
     // installation.
     // Not using File API; a potential error must trigger a PHP warning.
-    copy(DRUPAL_ROOT . '/sites/default/default.settings.php', DRUPAL_ROOT . '/' . $this->siteDirectory . '/settings.php');
+    copy(DRUPAL_ROOT . '/core/default.settings.php', DRUPAL_ROOT . '/' . $this->siteDirectory . '/settings.php');
 
     // All file system paths are created by System module during installation.
     // @see system_requirements()
@@ -793,23 +794,20 @@ abstract class WebTestBase extends TestBase {
     );
     // Add the parent profile's search path to the child site's search paths.
     // @see \Drupal\Core\Extension\ExtensionDiscovery::getProfileDirectories()
-    $settings['conf']['simpletest.settings']['parent_profile'] = (object) array(
+    $settings['config']['simpletest.settings']['parent_profile'] = (object) array(
       'value' => $this->originalProfile,
       'required' => TRUE,
     );
+    // Write a new settings.php for the test site environment.
+    // drupal_rewrite_settings() will reload Settings and update
+    // $GLOBALS['config'] accordingly.
     $this->writeSettings($settings);
-
-    // Since Drupal is bootstrapped already, install_begin_request() will not
-    // bootstrap into DRUPAL_BOOTSTRAP_CONFIGURATION (again). Hence, we have to
-    // reload the newly written custom settings.php manually.
-    drupal_settings_initialize();
 
     // Execute the non-interactive installer.
     require_once DRUPAL_ROOT . '/core/includes/install.core.inc';
     install_drupal($parameters);
 
     // Import new settings.php written by the installer.
-    drupal_settings_initialize();
     foreach ($GLOBALS['config_directories'] as $type => $path) {
       $this->configDirectories[$type] = $path;
     }
@@ -821,6 +819,7 @@ abstract class WebTestBase extends TestBase {
     // TestBase::restoreEnvironment() will delete the entire site directory.
     // Not using File API; a potential error must trigger a PHP warning.
     chmod(DRUPAL_ROOT . '/' . $this->siteDirectory, 0777);
+    chmod(DRUPAL_ROOT . '/' . $this->siteDirectory . '/settings.php', 0666);
 
     $this->rebuildContainer();
 

@@ -7,6 +7,8 @@
 
 namespace Drupal\system\Tests\File;
 
+use Drupal\Core\Site\Site;
+
 /**
  * Tests that files can not be written using ReadOnlyStreamWrapper functions.
  */
@@ -40,7 +42,7 @@ class ReadOnlyStreamWrapperTest extends FileTestBase {
   function testWriteFunctions() {
     // Generate a test file
     $filename = $this->randomName();
-    $filepath = conf_path() . '/files/' . $filename;
+    $filepath = Site::getPath('files/' . $filename);
     file_put_contents($filepath, $filename);
 
     // Generate a read-only stream wrapper instance
@@ -83,7 +85,7 @@ class ReadOnlyStreamWrapperTest extends FileTestBase {
 
     // Test the mkdir() function by attempting to create a directory.
     $dirname = $this->randomName();
-    $dir = conf_path() . '/files/' . $dirname;
+    $dir = Site::getPath('files/' . $dirname);
     $readonlydir = $this->scheme . '://' . $dirname;
     $this->assertFalse(@drupal_mkdir($readonlydir, 0775, 0), 'Unable to create directory with read-only stream wrapper.');
     // Create a temporary directory for testing purposes

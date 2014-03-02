@@ -14,6 +14,7 @@ use Drupal\Component\Utility\String;
 use Drupal\Core\Config\FileStorage;
 use Drupal\Core\Config\ConfigException;
 use Drupal\Core\DrupalKernel;
+use Drupal\Core\Site\Site;
 use Drupal\Core\Utility\Error;
 use Drupal\Component\Uuid\Uuid;
 use Drupal\Component\Utility\NestedArray;
@@ -81,7 +82,7 @@ function update_settings_file_requirements() {
   $requirements = array();
 
   // Check whether settings.php needs to be rewritten.
-  $settings_file = conf_path() . '/settings.php';
+  $settings_file = Site::getPath('settings.php');
   $writable = drupal_verify_install_file($settings_file, FILE_EXIST | FILE_READABLE | FILE_WRITABLE);
   $requirements['settings file']['title'] = 'Settings file';
   if ($writable) {
