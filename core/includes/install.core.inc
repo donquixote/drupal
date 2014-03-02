@@ -12,6 +12,7 @@ use Drupal\Core\Database\DatabaseExceptionWrapper;
 use Drupal\Core\Database\Install\TaskException;
 use Drupal\Core\Language\Language;
 use Drupal\Core\Language\LanguageManager;
+use Drupal\Core\Site\Site;
 use Drupal\Core\StringTranslation\Translator\FileTranslation;
 use Drupal\Core\Extension\ExtensionDiscovery;
 use Drupal\Core\DependencyInjection\ContainerBuilder;
@@ -270,12 +271,6 @@ function install_begin_request(&$install_state) {
     drupal_override_server_variables($install_state['server']);
   }
 
-  // Initialize conf_path().
-  // This primes the site path to be used during installation. By not requiring
-  // settings.php, a bare site folder can be prepared in the /sites directory,
-  // which will be used for installing Drupal.
-  conf_path(FALSE);
-
   // If the hash salt leaks, it becomes possible to forge a valid testing user
   // agent, install a new copy of Drupal, and take over the original site.
   // The user agent header is used to pass a database prefix in the request when
@@ -286,7 +281,21 @@ function install_begin_request(&$install_state) {
     exit;
   }
 
+  // Initialize the Site directory.
+  // This primes the site path to be used during installation, to allow a bare
+  // site folder to be prepared in the /sites directory, which will be used for
+  // installing Drupal.
+  Site::initInstaller(DRUPAL_ROOT);
+
+  // Bootstrap the minimal base system.
+  // drupal_settings_initialize() MUST be called. If the non-interactive
+  // installer is invoked from a test, then it is not, because Drupal has a
+  // bootstrapped to a later phase already.
+  $current_phase = drupal_get_bootstrap_phase();
   drupal_bootstrap(DRUPAL_BOOTSTRAP_CONFIGURATION);
+  if ($current_phase > DRUPAL_BOOTSTRAP_CONFIGURATION) {
+    drupal_settings_initialize();
+  }
 
   // Ensure that procedural dependencies are loaded as early as possible,
   // since the error/exception handlers depend on them.
@@ -1089,8 +1098,7 @@ function install_verify_database_settings() {
   global $databases;
   if (!empty($databases)) {
     $database = $databases['default']['default'];
-    $settings_file = './' . conf_path(FALSE) . '/settings.php';
-    $errors = install_database_errors($database, $settings_file);
+    $errors = install_database_errors($database);
     if (empty($errors)) {
       return TRUE;
     }
@@ -1110,9 +1118,6 @@ function install_verify_database_settings() {
  */
 function install_settings_form($form, &$form_state, &$install_state) {
   global $databases;
-
-  $conf_path = './' . conf_path(FALSE);
-  $settings_file = $conf_path . '/settings.php';
 
   drupal_set_title(t('Database configuration'));
 
@@ -1182,7 +1187,6 @@ function install_settings_form($form, &$form_state, &$install_state) {
   );
 
   $form['errors'] = array();
-  $form['settings_file'] = array('#type' => 'value', '#value' => $settings_file);
 
   return $form;
 }
@@ -1203,7 +1207,7 @@ function install_settings_form_validate($form, &$form_state) {
   $database['driver'] = $driver;
 
   $form_state['storage']['database'] = $database;
-  $errors = install_database_errors($database, $form_state['values']['settings_file']);
+  $errors = install_database_errors($database);
   foreach ($errors as $name => $message) {
     form_set_error($name, $form_state, $message);
   }
@@ -1212,7 +1216,7 @@ function install_settings_form_validate($form, &$form_state) {
 /**
  * Checks a database connection and returns any errors.
  */
-function install_database_errors($database, $settings_file) {
+function install_database_errors($database) {
   global $databases;
   $errors = array();
 
@@ -1220,7 +1224,11 @@ function install_database_errors($database, $settings_file) {
   $database_types = drupal_get_database_types();
   $driver = $database['driver'];
   if (!isset($database_types[$driver])) {
-    $errors['driver'] = t("In your %settings_file file you have configured @drupal to use a %driver server, however your PHP installation currently does not support this database type.", array('%settings_file' => $settings_file, '@drupal' => drupal_install_profile_distribution_name(), '%driver' => $driver));
+    $errors['driver'] = t("In your %settings_file file you have configured @drupal to use a %driver server, however your PHP installation currently does not support this database type.", array(
+      '%settings_file' => Site::getPath('settings.php'),
+      '@drupal' => drupal_install_profile_distribution_name(),
+      '%driver' => $driver,
+    ));
   }
   else {
     // Run driver specific validation
@@ -1496,7 +1504,7 @@ function install_translations_directory() {
     $directory = $GLOBALS['conf']['locale.settings']['translation.path'];
   }
   else {
-    $directory = conf_path() . '/files/translations';
+    $directory = Site::getPath('files/translations');
   }
   return $directory;
 }
@@ -2075,8 +2083,8 @@ function install_configure_form($form, &$form_state, &$install_state) {
   drupal_set_title(t('Configure site'));
 
   // Warn about settings.php permissions risk
-  $settings_dir = conf_path();
-  $settings_file = $settings_dir . '/settings.php';
+  $settings_dir = Site::getPath();
+  $settings_file = Site::getPath('settings.php');
   // Check that $_POST is empty so we only show this message when the form is
   // first displayed, not on the next page after it is submitted. (We do not
   // want to repeat it multiple times because it is a general warning that is
@@ -2085,7 +2093,7 @@ function install_configure_form($form, &$form_state, &$install_state) {
   // distract from the message that the Drupal installation has completed
   // successfully.)
   $post_params = \Drupal::request()->request->all();
-  if (empty($post_params) && (!drupal_verify_install_file(DRUPAL_ROOT . '/' . $settings_file, FILE_EXIST|FILE_READABLE|FILE_NOT_WRITABLE) || !drupal_verify_install_file(DRUPAL_ROOT . '/' . $settings_dir, FILE_NOT_WRITABLE, 'dir'))) {
+  if (empty($post_params) && (!drupal_verify_install_file(Site::getAbsolutePath('settings.php'), FILE_EXIST|FILE_READABLE|FILE_NOT_WRITABLE) || !drupal_verify_install_file(Site::getAbsolutePath(), FILE_NOT_WRITABLE, 'dir'))) {
     drupal_set_message(t('All necessary changes to %dir and %file have been made, so you should remove write permissions to them now in order to avoid security risks. If you are unsure how to do so, consult the <a href="@handbook_url">online handbook</a>.', array('%dir' => $settings_dir, '%file' => $settings_file, '@handbook_url' => 'http://drupal.org/server-permissions')), 'warning');
   }
 
@@ -2231,8 +2239,8 @@ function install_check_translations($install_state) {
   $readable = FALSE;
   $writable = FALSE;
   // @todo: Make this configurable.
-  $files_directory = conf_path() . '/files';
-  $translations_directory = conf_path() . '/files/translations';
+  $files_directory = Site::getPath('files');
+  $translations_directory = Site::getPath('files/translations');
   $translations_directory_exists = FALSE;
   $translation_available = FALSE;
   $online = FALSE;
@@ -2385,15 +2393,13 @@ function install_check_requirements($install_state) {
   if (!$install_state['settings_verified']) {
     $readable = FALSE;
     $writable = FALSE;
-    $conf_path = './' . conf_path(FALSE);
-    $settings_file = $conf_path . '/settings.php';
-    $default_settings_file = './sites/default/default.settings.php';
-    $file = $conf_path;
+    $settings_file = Site::getAbsolutePath('settings.php');
+    $default_settings_file = './core/default.settings.php';
+    $file = Site::getPath('settings.php');
     $exists = FALSE;
     // Verify that the directory exists.
-    if (drupal_verify_install_file($conf_path, FILE_EXIST, 'dir')) {
+    if (drupal_verify_install_file(Site::getAbsolutePath(), FILE_EXIST, 'dir')) {
       // Check if a settings.php file already exists.
-      $file = $settings_file;
       if (drupal_verify_install_file($settings_file, FILE_EXIST)) {
         // If it does, make sure it is writable.
         $readable = drupal_verify_install_file($settings_file, FILE_READABLE);
@@ -2402,20 +2408,11 @@ function install_check_requirements($install_state) {
       }
     }
 
-    // If default.settings.php does not exist, or is not readable, throw an
-    // error.
-    if (!drupal_verify_install_file($default_settings_file, FILE_EXIST|FILE_READABLE)) {
-      $requirements['default settings file exists'] = array(
-        'title'       => t('Default settings file'),
-        'value'       => t('The default settings file does not exist.'),
-        'severity'    => REQUIREMENT_ERROR,
-        'description' => t('The @drupal installer requires that the %default-file file not be modified in any way from the original download.', array('@drupal' => drupal_install_profile_distribution_name(), '%default-file' => $default_settings_file)),
-      );
-    }
     // Otherwise, if settings.php does not exist yet, we can try to copy
     // default.settings.php to create it.
-    elseif (!$exists) {
-      $copied = drupal_verify_install_file($conf_path, FILE_EXIST|FILE_WRITABLE, 'dir') && @copy($default_settings_file, $settings_file);
+    if (!$exists) {
+      $copied = drupal_verify_install_file(Site::getAbsolutePath(), FILE_EXIST|FILE_WRITABLE, 'dir');
+      $copied = $copied && @copy($default_settings_file, $settings_file);
       if ($copied) {
         // If the new settings file has the same owner as default.settings.php,
         // this means default.settings.php is owned by the webserver user.

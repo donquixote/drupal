@@ -163,10 +163,6 @@ following the instructions in the INTRODUCTION section at the top of this file:
    no longer need their data, then you can uninstall them under the Uninstall
    tab after disabling them.
 
-8. On the command line or in your FTP client, remove the file
-
-     sites/default/default.settings.php
-
 9. Remove all old core files and directories, except for the 'sites' directory
    and any custom files you added elsewhere.
 

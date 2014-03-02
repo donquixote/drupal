@@ -11,6 +11,7 @@ use Drupal\Component\Utility\Settings;
 use Drupal\Core\Database\Database;
 use Drupal\Core\DrupalKernel;
 use Drupal\Core\Extension\ExtensionDiscovery;
+use Drupal\Core\Site\Site;
 
 /**
  * Requirement severity -- Informational message only.
@@ -192,7 +193,7 @@ function drupal_get_database_types() {
  */
 function drupal_rewrite_settings($settings = array(), $settings_file = NULL) {
   if (!isset($settings_file)) {
-    $settings_file = conf_path(FALSE) . '/settings.php';
+    $settings_file = Site::getPath('settings.php');
   }
   // Build list of setting names and insert the values into the global namespace.
   $variable_names = array();
@@ -456,11 +457,11 @@ function drupal_install_config_directories() {
     $config_directories_hash = Crypt::randomBytesBase64(55);
     $settings['config_directories'] = array(
       CONFIG_ACTIVE_DIRECTORY => (object) array(
-        'value' => conf_path() . '/files/config_' . $config_directories_hash . '/active',
+        'value' => Site::getPath('files/config_' . $config_directories_hash . '/active'),
         'required' => TRUE,
       ),
       CONFIG_STAGING_DIRECTORY => (object) array(
-        'value' => conf_path() . '/files/config_' . $config_directories_hash . '/staging',
+        'value' => Site::getPath('files/config_' . $config_directories_hash . '/staging'),
         'required' => TRUE,
       ),
     );

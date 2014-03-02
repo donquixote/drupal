@@ -7,6 +7,7 @@
 
 namespace Drupal\system\Tests\System;
 
+use Drupal\Core\Site\Site;
 use Drupal\simpletest\UnitTestBase;
 
 /**
@@ -104,7 +105,7 @@ EXPECTED
       ),
     );
     foreach ($tests as $test) {
-      $filename = settings()->get('file_public_path', conf_path() . '/files') . '/mock_settings.php';
+      $filename = settings()->get('file_public_path', Site::getPath('files')) . '/mock_settings.php';
       file_put_contents(DRUPAL_ROOT . '/' . $filename, "<?php\n" . $test['original'] . "\n");
       drupal_rewrite_settings($test['settings'], $filename);
       $this->assertEqual(file_get_contents(DRUPAL_ROOT . '/' . $filename), "<?php\n" . $test['expected'] . "\n");

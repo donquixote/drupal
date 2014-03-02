@@ -9,6 +9,7 @@ namespace Drupal\Core\Extension;
 
 use Drupal\Component\Utility\Settings;
 use Drupal\Core\Extension\Discovery\RecursiveExtensionFilterIterator;
+use Drupal\Core\Site\Site;
 
 /**
  * Discovers available extensions in the filesystem.
@@ -136,7 +137,9 @@ class ExtensionDiscovery {
     }
 
     // Search the site-specific directory.
-    $searchdirs[static::ORIGIN_SITE] = conf_path();
+    if ('' !== $site_path = Site::getPath()) {
+      $searchdirs[static::ORIGIN_SITE] = $site_path;
+    }
 
     // Unless an explicit value has been passed, manually check whether we are
     // in a test environment, in which case test extensions must be included.
