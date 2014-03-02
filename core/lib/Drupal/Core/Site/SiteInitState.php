@@ -4,14 +4,14 @@
 namespace Drupal\Core\Site;
 
 
+/**
+ * Represents the state of the process with regard to choosing a site directory.
+ *
+ * This class is typically instantiated
+ * - from Site::init(), during a normal request. In this case
+ * Site::initInstaller()
+ */
 class SiteInitState {
-
-  /**
-   * The absolute path to the Drupal root directory.
-   *
-   * @var string
-   */
-  private $root;
 
   /**
    * Whether the Site singleton was instantiated by the installer.
@@ -26,14 +26,34 @@ class SiteInitState {
   private $siteDirectory;
 
   /**
+   * A service that can choose a site in a multisite scenario.
+   *
+   * @var \Drupal\Core\Site\SitePicker
+   */
+  private $sitePicker;
+
+  /**
+   * @param bool $is_installation_process
+   *   TRUE, if the process is a site installation process.
+   *
+   * @return self
+   */
+  public static function createFromEnvironment($is_installation_process) {
+    $site_picker = SitePicker::createFromEnvironment();
+    return new self($site_picker, $is_installation_process);
+  }
+
+  /**
    * Constructs the site state object.
    *
-   * @param string $root_directory
-   * @param bool $is_installer
+   * @param SitePicker $site_picker
+   *   A service that can choose a site in a multisite scenario.
+   * @param bool $is_installation_process
+   *   TRUE, if the process is a site installation process.
    */
-  public function __construct($root_directory, $is_installer) {
-    $this->root = $root_directory;
-    $this->isInstallationProcess = $is_installer;
+  public function __construct($site_picker, $is_installation_process) {
+    $this->isInstallationProcess = $is_installation_process;
+    $this->sitePicker = $site_picker;
   }
 
   /**
@@ -46,19 +66,22 @@ class SiteInitState {
   /**
    * Initializes the site path.
    *
+   * @param string $root_directory
+   *   The root directory to use for absolute paths; i.e., DRUPAL_ROOT.
    * @param array|null $sites
-   *   (optional) A multi-site mapping, as defined in settings.php,
-   *   or NULL if no multi-site functionality is enabled.
+   *   (optional) A multi-site mapping, as defined in settings.php, or
+   *   NULL, if multisite functionality is not enabled.
    * @param string $custom_path
    *   (optional) An explicit site path to set; skipping site negotiation.
    *
    * @throws \BadMethodCallException
    */
-  public function initializePath(array $sites = NULL, $custom_path = NULL) {
+  public function initializePath($root_directory, array $sites = NULL, $custom_path = NULL) {
     if (isset($this->siteDirectory)) {
       throw new \BadMethodCallException('Site path is already initialized.');
     }
     // Force-override the site directory in tests.
+    // @todo Should this be passed in through the constructor to make this fully unit-testable?
     if ($test_prefix = drupal_valid_test_ua()) {
       $path = 'sites/simpletest/' . substr($test_prefix, 10);
     }
@@ -70,15 +93,14 @@ class SiteInitState {
     // the path for the current site.
     // $sites just needs to be defined; an explicit mapping is not required.
     elseif (isset($sites)) {
-      $site_picker = SitePicker::createFromEnvironment();
-      $path = $site_picker->discoverPath($this->root, $sites, !$this->isInstallationProcess);
+      $path = $this->sitePicker->discoverPath($root_directory, $sites, !$this->isInstallationProcess);
     }
     // If the multi-site functionality is not enabled, the Drupal root
     // directory is the site directory.
     else {
       $path = '';
     }
-    $this->siteDirectory = new SiteDirectory($this->root, $path);
+    $this->siteDirectory = new SiteDirectory($root_directory, $path);
   }
 
   /**
