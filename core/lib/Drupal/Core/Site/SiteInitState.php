@@ -70,8 +70,8 @@ class SiteInitState {
     // the path for the current site.
     // $sites just needs to be defined; an explicit mapping is not required.
     elseif (isset($sites)) {
-      $site_picker = new SitePicker($this->root, $sites);
-      $path = $site_picker->determinePath(!$this->isInstallationProcess);
+      $site_picker = SitePicker::createFromEnvironment();
+      $path = $site_picker->discoverPath($this->root, $sites, !$this->isInstallationProcess);
     }
     // If the multi-site functionality is not enabled, the Drupal root
     // directory is the site directory.
