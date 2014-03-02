@@ -111,14 +111,16 @@ class SiteInitState {
   }
 
   /**
-   * @throws \RuntimeException
+   * Returns the site directory wrapper, if already initialized.
+   *
+   * @throws \Drupal\Core\Site\SitePathNotInitializedException
    * @return \Drupal\Core\Site\SiteDirectory
    */
   public function requireSiteDirectory() {
     // Extra safety protection in case a script somehow manages to bypass all
     // other protections.
     if (!isset($this->siteDirectory)) {
-      throw new \RuntimeException('Site path is not initialized yet.');
+      throw new SitePathNotInitializedException('Site path is not initialized yet.');
     }
     return $this->siteDirectory;
   }
