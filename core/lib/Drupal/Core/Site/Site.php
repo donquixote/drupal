@@ -34,9 +34,10 @@ class Site {
    *
    * @param string $root_directory
    *   The root directory to use for absolute paths; i.e., DRUPAL_ROOT.
-   * @param array $sites
-   *   (optional) A multi-site mapping, as defined in settings.php.
-   * @param string $custom_path
+   * @param array|null $sites
+   *   (optional) A multi-site mapping, as defined in settings.php, or
+   *   NULL, if multisite functionality is not enabled.
+   * @param string|null $custom_path
    *   (optional) An explicit site path to set; skipping site negotiation.
    *   This can be defined as $conf_path in the root /settings.php file.
    *
@@ -45,9 +46,9 @@ class Site {
    */
   public static function init($root_directory, array $sites = NULL, $custom_path = NULL) {
     if (!isset(self::$siteInitState)) {
-      self::$siteInitState = new SiteInitState($root_directory, FALSE);
+      self::$siteInitState = SiteInitState::createFromEnvironment(FALSE);
     }
-    self::$siteInitState->initializePath($sites, $custom_path);
+    self::$siteInitState->initializePath($root_directory, $sites, $custom_path);
   }
 
   /**
@@ -58,17 +59,14 @@ class Site {
    * installed into a new and empty site directory, which does not contain a
    * settings.php yet.
    *
-   * @param string $root_directory
-   *   The root directory to use for absolute paths; i.e., DRUPAL_ROOT.
-   *
    * @throws \BadMethodCallException
    * @see install_begin_request()
    */
-  public static function initInstaller($root_directory) {
+  public static function initInstaller() {
     if (isset(self::$siteInitState)) {
       throw new \BadMethodCallException('Site state is already initialized.');
     }
-    self::$siteInitState = new SiteInitState($root_directory, TRUE);
+    self::$siteInitState = SiteInitState::createFromEnvironment(TRUE);
   }
 
   /**
