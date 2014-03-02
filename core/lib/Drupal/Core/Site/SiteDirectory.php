@@ -19,13 +19,13 @@ class SiteDirectory {
   private $path;
 
   /**
-   * @param string $root
+   * @param string $root_directory
    * @param string $path
    *
    * @throws \InvalidArgumentException
    */
-  function __construct($root, $path) {
-    $this->root = $root;
+  function __construct($root_directory, $path) {
+    $this->root = $root_directory;
     // Extra safety protection in case a script somehow manages to bypass all
     // other protections.
     if (!is_string($path)) {
