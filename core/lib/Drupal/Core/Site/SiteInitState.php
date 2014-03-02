@@ -33,6 +33,11 @@ class SiteInitState {
   private $sitePicker;
 
   /**
+   * @var string|false
+   */
+  private $testPrefix;
+
+  /**
    * @param bool $is_installation_process
    *   TRUE, if the process is a site installation process.
    *
@@ -40,7 +45,8 @@ class SiteInitState {
    */
   public static function createFromEnvironment($is_installation_process) {
     $site_picker = SitePicker::createFromEnvironment();
-    return new self($site_picker, $is_installation_process);
+    $test_prefix = drupal_valid_test_ua();
+    return new self($site_picker, $is_installation_process, $test_prefix);
   }
 
   /**
@@ -50,10 +56,12 @@ class SiteInitState {
    *   A service that can choose a site in a multisite scenario.
    * @param bool $is_installation_process
    *   TRUE, if the process is a site installation process.
+   * @param string|false $test_prefix
    */
-  public function __construct($site_picker, $is_installation_process) {
+  public function __construct($site_picker, $is_installation_process, $test_prefix) {
     $this->isInstallationProcess = $is_installation_process;
     $this->sitePicker = $site_picker;
+    $this->testPrefix = $test_prefix;
   }
 
   /**
@@ -81,9 +89,8 @@ class SiteInitState {
       throw new \BadMethodCallException('Site path is already initialized.');
     }
     // Force-override the site directory in tests.
-    // @todo Should this be passed in through the constructor to make this fully unit-testable?
-    if ($test_prefix = drupal_valid_test_ua()) {
-      $path = 'sites/simpletest/' . substr($test_prefix, 10);
+    if (FALSE !== $this->testPrefix) {
+      $path = 'sites/simpletest/' . substr($this->testPrefix, 10);
     }
     // An explicitly defined $conf_path in /settings.php takes precedence.
     elseif (isset($custom_path)) {
