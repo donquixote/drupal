@@ -13,25 +13,6 @@ namespace Drupal\Core\Site;
 class Site {
 
   /**
-   * The absolute path to the Drupal root directory.
-   *
-   * @var string
-   */
-  private $root;
-
-  /**
-   * @var SiteDirectory|null
-   */
-  private $siteDirectory;
-
-  /**
-   * Whether the Site singleton was instantiated by the installer.
-   *
-   * @var bool
-   */
-  private $isInstaller = FALSE;
-
-  /**
    * The original Site instance of the test runner during test execution.
    *
    * @see \Drupal\Core\Site\Site::setUpTest()
@@ -39,14 +20,14 @@ class Site {
    *
    * @var \Drupal\Core\Site\Site
    */
-  private static $original;
+  private static $originalSiteInitState;
 
   /**
    * The Site singleton instance.
    *
-   * @var \Drupal\Core\Site\Site
+   * @var \Drupal\Core\Site\SiteInitState
    */
-  private static $instance;
+  private static $siteInitState;
 
   /**
    * Initializes the Site singleton.
@@ -63,23 +44,10 @@ class Site {
    * @see drupal_settings_initialize()
    */
   public static function init($root_directory, array $sites = NULL, $custom_path = NULL) {
-    if (isset(self::$instance)) {
-      // Only the installer environment is allowed to instantiate the Site
-      // singleton prior to drupal_settings_initialize().
-      // @see Site::initInstaller()
-      if (!self::$instance->isInstaller) {
-        throw new \BadMethodCallException('Site path is initialized already.');
-      }
+    if (!isset(self::$siteInitState)) {
+      self::$siteInitState = new SiteInitState($root_directory, FALSE);
     }
-    else {
-      new self($root_directory);
-    }
-    self::$instance->initializePath($sites, $custom_path);
-
-    // Prevent this method from being called more than once.
-    if (self::$instance->isInstaller) {
-      self::$instance->isInstaller = FALSE;
-    }
+    self::$siteInitState->initializePath($sites, $custom_path);
   }
 
   /**
@@ -97,27 +65,10 @@ class Site {
    * @see install_begin_request()
    */
   public static function initInstaller($root_directory) {
-    if (isset(self::$instance)) {
-      throw new \BadMethodCallException('Site path is initialized already.');
+    if (isset(self::$siteInitState)) {
+      throw new \BadMethodCallException('Site state is already initialized.');
     }
-    new self($root_directory);
-    // Denote that we are operating in the special installer environment.
-    self::$instance->isInstaller = TRUE;
-  }
-
-  /**
-   * Constructs the Site singleton.
-   *
-   * @param string $root_directory
-   *
-   * @throws \BadMethodCallException
-   */
-  private function __construct($root_directory) {
-    if (isset(self::$instance)) {
-      throw new \BadMethodCallException('Site path is initialized already.');
-    }
-    $this->root = $root_directory;
-    self::$instance = $this;
+    self::$siteInitState = new SiteInitState($root_directory, TRUE);
   }
 
   /**
@@ -126,14 +77,14 @@ class Site {
    * @see \Drupal\simpletest\TestBase::prepareEnvironment()
    */
   public static function setUpTest() {
-    if (!isset(self::$instance)) {
+    if (!isset(self::$siteInitState)) {
       throw new \RuntimeException('No original Site to backup. Missing invocation of Site::init()?');
     }
     if (!drupal_valid_test_ua()) {
       throw new \BadMethodCallException('Site is not executing a test.');
     }
-    self::$original = clone self::$instance;
-    self::$instance = NULL;
+    self::$originalSiteInitState = clone self::$siteInitState;
+    self::$siteInitState = NULL;
   }
 
   /**
@@ -142,7 +93,7 @@ class Site {
    * @see \Drupal\simpletest\TestBase::restoreEnvironment()
    */
   public static function tearDownTest() {
-    if (!isset(self::$original)) {
+    if (!isset(self::$originalSiteInitState)) {
       throw new \RuntimeException('No original Site to revert to. Missing invocation of Site::setUpTest()?');
     }
     // Do not allow to restore original Site singleton in a test environment,
@@ -151,41 +102,8 @@ class Site {
     if (drupal_valid_test_ua() && !DRUPAL_TEST_IN_CHILD_SITE) {
       throw new \BadMethodCallException('Unable to revert Site: A test is still being executed.');
     }
-    self::$instance = clone self::$original;
-    self::$original = NULL;
-  }
-
-  /**
-   * Initializes the site path.
-   *
-   * @param array|null $sites
-   *   (optional) A multi-site mapping, as defined in settings.php,
-   *   or NULL if no multi-site functionality is enabled.
-   * @param string $custom_path
-   *   (optional) An explicit site path to set; skipping site negotiation.
-   */
-  private function initializePath(array $sites = NULL, $custom_path = NULL) {
-    // Force-override the site directory in tests.
-    if ($test_prefix = drupal_valid_test_ua()) {
-      $path = 'sites/simpletest/' . substr($test_prefix, 10);
-    }
-    // An explicitly defined $conf_path in /settings.php takes precedence.
-    elseif (isset($custom_path)) {
-      $path = $custom_path;
-    }
-    // If the multi-site functionality was enabled in /settings.php, discover
-    // the path for the current site.
-    // $sites just needs to be defined; an explicit mapping is not required.
-    elseif (isset($sites)) {
-      $site_picker = new SitePicker($this->root, $sites);
-      $path = $site_picker->determinePath(!$this->isInstaller);
-    }
-    // If the multi-site functionality is not enabled, the Drupal root
-    // directory is the site directory.
-    else {
-      $path = '';
-    }
-    $this->siteDirectory = new SiteDirectory($this->root, $path);
+    self::$siteInitState = clone self::$originalSiteInitState;
+    self::$originalSiteInitState = NULL;
   }
 
   /**
@@ -205,12 +123,7 @@ class Site {
    * @see \Drupal\Core\Site\Site::getAbsolutePath()
    */
   public static function getPath($filepath = '') {
-    // Extra safety protection in case a script somehow manages to bypass all
-    // other protections.
-    if (!isset(self::$instance->siteDirectory)) {
-      throw new \RuntimeException('Site path is not initialized yet.');
-    }
-    return self::$instance->siteDirectory->resolvePath($filepath);
+    return self::$siteInitState->requireSiteDirectory()->resolvePath($filepath);
   }
 
   /**
@@ -227,12 +140,7 @@ class Site {
    * @see \Drupal\Core\Site\Site::getPath()
    */
   public static function getAbsolutePath($filepath = '') {
-    // Extra safety protection in case a script somehow manages to bypass all
-    // other protections.
-    if (!isset(self::$instance->siteDirectory)) {
-      throw new \RuntimeException('Site path is not initialized yet.');
-    }
-    return self::$instance->siteDirectory->getAbsolutePath($filepath);
+    return self::$siteInitState->requireSiteDirectory()->getAbsolutePath($filepath);
   }
 
 }
