@@ -1,7 +1,7 @@
 <?php
 
 use Drupal\Component\Utility\Crypt;
-use Drupal\Component\Utility\Settings;
+use Drupal\Component\Utility\Settings as SettingsClass;
 use Drupal\Component\Utility\String;
 use Drupal\Component\Utility\Timer;
 use Drupal\Component\Utility\Unicode;
@@ -14,7 +14,7 @@ use Symfony\Component\ClassLoader\ApcClassLoader;
 use Symfony\Component\DependencyInjection\Exception\RuntimeException as DependencyInjectionRuntimeException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Drupal\Core\Language\Language;
+use Drupal\Core\Language\Language as LanguageClass;
 use Drupal\Core\Session\UserSession;
 
 /**
@@ -394,7 +394,7 @@ function drupal_settings_initialize() {
     require DRUPAL_ROOT . '/' . $conf_path . '/settings.php';
   }
   // Initialize Settings.
-  new Settings($settings);
+  new SettingsClass($settings);
 }
 
 /**
@@ -607,7 +607,7 @@ function drupal_get_filename($type, $name, $filename = NULL) {
  *   The settings object.
  */
 function settings() {
-  return Settings::getSingleton();
+  return SettingsClass::getSingleton();
 }
 
 /**
@@ -1971,7 +1971,7 @@ function language($type) {
  * @deprecated in Drupal 8.x-dev, will be removed before Drupal 8.0.
  *   Use \Drupal::languageManager()->getLanguages().
  */
-function language_list($flags = Language::STATE_CONFIGURABLE) {
+function language_list($flags = LanguageClass::STATE_CONFIGURABLE) {
   return \Drupal::languageManager()->getLanguages($flags);
 }
 
