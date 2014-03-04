@@ -130,7 +130,7 @@ services:
   settings:
     class: Drupal\Component\Utility\Settings
     factory_class: Drupal\Component\Utility\Settings
-    factory_method: getSingleton
+    factory_method: requireSingleton
   state:
     class: Drupal\Core\KeyValueStore\State
     arguments: ['@keyvalue']

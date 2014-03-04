@@ -706,7 +706,7 @@ function drupal_get_filename($type, $name, $filename = NULL) {
  *   The settings object.
  */
 function settings() {
-  return Settings::getSingleton();
+  return Settings::requireSingleton();
 }
 
 /**

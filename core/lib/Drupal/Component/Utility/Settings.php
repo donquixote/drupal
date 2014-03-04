@@ -32,9 +32,29 @@ final class Settings {
    * A singleton is used because this class is used before the container is
    * available.
    *
-   * @return \Drupal\Component\Utility\Settings
+   * @return \Drupal\Component\Utility\Settings|null
+   *   The Settings::$instance object, or
+   *   NULL if it is not initialized yet.
    */
   public static function getSingleton() {
+    return self::$instance;
+  }
+
+  /**
+   * Returns the settings instance.
+   *
+   * A singleton is used because this class is used before the container is
+   * available.
+   *
+   * @throws \BadMethodCallException
+   *   Exception that is thrown if Settings::$instance is not initialized yet.
+   * @return \Drupal\Component\Utility\Settings
+   *   The Settings::$instance object.
+   */
+  public static function requireSingleton() {
+    if (!isset(self::$instance)) {
+      throw new \BadMethodCallException('Settings::$instance is not initialized yet.');
+    }
     return self::$instance;
   }
 
