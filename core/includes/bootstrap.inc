@@ -473,7 +473,7 @@ function drupal_environment_initialize() {
 /**
  * Validates that a hostname (for example $_SERVER['HTTP_HOST']) is safe.
  *
- * @return
+ * @param string
  *  TRUE if only containing valid characters, or FALSE otherwise.
  */
 function drupal_valid_http_host($host) {
@@ -635,11 +635,11 @@ function _drupal_request_initialize() {
  * Calling drupal_get_filename('module', 'foo') will give you one of
  * the above, depending on where the module is located.
  *
- * @param $type
+ * @param string $type
  *   The type of the item (theme, theme_engine, module, profile).
- * @param $name
+ * @param string $name
  *   The name of the item for which the filename is requested.
- * @param $filename
+ * @param string $filename
  *   The filename of the item if it is to be set explicitly rather
  *   than by consulting the database.
  *
@@ -749,7 +749,7 @@ function drupal_page_get_cache(Request $request) {
 /**
  * Determines the cacheability of the current page.
  *
- * @param $allow_caching
+ * @param bool $allow_caching
  *   Set to FALSE if you want to prevent this page to get cached.
  *
  * @return
@@ -771,13 +771,13 @@ function drupal_page_is_cacheable($allow_caching = NULL) {
  * Note: When sending a Content-Type header, always include a 'charset' type,
  * too. This is necessary to avoid security bugs (e.g. UTF-7 XSS).
  *
- * @param $name
+ * @param string $name
  *   The HTTP header name, or the special 'Status' header name.
- * @param $value
+ * @param string|false $value
  *   The HTTP header value; if equal to FALSE, the specified header is unset.
  *   If $name is 'Status', this is expected to be a status code followed by a
  *   reason phrase, e.g. "404 Not Found".
- * @param $append
+ * @param bool $append
  *   Whether to append the value to an existing header or to replace it.
  *
  * @deprecated in Drupal 8.x-dev, will be removed before Drupal 8.0.
@@ -807,7 +807,7 @@ function drupal_add_http_header($name, $value, $append = FALSE) {
 /**
  * Gets the HTTP response headers for the current page.
  *
- * @param $name
+ * @param string $name
  *   An HTTP header name. If omitted, all headers are returned as name/value
  *   pairs. If an array value is FALSE, the header has been unset.
  *
@@ -835,6 +835,8 @@ function drupal_get_http_header($name = NULL) {
  *
  * Header names are case-insensitive, but for maximum compatibility they should
  * follow "common form" (see RFC 2616, section 4.2).
+ *
+ * @param string $name
  *
  * @deprecated in Drupal 8.x-dev, will be removed before Drupal 8.0.
  *   See https://drupal.org/node/2181523.
@@ -1071,13 +1073,13 @@ function drupal_serve_page_from_cache(stdClass $cache, Response $response, Reque
  * Translators can then rearrange the string as necessary for the language
  * (e.g., in Spanish, it might be "blog de @name").
  *
- * @param $string
+ * @param string $string
  *   A string containing the English string to translate.
- * @param $args
+ * @param array $args
  *   An associative array of replacements to make after translation. Based
  *   on the first character of the key, the value is escaped and/or themed.
  *   See format_string() for details.
- * @param $options
+ * @param array $options
  *   An associative array of additional options, with the following elements:
  *   - 'langcode' (defaults to the current language): The language code to
  *     translate to a language other than what is used to display the page.
@@ -1136,7 +1138,7 @@ function check_plain($text) {
  * The function does not return FALSE for strings containing character codes
  * above U+10FFFF, even though these are prohibited by RFC 3629.
  *
- * @param $text
+ * @param string $text
  *   The text to check.
  *
  * @return
@@ -1183,20 +1185,20 @@ function request_uri($omit_query_string = FALSE) {
  * This is a wrapper function for watchdog() which automatically decodes an
  * exception.
  *
- * @param $type
+ * @param string $type
  *   The category to which this message belongs.
- * @param $exception
+ * @param Exception $exception
  *   The exception that is going to be logged.
- * @param $message
+ * @param string $message
  *   The message to store in the log. If empty, a text that contains all useful
  *   information about the passed-in exception is used.
- * @param $variables
+ * @param array $variables
  *   Array of variables to replace in the message on display or
  *   NULL if message is already translated or not possible to
  *   translate.
- * @param $severity
+ * @param int $severity
  *   The severity of the message, as per RFC 3164.
- * @param $link
+ * @param string $link
  *   A link to associate with the message.
  *
  * @see watchdog()
@@ -1416,10 +1418,10 @@ function drupal_get_title() {
  *
  * The title is displayed on the page and in the title bar.
  *
- * @param $title
+ * @param string $title
  *   Optional string value to assign to the page title; or if set to NULL
  *   (default), leaves the current title unchanged.
- * @param $output
+ * @param int $output
  *   Optional flag - normally should be left as Title::CHECK_PLAIN. Only set to
  *   PASS_THROUGH if you have already removed any possibly dangerous code
  *   from $title using a function like
@@ -2035,7 +2037,7 @@ function language($type) {
 /**
  * Returns a list of languages set up on the site.
  *
- * @param $flags
+ * @param int $flags
  *   (optional) Specifies the state of the languages that have to be returned.
  *   It can be: Language::STATE_CONFIGURABLE, Language::STATE_LOCKED,
  *   Language::STATE_ALL.
@@ -2158,10 +2160,10 @@ function _current_path($path = NULL) {
  * When attempting to use this function to load an element from the current
  * path, e.g. loading the node on a node page, use menu_get_object() instead.
  *
- * @param $index
+ * @param int|null $index
  *   The index of the component, where each component is separated by a '/'
  *   (forward-slash), and where the first component has an index of 0 (zero).
- * @param $path
+ * @param string|null $path
  *   A path to break into components. Defaults to the path of the current page.
  *
  * @return
@@ -2204,7 +2206,7 @@ function arg($index = NULL, $path = NULL) {
  * classes, interfaces, and traits (PHP 5.4 and later). It's only dependency
  * is DRUPAL_ROOT. Otherwise it may be called as early as possible.
  *
- * @param $class_loader
+ * @param string $class_loader
  *   The name of class loader to use. This can be used to change the class
  *   loader class when calling drupal_classloader() from settings.php. It is
  *   ignored otherwise.
@@ -2349,14 +2351,14 @@ function drupal_classloader_register($name, $path) {
  * }
  * @endcode
  *
- * @param $name
+ * @param string $name
  *   Globally unique name for the variable. For a function with only one static,
  *   variable, the function name (e.g. via the PHP magic __FUNCTION__ constant)
  *   is recommended. For a function with multiple static variables add a
  *   distinguishing suffix to the function name for each one.
- * @param $default_value
+ * @param mixed|null $default_value
  *   Optional default value.
- * @param $reset
+ * @param bool $reset
  *   TRUE to reset a specific named variable, or all variables if $name is NULL.
  *   Resetting every variable should only be used, for example, for running
  *   unit tests with a clean environment. Should be used only though via
@@ -2404,7 +2406,7 @@ function &drupal_static($name, $default_value = NULL, $reset = FALSE) {
 /**
  * Resets one or all centrally stored static variable(s).
  *
- * @param $name
+ * @param string $name
  *   Name of the static variable to reset. Omit to reset all variables.
  */
 function drupal_static_reset($name = NULL) {
@@ -2433,7 +2435,7 @@ function drupal_placeholder($text) {
  * Wrapper for register_shutdown_function() that catches thrown exceptions to
  * avoid "Exception thrown without a stack frame in Unknown".
  *
- * @param $callback
+ * @param callback $callback
  *   The shutdown function to register.
  * @param ...
  *   Additional arguments to pass to the shutdown function.
@@ -2497,11 +2499,11 @@ function _drupal_shutdown_function() {
 /**
  * Compares the memory required for an operation to the available memory.
  *
- * @param $required
+ * @param string $required
  *   The memory required for the operation, expressed as a number of bytes with
  *   optional SI or IEC binary unit prefix (e.g. 2, 3K, 5MB, 10G, 6GiB, 8bytes,
  *   9mbytes).
- * @param $memory_limit
+ * @param string $memory_limit
  *   (optional) The memory limit for the operation, expressed as a number of
  *   bytes with optional SI or IEC binary unit prefix (e.g. 2, 3K, 5MB, 10G,
  *   6GiB, 8bytes, 9mbytes). If no value is passed, the current PHP

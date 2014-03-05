@@ -228,8 +228,9 @@
 /**
  * Form element processing handler for the #ajax form property.
  *
- * @param $element
+ * @param array $element
  *   An associative array containing the properties of the element.
+ * @param array $form_state
  *
  * @return
  *   The processed element.
