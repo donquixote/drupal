@@ -693,6 +693,8 @@ function drupal_get_filename($type, $name, $filename = NULL) {
   if (isset($files[$type][$name])) {
     return $files[$type][$name];
   }
+
+  return NULL;
 }
 
 /**
@@ -744,6 +746,8 @@ function drupal_page_get_cache(Request $request) {
   if (drupal_page_is_cacheable()) {
     return \Drupal::cache('page')->get(drupal_page_cache_get_cid($request));
   }
+
+  return NULL;
 }
 
 /**
@@ -846,6 +850,8 @@ function _drupal_set_preferred_header_name($name = NULL) {
     return $header_names;
   }
   $header_names[strtolower($name)] = $name;
+
+  return NULL;
 }
 
 /**
@@ -934,6 +940,8 @@ function drupal_page_header() {
     'ETag' => '"' . REQUEST_TIME . '"',
   );
   drupal_send_headers($default_headers);
+
+  return NULL;
 }
 
 /**
@@ -2195,6 +2203,8 @@ function arg($index = NULL, $path = NULL) {
   if (isset($arguments[$path][$index])) {
     return $arguments[$path][$index];
   }
+
+  return NULL;
 }
 
 /**
