@@ -335,6 +335,7 @@ function find_conf_path($http_host, $script_name, $require_settings = TRUE) {
  *   (optional) The type of config directory to return. Drupal core provides
  *   'active' and 'staging'. Defaults to CONFIG_ACTIVE_DIRECTORY.
  *
+ * @throws Exception
  * @return string
  *   The configuration directory path.
  */
@@ -1625,6 +1626,7 @@ function drupal_get_user_timezone() {
 /**
  * Gets a salt useful for hardening against SQL injection.
  *
+ * @throws RuntimeException
  * @return string
  *   A salt based on information in settings.php, not in the database.
  */
