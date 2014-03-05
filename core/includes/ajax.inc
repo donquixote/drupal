@@ -232,7 +232,7 @@
  *   An associative array containing the properties of the element.
  * @param array $form_state
  *
- * @return
+ * @return array
  *   The processed element.
  *
  * @see ajax_pre_render_element()

@@ -474,6 +474,8 @@ function drupal_environment_initialize() {
  * Validates that a hostname (for example $_SERVER['HTTP_HOST']) is safe.
  *
  * @param string
+ *
+ * @return bool
  *  TRUE if only containing valid characters, or FALSE otherwise.
  */
 function drupal_valid_http_host($host) {
@@ -643,7 +645,7 @@ function _drupal_request_initialize() {
  *   The filename of the item if it is to be set explicitly rather
  *   than by consulting the database.
  *
- * @return
+ * @return string|null
  *   The filename of the requested item or NULL if the item is not found.
  */
 function drupal_get_filename($type, $name, $filename = NULL) {
@@ -737,7 +739,7 @@ function drupal_page_cache_get_cid(Request $request) {
  * @param \Symfony\Component\HttpFoundation\Request $request
  *   The request for this page.
  *
- * @return
+ * @return object|null
  *   The cache object, if the page was found in the cache, NULL otherwise.
  */
 function drupal_page_get_cache(Request $request) {
@@ -752,7 +754,7 @@ function drupal_page_get_cache(Request $request) {
  * @param bool $allow_caching
  *   Set to FALSE if you want to prevent this page to get cached.
  *
- * @return
+ * @return bool
  *   TRUE if the current page can be cached, FALSE otherwise.
  */
 function drupal_page_is_cacheable($allow_caching = NULL) {
@@ -811,7 +813,7 @@ function drupal_add_http_header($name, $value, $append = FALSE) {
  *   An HTTP header name. If omitted, all headers are returned as name/value
  *   pairs. If an array value is FALSE, the header has been unset.
  *
- * @return
+ * @return string
  *   A string containing the header value, or FALSE if the header has been set,
  *   or NULL if the header has not been set.
  *
@@ -837,6 +839,8 @@ function drupal_get_http_header($name = NULL) {
  * follow "common form" (see RFC 2616, section 4.2).
  *
  * @param string $name
+ *
+ * @return array|null
  *
  * @deprecated in Drupal 8.x-dev, will be removed before Drupal 8.0.
  *   See https://drupal.org/node/2181523.
@@ -918,6 +922,8 @@ function drupal_send_headers($default_headers = array(), $only_default = FALSE) 
  * identical.
  *
  * @see drupal_page_set_cache()
+ *
+ * @return true|null
  *
  * @deprecated in Drupal 8.x-dev, will be removed before Drupal 8.0.
  *   See https://drupal.org/node/2181523.
@@ -1086,7 +1092,7 @@ function drupal_serve_page_from_cache(stdClass $cache, Response $response, Reque
  *   - 'context' (defaults to the empty context): The context the source string
  *     belongs to.
  *
- * @return
+ * @return string
  *   The translated string.
  *
  * @see format_string()
@@ -1141,7 +1147,7 @@ function check_plain($text) {
  * @param string $text
  *   The text to check.
  *
- * @return
+ * @return bool
  *   TRUE if the text is valid UTF-8, FALSE if not.
  *
  * @see \Drupal\Component\Utility\Unicode::validateUtf8()
@@ -1406,7 +1412,7 @@ function drupal_get_messages($type = NULL, $clear_queue = TRUE) {
  *
  * The title is displayed on the page and in the title bar.
  *
- * @return
+ * @return string
  *   The current page's title.
  */
 function drupal_get_title() {
@@ -1428,7 +1434,7 @@ function drupal_get_title() {
  *   \Drupal\Component\Utility\String::checkPlain() or filter_xss(). With this
  *   flag the string will be passed through unchanged.
  *
- * @return
+ * @return string
  *   The updated title of the current page.
  */
 function drupal_set_title($title = NULL, $output = Title::CHECK_PLAIN) {
@@ -1486,7 +1492,7 @@ function drupal_anonymous_user() {
  *   - DRUPAL_BOOTSTRAP_FULL: Fully loads Drupal. Validates and fixes input
  *     data.
  *
- * @return
+ * @return string
  *   The most recently completed phase.
  */
 function drupal_bootstrap($phase = NULL) {
@@ -1619,7 +1625,7 @@ function drupal_get_user_timezone() {
 /**
  * Gets a salt useful for hardening against SQL injection.
  *
- * @return
+ * @return string
  *   A salt based on information in settings.php, not in the database.
  */
 function drupal_get_hash_salt() {
@@ -2027,6 +2033,8 @@ function drupal_language_initialize() {
  * @param string $type
  *   The type of language object needed, e.g. Language::TYPE_INTERFACE.
  *
+ * @return \Drupal\Core\Language\Language
+ *
  * @deprecated in Drupal 8.x-dev, will be removed before Drupal 8.0.
  *   Use \Drupal::languageManager()->getCurrentLanguage().
  */
@@ -2059,7 +2067,7 @@ function language_list($flags = Language::STATE_CONFIGURABLE) {
  * @param string $langcode
  *   The language code.
  *
- * @return \Drupal\core\Language\Language|null
+ * @return \Drupal\Core\Language\Language|null
  *   A fully-populated language object or NULL.
  *
  * @see \Drupal\Core\Language\LanguageManager::getLanguage()
@@ -2098,7 +2106,7 @@ function language_default() {
  * - http://example.com/index.php returns an empty string (meaning: front page).
  * - http://example.com/index.php?page=1 returns an empty string.
  *
- * @return
+ * @return string
  *   The requested Drupal URL path.
  *
  * @see current_path()
@@ -2166,7 +2174,7 @@ function _current_path($path = NULL) {
  * @param string|null $path
  *   A path to break into components. Defaults to the path of the current page.
  *
- * @return
+ * @return string|array|null
  *   The component specified by $index, or NULL if the specified component was
  *   not found. If called without arguments, it returns an array containing all
  *   the components of the current path.
@@ -2365,7 +2373,7 @@ function drupal_classloader_register($name, $path) {
  *   function drupal_static_reset() and the return value should not be used in
  *   this case.
  *
- * @return
+ * @return mixed
  *   Returns a variable by reference.
  *
  * @see drupal_static_reset()
@@ -2440,7 +2448,7 @@ function drupal_placeholder($text) {
  * @param ...
  *   Additional arguments to pass to the shutdown function.
  *
- * @return
+ * @return callback[]
  *   Array of shutdown functions to be executed.
  *
  * @see register_shutdown_function()
@@ -2509,7 +2517,7 @@ function _drupal_shutdown_function() {
  *   6GiB, 8bytes, 9mbytes). If no value is passed, the current PHP
  *   memory_limit will be used. Defaults to NULL.
  *
- * @return
+ * @return bool
  *   TRUE if there is sufficient memory to allow the operation, or FALSE
  *   otherwise.
  */
