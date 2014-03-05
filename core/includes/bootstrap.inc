@@ -1064,7 +1064,7 @@ function drupal_serve_page_from_cache(stdClass $cache, Response $response, Reque
  * @code
  * $text = t("@name's blog", array('@name' => user_format_name($account)));
  * @endcode
- * Basically, you can put variables like @name into your string, and t() will
+ * Basically, you can put variables like '@name' into your string, and t() will
  * substitute their sanitized values at translation time. (See the
  * Localization API pages referenced above and the documentation of
  * format_string() for details about how to define variables in your string.)
