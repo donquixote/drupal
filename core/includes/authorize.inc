@@ -15,6 +15,11 @@ use Drupal\Core\Render\Element;
  * @see authorize_filetransfer_form_validate()
  * @see authorize_filetransfer_form_submit()
  * @ingroup forms
+ *
+ * @param array $form
+ * @param array $form_state
+ *
+ * @return array
  */
 function authorize_filetransfer_form($form, &$form_state) {
   $form = array();
@@ -131,10 +136,10 @@ function authorize_filetransfer_form($form, &$form_state) {
 /**
  * Generates the Form API array for a given connection backend's settings.
  *
- * @param $backend
+ * @param string $backend
  *   The name of the backend (e.g. 'ftp', 'ssh', etc).
  *
- * @return
+ * @return array
  *   Form API array of connection settings for the given backend.
  *
  * @see hook_filetransfer_backends()
@@ -163,9 +168,9 @@ function _authorize_filetransfer_connection_settings($backend) {
  * Therefore, to properly add defaults, we need to walk through all the
  * children form elements and process those defaults recursively.
  *
- * @param $element
+ * @param array $element
  *   Reference to the Form API form element we're operating on.
- * @param $key
+ * @param string $key
  *   The key for our current form element, if any.
  * @param array $defaults
  *   The default settings for the file transfer backend we're operating on.
@@ -192,6 +197,9 @@ function _authorize_filetransfer_connection_settings_set_defaults(&$element, $ke
  *
  * @see authorize_filetransfer_form()
  * @see authorize_filetransfer_submit()
+ *
+ * @param array $form
+ * @param array $form_state
  */
 function authorize_filetransfer_form_validate($form, &$form_state) {
   // Only validate the form if we have collected all of the user input and are
@@ -285,7 +293,7 @@ function authorize_filetransfer_form_submit($form, &$form_state) {
 /**
  * Runs the operation specified in $_SESSION['authorize_operation'].
  *
- * @param $filetransfer
+ * @param \Drupal\Core\FileTransfer\FileTransfer $filetransfer
  *   The FileTransfer object to use for running the operation.
  */
 function authorize_run_operation($filetransfer) {
@@ -301,10 +309,10 @@ function authorize_run_operation($filetransfer) {
  *
  * @param $backend
  *   The FileTransfer backend to get the class for.
- * @param $settings
+ * @param array $settings
  *   Array of settings for the FileTransfer.
  *
- * @return
+ * @return \Drupal\Core\FileTransfer\FileTransfer
  *   An instantiated FileTransfer object for the requested method and settings,
  *   or FALSE if there was an error finding or instantiating it.
  */

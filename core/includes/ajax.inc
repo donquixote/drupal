@@ -228,10 +228,11 @@
 /**
  * Form element processing handler for the #ajax form property.
  *
- * @param $element
+ * @param array $element
  *   An associative array containing the properties of the element.
+ * @param array $form_state
  *
- * @return
+ * @return array
  *   The processed element.
  *
  * @see ajax_pre_render_element()
@@ -251,7 +252,7 @@ function ajax_process_form($element, &$form_state) {
  * to the page header to attach the Ajax behaviors. See ajax.js for more
  * information.
  *
- * @param $element
+ * @param array $element
  *   An associative array containing the properties of the element.
  *   Properties used:
  *   - #ajax['event']
@@ -263,7 +264,7 @@ function ajax_process_form($element, &$form_state) {
  *   - #ajax['effect']
  *   - #ajax['accepts']
  *
- * @return
+ * @return array
  *   The processed element with the necessary JavaScript attached to it.
  */
 function ajax_pre_render_element($element) {
