@@ -667,7 +667,8 @@ function drupal_page_is_cacheable($allow_caching = NULL) {
     $allow_caching_static = $allow_caching;
   }
 
-  return $allow_caching_static && ($_SERVER['REQUEST_METHOD'] == 'GET' || $_SERVER['REQUEST_METHOD'] == 'HEAD')
+  return $allow_caching_static
+    && ($_SERVER['REQUEST_METHOD'] == 'GET' || $_SERVER['REQUEST_METHOD'] == 'HEAD')
     && !drupal_is_cli();
 }
 
@@ -1477,7 +1478,9 @@ function drupal_get_user_timezone() {
     // Ignore PHP strict notice if time zone has not yet been set in the php.ini
     // configuration.
     $config_data_default_timezone = $config->get('timezone.default');
-    return !empty($config_data_default_timezone) ? $config_data_default_timezone : @date_default_timezone_get();
+    return !empty($config_data_default_timezone)
+      ? $config_data_default_timezone
+      : @date_default_timezone_get();
   }
 }
 
@@ -2381,7 +2384,9 @@ function drupal_check_memory_limit($required, $memory_limit = NULL) {
   // - The memory limit is set to unlimited (-1).
   // - The memory limit is greater than or equal to the memory required for
   //   the operation.
-  return ((!$memory_limit) || ($memory_limit == -1) || (parse_size($memory_limit) >= parse_size($required)));
+  return !$memory_limit
+    || $memory_limit == -1
+    || parse_size($memory_limit) >= parse_size($required);
 }
 
 /**
