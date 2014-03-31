@@ -235,7 +235,7 @@ define('DRUPAL_ROOT', dirname(dirname(__DIR__)));
  *   Force a full search for matching directories even if one had been
  *   found previously. Defaults to FALSE.
  *
- * @return
+ * @return string
  *   The path of the matching directory.
  *
  * @see default.settings.php
@@ -287,16 +287,16 @@ function conf_path($require_settings = TRUE, $reset = FALSE) {
  * );
  * @endcode
  *
- * @param $http_host
+ * @param string $http_host
  *   The hostname and optional port number, e.g. "www.example.com" or
  *   "www.example.com:8080".
- * @param $script_name
+ * @param string $script_name
  *   The part of the URL following the hostname, including the leading slash.
- * @param $require_settings
+ * @param bool $require_settings
  *   Defaults to TRUE. If TRUE, then only match directories with a
  *   'settings.php' file. Otherwise match any directory.
  *
- * @return
+ * @return string
  *   The path of the matching configuration directory.
  *
  * @see default.settings.php
@@ -372,7 +372,7 @@ function config_get_config_directory($type = CONFIG_ACTIVE_DIRECTORY) {
  * the command line script should pass in the desired value via the
  * 'REMOTE_ADDR' key.
  *
- * @param $variables
+ * @param array $variables
  *   (optional) An associative array of variables within
  *   \Drupal::request()->server that should be replaced. If the special element
  *   'url' is provided in this array, it will be used to populate some of the
@@ -474,7 +474,7 @@ function drupal_environment_initialize() {
 /**
  * Validates that a hostname (for example $_SERVER['HTTP_HOST']) is safe.
  *
- * @param string
+ * @param string $host
  *
  * @return bool
  *  TRUE if only containing valid characters, or FALSE otherwise.
@@ -922,12 +922,12 @@ function drupal_send_headers($default_headers = array(), $only_default = FALSE) 
  * the client think that the anonymous and authenticated pageviews are
  * identical.
  *
- * @see drupal_page_set_cache()
- *
  * @return true|null
  *
  * @deprecated in Drupal 8.x-dev, will be removed before Drupal 8.0.
  *   See https://drupal.org/node/2181523.
+ *
+ * @see drupal_page_set_cache()
  */
 function drupal_page_header() {
   $headers_sent = &drupal_static(__FUNCTION__, FALSE);
@@ -955,6 +955,10 @@ function drupal_page_header() {
  * If the request is conditional (using If-Modified-Since and If-None-Match),
  * and the conditions match those currently in the cache, a 304 Not Modified
  * response is sent.
+ *
+ * @param stdClass $cache
+ * @param Response $response
+ * @param Request $request
  */
 function drupal_serve_page_from_cache(stdClass $cache, Response $response, Request $request) {
   $config = \Drupal::config('system.performance');
@@ -1106,6 +1110,11 @@ function t($string, array $args = array(), array $options = array()) {
 /**
  * Formats a string for HTML display by replacing variable placeholders.
  *
+ * @param string $string
+ * @param array $args
+ *
+ * @return mixed
+ *
  * @see \Drupal\Component\Utility\String::format()
  * @see t()
  * @ingroup sanitization
@@ -1232,19 +1241,19 @@ function watchdog_exception($type, Exception $exception, $message = NULL, $varia
 /**
  * Logs a system message.
  *
- * @param $type
+ * @param string $type
  *   The category to which this message belongs. Can be any string, but the
  *   general practice is to use the name of the module calling watchdog().
- * @param $message
+ * @param string $message
  *   The message to store in the log. Keep $message translatable
  *   by not concatenating dynamic values into it! Variables in the
  *   message should be added by using placeholder strings alongside
  *   the variables argument to declare the value of the placeholders.
  *   See t() for documentation on how $message and $variables interact.
- * @param $variables
+ * @param array $variables
  *   Array of variables to replace in the message on display or array() if
  *   message is already translated or not possible to translate.
- * @param $severity
+ * @param int $severity
  *   The severity of the message; one of the following values as defined in
  *   @link http://www.faqs.org/rfcs/rfc3164.html RFC 3164: @endlink
  *   - WATCHDOG_EMERGENCY: Emergency, system is unusable.
@@ -1255,7 +1264,7 @@ function watchdog_exception($type, Exception $exception, $message = NULL, $varia
  *   - WATCHDOG_NOTICE: (default) Normal but significant conditions.
  *   - WATCHDOG_INFO: Informational messages.
  *   - WATCHDOG_DEBUG: Debug-level messages.
- * @param $link
+ * @param string|null $link
  *   A link to associate with the message.
  *
  * @see watchdog_severity_levels()
@@ -1482,7 +1491,7 @@ function drupal_anonymous_user() {
  *   drupal_bootstrap(DRUPAL_BOOTSTRAP_FULL);
  * @endcode
  *
- * @param $phase
+ * @param int $phase
  *   A constant telling which phase to bootstrap to. When you bootstrap to a
  *   particular phase, all earlier phases are run automatically. Possible
  *   values:
@@ -1493,7 +1502,7 @@ function drupal_anonymous_user() {
  *   - DRUPAL_BOOTSTRAP_FULL: Fully loads Drupal. Validates and fixes input
  *     data.
  *
- * @return string
+ * @return int
  *   The most recently completed phase.
  */
 function drupal_bootstrap($phase = NULL) {
@@ -1607,6 +1616,8 @@ function drupal_handle_request($test_only = FALSE) {
 
 /**
  * Returns the time zone of the current user.
+ *
+ * @return mixed|string
  */
 function drupal_get_user_timezone() {
   global $user;
@@ -1643,15 +1654,15 @@ function drupal_get_hash_salt() {
 /**
  * Provides custom PHP error handling.
  *
- * @param $error_level
+ * @param int $error_level
  *   The level of the error raised.
- * @param $message
+ * @param string $message
  *   The error message.
- * @param $filename
+ * @param string $filename
  *   The filename that the error was raised in.
- * @param $line
+ * @param int $line
  *   The line number the error was raised at.
- * @param $context
+ * @param array $context
  *   An array that points to the active symbol table at the point the error
  *   occurred.
  */
@@ -1667,7 +1678,7 @@ function _drupal_error_handler($error_level, $message, $filename, $line, $contex
  * always fatal: the execution of the script will stop as soon as the exception
  * handler exits.
  *
- * @param $exception
+ * @param Exception $exception
  *   The exception object that was thrown.
  */
 function _drupal_exception_handler($exception) {
@@ -1799,6 +1810,8 @@ function _drupal_bootstrap_page_cache() {
  *
  * The current phase is the one most recently completed by drupal_bootstrap().
  *
+ * @return int
+ *
  * @see drupal_bootstrap()
  */
 function drupal_get_bootstrap_phase() {
@@ -1824,6 +1837,10 @@ function module_list() {
  * @deprecated in Drupal 8.x-dev, will be removed before Drupal 8.0.
  *   Use \Drupal::moduleHandler()->getImplementations($hook).
  *
+ * @param string $hook
+ *
+ * @return array
+ *
  * @see \Drupal\Core\Extension\ModuleHandler::getImplementations()
  */
 function module_implements($hook) {
@@ -1835,6 +1852,11 @@ function module_implements($hook) {
  *
  * All arguments are passed by value. Use \Drupal::moduleHandler()->alter() if
  * you need to pass arguments by reference.
+ *
+ * @param string $module
+ * @param string $hook
+ *
+ * @return mixed
  *
  * @deprecated in Drupal 8.x-dev, will be removed before Drupal 8.0. Use
  *   \Drupal::moduleHandler()->invoke($module, $hook, $args = array()).
@@ -1854,6 +1876,10 @@ function module_invoke($module, $hook) {
  *
  * All arguments are passed by value. Use \Drupal::moduleHandler()->alter() if
  * you need to pass arguments by reference.
+ *
+ * @param string $hook
+ *
+ * @return array
  *
  * @deprecated in Drupal 8.x-dev, will be removed before Drupal 8.0.
  *   Use \Drupal::moduleHandler()->invokeAll($hook).
@@ -1875,6 +1901,14 @@ function module_invoke_all($hook) {
  *   Use \Drupal::moduleHandler()->alter($hook).
  *
  * @see \Drupal\Core\Extension\ModuleHandler::alter()
+ */
+/**
+ * @param string|array $type
+ * @param mixed $data
+ * @param mixed|null $context1
+ * @param mixed|null $context2
+ *
+ * @return mixed
  */
 function drupal_alter($type, &$data, &$context1 = NULL, &$context2 = NULL) {
   return \Drupal::moduleHandler()->alter($type, $data, $context1, $context2);
