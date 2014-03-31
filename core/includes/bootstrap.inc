@@ -1637,6 +1637,10 @@ function _drupal_bootstrap_page_cache() {
     $cache = drupal_page_get_cache($request);
     // If there is a cached page, display it.
     if (is_object($cache)) {
+      if (!$cache instanceof stdClass) {
+        $cache_class = get_class($cache);
+        throw new \Exception("\$cache must be an instance of stdClass, not $cache_class.");
+      }
       $response = new Response();
       $response->headers->set('X-Drupal-Cache', 'HIT');
       date_default_timezone_set(drupal_get_user_timezone());
