@@ -409,7 +409,7 @@ function drupal_valid_http_host($host) {
  */
 function drupal_settings_initialize() {
   // Export these settings.php variables to the global namespace.
-  global $base_url, $databases, $cookie_domain, $config_directories, $config;
+  global $config;
   $settings = array();
   $config = array();
 
@@ -1180,7 +1180,7 @@ function watchdog_exception($type, Exception $exception, $message = NULL, $varia
  * @see hook_watchdog()
  */
 function watchdog($type, $message, array $variables = NULL, $severity = WATCHDOG_NOTICE, $link = NULL) {
-  global $user, $base_root;
+  global $user;
 
   static $in_error_state = FALSE;
 
