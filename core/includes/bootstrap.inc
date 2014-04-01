@@ -1,29 +1,19 @@
 <?php
 
 use Drupal\Component\Utility\Crypt;
-use Drupal\Component\Utility\NestedArray;
 use Drupal\Component\Utility\Settings;
 use Drupal\Component\Utility\String;
 use Drupal\Component\Utility\Timer;
 use Drupal\Component\Utility\Unicode;
-use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\DrupalKernel;
-use Drupal\Core\Database\Database;
-use Drupal\Core\DependencyInjection\ContainerBuilder;
 use Drupal\Core\Extension\ExtensionDiscovery;
-use Drupal\Core\Utility\Title;
 use Drupal\Core\Utility\Error;
 use Symfony\Component\ClassLoader\ApcClassLoader;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\DependencyInjection\Container;
-use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\DependencyInjection\Exception\RuntimeException as DependencyInjectionRuntimeException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Drupal\Core\Language\Language;
-use Drupal\Core\Lock\DatabaseLockBackend;
-use Drupal\Core\Lock\LockBackendInterface;
 use Drupal\Core\Session\AnonymousUserSession;
+use Drupal\Core\Language\Language as LanguageClass;
 
 /**
  * @file
@@ -412,7 +402,7 @@ function drupal_valid_http_host($host) {
  */
 function drupal_settings_initialize() {
   // Export these settings.php variables to the global namespace.
-  global $base_url, $databases, $cookie_domain, $config_directories, $config;
+  global $config;
   $settings = array();
   $config = array();
 
@@ -622,6 +612,8 @@ function drupal_get_filename($type, $name, $filename = NULL) {
   if (isset($files[$type][$name])) {
     return $files[$type][$name];
   }
+
+  return NULL;
 }
 
 /**
@@ -659,6 +651,8 @@ function drupal_page_get_cache(Request $request) {
   if (drupal_page_is_cacheable()) {
     return \Drupal::cache('render')->get(drupal_page_cache_get_cid($request));
   }
+
+  return NULL;
 }
 
 /**
@@ -676,7 +670,8 @@ function drupal_page_is_cacheable($allow_caching = NULL) {
     $allow_caching_static = $allow_caching;
   }
 
-  return $allow_caching_static && ($_SERVER['REQUEST_METHOD'] == 'GET' || $_SERVER['REQUEST_METHOD'] == 'HEAD')
+  return $allow_caching_static
+    && ($_SERVER['REQUEST_METHOD'] == 'GET' || $_SERVER['REQUEST_METHOD'] == 'HEAD')
     && !drupal_is_cli();
 }
 
@@ -765,6 +760,8 @@ function _drupal_set_preferred_header_name($name = NULL) {
     return $header_names;
   }
   $header_names[strtolower($name)] = $name;
+
+  return NULL;
 }
 
 /**
@@ -857,6 +854,8 @@ function drupal_page_header() {
     'ETag' => '"' . REQUEST_TIME . '"',
   );
   drupal_send_headers($default_headers);
+
+  return NULL;
 }
 
 /**
@@ -1212,7 +1211,7 @@ function watchdog_exception($type, Exception $exception, $message = NULL, $varia
  * @see hook_watchdog()
  */
 function watchdog($type, $message, array $variables = NULL, $severity = WATCHDOG_NOTICE, $link = NULL) {
-  global $user, $base_root;
+  global $user;
 
   static $in_error_state = FALSE;
 
@@ -1522,7 +1521,9 @@ function drupal_get_user_timezone() {
     // Ignore PHP strict notice if time zone has not yet been set in the php.ini
     // configuration.
     $config_data_default_timezone = $config->get('timezone.default');
-    return !empty($config_data_default_timezone) ? $config_data_default_timezone : @date_default_timezone_get();
+    return !empty($config_data_default_timezone)
+      ? $config_data_default_timezone
+      : @date_default_timezone_get();
   }
 }
 
@@ -1682,6 +1683,10 @@ function _drupal_bootstrap_page_cache() {
     $cache = drupal_page_get_cache($request);
     // If there is a cached page, display it.
     if (is_object($cache)) {
+      if (!$cache instanceof stdClass) {
+        $cache_class = get_class($cache);
+        throw new \Exception("\$cache must be an instance of stdClass, not $cache_class.");
+      }
       $response = new Response();
       $response->headers->set('X-Drupal-Cache', 'HIT');
       date_default_timezone_set(drupal_get_user_timezone());
@@ -1823,7 +1828,7 @@ function module_invoke_all($hook) {
  * @see \Drupal\Core\Extension\ModuleHandler::alter()
  */
 function drupal_alter($type, &$data, &$context1 = NULL, &$context2 = NULL) {
-  return \Drupal::moduleHandler()->alter($type, $data, $context1, $context2);
+  \Drupal::moduleHandler()->alter($type, $data, $context1, $context2);
 }
 
 /**
@@ -2013,7 +2018,7 @@ function language($type) {
  * @deprecated in Drupal 8.x-dev, will be removed before Drupal 8.0.
  *   Use \Drupal::languageManager()->getLanguages().
  */
-function language_list($flags = Language::STATE_CONFIGURABLE) {
+function language_list($flags = LanguageClass::STATE_CONFIGURABLE) {
   return \Drupal::languageManager()->getLanguages($flags);
 }
 
@@ -2168,6 +2173,8 @@ function arg($index = NULL, $path = NULL) {
   if (isset($arguments[$path][$index])) {
     return $arguments[$path][$index];
   }
+
+  return NULL;
 }
 
 /**
@@ -2505,7 +2512,9 @@ function drupal_check_memory_limit($required, $memory_limit = NULL) {
   // - The memory limit is set to unlimited (-1).
   // - The memory limit is greater than or equal to the memory required for
   //   the operation.
-  return ((!$memory_limit) || ($memory_limit == -1) || (parse_size($memory_limit) >= parse_size($required)));
+  return !$memory_limit
+    || $memory_limit == -1
+    || parse_size($memory_limit) >= parse_size($required);
 }
 
 /**
