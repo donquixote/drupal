@@ -13,7 +13,7 @@ use Symfony\Component\DependencyInjection\Exception\RuntimeException as Dependen
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Drupal\Core\Session\AnonymousUserSession;
-use Drupal\Core\Language\Language;
+use Drupal\Core\Language\Language as LanguageClass;
 
 /**
  * @file
@@ -1912,7 +1912,7 @@ function language($type) {
  * @deprecated in Drupal 8.x-dev, will be removed before Drupal 8.0.
  *   Use \Drupal::languageManager()->getLanguages().
  */
-function language_list($flags = Language::STATE_CONFIGURABLE) {
+function language_list($flags = LanguageClass::STATE_CONFIGURABLE) {
   return \Drupal::languageManager()->getLanguages($flags);
 }
 
