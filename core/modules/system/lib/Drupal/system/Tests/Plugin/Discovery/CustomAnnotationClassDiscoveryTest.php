@@ -45,7 +45,7 @@ class CustomAnnotationClassDiscoveryTest extends DiscoveryTestBase {
       'Drupal\plugin_test' => array(
         // @todo Remove lib/Drupal/$module, once the switch to PSR-4 is complete.
         DRUPAL_ROOT . '/core/modules/system/tests/modules/plugin_test/lib/Drupal/plugin_test',
-        DRUPAL_ROOT . '/core/modules/system/tests/modules/plugin_test/lib',
+        DRUPAL_ROOT . '/core/modules/system/tests/modules/plugin_test/src',
       ),
     ));
 

@@ -125,8 +125,8 @@ class AnnotatedClassDiscovery extends ComponentAnnotatedClassDiscovery {
         foreach ((array) $dirs as $dir) {
           // Append the directory suffix to the PSR-4 base directory, to obtain
           // the directory where plugins are found.
-          // E.g. DRUPAL_CORE . 'core/modules/views/lib' may become
-          // DRUPAL_CORE . 'core/modules/views/lib/Plugin/Block'.
+          // E.g. DRUPAL_ROOT . '/core/modules/views/src' may become
+          // DRUPAL_ROOT . '/core/modules/views/src/Plugin/Block'.
           $plugin_namespaces[$namespace][] = $dir . $this->directorySuffix;
         }
       }
