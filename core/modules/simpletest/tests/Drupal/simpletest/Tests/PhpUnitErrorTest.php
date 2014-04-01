@@ -23,7 +23,7 @@ class PhpUnitErrorTest extends UnitTestCase {
    */
   public function testPhpUnitXmlParsing() {
     // This test class could be either in tests/Drupal/simpletest/Tests/, or in
-    // tests/lib/, after the PSR-4 transition.
+    // tests/src/, after the PSR-4 transition.
     if (file_exists(__DIR__ . '/../../simpletest.module')) {
       require_once __DIR__ . '/../../simpletest.module';
     }

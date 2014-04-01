@@ -2123,7 +2123,7 @@ function drupal_classloader_register($name, $path) {
   $loader = drupal_classloader();
   $loader->addPsr4('Drupal\\' . $name . '\\', array(
     DRUPAL_ROOT . '/' . $path . '/lib/Drupal/' . $name,
-    DRUPAL_ROOT . '/' . $path . '/lib',
+    DRUPAL_ROOT . '/' . $path . '/src',
   ));
 }
 

@@ -8,8 +8,8 @@ namespace Drupal\Core\SwitchPsr4;
  * Moves module-provided class files to their PSR-4 location.
  *
  * E.g.:
- * core/modules/action/lib/{Drupal/action → }/ActionAccessController.php
- * core/modules/action/lib/{Drupal/action → }/ActionAddFormController.php
+ * core/modules/action/{lib/Drupal/action → src}/ActionAccessController.php
+ * core/modules/action/{lib/Drupal/action → src}/ActionAddFormController.php
  */
 
 // Determine DRUPAL_ROOT.
@@ -150,6 +150,7 @@ function process_candidate_dir($dir) {
       // It's a directory.
       switch ($fileinfo->getFilename()) {
         case 'lib':
+        case 'src':
           // Ignore these directory names.
           continue;
         default:
@@ -174,8 +175,8 @@ function process_candidate_dir($dir) {
 /**
  * Process a Drupal extension (module, theme) in a directory.
  *
- * This will move all class files in this extension two levels up, from
- * lib/Drupal/$name/ to lib/.
+ * This will move all class files in this extension from
+ * lib/Drupal/$extension_name/$path to src/$path.
  *
  * @param string $name
  *   Name of the extension.
@@ -184,13 +185,17 @@ function process_candidate_dir($dir) {
  */
 function process_extension($name, $dir) {
 
-  if (!is_dir($src = "$dir/lib/Drupal/$name")) {
+  if (!is_dir($source = "$dir/lib/Drupal/$name")) {
     // Nothing to do in this module.
     return;
   }
 
+  if (!is_dir($destination = "$dir/src")) {
+    mkdir($destination);
+  }
+
   // Move class files two levels up.
-  move_directory_contents($src, "$dir/lib");
+  move_directory_contents($source, $destination);
 
   // Clean up.
   require_dir_empty("$dir/lib/Drupal");
@@ -201,7 +206,7 @@ function process_extension($name, $dir) {
  * Process a Drupal extension (module, theme) in a directory.
  *
  * This will move all PHPUnit class files in this extension from
- * tests/Drupal/$name/Tests/ to tests/lib/.
+ * tests/Drupal/$name/Tests/ to tests/src/.
  *
  * @param string $name
  *   Name of the extension.
@@ -210,17 +215,17 @@ function process_extension($name, $dir) {
  */
 function process_extension_phpunit($name, $dir) {
 
-  if (!is_dir($src = "$dir/tests/Drupal/$name/Tests")) {
+  if (!is_dir($source = "$dir/tests/Drupal/$name/Tests")) {
     // Nothing to do in this module.
     return;
   }
 
-  if (!is_dir($dest = "$dir/tests/lib")) {
+  if (!is_dir($dest = "$dir/tests/src")) {
     mkdir($dest);
   }
 
   // Move class files two levels up.
-  move_directory_contents($src, $dest);
+  move_directory_contents($source, $dest);
 
   // Clean up.
   require_dir_empty("$dir/tests/Drupal/$name");

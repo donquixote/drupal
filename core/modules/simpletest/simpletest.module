@@ -471,7 +471,7 @@ function simpletest_test_get_all($module = NULL) {
         // Build directories in which the test files would reside.
         $tests_dirs = array(
           $extension_dir . '/lib/Drupal/' . $name . '/Tests',
-          $extension_dir . '/lib/Tests',
+          $extension_dir . '/src/Tests',
         );
 
         $namespace = 'Drupal\\' . $name . '\Tests\\';
@@ -576,7 +576,7 @@ function simpletest_classloader_register() {
       drupal_classloader_register($name, dirname($uri));
       $classloader->addPsr4('Drupal\\' . $name . '\\Tests\\', array(
         DRUPAL_ROOT . '/' . dirname($uri) . '/tests/Drupal/' . $name . '/Tests',
-        DRUPAL_ROOT . '/' . dirname($uri) . '/tests/lib',
+        DRUPAL_ROOT . '/' . dirname($uri) . '/tests/src',
       ));
       // While being there, prime drupal_get_filename().
       drupal_get_filename($type, $name, $uri);

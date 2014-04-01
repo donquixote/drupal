@@ -714,7 +714,7 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
     foreach ($module_file_names as $module => $filename) {
       // @todo Remove lib/Drupal/$module, once the switch to PSR-4 is complete.
       $namespaces["Drupal\\$module"][] = DRUPAL_ROOT . '/' . dirname($filename) . '/lib/Drupal/' . $module;
-      $namespaces["Drupal\\$module"][] = DRUPAL_ROOT . '/' . dirname($filename) . '/lib';
+      $namespaces["Drupal\\$module"][] = DRUPAL_ROOT . '/' . dirname($filename) . '/src';
     }
     return $namespaces;
   }
