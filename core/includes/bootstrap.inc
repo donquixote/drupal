@@ -218,7 +218,7 @@ define('DRUPAL_ROOT', dirname(dirname(__DIR__)));
  *   Force a full search for matching directories even if one had been
  *   found previously. Defaults to FALSE.
  *
- * @return
+ * @return string
  *   The path of the matching directory.
  *
  * @see default.settings.php
@@ -270,16 +270,16 @@ function conf_path($require_settings = TRUE, $reset = FALSE) {
  * );
  * @endcode
  *
- * @param $http_host
+ * @param string $http_host
  *   The hostname and optional port number, e.g. "www.example.com" or
  *   "www.example.com:8080".
- * @param $script_name
+ * @param string $script_name
  *   The part of the URL following the hostname, including the leading slash.
- * @param $require_settings
+ * @param bool $require_settings
  *   Defaults to TRUE. If TRUE, then only match directories with a
  *   'settings.php' file. Otherwise match any directory.
  *
- * @return
+ * @return string
  *   The path of the matching configuration directory.
  *
  * @see default.settings.php
@@ -318,6 +318,7 @@ function find_conf_path($http_host, $script_name, $require_settings = TRUE) {
  *   (optional) The type of config directory to return. Drupal core provides
  *   'active' and 'staging'. Defaults to CONFIG_ACTIVE_DIRECTORY.
  *
+ * @throws Exception
  * @return string
  *   The configuration directory path.
  */
@@ -387,7 +388,9 @@ function drupal_environment_initialize() {
 /**
  * Validates that a hostname (for example $_SERVER['HTTP_HOST']) is safe.
  *
- * @return
+ * @param string $host
+ *
+ * @return bool
  *  TRUE if only containing valid characters, or FALSE otherwise.
  */
 function drupal_valid_http_host($host) {
@@ -549,15 +552,15 @@ function _drupal_request_initialize() {
  * Calling drupal_get_filename('module', 'foo') will give you one of
  * the above, depending on where the module is located.
  *
- * @param $type
+ * @param string $type
  *   The type of the item (theme, theme_engine, module, profile).
- * @param $name
+ * @param string $name
  *   The name of the item for which the filename is requested.
- * @param $filename
+ * @param string $filename
  *   The filename of the item if it is to be set explicitly rather
  *   than by consulting the database.
  *
- * @return
+ * @return string|null
  *   The filename of the requested item or NULL if the item is not found.
  */
 function drupal_get_filename($type, $name, $filename = NULL) {
@@ -641,7 +644,7 @@ function drupal_page_cache_get_cid(Request $request) {
  * @param \Symfony\Component\HttpFoundation\Request $request
  *   The request for this page.
  *
- * @return
+ * @return object|null
  *   The cache object, if the page was found in the cache, NULL otherwise.
  */
 function drupal_page_get_cache(Request $request) {
@@ -655,10 +658,10 @@ function drupal_page_get_cache(Request $request) {
 /**
  * Determines the cacheability of the current page.
  *
- * @param $allow_caching
+ * @param bool $allow_caching
  *   Set to FALSE if you want to prevent this page to get cached.
  *
- * @return
+ * @return bool
  *   TRUE if the current page can be cached, FALSE otherwise.
  */
 function drupal_page_is_cacheable($allow_caching = NULL) {
@@ -678,13 +681,13 @@ function drupal_page_is_cacheable($allow_caching = NULL) {
  * Note: When sending a Content-Type header, always include a 'charset' type,
  * too. This is necessary to avoid security bugs (e.g. UTF-7 XSS).
  *
- * @param $name
+ * @param string $name
  *   The HTTP header name, or the special 'Status' header name.
- * @param $value
+ * @param string|false $value
  *   The HTTP header value; if equal to FALSE, the specified header is unset.
  *   If $name is 'Status', this is expected to be a status code followed by a
  *   reason phrase, e.g. "404 Not Found".
- * @param $append
+ * @param bool $append
  *   Whether to append the value to an existing header or to replace it.
  *
  * @deprecated in Drupal 8.x-dev, will be removed before Drupal 8.0.
@@ -714,11 +717,11 @@ function drupal_add_http_header($name, $value, $append = FALSE) {
 /**
  * Gets the HTTP response headers for the current page.
  *
- * @param $name
+ * @param string $name
  *   An HTTP header name. If omitted, all headers are returned as name/value
  *   pairs. If an array value is FALSE, the header has been unset.
  *
- * @return
+ * @return string
  *   A string containing the header value, or FALSE if the header has been set,
  *   or NULL if the header has not been set.
  *
@@ -742,6 +745,10 @@ function drupal_get_http_header($name = NULL) {
  *
  * Header names are case-insensitive, but for maximum compatibility they should
  * follow "common form" (see RFC 2616, section 4.2).
+ *
+ * @param string|null $name
+ *
+ * @return string[]|null
  *
  * @deprecated in Drupal 8.x-dev, will be removed before Drupal 8.0.
  *   See https://drupal.org/node/2181523.
@@ -824,10 +831,14 @@ function drupal_send_headers($default_headers = array(), $only_default = FALSE) 
  * the client think that the anonymous and authenticated pageviews are
  * identical.
  *
- * @see drupal_page_set_cache()
+ * @return true|null
+ *   TRUE, if the page header was already sent.
+ *   NULL, otherwise.
  *
  * @deprecated in Drupal 8.x-dev, will be removed before Drupal 8.0.
  *   See https://drupal.org/node/2181523.
+ *
+ * @see drupal_page_set_cache()
  */
 function drupal_page_header() {
   $headers_sent = &drupal_static(__FUNCTION__, FALSE);
@@ -857,6 +868,10 @@ function drupal_page_header() {
  * If the request is conditional (using If-Modified-Since and If-None-Match),
  * and the conditions match those currently in the cache, a 304 Not Modified
  * response is sent.
+ *
+ * @param stdClass $cache
+ * @param Symfony\Component\HttpFoundation\Response $response
+ * @param Symfony\Component\HttpFoundation\Request $request
  */
 function drupal_serve_page_from_cache(stdClass $cache, Response $response, Request $request) {
   $config = \Drupal::config('system.performance');
@@ -982,27 +997,27 @@ function drupal_serve_page_from_cache(stdClass $cache, Response $response, Reque
  * @code
  * $text = t("@name's blog", array('@name' => user_format_name($account)));
  * @endcode
- * Basically, you can put variables like @name into your string, and t() will
+ * Basically, you can put variables like '@name' into your string, and t() will
  * substitute their sanitized values at translation time. (See the
  * Localization API pages referenced above and the documentation of
  * format_string() for details about how to define variables in your string.)
  * Translators can then rearrange the string as necessary for the language
  * (e.g., in Spanish, it might be "blog de @name").
  *
- * @param $string
+ * @param string $string
  *   A string containing the English string to translate.
- * @param $args
+ * @param array $args
  *   An associative array of replacements to make after translation. Based
  *   on the first character of the key, the value is escaped and/or themed.
  *   See format_string() for details.
- * @param $options
+ * @param array $options
  *   An associative array of additional options, with the following elements:
  *   - 'langcode' (defaults to the current language): The language code to
  *     translate to a language other than what is used to display the page.
  *   - 'context' (defaults to the empty context): The context the source string
  *     belongs to.
  *
- * @return
+ * @return string
  *   The translated string.
  *
  * @see format_string()
@@ -1015,9 +1030,18 @@ function t($string, array $args = array(), array $options = array()) {
 /**
  * Formats a string for HTML display by replacing variable placeholders.
  *
+ * @param string $string
+ *   A string containing placeholders.
+ * @param string[] $args
+ *   Associative array of placeholder replacements.
+ *
+ * @return string|false|null
+ *   The formatted string, or FALSE if one array key in $args is '', or NULL if
+ *   $string is not a scalar. See the PHP manual for strtr().
+ *
+ * @ingroup sanitization
  * @see \Drupal\Component\Utility\String::format()
  * @see t()
- * @ingroup sanitization
  */
 function format_string($string, array $args = array()) {
   return String::format($string, $args);
@@ -1026,11 +1050,20 @@ function format_string($string, array $args = array()) {
 /**
  * Encodes special characters in a plain-text string for display as HTML.
  *
- * @see drupal_validate_utf8()
+ * @param string $text
+ *   The text to be checked or processed.
+ *
+ * @return string
+ *   An HTML safe version of $text, or an empty string if $text is not
+ *   valid UTF-8.
+ *
  * @ingroup sanitization
  *
  * @deprecated in Drupal 8.x-dev, will be removed before Drupal 8.0.
  *   Use \Drupal\Component\Utility\String::checkPlain().
+ *
+ * @see \Drupal\Component\Utility\String::checkPlain()
+ * @see drupal_validate_utf8()
  */
 function check_plain($text) {
   return String::checkPlain($text);
@@ -1054,10 +1087,10 @@ function check_plain($text) {
  * The function does not return FALSE for strings containing character codes
  * above U+10FFFF, even though these are prohibited by RFC 3629.
  *
- * @param $text
+ * @param string $text
  *   The text to check.
  *
- * @return
+ * @return bool
  *   TRUE if the text is valid UTF-8, FALSE if not.
  *
  * @see \Drupal\Component\Utility\Unicode::validateUtf8()
@@ -1073,6 +1106,13 @@ function drupal_validate_utf8($text) {
  * equivalent using other environment variables.
  *
  * @todo The above comment is incorrect: http://drupal.org/node/1547294.
+ *
+ * @param bool $omit_query_string
+ *   TRUE, to remove the query string from the return value.
+ *
+ * @return string
+ *   Equivalent of Apache's $_SERVER['REQUEST_URI'], starting with '/', and with
+ *   or without the query string appended.
  */
 function request_uri($omit_query_string = FALSE) {
   if (isset($_SERVER['REQUEST_URI'])) {
@@ -1101,20 +1141,20 @@ function request_uri($omit_query_string = FALSE) {
  * This is a wrapper function for watchdog() which automatically decodes an
  * exception.
  *
- * @param $type
+ * @param string $type
  *   The category to which this message belongs.
- * @param $exception
+ * @param Exception $exception
  *   The exception that is going to be logged.
- * @param $message
+ * @param string $message
  *   The message to store in the log. If empty, a text that contains all useful
  *   information about the passed-in exception is used.
- * @param $variables
+ * @param array $variables
  *   Array of variables to replace in the message on display or
  *   NULL if message is already translated or not possible to
  *   translate.
- * @param $severity
+ * @param int $severity
  *   The severity of the message, as per RFC 3164.
- * @param $link
+ * @param string $link
  *   A link to associate with the message.
  *
  * @see watchdog()
@@ -1141,19 +1181,19 @@ function watchdog_exception($type, Exception $exception, $message = NULL, $varia
 /**
  * Logs a system message.
  *
- * @param $type
+ * @param string $type
  *   The category to which this message belongs. Can be any string, but the
  *   general practice is to use the name of the module calling watchdog().
- * @param $message
+ * @param string $message
  *   The message to store in the log. Keep $message translatable
  *   by not concatenating dynamic values into it! Variables in the
  *   message should be added by using placeholder strings alongside
  *   the variables argument to declare the value of the placeholders.
  *   See t() for documentation on how $message and $variables interact.
- * @param $variables
+ * @param array $variables
  *   Array of variables to replace in the message on display or array() if
  *   message is already translated or not possible to translate.
- * @param $severity
+ * @param int $severity
  *   The severity of the message; one of the following values as defined in
  *   @link http://www.faqs.org/rfcs/rfc3164.html RFC 3164: @endlink
  *   - WATCHDOG_EMERGENCY: Emergency, system is unusable.
@@ -1164,7 +1204,7 @@ function watchdog_exception($type, Exception $exception, $message = NULL, $varia
  *   - WATCHDOG_NOTICE: (default) Normal but significant conditions.
  *   - WATCHDOG_INFO: Informational messages.
  *   - WATCHDOG_DEBUG: Debug-level messages.
- * @param $link
+ * @param string|null $link
  *   A link to associate with the message.
  *
  * @see watchdog_severity_levels()
@@ -1341,7 +1381,7 @@ function drupal_anonymous_user() {
  *   drupal_bootstrap(DRUPAL_BOOTSTRAP_FULL);
  * @endcode
  *
- * @param $phase
+ * @param int $phase
  *   A constant telling which phase to bootstrap to. When you bootstrap to a
  *   particular phase, all earlier phases are run automatically. Possible
  *   values:
@@ -1352,7 +1392,7 @@ function drupal_anonymous_user() {
  *   - DRUPAL_BOOTSTRAP_FULL: Fully loads Drupal. Validates and fixes input
  *     data.
  *
- * @return
+ * @return int
  *   The most recently completed phase.
  */
 function drupal_bootstrap($phase = NULL) {
@@ -1466,6 +1506,9 @@ function drupal_handle_request($test_only = FALSE) {
 
 /**
  * Returns the time zone of the current user.
+ *
+ * @return string
+ *   The name of the time zone, e.g. "Europe/London".
  */
 function drupal_get_user_timezone() {
   global $user;
@@ -1487,7 +1530,8 @@ function drupal_get_user_timezone() {
 /**
  * Gets a salt useful for hardening against SQL injection.
  *
- * @return
+ * @throws RuntimeException
+ * @return string
  *   A salt based on information in settings.php, not in the database.
  */
 function drupal_get_hash_salt() {
@@ -1503,15 +1547,15 @@ function drupal_get_hash_salt() {
 /**
  * Provides custom PHP error handling.
  *
- * @param $error_level
+ * @param int $error_level
  *   The level of the error raised.
- * @param $message
+ * @param string $message
  *   The error message.
- * @param $filename
+ * @param string $filename
  *   The filename that the error was raised in.
- * @param $line
+ * @param int $line
  *   The line number the error was raised at.
- * @param $context
+ * @param array $context
  *   An array that points to the active symbol table at the point the error
  *   occurred.
  */
@@ -1527,7 +1571,7 @@ function _drupal_error_handler($error_level, $message, $filename, $line, $contex
  * always fatal: the execution of the script will stop as soon as the exception
  * handler exits.
  *
- * @param $exception
+ * @param Exception $exception
  *   The exception object that was thrown.
  */
 function _drupal_exception_handler($exception) {
@@ -1613,6 +1657,8 @@ function _drupal_bootstrap_kernel() {
 
 /**
  * Attempts to serve a page from the cache.
+ *
+ * @throws Exception
  */
 function _drupal_bootstrap_page_cache() {
   global $user;
@@ -1663,6 +1709,10 @@ function _drupal_bootstrap_page_cache() {
  *
  * The current phase is the one most recently completed by drupal_bootstrap().
  *
+ * @return int
+ *   Integer identifying the current bootstrap phase. This should be one of the
+ *   constants DRUPAL_BOOTSTRAP_* defined in this file.
+ *
  * @see drupal_bootstrap()
  */
 function drupal_get_bootstrap_phase() {
@@ -1671,6 +1721,9 @@ function drupal_get_bootstrap_phase() {
 
 /**
  * Returns the list of enabled modules.
+ *
+ * @return string[]
+ *   Array of enabled modules. Both the keys and the values are module names.
  *
  * @deprecated in Drupal 8.x-dev, will be removed before Drupal 8.0.
  *   Use \Drupal::moduleHandler()->getModuleList().
@@ -1684,6 +1737,12 @@ function module_list() {
 
 /**
  * Determines which modules are implementing a hook.
+ *
+ * @param string $hook
+ *   The name of the hook (e.g. "help" or "menu").
+ *
+ * @return string[]
+ *   An array with the names of the modules which are implementing this hook.
  *
  * @deprecated in Drupal 8.x-dev, will be removed before Drupal 8.0.
  *   Use \Drupal::moduleHandler()->getImplementations($hook).
@@ -1699,6 +1758,16 @@ function module_implements($hook) {
  *
  * All arguments are passed by value. Use \Drupal::moduleHandler()->alter() if
  * you need to pass arguments by reference.
+ *
+ * @param string $module
+ *   The name of the module (without the .module extension).
+ * @param string $hook
+ *   The name of the hook to invoke.
+ * @param ...
+ *   Arguments to pass to the hook implementation.
+ *
+ * @return mixed
+ *   The return value of the hook implementation.
  *
  * @deprecated in Drupal 8.x-dev, will be removed before Drupal 8.0. Use
  *   \Drupal::moduleHandler()->invoke($module, $hook, $args = array()).
@@ -1719,6 +1788,15 @@ function module_invoke($module, $hook) {
  * All arguments are passed by value. Use \Drupal::moduleHandler()->alter() if
  * you need to pass arguments by reference.
  *
+ * @param string $hook
+ *   The name of the hook to invoke.
+ * @param ...
+ *   Arguments to pass to the hook.
+ *
+ * @return array
+ *   An array of return values of the hook implementations. If modules return
+ *   arrays from their implementations, those are merged into one array.
+ *
  * @deprecated in Drupal 8.x-dev, will be removed before Drupal 8.0.
  *   Use \Drupal::moduleHandler()->invokeAll($hook).
  *
@@ -1734,6 +1812,15 @@ function module_invoke_all($hook) {
 
 /**
  * Passes alterable variables to specific hook_TYPE_alter() implementations.
+ *
+ * @param string|array $type
+ *   Name of the alter hook.
+ * @param mixed $data
+ *   Reference to the value or data structure to be altered.
+ * @param mixed|null $context1
+ *   Optional additional argument to pass to the implementing functions.
+ * @param mixed|null $context2
+ *   Optional additional argument to pass to the implementing functions.
  *
  * @deprecated in Drupal 8.x-dev, will be removed before Drupal 8.0.
  *   Use \Drupal::moduleHandler()->alter($hook).
@@ -1759,6 +1846,13 @@ function module_exists($module) {
 /**
  * Determines whether a module implements a hook.
  *
+ * @param string $module
+ *   The name of the module (without the .module extension).
+ * @param string $hook
+ *   The name of the hook (e.g. "help" or "menu").
+ *
+ * @return bool
+ *
  * @deprecated in Drupal 8.x-dev, will be removed before Drupal 8.0.
  *   Use \Drupal::moduleHandler()->implementsHook($module, $hook).
  *
@@ -1771,10 +1865,10 @@ function module_hook($module, $hook) {
 /**
  * Returns the test prefix if this is an internal request from SimpleTest.
  *
- * @param string $new_prefix
+ * @param string|null $new_prefix
  *   Internal use only. A new prefix to be stored.
  *
- * @return string|FALSE
+ * @return string|false
  *   Either the simpletest prefix (the string "simpletest" followed by any
  *   number of digits) or FALSE if the user agent does not contain a valid
  *   HMAC and timestamp.
@@ -1823,6 +1917,12 @@ function drupal_valid_test_ua($new_prefix = NULL) {
 
 /**
  * Generates a user agent string with a HMAC and timestamp for simpletest.
+ *
+ * @param string $prefix
+ *
+ * @return string
+ *
+ * @throws RuntimeException
  */
 function drupal_generate_test_ua($prefix) {
   static $key, $last_prefix;
@@ -1871,7 +1971,11 @@ function drupal_maintenance_theme() {
 }
 
 /**
- * Returns TRUE if a Drupal installation is currently being attempted.
+ * Check whether a Drupal installation is currently being attempted.
+ *
+ * @return bool
+ *   TRUE, if a Drupal installation is currently being attempted.
+ *   FALSE, otherwise.
  */
 function drupal_installation_attempted() {
   // This cannot rely on the MAINTENANCE_MODE constant, since that would prevent
@@ -1890,6 +1994,8 @@ function drupal_installation_attempted() {
  * @param string $type
  *   The type of language object needed, e.g. Language::TYPE_INTERFACE.
  *
+ * @return \Drupal\Core\Language\Language
+ *
  * @deprecated in Drupal 8.x-dev, will be removed before Drupal 8.0.
  *   Use \Drupal::languageManager()->getCurrentLanguage().
  */
@@ -1900,7 +2006,7 @@ function language($type) {
 /**
  * Returns a list of languages set up on the site.
  *
- * @param $flags
+ * @param int $flags
  *   (optional) Specifies the state of the languages that have to be returned.
  *   It can be: Language::STATE_CONFIGURABLE, Language::STATE_LOCKED,
  *   Language::STATE_ALL.
@@ -1922,7 +2028,7 @@ function language_list($flags = LanguageClass::STATE_CONFIGURABLE) {
  * @param string $langcode
  *   The language code.
  *
- * @return \Drupal\core\Language\Language|null
+ * @return \Drupal\Core\Language\Language|null
  *   A fully-populated language object or NULL.
  *
  * @see \Drupal\Core\Language\LanguageManager::getLanguage()
@@ -1961,7 +2067,7 @@ function language_default() {
  * - http://example.com/index.php returns an empty string (meaning: front page).
  * - http://example.com/index.php?page=1 returns an empty string.
  *
- * @return
+ * @return string
  *   The requested Drupal URL path.
  *
  * @see current_path()
@@ -2002,6 +2108,13 @@ function request_path() {
 /**
  * @todo This is a temporary function pending refactoring Drupal to use
  *   Symfony's Request object exclusively.
+ *
+ * @param string|null $path
+ *   New value for the current path.
+ *
+ * @return string
+ *   The current path previously set with _current_path($path), or '', if the
+ *   function was never called before.
  */
 function _current_path($path = NULL) {
   static $current_path = '';
@@ -2023,13 +2136,13 @@ function _current_path($path = NULL) {
  * When attempting to use this function to load an element from the current
  * path, e.g. loading the node on a node page, use menu_get_object() instead.
  *
- * @param $index
+ * @param int|null $index
  *   The index of the component, where each component is separated by a '/'
  *   (forward-slash), and where the first component has an index of 0 (zero).
- * @param $path
+ * @param string|null $path
  *   A path to break into components. Defaults to the path of the current page.
  *
- * @return
+ * @return string|array|null
  *   The component specified by $index, or NULL if the specified component was
  *   not found. If called without arguments, it returns an array containing all
  *   the components of the current path.
@@ -2071,7 +2184,7 @@ function arg($index = NULL, $path = NULL) {
  * classes, interfaces, and traits (PHP 5.4 and later). It's only dependency
  * is DRUPAL_ROOT. Otherwise it may be called as early as possible.
  *
- * @param $class_loader
+ * @param string $class_loader
  *   The name of class loader to use. This can be used to change the class
  *   loader class when calling drupal_classloader() from settings.php. It is
  *   ignored otherwise.
@@ -2216,21 +2329,21 @@ function drupal_classloader_register($name, $path) {
  * }
  * @endcode
  *
- * @param $name
+ * @param string $name
  *   Globally unique name for the variable. For a function with only one static,
  *   variable, the function name (e.g. via the PHP magic __FUNCTION__ constant)
  *   is recommended. For a function with multiple static variables add a
  *   distinguishing suffix to the function name for each one.
- * @param $default_value
+ * @param mixed|null $default_value
  *   Optional default value.
- * @param $reset
+ * @param bool $reset
  *   TRUE to reset a specific named variable, or all variables if $name is NULL.
  *   Resetting every variable should only be used, for example, for running
  *   unit tests with a clean environment. Should be used only though via
  *   function drupal_static_reset() and the return value should not be used in
  *   this case.
  *
- * @return
+ * @return mixed
  *   Returns a variable by reference.
  *
  * @see drupal_static_reset()
@@ -2271,7 +2384,7 @@ function &drupal_static($name, $default_value = NULL, $reset = FALSE) {
 /**
  * Resets one or all centrally stored static variable(s).
  *
- * @param $name
+ * @param string $name
  *   Name of the static variable to reset. Omit to reset all variables.
  */
 function drupal_static_reset($name = NULL) {
@@ -2280,6 +2393,10 @@ function drupal_static_reset($name = NULL) {
 
 /**
  * Detects whether the current script is running in a command-line environment.
+ *
+ * @return bool
+ *   TRUE, if the current script is running in a command-line environment.
+ *   FALSE, otherwise.
  */
 function drupal_is_cli() {
   return PHP_SAPI === 'cli';
@@ -2287,6 +2404,12 @@ function drupal_is_cli() {
 
 /**
  * Formats text for emphasized display in a placeholder inside a sentence.
+ *
+ * @param $text
+ *   The text to format (plain-text).
+ *
+ * @return string
+ *   The formatted text (html).
  *
  * @see \Drupal\Component\Utility\String::placeholder()
  */
@@ -2300,12 +2423,13 @@ function drupal_placeholder($text) {
  * Wrapper for register_shutdown_function() that catches thrown exceptions to
  * avoid "Exception thrown without a stack frame in Unknown".
  *
- * @param $callback
- *   The shutdown function to register.
+ * @param callback|null $callback
+ *   The shutdown function to register, or NULL, if no additional function
+ *   should be registered.
  * @param ...
  *   Additional arguments to pass to the shutdown function.
  *
- * @return
+ * @return callback[]
  *   Array of shutdown functions to be executed.
  *
  * @see register_shutdown_function()
@@ -2364,17 +2488,17 @@ function _drupal_shutdown_function() {
 /**
  * Compares the memory required for an operation to the available memory.
  *
- * @param $required
+ * @param string $required
  *   The memory required for the operation, expressed as a number of bytes with
  *   optional SI or IEC binary unit prefix (e.g. 2, 3K, 5MB, 10G, 6GiB, 8bytes,
  *   9mbytes).
- * @param $memory_limit
+ * @param string $memory_limit
  *   (optional) The memory limit for the operation, expressed as a number of
  *   bytes with optional SI or IEC binary unit prefix (e.g. 2, 3K, 5MB, 10G,
  *   6GiB, 8bytes, 9mbytes). If no value is passed, the current PHP
  *   memory_limit will be used. Defaults to NULL.
  *
- * @return
+ * @return bool
  *   TRUE if there is sufficient memory to allow the operation, or FALSE
  *   otherwise.
  */
