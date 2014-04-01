@@ -169,7 +169,7 @@ interface ModuleHandlerInterface {
    * @param string $hook
    *   The name of the hook (e.g. "help" or "menu").
    *
-   * @return array
+   * @return string[]
    *   An array with the names of the modules which are implementing this hook.
    */
   public function getImplementations($hook);
@@ -200,7 +200,7 @@ interface ModuleHandlerInterface {
    *   The name of the module (without the .module extension).
    * @param string $hook
    *   The name of the hook to invoke.
-   * @param ...
+   * @param array $args
    *   Arguments to pass to the hook implementation.
    *
    * @return mixed

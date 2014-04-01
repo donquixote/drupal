@@ -81,8 +81,9 @@ class String {
    *     String::checkPlain() previously, or is expected to contain some limited
    *     HTML tags and has already been run through filter_xss() previously).
    *
-   * @return mixed
-   *   The formatted string, or FALSE if no args specified.
+   * @return string|false|null
+   *   The formatted string, or FALSE if one array key in $args is '', or NULL if
+   *   $string is not a scalar. See the PHP manual for strtr().
    *
    * @ingroup sanitization
    *
