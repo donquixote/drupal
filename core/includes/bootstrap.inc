@@ -1741,7 +1741,7 @@ function module_invoke_all($hook) {
  * @see \Drupal\Core\Extension\ModuleHandler::alter()
  */
 function drupal_alter($type, &$data, &$context1 = NULL, &$context2 = NULL) {
-  return \Drupal::moduleHandler()->alter($type, $data, $context1, $context2);
+  \Drupal::moduleHandler()->alter($type, $data, $context1, $context2);
 }
 
 /**
