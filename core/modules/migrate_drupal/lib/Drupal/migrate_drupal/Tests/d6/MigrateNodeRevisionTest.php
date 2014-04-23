@@ -37,9 +37,8 @@ class MigrateNodeRevisionTest extends MigrateNodeTestBase {
     );
     $this->prepareIdMappings($id_mappings);
 
-    $path = drupal_get_path('module', 'migrate_drupal');
     $dumps = array(
-      $path . '/lib/Drupal/migrate_drupal/Tests/Dump/Drupal6NodeRevision.php',
+      dirname(__DIR__) . '/Dump/Drupal6NodeRevision.php',
     );
     $this->loadDumps($dumps);
     /** @var \Drupal\migrate\entity\Migration $migration */

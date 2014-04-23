@@ -81,10 +81,9 @@ class MigrateUploadBase extends MigrateDrupalTestBase {
         $node->save();
       }
     }
-    $path = drupal_get_path('module', 'migrate_drupal');
     $dumps = array(
-      $path . '/lib/Drupal/migrate_drupal/Tests/Dump/Drupal6Node.php',
-      $path . '/lib/Drupal/migrate_drupal/Tests/Dump/Drupal6Upload.php',
+      dirname(__DIR__) . '/Dump/Drupal6Node.php',
+      dirname(__DIR__) . '/Dump/Drupal6Upload.php',
     );
     $this->loadDumps($dumps);
   }

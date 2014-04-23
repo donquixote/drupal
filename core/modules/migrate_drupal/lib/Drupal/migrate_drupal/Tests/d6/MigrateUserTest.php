@@ -91,12 +91,11 @@ class MigrateUserTest extends MigrateDrupalTestBase {
     $file->save();
 
     // Load database dumps to provide source data.
-    $path = drupal_get_path('module', 'migrate_drupal');
     $dumps = array(
-      $path . '/lib/Drupal/migrate_drupal/Tests/Dump/Drupal6FilterFormat.php',
-      $path . '/lib/Drupal/migrate_drupal/Tests/Dump/Drupal6UserProfileFields.php',
-      $path . '/lib/Drupal/migrate_drupal/Tests/Dump/Drupal6UserRole.php',
-      $path . '/lib/Drupal/migrate_drupal/Tests/Dump/Drupal6User.php',
+      dirname(__DIR__) . '/Dump/Drupal6FilterFormat.php',
+      dirname(__DIR__) . '/Dump/Drupal6UserProfileFields.php',
+      dirname(__DIR__) . '/Dump/Drupal6UserRole.php',
+      dirname(__DIR__) . '/Dump/Drupal6User.php',
     );
     $this->loadDumps($dumps);
 

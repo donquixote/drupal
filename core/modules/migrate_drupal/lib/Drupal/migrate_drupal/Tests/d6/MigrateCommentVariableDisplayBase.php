@@ -67,7 +67,7 @@ abstract class MigrateCommentVariableDisplayBase extends MigrateDrupalTestBase {
       ))->save();
     }
     $this->dumps = array(
-      drupal_get_path('module', 'migrate_drupal') . '/lib/Drupal/migrate_drupal/Tests/Dump/Drupal6CommentVariable.php',
+      dirname(__DIR__) . '/Dump/Drupal6CommentVariable.php',
     );
     $id_mappings = array(
       'd6_comment_field_instance' => array(

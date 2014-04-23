@@ -83,12 +83,11 @@ class MigrateTermNodeTestBase extends MigrateDrupalTestBase {
         $node->save();
       }
     }
-    $path = drupal_get_path('module', 'migrate_drupal');
     $dumps = array(
-      $path . '/lib/Drupal/migrate_drupal/Tests/Dump/Drupal6Node.php',
-      $path . '/lib/Drupal/migrate_drupal/Tests/Dump/Drupal6TermNode.php',
-      $path . '/lib/Drupal/migrate_drupal/Tests/Dump/Drupal6TaxonomyTerm.php',
-      $path . '/lib/Drupal/migrate_drupal/Tests/Dump/Drupal6TaxonomyVocabulary.php',
+      dirname(__DIR__) . '/Dump/Drupal6Node.php',
+      dirname(__DIR__) . '/Dump/Drupal6TermNode.php',
+      dirname(__DIR__) . '/Dump/Drupal6TaxonomyTerm.php',
+      dirname(__DIR__) . '/Dump/Drupal6TaxonomyVocabulary.php',
     );
     $this->loadDumps($dumps);
   }
