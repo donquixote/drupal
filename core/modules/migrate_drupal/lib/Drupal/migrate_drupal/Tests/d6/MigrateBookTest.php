@@ -8,12 +8,13 @@
 namespace Drupal\migrate_drupal\Tests\d6;
 
 use Drupal\migrate\MigrateExecutable;
-use Drupal\migrate_drupal\Tests\MigrateDrupalTestBase;
+use Drupal\migrate_drupal\Tests\Dump\Drupal6Book;
+use Drupal\migrate_drupal\Tests\MigrateDrupal6TestBase;
 
 /**
  * Tests the Drupal 6 book structure to Drupal 8 migration.
  */
-class MigrateBookTest extends MigrateDrupalTestBase {
+class MigrateBookTest extends MigrateDrupal6TestBase {
 
   public static $modules = array('book');
 
@@ -45,11 +46,9 @@ class MigrateBookTest extends MigrateDrupalTestBase {
     }
     $this->prepareIdMappings($id_mappings);
     // Load database dumps to provide source data.
-    $dumps = array(
-      $this->getDumpDirectory() . '/Drupal6Book.php',
-    );
-    $this->loadDumps($dumps);
+    $this->loadDrupal6Dump(new Drupal6Book());
     // Migrate books..
+    /** @var \Drupal\migrate\Entity\Migration $migration */
     $migration = entity_load('migration', 'd6_book');
     $executable = new MigrateExecutable($migration, $this);
     $executable->import();

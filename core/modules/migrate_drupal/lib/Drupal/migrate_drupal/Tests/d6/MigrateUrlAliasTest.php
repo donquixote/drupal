@@ -9,13 +9,14 @@ namespace Drupal\migrate_drupal\Tests\d6;
 
 use Drupal\migrate\MigrateExecutable;
 use Drupal\migrate\Plugin\MigrateIdMapInterface;
-use Drupal\migrate_drupal\Tests\MigrateDrupalTestBase;
+use Drupal\migrate_drupal\Tests\Dump\Drupal6UrlAlias;
+use Drupal\migrate_drupal\Tests\MigrateDrupal6TestBase;
 use Drupal\Core\Database\Database;
 
 /**
  * Test the url alias migration.
  */
-class MigrateUrlAliasTest extends MigrateDrupalTestBase {
+class MigrateUrlAliasTest extends MigrateDrupal6TestBase {
 
   /**
    * {@inheritdoc}
@@ -33,11 +34,9 @@ class MigrateUrlAliasTest extends MigrateDrupalTestBase {
    */
   protected function setUp() {
     parent::setUp();
+    /** @var \Drupal\migrate\Entity\Migration $migration */
     $migration = entity_load('migration', 'd6_url_alias');
-    $dumps = array(
-      $this->getDumpDirectory() . '/Drupal6UrlAlias.php',
-    );
-    $this->prepare($migration, $dumps);
+    $this->loadDrupal6Dump(new Drupal6UrlAlias());
     $executable = new MigrateExecutable($migration, $this);
     $executable->import();
   }
@@ -74,6 +73,7 @@ class MigrateUrlAliasTest extends MigrateDrupalTestBase {
     db_update($migration->getIdMap()->mapTableName())
       ->fields(array('source_row_status' => MigrateIdMapInterface::STATUS_NEEDS_UPDATE))
       ->execute();
+    /** @var \Drupal\migrate\Entity\Migration $migration */
     $migration = entity_load_unchanged('migration', 'd6_url_alias');
     $executable = new MigrateExecutable($migration, $this);
     $executable->import();

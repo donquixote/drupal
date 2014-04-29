@@ -9,13 +9,14 @@ namespace Drupal\migrate_drupal\Tests\d6;
 
 use Drupal\migrate\MigrateExecutable;
 use Drupal\migrate\MigrateMessage;
-use Drupal\migrate_drupal\Tests\MigrateDrupalTestBase;
+use Drupal\migrate_drupal\Tests\Dump\Drupal6Menu;
+use Drupal\migrate_drupal\Tests\MigrateDrupal6TestBase;
 use Drupal\Core\Database\Database;
 
 /**
  * Tests the Drupal 6 menu to Drupal 8 migration.
  */
-class MigrateMenuTest extends MigrateDrupalTestBase {
+class MigrateMenuTest extends MigrateDrupal6TestBase {
 
   /**
    * {@inheritdoc}
@@ -33,11 +34,9 @@ class MigrateMenuTest extends MigrateDrupalTestBase {
    */
   public function setUp() {
     parent::setUp();
+    /** @var \Drupal\migrate\Entity\Migration $migration */
     $migration = entity_load('migration', 'd6_menu');
-    $dumps = array(
-      $this->getDumpDirectory() . '/Drupal6Menu.php',
-    );
-    $this->prepare($migration, $dumps);
+    $this->loadDrupal6Dump(new Drupal6Menu());
     $executable = new MigrateExecutable($migration, new MigrateMessage());
     $executable->import();
   }
@@ -59,6 +58,7 @@ class MigrateMenuTest extends MigrateDrupalTestBase {
       ->execute();
 
     db_truncate(entity_load('migration', 'd6_menu')->getIdMap()->mapTableName())->execute();
+    /** @var \Drupal\migrate\Entity\Migration $migration */
     $migration = entity_load_unchanged('migration', 'd6_menu');
     $executable = new MigrateExecutable($migration, $this);
     $executable->import();

@@ -7,24 +7,26 @@
 
 namespace Drupal\migrate_drupal\Tests\Dump;
 
+use Drupal\migrate_drupal\Tests\d6\Drupal6DbWrapper;
+
 /**
  * Database dump for testing the users migration.
  */
-class Drupal6User extends Drupal6DumpBase {
+class Drupal6User implements DumpInterface {
 
   /**
    * {@inheritdoc}
    */
-  public function load() {
+  public function load(Drupal6DbWrapper $dbWrapper) {
 
     foreach (static::getSchema() as $table => $schema) {
       // Create tables.
-      $this->createTable($table, $schema);
+      $dbWrapper->createTable($table, $schema);
 
       // Insert data.
       $data = static::getData($table);
       if ($data) {
-        $query = $this->database->insert($table)->fields(array_keys($data[0]));
+        $query = $dbWrapper->getDbConnection()->insert($table)->fields(array_keys($data[0]));
         foreach ($data as $record) {
           $query->values($record);
         }

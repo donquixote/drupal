@@ -7,14 +7,16 @@
 
 namespace Drupal\migrate_drupal\Tests\Dump;
 
-class Drupal6Upload extends Drupal6DumpBase {
+use Drupal\migrate_drupal\Tests\d6\Drupal6DbWrapper;
+
+class Drupal6Upload implements DumpInterface {
 
   /**
    * {@inheritdoc}
    */
-  public function load() {
-    $this->setModuleVersion('upload', 6000);
-    $this->createTable('upload', array(
+  public function load(Drupal6DbWrapper $dbWrapper) {
+    $dbWrapper->setModuleVersion('upload', 6000);
+    $dbWrapper->createTable('upload', array(
       'fields' => array(
         'fid' => array(
           'type' => 'int',
@@ -66,7 +68,7 @@ class Drupal6Upload extends Drupal6DumpBase {
         'nid' => array('nid'),
       ),
     ));
-    $this->database->insert('upload')->fields(array(
+    $dbWrapper->getDbConnection()->insert('upload')->fields(array(
       'nid',
       'vid',
       'fid',

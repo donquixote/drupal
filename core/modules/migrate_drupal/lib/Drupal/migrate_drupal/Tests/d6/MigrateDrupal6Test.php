@@ -8,13 +8,14 @@
 namespace Drupal\migrate_drupal\Tests\d6;
 
 use Drupal\migrate\MigrateExecutable;
-use Drupal\migrate_drupal\Tests\MigrateDrupalTestBase;
+use Drupal\migrate_drupal\Tests\Dump;
+use Drupal\migrate_drupal\Tests\MigrateDrupal6TestBase;
 use Drupal\simpletest\TestBase;
 
 /**
  * Test the complete Drupal 6 migration.
  */
-class MigrateDrupal6Test extends MigrateDrupalTestBase {
+class MigrateDrupal6Test extends MigrateDrupal6TestBase {
 
   /**
    * Modules to enable.
@@ -79,68 +80,68 @@ class MigrateDrupal6Test extends MigrateDrupalTestBase {
    * Test the complete Drupal 6 migration.
    */
   public function testDrupal6() {
-    $tests_path = $this->getDumpDirectory();
-    $dumps = array(
-      $tests_path . '/Drupal6ActionSettings.php',
-      $tests_path . '/Drupal6AggregatorFeed.php',
-      $tests_path . '/Drupal6AggregatorItem.php',
-      $tests_path . '/Drupal6AggregatorSettings.php',
-      $tests_path . '/Drupal6Block.php',
-      $tests_path . '/Drupal6BookSettings.php',
-      $tests_path . '/Drupal6Box.php',
-      $tests_path . '/Drupal6Comment.php',
-      $tests_path . '/Drupal6CommentVariable.php',
-      $tests_path . '/Drupal6ContactCategory.php',
-      $tests_path . '/Drupal6ContactSettings.php',
-      $tests_path . '/Drupal6DateFormat.php',
-      $tests_path . '/Drupal6DblogSettings.php',
-      $tests_path . '/Drupal6FieldInstance.php',
-      $tests_path . '/Drupal6FieldSettings.php',
-      $tests_path . '/Drupal6File.php',
-      $tests_path . '/Drupal6FileSettings.php',
-      $tests_path . '/Drupal6FilterFormat.php',
-      $tests_path . '/Drupal6ForumSettings.php',
-      $tests_path . '/Drupal6LocaleSettings.php',
-      $tests_path . '/Drupal6Menu.php',
-      $tests_path . '/Drupal6MenuSettings.php',
-      $tests_path . '/Drupal6NodeBodyInstance.php',
-      $tests_path . '/Drupal6Node.php',
-      $tests_path . '/Drupal6NodeRevision.php',
-      $tests_path . '/Drupal6NodeSettings.php',
-      $tests_path . '/Drupal6NodeType.php',
-      $tests_path . '/Drupal6SearchPage.php',
-      $tests_path . '/Drupal6SearchSettings.php',
-      $tests_path . '/Drupal6SimpletestSettings.php',
-      $tests_path . '/Drupal6StatisticsSettings.php',
-      $tests_path . '/Drupal6SyslogSettings.php',
-      $tests_path . '/Drupal6SystemCron.php',
+
+    $this->loadDrupal6Dumps(array(
+      new Dump\Drupal6ActionSettings(),
+      new Dump\Drupal6AggregatorFeed(),
+      new Dump\Drupal6AggregatorItem(),
+      new Dump\Drupal6AggregatorSettings(),
+      new Dump\Drupal6Block(),
+      new Dump\Drupal6BookSettings(),
+      new Dump\Drupal6Box(),
+      new Dump\Drupal6Comment(),
+      new Dump\Drupal6CommentVariable(),
+      new Dump\Drupal6ContactCategory(),
+      new Dump\Drupal6ContactSettings(),
+      new Dump\Drupal6DateFormat(),
+      new Dump\Drupal6DblogSettings(),
+      new Dump\Drupal6FieldInstance(),
+      new Dump\Drupal6FieldSettings(),
+      new Dump\Drupal6File(),
+      new Dump\Drupal6FileSettings(),
+      new Dump\Drupal6FilterFormat(),
+      new Dump\Drupal6ForumSettings(),
+      new Dump\Drupal6LocaleSettings(),
+      new Dump\Drupal6Menu(),
+      new Dump\Drupal6MenuSettings(),
+      new Dump\Drupal6NodeBodyInstance(),
+      new Dump\Drupal6Node(),
+      new Dump\Drupal6NodeRevision(),
+      new Dump\Drupal6NodeSettings(),
+      new Dump\Drupal6NodeType(),
+      new Dump\Drupal6SearchPage(),
+      new Dump\Drupal6SearchSettings(),
+      new Dump\Drupal6SimpletestSettings(),
+      new Dump\Drupal6StatisticsSettings(),
+      new Dump\Drupal6SyslogSettings(),
+      new Dump\Drupal6SystemCron(),
       // This dump contains the file directory path to the simpletest directory
       // where the files are.
-      $tests_path . '/Drupal6SystemFile.php',
-      $tests_path . '/Drupal6SystemFilter.php',
-      $tests_path . '/Drupal6SystemImageGd.php',
-      $tests_path . '/Drupal6SystemImage.php',
-      $tests_path . '/Drupal6SystemMaintenance.php',
-      $tests_path . '/Drupal6SystemPerformance.php',
-      $tests_path . '/Drupal6SystemRss.php',
-      $tests_path . '/Drupal6SystemSite.php',
-      $tests_path . '/Drupal6SystemTheme.php',
-      $tests_path . '/Drupal6TaxonomySettings.php',
-      $tests_path . '/Drupal6TaxonomyTerm.php',
-      $tests_path . '/Drupal6TaxonomyVocabulary.php',
-      $tests_path . '/Drupal6TermNode.php',
-      $tests_path . '/Drupal6TextSettings.php',
-      $tests_path . '/Drupal6UpdateSettings.php',
-      $tests_path . '/Drupal6UploadInstance.php',
-      $tests_path . '/Drupal6Upload.php',
-      $tests_path . '/Drupal6UrlAlias.php',
-      $tests_path . '/Drupal6UserMail.php',
-      $tests_path . '/Drupal6User.php',
-      $tests_path . '/Drupal6UserProfileFields.php',
-      $tests_path . '/Drupal6UserRole.php',
-      $tests_path . '/Drupal6VocabularyField.php',
-    );
-    $this->loadDumps($dumps);
+      new Dump\Drupal6SystemFile(),
+      new Dump\Drupal6SystemFilter(),
+      new Dump\Drupal6SystemImageGd(),
+      new Dump\Drupal6SystemImage(),
+      new Dump\Drupal6SystemMaintenance(),
+      new Dump\Drupal6SystemPerformance(),
+      new Dump\Drupal6SystemRss(),
+      new Dump\Drupal6SystemSite(),
+      new Dump\Drupal6SystemTheme(),
+      new Dump\Drupal6TaxonomySettings(),
+      new Dump\Drupal6TaxonomyTerm(),
+      new Dump\Drupal6TaxonomyVocabulary(),
+      new Dump\Drupal6TermNode(),
+      new Dump\Drupal6TextSettings(),
+      new Dump\Drupal6UpdateSettings(),
+      new Dump\Drupal6UploadInstance(),
+      new Dump\Drupal6Upload(),
+      new Dump\Drupal6UrlAlias(),
+      new Dump\Drupal6UserMail(),
+      new Dump\Drupal6User(),
+      new Dump\Drupal6UserProfileFields(),
+      new Dump\Drupal6UserRole(),
+      new Dump\Drupal6VocabularyField(),
+    ));
+
     $migrations = array(
       'd6_action_settings',
       'd6_aggregator_settings',
@@ -223,6 +224,7 @@ class MigrateDrupal6Test extends MigrateDrupalTestBase {
       'd6_vocabulary_field_instance',
       'd6_vocabulary_field',
     );
+
     $classes = array(
       __NAMESPACE__ . '\MigrateActionConfigsTest',
       __NAMESPACE__ . '\MigrateAggregatorConfigsTest',

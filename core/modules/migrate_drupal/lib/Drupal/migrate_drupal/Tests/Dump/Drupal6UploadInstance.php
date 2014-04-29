@@ -7,18 +7,20 @@
 
 namespace Drupal\migrate_drupal\Tests\Dump;
 
+use Drupal\migrate_drupal\Tests\d6\Drupal6DbWrapper;
+
 /**
  * Database dump for testing the upload migration.
  */
-class Drupal6UploadInstance extends Drupal6DumpBase {
+class Drupal6UploadInstance implements DumpInterface {
 
   /**
    * {@inheritdoc}
    */
-  public function load() {
-    $this->setModuleVersion('upload', 6000);
-    $this->createTable('node_type');
-    $this->database->merge('node_type')
+  public function load(Drupal6DbWrapper $dbWrapper) {
+    $dbWrapper->setModuleVersion('upload', 6000);
+    $dbWrapper->createTable('node_type');
+    $dbWrapper->getDbConnection()->merge('node_type')
       ->key(array('type' => 'page'))
       ->fields(array(
         'name' => 'Page',
@@ -36,7 +38,7 @@ class Drupal6UploadInstance extends Drupal6DumpBase {
         'orig_type' => 'page',
       ))
     ->execute();
-  $this->database->merge('node_type')
+  $dbWrapper->getDbConnection()->merge('node_type')
     ->key(array('type' => 'story'))
     ->fields(array(
       'name' => 'Story',
@@ -54,7 +56,7 @@ class Drupal6UploadInstance extends Drupal6DumpBase {
       'orig_type' => 'story',
     ))
     ->execute();
-  $this->database->merge('node_type')
+  $dbWrapper->getDbConnection()->merge('node_type')
     ->key(array('type' => 'article'))
     ->fields(array(
       'name' => 'Article',
@@ -72,8 +74,8 @@ class Drupal6UploadInstance extends Drupal6DumpBase {
       'orig_type' => 'story',
     ))
     ->execute();
-    $this->createTable('variable');
-    $this->database->insert('variable')->fields(array(
+    $dbWrapper->createTable('variable');
+    $dbWrapper->getDbConnection()->insert('variable')->fields(array(
       'name',
       'value',
     ))

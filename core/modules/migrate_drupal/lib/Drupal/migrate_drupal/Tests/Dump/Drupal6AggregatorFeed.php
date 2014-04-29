@@ -6,16 +6,19 @@
  */
 
 namespace Drupal\migrate_drupal\Tests\Dump;
+
+use Drupal\migrate_drupal\Tests\d6\Drupal6DbWrapper;
+
 /**
  * Database dump for testing feed migration.
  */
-class Drupal6AggregatorFeed extends Drupal6DumpBase {
+class Drupal6AggregatorFeed implements DumpInterface {
 
   /**
    * {@inheritdoc}
    */
-  public function load() {
-    $this->createTable('aggregator_feed', array(
+  public function load(Drupal6DbWrapper $dbWrapper) {
+    $dbWrapper->createTable('aggregator_feed', array(
       'description' => 'Stores feeds to be parsed by the aggregator.',
       'fields' => array(
         'fid' => array(
@@ -96,7 +99,7 @@ class Drupal6AggregatorFeed extends Drupal6DumpBase {
       ),
     ));
 
-    $this->database->insert('aggregator_feed')->fields(array(
+    $dbWrapper->getDbConnection()->insert('aggregator_feed')->fields(array(
       'fid',
       'title',
       'url',
@@ -123,7 +126,7 @@ class Drupal6AggregatorFeed extends Drupal6DumpBase {
       'block' => 5,
     ))
     ->execute();
-    $this->setModuleVersion('aggregator', 6001);
+    $dbWrapper->setModuleVersion('aggregator', 6001);
   }
 
 }

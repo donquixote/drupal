@@ -8,12 +8,13 @@
 namespace Drupal\migrate_drupal\Tests\d6;
 
 use Drupal\migrate\MigrateExecutable;
-use Drupal\migrate_drupal\Tests\MigrateDrupalTestBase;
+use Drupal\migrate_drupal\Tests\Dump\Drupal6FieldInstance;
+use Drupal\migrate_drupal\Tests\MigrateDrupal6TestBase;
 
 /**
  * Tests the Drupal 6 field to Drupal 8 migration.
  */
-class MigrateFieldTest extends MigrateDrupalTestBase {
+class MigrateFieldTest extends MigrateDrupal6TestBase {
 
   /**
    * Modules to enable.
@@ -40,10 +41,7 @@ class MigrateFieldTest extends MigrateDrupalTestBase {
     parent::setUp();
     /** @var \Drupal\migrate\entity\Migration $migration */
     $migration = entity_load('migration', 'd6_field');
-    $dumps = array(
-      $this->getDumpDirectory() . '/Drupal6FieldInstance.php',
-    );
-    $this->prepare($migration, $dumps);
+    $this->loadDrupal6Dump(new Drupal6FieldInstance());
     $executable = new MigrateExecutable($migration, $this);
     $executable->import();
   }

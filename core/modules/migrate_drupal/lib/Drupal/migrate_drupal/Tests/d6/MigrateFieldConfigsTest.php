@@ -8,12 +8,14 @@
 namespace Drupal\migrate_drupal\Tests\d6;
 
 use Drupal\migrate\MigrateExecutable;
-use Drupal\migrate_drupal\Tests\MigrateDrupalTestBase;
+
+use Drupal\migrate_drupal\Tests\Dump\Drupal6FieldSettings;
+use Drupal\migrate_drupal\Tests\MigrateDrupal6TestBase;
 
 /**
  * Tests migration of variables from the Field module.
  */
-class MigrateFieldConfigsTest extends MigrateDrupalTestBase {
+class MigrateFieldConfigsTest extends MigrateDrupal6TestBase {
 
   /**
    * {@inheritdoc}
@@ -31,11 +33,9 @@ class MigrateFieldConfigsTest extends MigrateDrupalTestBase {
    */
   public function setUp() {
     parent::setUp();
+    /** @var \Drupal\migrate\Entity\Migration $migration */
     $migration = entity_load('migration', 'd6_field_settings');
-    $dumps = array(
-      $this->getDumpDirectory() . '/Drupal6FieldSettings.php',
-    );
-    $this->prepare($migration, $dumps);
+    $this->loadDrupal6Dump(new Drupal6FieldSettings());
     $executable = new MigrateExecutable($migration, $this);
     $executable->import();
   }

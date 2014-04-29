@@ -5,13 +5,14 @@ namespace Drupal\migrate_drupal\Tests\d6;
 use Drupal\Core\Datetime\DrupalDateTime;
 use Drupal\migrate\MigrateMessage;
 use Drupal\migrate\MigrateExecutable;
-use Drupal\migrate_drupal\Tests\MigrateDrupalTestBase;
+use Drupal\migrate_drupal\Tests\Dump\Drupal6DateFormat;
+use Drupal\migrate_drupal\Tests\MigrateDrupal6TestBase;
 use Drupal\Core\Database\Database;
 
 /**
  * Tests the Drupal 6 date formats to Drupal 8 migration.
  */
-class MigrateDateFormatTest extends MigrateDrupalTestBase {
+class MigrateDateFormatTest extends MigrateDrupal6TestBase {
 
   /**
    * {@inheritdoc}
@@ -31,10 +32,7 @@ class MigrateDateFormatTest extends MigrateDrupalTestBase {
     parent::setUp();
     /** @var \Drupal\migrate\entity\Migration $migration */
     $migration = entity_load('migration', 'd6_date_formats');
-    $dumps = array(
-      $this->getDumpDirectory() . '/Drupal6DateFormat.php',
-    );
-    $this->prepare($migration, $dumps);
+    $this->loadDrupal6Dumps(array(new Drupal6DateFormat()));
     $executable = new MigrateExecutable($migration, new MigrateMessage());
     $executable->import();
   }
@@ -59,6 +57,7 @@ class MigrateDateFormatTest extends MigrateDrupalTestBase {
       ->condition('name', 'date_format_short')
       ->execute();
     db_truncate(entity_load('migration', 'd6_date_formats')->getIdMap()->mapTableName())->execute();
+    /** @var \Drupal\migrate\Entity\Migration $migration */
     $migration = entity_load_unchanged('migration', 'd6_date_formats');
     $executable = new MigrateExecutable($migration, $this);
     $executable->import();

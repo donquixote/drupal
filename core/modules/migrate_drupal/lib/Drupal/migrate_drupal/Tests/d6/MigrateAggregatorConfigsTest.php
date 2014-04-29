@@ -8,12 +8,13 @@
 namespace Drupal\migrate_drupal\Tests\d6;
 
 use Drupal\migrate\MigrateExecutable;
-use Drupal\migrate_drupal\Tests\MigrateDrupalTestBase;
+use Drupal\migrate_drupal\Tests\Dump\Drupal6AggregatorSettings;
+use Drupal\migrate_drupal\Tests\MigrateDrupal6TestBase;
 
 /**
  * Tests migration of variables from the Aggregator module.
  */
-class MigrateAggregatorConfigsTest extends MigrateDrupalTestBase {
+class MigrateAggregatorConfigsTest extends MigrateDrupal6TestBase {
 
   /**
    * Modules to enable.
@@ -38,11 +39,9 @@ class MigrateAggregatorConfigsTest extends MigrateDrupalTestBase {
    */
   public function setUp() {
     parent::setUp();
+    /** @var \Drupal\migrate\Entity\Migration $migration */
     $migration = entity_load('migration', 'd6_aggregator_settings');
-    $dumps = array(
-      $this->getDumpDirectory() . '/Drupal6AggregatorSettings.php',
-    );
-    $this->prepare($migration, $dumps);
+    $this->loadDrupal6Dump(new Drupal6AggregatorSettings());
     $executable = new MigrateExecutable($migration, $this);
     $executable->import();
   }

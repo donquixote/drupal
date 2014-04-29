@@ -7,9 +7,12 @@
 
 namespace Drupal\migrate_drupal\Tests\d6;
 
-use Drupal\migrate_drupal\Tests\MigrateDrupalTestBase;
+use Drupal\migrate_drupal\Tests\Dump\Drupal6FieldInstance;
+use Drupal\migrate_drupal\Tests\Dump\Drupal6Node;
+use Drupal\migrate_drupal\Tests\Dump\Drupal6NodeType;
+use Drupal\migrate_drupal\Tests\MigrateDrupal6TestBase;
 
-class MigrateNodeTestBase extends MigrateDrupalTestBase {
+class MigrateNodeTestBase extends MigrateDrupal6TestBase {
 
   static $modules = array('node');
 
@@ -43,12 +46,11 @@ class MigrateNodeTestBase extends MigrateDrupalTestBase {
     $node->save();
 
     // Load dumps.
-    $dumps = array(
-      $this->getDumpDirectory() . '/Drupal6Node.php',
-      $this->getDumpDirectory() . '/Drupal6NodeType.php',
-      $this->getDumpDirectory() . '/Drupal6FieldInstance.php',
-    );
-    $this->loadDumps($dumps);
+    $this->loadDrupal6Dumps(array(
+      new Drupal6Node(),
+      new Drupal6NodeType(),
+      new Drupal6FieldInstance(),
+    ));
   }
 
 }

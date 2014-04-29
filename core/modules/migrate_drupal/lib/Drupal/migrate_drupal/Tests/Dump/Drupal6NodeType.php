@@ -6,17 +6,20 @@
  */
 
 namespace Drupal\migrate_drupal\Tests\Dump;
+
+use Drupal\migrate_drupal\Tests\d6\Drupal6DbWrapper;
+
 /**
  * Database dump for testing node type migration.
  */
-class Drupal6NodeType extends Drupal6DumpBase {
+class Drupal6NodeType implements DumpInterface {
 
   /**
    * {@inheritdoc}
    */
-  public function load() {
-    $this->createTable('node_type');
-    $this->database->insert('node_type')->fields(
+  public function load(Drupal6DbWrapper $dbWrapper) {
+    $dbWrapper->createTable('node_type');
+    $dbWrapper->getDbConnection()->insert('node_type')->fields(
       array(
         'type',
         'name',
@@ -67,7 +70,7 @@ class Drupal6NodeType extends Drupal6DumpBase {
       ))
       ->execute();
 
-    $this->database->merge('node_type')
+    $dbWrapper->getDbConnection()->merge('node_type')
       ->key(array('type' => 'story'))
       ->fields(array(
         'name' => 'Story',
@@ -86,8 +89,8 @@ class Drupal6NodeType extends Drupal6DumpBase {
       ))
       ->execute();
 
-    $this->createTable('variable');
-    $this->database->insert('variable')->fields(array(
+    $dbWrapper->createTable('variable');
+    $dbWrapper->getDbConnection()->insert('variable')->fields(array(
       'name',
       'value',
     ))

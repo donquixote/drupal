@@ -5,18 +5,21 @@
  */
 
 namespace Drupal\migrate_drupal\Tests\Dump;
+
+use Drupal\migrate_drupal\Tests\d6\Drupal6DbWrapper;
+
 /**
  * Database dump for testing taxonomy term migration.
  */
-class Drupal6TaxonomyTerm extends Drupal6DumpBase {
+class Drupal6TaxonomyTerm implements DumpInterface {
 
   /**
    * {@inheritdoc}
    */
-  public function load() {
-    $this->setModuleVersion('taxonomy', 6000);
+  public function load(Drupal6DbWrapper $dbWrapper) {
+    $dbWrapper->setModuleVersion('taxonomy', 6000);
 
-    $this->createTable('term_data', array(
+    $dbWrapper->createTable('term_data', array(
       'fields' => array(
         'tid' => array(
           'type' => 'serial',
@@ -65,7 +68,7 @@ class Drupal6TaxonomyTerm extends Drupal6DumpBase {
       'name' => 'term_data',
     ));
 
-    $this->createTable('term_hierarchy', array(
+    $dbWrapper->createTable('term_hierarchy', array(
       'fields' => array(
         'tid' => array(
           'type' => 'int',
@@ -93,7 +96,7 @@ class Drupal6TaxonomyTerm extends Drupal6DumpBase {
       'name' => 'term_hierarchy',
     ));
 
-    $this->database->insert('term_data')->fields(array(
+    $dbWrapper->getDbConnection()->insert('term_data')->fields(array(
       'tid',
       'vid',
       'name',
@@ -144,7 +147,7 @@ class Drupal6TaxonomyTerm extends Drupal6DumpBase {
       ))
       ->execute();
 
-    $this->database->insert('term_hierarchy')->fields(array(
+    $dbWrapper->getDbConnection()->insert('term_hierarchy')->fields(array(
       'tid',
       'parent',
     ))

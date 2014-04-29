@@ -8,12 +8,14 @@
 namespace Drupal\migrate_drupal\Tests\d6;
 
 use Drupal\migrate\MigrateExecutable;
-use Drupal\migrate_drupal\Tests\MigrateDrupalTestBase;
+use Drupal\migrate_drupal\Tests\Dump\Drupal6FilterFormat;
+use Drupal\migrate_drupal\Tests\Dump\Drupal6UserRole;
+use Drupal\migrate_drupal\Tests\MigrateDrupal6TestBase;
 
 /**
  * Tests the Drupal 6 user roles to Drupal 8 migration.
  */
-class MigrateUserRoleTest extends MigrateDrupalTestBase {
+class MigrateUserRoleTest extends MigrateDrupal6TestBase {
 
   /**
    * The modules to be enabled during the test.
@@ -50,10 +52,10 @@ class MigrateUserRoleTest extends MigrateDrupalTestBase {
     /** @var \Drupal\migrate\entity\Migration $migration */
     $migration = entity_load('migration', 'd6_user_role');
     $dumps = array(
-      $this->getDumpDirectory() . '/Drupal6UserRole.php',
-      $this->getDumpDirectory() . '/Drupal6FilterFormat.php',
+      new Drupal6UserRole(),
+      new Drupal6FilterFormat(),
     );
-    $this->prepare($migration, $dumps);
+    $this->loadDrupal6Dumps($dumps);
     $executable = new MigrateExecutable($migration, $this);
     $executable->import();
   }

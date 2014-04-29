@@ -8,12 +8,13 @@
 namespace Drupal\migrate_drupal\Tests\d6;
 
 use Drupal\migrate\MigrateExecutable;
-use Drupal\migrate_drupal\Tests\MigrateDrupalTestBase;
+use Drupal\migrate_drupal\Tests\Dump\Drupal6TaxonomySettings;
+use Drupal\migrate_drupal\Tests\MigrateDrupal6TestBase;
 
 /**
  * Tests migration of variables from the Taxonomy module.
  */
-class MigrateTaxonomyConfigsTest extends MigrateDrupalTestBase {
+class MigrateTaxonomyConfigsTest extends MigrateDrupal6TestBase {
 
   /**
    * Modules to enable.
@@ -38,11 +39,9 @@ class MigrateTaxonomyConfigsTest extends MigrateDrupalTestBase {
    */
   protected function setUp() {
     parent::setUp();
+    /** @var \Drupal\migrate\Entity\Migration $migration */
     $migration = entity_load('migration', 'd6_taxonomy_settings');
-    $dumps = array(
-      $this->getDumpDirectory() . '/Drupal6TaxonomySettings.php',
-    );
-    $this->prepare($migration, $dumps);
+    $this->loadDrupal6Dump(new Drupal6TaxonomySettings());
     $executable = new MigrateExecutable($migration, $this);
     $executable->import();
   }

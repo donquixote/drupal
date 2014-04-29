@@ -8,12 +8,13 @@
 namespace Drupal\migrate_drupal\Tests\d6;
 
 use Drupal\migrate\MigrateExecutable;
-use Drupal\migrate_drupal\Tests\MigrateDrupalTestBase;
+use Drupal\migrate_drupal\Tests\Dump\Drupal6FieldInstance;
+use Drupal\migrate_drupal\Tests\MigrateDrupal6TestBase;
 
 /**
  * Tests Drupal 6 view modes to Drupal 8 migration.
  */
-class MigrateViewModesTest extends MigrateDrupalTestBase {
+class MigrateViewModesTest extends MigrateDrupal6TestBase {
 
   /**
    * Modules to enable.
@@ -38,11 +39,9 @@ class MigrateViewModesTest extends MigrateDrupalTestBase {
    */
   public function setUp() {
     parent::setUp();
+    /** @var \Drupal\migrate\Entity\Migration $migration */
     $migration = entity_load('migration', 'd6_view_modes');
-    $dumps = array(
-      $this->getDumpDirectory() . '/Drupal6FieldInstance.php',
-    );
-    $this->prepare($migration, $dumps);
+    $this->loadDrupal6Dump(new Drupal6FieldInstance());
     $executable = new MigrateExecutable($migration, $this);
     $executable->import();
   }

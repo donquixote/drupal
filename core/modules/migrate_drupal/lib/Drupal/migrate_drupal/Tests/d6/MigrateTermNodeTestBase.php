@@ -7,9 +7,13 @@
 
 namespace Drupal\migrate_drupal\Tests\d6;
 
-use Drupal\migrate_drupal\Tests\MigrateDrupalTestBase;
+use Drupal\migrate_drupal\Tests\Dump\Drupal6Node;
+use Drupal\migrate_drupal\Tests\Dump\Drupal6TaxonomyTerm;
+use Drupal\migrate_drupal\Tests\Dump\Drupal6TaxonomyVocabulary;
+use Drupal\migrate_drupal\Tests\Dump\Drupal6TermNode;
+use Drupal\migrate_drupal\Tests\MigrateDrupal6TestBase;
 
-class MigrateTermNodeTestBase extends MigrateDrupalTestBase {
+class MigrateTermNodeTestBase extends MigrateDrupal6TestBase {
 
   /**
    * {@inheritdoc}
@@ -83,13 +87,12 @@ class MigrateTermNodeTestBase extends MigrateDrupalTestBase {
         $node->save();
       }
     }
-    $dumps = array(
-      $this->getDumpDirectory() . '/Drupal6Node.php',
-      $this->getDumpDirectory() . '/Drupal6TermNode.php',
-      $this->getDumpDirectory() . '/Drupal6TaxonomyTerm.php',
-      $this->getDumpDirectory() . '/Drupal6TaxonomyVocabulary.php',
-    );
-    $this->loadDumps($dumps);
+    $this->loadDrupal6Dumps(array(
+      new Drupal6Node(),
+      new Drupal6TermNode(),
+      new Drupal6TaxonomyTerm(),
+      new Drupal6TaxonomyVocabulary(),
+    ));
   }
 
 }

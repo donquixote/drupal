@@ -7,13 +7,15 @@
 
 namespace Drupal\migrate_drupal\Tests\Dump;
 
-class Drupal6Block extends Drupal6DumpBase {
+use Drupal\migrate_drupal\Tests\d6\Drupal6DbWrapper;
+
+class Drupal6Block implements DumpInterface {
 
   /**
    * {@inheritdoc}
    */
-  public function load() {
-    $this->createTable('blocks', array(
+  public function load(Drupal6DbWrapper $dbWrapper) {
+    $dbWrapper->createTable('blocks', array(
       'fields' => array(
         'bid' => array(
           'type' => 'serial',
@@ -110,7 +112,7 @@ class Drupal6Block extends Drupal6DumpBase {
         ),
       ),
     ));
-    $this->createTable('blocks_roles', array(
+    $dbWrapper->createTable('blocks_roles', array(
       'fields' => array(
         'module' => array(
           'type' => 'varchar',
@@ -141,7 +143,7 @@ class Drupal6Block extends Drupal6DumpBase {
       'module' => 'block',
       'name' => 'blocks_roles',
     ));
-    $this->database->insert('blocks')->fields(array(
+    $dbWrapper->getDbConnection()->insert('blocks')->fields(array(
       'bid',
       'module',
       'delta',

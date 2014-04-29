@@ -9,12 +9,13 @@ namespace Drupal\migrate_drupal\Tests\d6;
 
 use Drupal\migrate\MigrateMessage;
 use Drupal\migrate\MigrateExecutable;
-use Drupal\migrate_drupal\Tests\MigrateDrupalTestBase;
+use Drupal\migrate_drupal\Tests\Dump\Drupal6SystemFilter;
+use Drupal\migrate_drupal\Tests\MigrateDrupal6TestBase;
 
 /**
  * Tests the Drupal 6 system filter variables to Drupal 8 system.filter config migration.
  */
-class MigrateSystemFilterTest extends MigrateDrupalTestBase {
+class MigrateSystemFilterTest extends MigrateDrupal6TestBase {
 
   /**
    * {@inheritdoc}
@@ -32,11 +33,9 @@ class MigrateSystemFilterTest extends MigrateDrupalTestBase {
    */
   protected function setUp() {
     parent::setUp();
+    /** @var \Drupal\migrate\Entity\Migration $migration */
     $migration = entity_load('migration', 'd6_system_filter');
-    $dumps = array(
-      $this->getDumpDirectory() . '/Drupal6SystemFilter.php',
-    );
-    $this->prepare($migration, $dumps);
+    $this->loadDrupal6Dump(new Drupal6SystemFilter());
     $executable = new MigrateExecutable($migration, new MigrateMessage());
     $executable->import();
   }

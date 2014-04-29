@@ -8,12 +8,13 @@
 namespace Drupal\migrate_drupal\Tests\d6;
 
 use Drupal\migrate\MigrateExecutable;
-use Drupal\migrate_drupal\Tests\MigrateDrupalTestBase;
+use Drupal\migrate_drupal\Tests\Dump\Drupal6UploadInstance;
+use Drupal\migrate_drupal\Tests\MigrateDrupal6TestBase;
 
 /**
  * Tests the Drupal 6 upload settings to Drupal 8 entity form display migration.
  */
-class MigrateUploadEntityFormDisplayTest extends MigrateDrupalTestBase {
+class MigrateUploadEntityFormDisplayTest extends MigrateDrupal6TestBase {
 
   /**
    * The modules to be enabled during the test.
@@ -50,11 +51,9 @@ class MigrateUploadEntityFormDisplayTest extends MigrateDrupalTestBase {
     );
     $this->prepareIdMappings($id_mappings);
 
+    /** @var \Drupal\migrate\Entity\Migration $migration */
     $migration = entity_load('migration', 'd6_upload_entity_form_display');
-    $dumps = array(
-      $this->getDumpDirectory() . '/Drupal6UploadInstance.php',
-    );
-    $this->prepare($migration, $dumps);
+    $this->loadDrupal6Dump(new Drupal6UploadInstance());
     $executable = new MigrateExecutable($migration, $this);
     $executable->import();
 

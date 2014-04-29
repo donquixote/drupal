@@ -8,12 +8,13 @@
 namespace Drupal\migrate_drupal\Tests\d6;
 
 use Drupal\migrate\MigrateExecutable;
-use Drupal\migrate_drupal\Tests\MigrateDrupalTestBase;
+use Drupal\migrate_drupal\Tests\Dump\Drupal6UserMail;
+use Drupal\migrate_drupal\Tests\MigrateDrupal6TestBase;
 
 /**
  * Tests migration of variables from the User module.
  */
-class MigrateUserConfigsTest extends MigrateDrupalTestBase {
+class MigrateUserConfigsTest extends MigrateDrupal6TestBase {
 
   /**
    * {@inheritdoc}
@@ -31,11 +32,9 @@ class MigrateUserConfigsTest extends MigrateDrupalTestBase {
    */
   protected function setUp() {
     parent::setUp();
+    /** @var \Drupal\migrate\Entity\Migration $migration */
     $migration = entity_load('migration', 'd6_user_mail');
-    $dumps = array(
-      $this->getDumpDirectory() . '/Drupal6UserMail.php',
-    );
-    $this->prepare($migration, $dumps);
+    $this->loadDrupal6Dump(new Drupal6UserMail());
     $executable = new MigrateExecutable($migration, $this);
     $executable->import();
   }

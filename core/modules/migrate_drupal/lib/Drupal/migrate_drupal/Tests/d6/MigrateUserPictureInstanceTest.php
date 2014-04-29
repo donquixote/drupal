@@ -8,12 +8,12 @@
 namespace Drupal\migrate_drupal\Tests\d6;
 
 use Drupal\migrate\MigrateExecutable;
-use Drupal\migrate_drupal\Tests\MigrateDrupalTestBase;
+use Drupal\migrate_drupal\Tests\MigrateDrupal6TestBase;
 
 /**
  * Tests the Drupal 6 user picture to Drupal 8 picture field instance migration.
  */
-class MigrateUserPictureInstanceTest extends MigrateDrupalTestBase {
+class MigrateUserPictureInstanceTest extends MigrateDrupal6TestBase {
 
   /**
    * Modules to enable.
@@ -52,6 +52,7 @@ class MigrateUserPictureInstanceTest extends MigrateDrupalTestBase {
       'translatable' => '0',
     ))->save();
 
+    /** @var \Drupal\migrate\Entity\Migration $migration */
     $migration = entity_load('migration', 'd6_user_picture_field_instance');
     $executable = new MigrateExecutable($migration, $this);
     $executable->import();

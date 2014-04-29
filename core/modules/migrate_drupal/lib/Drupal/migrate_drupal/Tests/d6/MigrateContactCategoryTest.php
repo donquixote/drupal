@@ -9,12 +9,13 @@ namespace Drupal\migrate_drupal\Tests\d6;
 
 use Drupal\migrate\MigrateExecutable;
 use Drupal\migrate\MigrateMessage;
-use Drupal\migrate_drupal\Tests\MigrateDrupalTestBase;
+use Drupal\migrate_drupal\Tests\Dump\Drupal6ContactCategory;
+use Drupal\migrate_drupal\Tests\MigrateDrupal6TestBase;
 
 /**
  * The Drupal 6 contact categories to Drupal 8 migration.
  */
-class MigrateContactCategoryTest extends MigrateDrupalTestBase {
+class MigrateContactCategoryTest extends MigrateDrupal6TestBase {
 
   /**
    * Modules to enable.
@@ -40,11 +41,9 @@ class MigrateContactCategoryTest extends MigrateDrupalTestBase {
    */
   public function setUp() {
     parent::setUp();
+    /** @var \Drupal\migrate\Entity\Migration $migration */
     $migration = entity_load('migration', 'd6_contact_category');
-    $dumps = array(
-      $this->getDumpDirectory() . '/Drupal6ContactCategory.php',
-    );
-    $this->prepare($migration, $dumps);
+    $this->loadDrupal6Dump(new Drupal6ContactCategory());
     $executable = new MigrateExecutable($migration, new MigrateMessage());
     $executable->import();
   }

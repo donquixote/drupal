@@ -7,18 +7,20 @@
 
 namespace Drupal\migrate_drupal\Tests\Dump;
 
+use Drupal\migrate_drupal\Tests\d6\Drupal6DbWrapper;
+
 /**
  * Database dump for testing menu_ui.settings.yml migration.
  */
-class Drupal6MenuSettings extends Drupal6DumpBase {
+class Drupal6MenuSettings implements DumpInterface {
 
   /**
    * {@inheritdoc}
    */
-  public function load() {
-    $this->createTable('variable');
-    $this->setModuleVersion('menu', 6000);
-    $this->database->insert('variable')->fields(array(
+  public function load(Drupal6DbWrapper $dbWrapper) {
+    $dbWrapper->createTable('variable');
+    $dbWrapper->setModuleVersion('menu', 6000);
+    $dbWrapper->getDbConnection()->insert('variable')->fields(array(
       'name',
       'value',
     ))

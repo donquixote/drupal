@@ -7,13 +7,15 @@
 
 namespace Drupal\migrate_drupal\Tests\Dump;
 
-class Drupal6Box extends Drupal6DumpBase {
+use Drupal\migrate_drupal\Tests\d6\Drupal6DbWrapper;
+
+class Drupal6Box implements DumpInterface {
 
   /**
    * {@inheritdoc}
    */
-  public function load() {
-    $this->createTable('boxes', array(
+  public function load(Drupal6DbWrapper $dbWrapper) {
+    $dbWrapper->createTable('boxes', array(
       'description' => 'Stores contents of custom-made blocks.',
       'fields' => array(
         'bid' => array(
@@ -47,7 +49,7 @@ class Drupal6Box extends Drupal6DumpBase {
       'primary key' => array('bid'),
     ));
 
-    $this->database->insert('boxes')->fields(array(
+    $dbWrapper->getDbConnection()->insert('boxes')->fields(array(
       'bid',
       'body',
       'info',
