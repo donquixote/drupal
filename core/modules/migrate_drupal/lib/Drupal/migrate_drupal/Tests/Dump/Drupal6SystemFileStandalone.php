@@ -12,10 +12,14 @@ use Drupal\migrate_drupal\Tests\d6\Drupal6DbWrapper;
 /**
  * Database dump for testing system.file.yml migration.
  */
-class Drupal6SystemFile implements DumpInterface {
+class Drupal6SystemFileStandalone implements DumpInterface {
 
   /**
-   * {@inheritdoc}
+   * Dump for the standalone test in MigrateFileTest.
+   *
+   * @param Drupal6DbWrapper $dbWrapper
+   *
+   * @throws \Exception
    */
   public function load(Drupal6DbWrapper $dbWrapper) {
     $dbWrapper->ensureTable('variable');
@@ -25,12 +29,7 @@ class Drupal6SystemFile implements DumpInterface {
     ))
     ->values(array(
       'name' => 'file_directory_path',
-      // This sets up MigrateDrupal6Test to pass. Do not change.
-      'value' => 's:29:"core/modules/simpletest/files";',
-    ))
-    ->values(array(
-      'name' => 'file_directory_temp',
-      'value' => 's:10:"files/temp";',
+      'value' => 's:10:"files/test";',
     ))
     ->execute();
   }

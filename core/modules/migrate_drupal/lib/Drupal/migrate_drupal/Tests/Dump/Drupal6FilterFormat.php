@@ -6,17 +6,20 @@
  */
 
 namespace Drupal\migrate_drupal\Tests\Dump;
+
+use Drupal\migrate_drupal\Tests\d6\Drupal6DbWrapper;
+
 /**
  * Database dump for testing filter format migration.
  */
-class Drupal6FilterFormat extends Drupal6DumpBase {
+class Drupal6FilterFormat implements DumpInterface {
 
 
   /**
    * {@inheritdoc}
    */
-  public function load() {
-    $this->createTable('filters', array(
+  public function load(Drupal6DbWrapper $dbWrapper) {
+    $dbWrapper->ensureTable('filters', array(
       'description' => 'Table that maps filters (HTML corrector) to input formats (Filtered HTML).',
       'fields' => array(
         'fid' => array(
@@ -60,7 +63,7 @@ class Drupal6FilterFormat extends Drupal6DumpBase {
         'list' => array('format', 'weight', 'module', 'delta'),
       ),
     ));
-    $this->createTable('filter_formats', array(
+    $dbWrapper->ensureTable('filter_formats', array(
       'description' => 'Stores input formats: custom groupings of filters, such as Filtered HTML.',
       'fields' => array(
         'format' => array(
@@ -94,8 +97,8 @@ class Drupal6FilterFormat extends Drupal6DumpBase {
       'primary key' => array('format'),
       'unique keys' => array('name' => array('name')),
     ));
-    $this->createTable('variable');
-    $this->database->insert('variable')->fields(array(
+    $dbWrapper->ensureTable('variable');
+    $dbWrapper->getConnection()->insert('variable')->fields(array(
       'name',
       'value',
     ))
@@ -116,7 +119,7 @@ class Drupal6FilterFormat extends Drupal6DumpBase {
       'value' => 's:2:"72";',
     ))
     ->execute();
-    $this->database->insert('filter_formats')->fields(array(
+    $dbWrapper->getConnection()->insert('filter_formats')->fields(array(
       'format',
       'name',
       'roles',
@@ -142,7 +145,7 @@ class Drupal6FilterFormat extends Drupal6DumpBase {
     ))
     ->execute();
 
-    $this->database->insert('filters')->fields(array(
+    $dbWrapper->getConnection()->insert('filters')->fields(array(
       'fid',
       'format',
       'module',

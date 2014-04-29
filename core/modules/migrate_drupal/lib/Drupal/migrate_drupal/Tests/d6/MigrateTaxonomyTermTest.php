@@ -8,13 +8,15 @@
 namespace Drupal\migrate_drupal\Tests\d6;
 
 use Drupal\migrate\MigrateExecutable;
-use Drupal\migrate_drupal\Tests\MigrateDrupalTestBase;
+use Drupal\migrate_drupal\Tests\Dump\Drupal6TaxonomyTerm;
+use Drupal\migrate_drupal\Tests\Dump\Drupal6TaxonomyVocabulary;
+use Drupal\migrate_drupal\Tests\MigrateDrupal6TestBase;
 use Drupal\taxonomy\Entity\Term;
 
 /**
  * Tests the Drupal 6 taxonomy term to Drupal 8 migration.
  */
-class MigrateTaxonomyTermTest extends MigrateDrupalTestBase {
+class MigrateTaxonomyTermTest extends MigrateDrupal6TestBase {
 
   static $modules = array('taxonomy');
 
@@ -43,10 +45,10 @@ class MigrateTaxonomyTermTest extends MigrateDrupalTestBase {
     /** @var \Drupal\migrate\entity\Migration $migration */
     $migration = entity_load('migration', 'd6_taxonomy_term');
     $dumps = array(
-      $this->getDumpDirectory() . '/Drupal6TaxonomyTerm.php',
-      $this->getDumpDirectory() . '/Drupal6TaxonomyVocabulary.php',
+      new Drupal6TaxonomyTerm(),
+      new Drupal6TaxonomyVocabulary(),
     );
-    $this->prepare($migration, $dumps);
+    $this->loadDrupal6Dumps($dumps);
     $executable = new MigrateExecutable($migration, $this);
     $executable->import();
   }

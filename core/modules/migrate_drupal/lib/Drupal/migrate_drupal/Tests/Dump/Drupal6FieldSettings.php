@@ -7,17 +7,19 @@
 
 namespace Drupal\migrate_drupal\Tests\Dump;
 
+use Drupal\migrate_drupal\Tests\d6\Drupal6DbWrapper;
+
 /**
  * Database dump for testing field.settings.yml migration.
  */
-class Drupal6FieldSettings extends Drupal6DumpBase {
+class Drupal6FieldSettings implements DumpInterface {
 
   /**
    * {@inheritdoc}
    */
-  public function load() {
-    $this->createTable('variable');
-    $this->database->insert('variable')->fields(array(
+  public function load(Drupal6DbWrapper $dbWrapper) {
+    $dbWrapper->ensureTable('variable');
+    $dbWrapper->getConnection()->insert('variable')->fields(array(
       'name',
       'value',
     ))

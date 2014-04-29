@@ -6,18 +6,21 @@
  */
 
 namespace Drupal\migrate_drupal\Tests\Dump;
+
+use Drupal\migrate_drupal\Tests\d6\Drupal6DbWrapper;
+
 /**
  * Database dump for testing comment variables migration.
  */
-class Drupal6CommentVariable extends Drupal6DumpBase {
+class Drupal6CommentVariable implements DumpInterface {
 
 
   /**
    * {@inheritdoc}
    */
-  public function load() {
-    $this->createTable('variable');
-    $this->createTable('node_type', array(
+  public function load(Drupal6DbWrapper $dbWrapper) {
+    $dbWrapper->ensureTable('variable');
+    $dbWrapper->ensureTable('node_type', array(
       'fields' => array(
         'type' => array(
           'type' => 'varchar',
@@ -106,7 +109,7 @@ class Drupal6CommentVariable extends Drupal6DumpBase {
       'module' => 'node',
       'name' => 'node_type',
     ));
-    $this->database->insert('node_type')->fields(array(
+    $dbWrapper->getConnection()->insert('node_type')->fields(array(
       'type',
       'name',
       'module',
@@ -155,7 +158,7 @@ class Drupal6CommentVariable extends Drupal6DumpBase {
       'orig_type' => 'story',
     ))
     ->execute();
-    $this->database->insert('variable')->fields(array(
+    $dbWrapper->getConnection()->insert('variable')->fields(array(
       'name',
       'value',
     ))
@@ -232,7 +235,7 @@ class Drupal6CommentVariable extends Drupal6DumpBase {
       'value' => 's:1:"0";',
     ))
     ->execute();
-    $this->setModuleVersion('comment', '6001');
+    $dbWrapper->setModuleVersion('comment', '6001');
   }
 
 }

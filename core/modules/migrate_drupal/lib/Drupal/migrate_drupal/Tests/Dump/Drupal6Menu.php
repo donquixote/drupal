@@ -5,16 +5,19 @@
  */
 
 namespace Drupal\migrate_drupal\Tests\Dump;
+
+use Drupal\migrate_drupal\Tests\d6\Drupal6DbWrapper;
+
 /**
  * Database dump for testing menu migration.
  */
-class Drupal6Menu extends Drupal6DumpBase {
+class Drupal6Menu implements DumpInterface {
 
   /**
    * {@inheritdoc}
    */
-  public function load() {
-    $this->createTable('menu_custom', array(
+  public function load(Drupal6DbWrapper $dbWrapper) {
+    $dbWrapper->ensureTable('menu_custom', array(
       'fields' => array(
         'menu_name' => array(
           'type' => 'varchar',
@@ -39,7 +42,7 @@ class Drupal6Menu extends Drupal6DumpBase {
       'module' => 'menu',
       'name' => 'menu_custom',
     ));
-    $this->database->insert('menu_custom')->fields(array('menu_name', 'title', 'description'))
+    $dbWrapper->getConnection()->insert('menu_custom')->fields(array('menu_name', 'title', 'description'))
       ->values(array(
         'menu_name' => 'navigation',
         'title' => 'Navigation',
@@ -56,7 +59,7 @@ class Drupal6Menu extends Drupal6DumpBase {
         'description' => 'Secondary links are often used for pages like legal notices, contact details, and other secondary navigation items that play a lesser role than primary links',
       ))
       ->execute();
-    $this->setModuleVersion('menu', '6001');
+    $dbWrapper->setModuleVersion('menu', '6001');
   }
 
 }

@@ -5,49 +5,92 @@
  * Contains \Drupal\migrate_drupal\Tests\Dump\Drupal6DumpBase.
  */
 
-namespace Drupal\migrate_drupal\Tests\Dump;
+namespace Drupal\migrate_drupal\Tests\d6;
 use Drupal\Core\Database\Connection;
+use Drupal\Core\Database\SchemaObjectExistsException;
 
 /**
- * Base class for the dump classes.
+ * Wrapper for a (temporary) Drupal 6 database.
  */
-class Drupal6DumpBase {
+class Drupal6DbWrapper {
 
   /**
-   * The database connection.
+   * The database connection for the Drupal 6 database.
    *
    * @var \Drupal\Core\Database\Connection
    */
-  protected $database;
+  protected $connection;
 
   /**
    * Sample database schema and values.
    *
-   * @param \Drupal\Core\Database\Connection $database
-   *   The database connection.
+   * @param \Drupal\Core\Database\Connection $connection
+   *   The database connection for the Drupal 6 database.
    */
-  public function __construct(Connection $database) {
-    $this->database = $database;
+  public function __construct(Connection $connection) {
+    $this->connection = $connection;
   }
 
   /**
-   * Create a new table from a Drupal table definition if it doesn't exist.
+   * Returns the Drupal 6 database connection.
    *
-   * @param $name
-   *   The name of the table to create.
-   * @param $table
-   *   A Schema API table definition array.
+   * @return \Drupal\Core\Database\Connection
+   *   The database connection for the Drupal 6 database.
    */
-  protected function createTable($name, $table = NULL) {
-    // This must be on the database connection to be shared among classes.
-    if (empty($this->database->migrateTables[$name])) {
-      $this->database->migrateTables[$name] = TRUE;
-      $this->database->schema()->createTable($name, $table ?: $this->tableDefinitions()[$name]);
+  public function getConnection() {
+    return $this->connection;
+  }
+
+  /**
+   * Creates a new table from a Drupal table definition if it doesn't exist.
+   *
+   * @param string $name
+   *   The name of the table to create.
+   * @param array|null $table
+   *   A Schema API table definition array, or
+   *   NULL, for a table with a known schema.
+   *
+   * @return bool
+   *   TRUE, if the table was created or it already exists.
+   */
+  public function ensureTable($name, $table = NULL) {
+    if ($this->connection->schema()->tableExists($name)) {
+      // The table already exists.
+      return TRUE;
+    }
+    if (NULL === $table) {
+      $table = $this->getTableDefinition($name);
+    }
+    try {
+      $this->connection->schema()->createTable($name, $table);
+      return TRUE;
+    }
+    catch (SchemaObjectExistsException $e) {
+      // The table was just created in another process.
+      return TRUE;
     }
   }
 
   /**
+   * @param string $name
+   *   The name of the table to create. This must be one of the "known" table
+   *   names, see tableDefinitions() below.
+   *
+   * @throws \Exception
+   * @return array
+   */
+  protected function getTableDefinition($name) {
+    $knownDefinitions = $this->tableDefinitions();
+    if (!isset($knownDefinitions[$name])) {
+      throw new \Exception("Unknown table name '$name'.");
+    }
+    return $knownDefinitions[$name];
+  }
+
+  /**
    * Table definitions.
+   *
+   * @return array[]
    */
   protected function tableDefinitions() {
     return array(
@@ -232,13 +275,13 @@ class Drupal6DumpBase {
   /**
    * Sets a module version and status.
    *
-   * @param $module
-   * @param $version
+   * @param string $module
+   * @param string $version
    * @param int $status
    */
   public function setModuleVersion($module, $version, $status = 1) {
-    $this->createTable('system');
-    $this->database->merge('system')
+    $this->ensureTable('system');
+    $this->connection->merge('system')
       ->key(array('filename' => "modules/$module"))
       ->fields(array(
         'type' => 'module',

@@ -7,16 +7,18 @@
 
 namespace Drupal\migrate_drupal\Tests\Dump;
 
+use Drupal\migrate_drupal\Tests\d6\Drupal6DbWrapper;
+
 /**
  * Database dump for testing entity display migration.
  */
-class Drupal6FieldInstance extends Drupal6DumpBase {
+class Drupal6FieldInstance implements DumpInterface {
 
   /**
    * {@inheritdoc}
    */
-  public function load() {
-    $this->createTable('content_node_field_instance', array(
+  public function load(Drupal6DbWrapper $dbWrapper) {
+    $dbWrapper->ensureTable('content_node_field_instance', array(
       'description' => 'Table that contains field instance settings.',
       'fields' => array(
         'field_name' => array(
@@ -81,7 +83,7 @@ class Drupal6FieldInstance extends Drupal6DumpBase {
       'primary key' => array('field_name', 'type_name'),
     ));
 
-    $this->database->insert('content_node_field_instance')->fields(array(
+    $dbWrapper->getConnection()->insert('content_node_field_instance')->fields(array(
       'field_name',
       'type_name',
       'weight',
@@ -589,7 +591,7 @@ class Drupal6FieldInstance extends Drupal6DumpBase {
     ->execute();
 
     // Create the field table.
-    $this->createTable('content_node_field', array(
+    $dbWrapper->ensureTable('content_node_field', array(
       'description' => 'Table that contains field instance settings.',
       'fields' => array(
         'field_name' => array(
@@ -656,7 +658,7 @@ class Drupal6FieldInstance extends Drupal6DumpBase {
       'primary key' => array('field_name'),
     ));
 
-    $this->database->insert('content_node_field')->fields(array(
+    $dbWrapper->getConnection()->insert('content_node_field')->fields(array(
       'field_name',
       'module',
       'type',
@@ -786,7 +788,7 @@ class Drupal6FieldInstance extends Drupal6DumpBase {
     ))
     ->execute();
 
-    $this->createTable('content_field_test_two', array(
+    $dbWrapper->ensureTable('content_field_test_two', array(
       'description' => 'Table for field_test_two',
       'fields' => array(
         'vid' => array(
@@ -824,7 +826,7 @@ class Drupal6FieldInstance extends Drupal6DumpBase {
       ),
       'primary key' => array('vid', 'delta'),
     ));
-    $this->database->insert('content_field_test_two')->fields(array(
+    $dbWrapper->getConnection()->insert('content_field_test_two')->fields(array(
       'vid',
       'nid',
       'field_test_two_value',
@@ -846,7 +848,7 @@ class Drupal6FieldInstance extends Drupal6DumpBase {
       'field_test_two_format' => 1,
     ))
     ->execute();
-    $this->setModuleVersion('content', '6001');
+    $dbWrapper->setModuleVersion('content', '6001');
 
   }
 

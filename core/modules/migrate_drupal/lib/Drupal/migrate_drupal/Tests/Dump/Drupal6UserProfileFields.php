@@ -7,16 +7,18 @@
 
 namespace Drupal\migrate_drupal\Tests\Dump;
 
+use Drupal\migrate_drupal\Tests\d6\Drupal6DbWrapper;
+
 /**
  * Database dump for testing profile fields.
  */
-class Drupal6UserProfileFields extends Drupal6DumpBase {
+class Drupal6UserProfileFields implements DumpInterface {
 
   /**
    * {@inheritdoc}
    */
-  public function load() {
-    $this->createTable('profile_fields', array(
+  public function load(Drupal6DbWrapper $dbWrapper) {
+    $dbWrapper->ensureTable('profile_fields', array(
       'fields' => array(
         'fid' => array(
           'type' => 'serial',
@@ -107,13 +109,13 @@ class Drupal6UserProfileFields extends Drupal6DumpBase {
     // Insert data.
     $data = static::getData('profile_fields');
     if ($data) {
-      $query = $this->database->insert('profile_fields')->fields(array_keys($data[0]));
+      $query = $dbWrapper->getConnection()->insert('profile_fields')->fields(array_keys($data[0]));
       foreach ($data as $record) {
         $query->values($record);
       }
       $query->execute();
     }
-    $this->setModuleVersion('profile', 6001);
+    $dbWrapper->setModuleVersion('profile', 6001);
   }
 
   /**

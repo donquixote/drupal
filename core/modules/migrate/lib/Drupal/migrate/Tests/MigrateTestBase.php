@@ -11,6 +11,8 @@ use Drupal\Core\Database\Database;
 use Drupal\migrate\Entity\MigrationInterface;
 use Drupal\migrate\MigrateMessageInterface;
 use Drupal\migrate\Row;
+use Drupal\migrate_drupal\Tests\d6\Drupal6DbWrapper;
+use Drupal\migrate_drupal\Tests\Dump\DumpInterface;
 use Drupal\simpletest\WebTestBase;
 
 class MigrateTestBase extends WebTestBase implements MigrateMessageInterface {
@@ -64,40 +66,6 @@ class MigrateTestBase extends WebTestBase implements MigrateMessageInterface {
   protected function tearDown() {
     Database::removeConnection('migrate');
     parent::tearDown();
-  }
-
-  /**
-   * Prepare the migration.
-   *
-   * @param \Drupal\migrate\Entity\MigrationInterface $migration
-   *   The migration object.
-   * @param array $files
-   *   An array of files.
-   */
-  protected function prepare(MigrationInterface $migration, array $files = array()) {
-    $this->loadDumps($files);
-  }
-
-  /**
-   * Load Drupal 6 database dumps to be used.
-   *
-   * @param array $files
-   *   An array of files.
-   * @param string $method
-   *   The name of the method in the dump class to use. Defaults to load.
-   */
-  protected function loadDumps($files, $method = 'load') {
-    // Load the database from the portable PHP dump.
-    // The files may be gzipped.
-    foreach ($files as $file) {
-      if (substr($file, -3) == '.gz') {
-        $file = "compress.zlib://$file";
-        require $file;
-      }
-      preg_match('/^namespace (.*);$/m', file_get_contents($file), $matches);
-      $class = $matches[1] . '\\' . basename($file, '.php');
-      (new $class(Database::getConnection('default', 'migrate')))->$method();
-    }
   }
 
   /**

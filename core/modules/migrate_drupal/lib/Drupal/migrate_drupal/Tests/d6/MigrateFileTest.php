@@ -8,12 +8,15 @@
 namespace Drupal\migrate_drupal\Tests\d6;
 
 use Drupal\migrate\MigrateExecutable;
-use Drupal\migrate_drupal\Tests\MigrateDrupalTestBase;
+use Drupal\migrate_drupal\Tests\Dump\Drupal6File;
+
+use Drupal\migrate_drupal\Tests\Dump\Drupal6SystemFileStandalone;
+use Drupal\migrate_drupal\Tests\MigrateDrupal6TestBase;
 
 /**
  * Tests the Drupal 6 files to Drupal 8 migration.
  */
-class MigrateFileTest extends MigrateDrupalTestBase {
+class MigrateFileTest extends MigrateDrupal6TestBase {
 
   /**
    * Modules to enable.
@@ -38,13 +41,10 @@ class MigrateFileTest extends MigrateDrupalTestBase {
    */
   protected function setUp() {
     parent::setUp();
-    $dumps = array(
-      $this->getDumpDirectory() . '/Drupal6File.php',
-    );
     /** @var \Drupal\migrate\entity\Migration $migration */
     $migration = entity_load('migration', 'd6_file');
     $migration->source['conf_path'] = 'core/modules/simpletest';
-    $this->prepare($migration, $dumps);
+    $this->loadDrupal6Dump(new Drupal6File());
     $executable = new MigrateExecutable($migration, $this);
     $executable->import();
     $this->standalone = TRUE;
@@ -67,11 +67,9 @@ class MigrateFileTest extends MigrateDrupalTestBase {
 
     // Test that we can re-import and also test with file_directory_path set.
     db_truncate(entity_load('migration', 'd6_file')->getIdMap()->mapTableName())->execute();
+    /** @var \Drupal\migrate\Entity\Migration $migration */
     $migration = entity_load_unchanged('migration', 'd6_file');
-    $dumps = array(
-      $this->getDumpDirectory() . '/Drupal6SystemFile.php',
-    );
-    $this->loadDumps($dumps, 'loadMigrateFileStandalone');
+    $this->loadDrupal6Dump(new Drupal6SystemFileStandalone());
     $executable = new MigrateExecutable($migration, $this);
     $executable->import();
 

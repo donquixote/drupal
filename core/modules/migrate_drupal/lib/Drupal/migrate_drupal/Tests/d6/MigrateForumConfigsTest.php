@@ -8,12 +8,13 @@
 namespace Drupal\migrate_drupal\Tests\d6;
 
 use Drupal\migrate\MigrateExecutable;
-use Drupal\migrate_drupal\Tests\MigrateDrupalTestBase;
+use Drupal\migrate_drupal\Tests\Dump\Drupal6ForumSettings;
+use Drupal\migrate_drupal\Tests\MigrateDrupal6TestBase;
 
 /**
  * Tests migration of variables for the Forum module.
  */
-class MigrateForumConfigsTest extends MigrateDrupalTestBase {
+class MigrateForumConfigsTest extends MigrateDrupal6TestBase {
 
   /**
    * Modules to enable.
@@ -38,11 +39,9 @@ class MigrateForumConfigsTest extends MigrateDrupalTestBase {
    */
   public function setUp() {
     parent::setUp();
+    /** @var \Drupal\migrate\Entity\Migration $migration */
     $migration = entity_load('migration', 'd6_forum_settings');
-    $dumps = array(
-      $this->getDumpDirectory() . '/Drupal6ForumSettings.php',
-    );
-    $this->prepare($migration, $dumps);
+    $this->loadDrupal6Dump(new Drupal6ForumSettings());
     $executable = new MigrateExecutable($migration, $this);
     $executable->import();
   }

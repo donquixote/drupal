@@ -9,7 +9,8 @@ namespace Drupal\migrate_drupal\Tests\dependencies;
 
 use Drupal\Component\Utility\String;
 use Drupal\migrate\MigrateExecutable;
-use Drupal\migrate_drupal\Tests\MigrateDrupalTestBase;
+use Drupal\migrate_drupal\Tests\Dump\Drupal6AggregatorItem;
+use Drupal\migrate_drupal\Tests\MigrateDrupal6TestBase;
 
 /**
  * Test the migrate dependencies
@@ -17,8 +18,13 @@ use Drupal\migrate_drupal\Tests\MigrateDrupalTestBase;
  * @group Drupal
  * @group migrate_drupal
  */
-class MigrateDependenciesTest extends MigrateDrupalTestBase {
+class MigrateDependenciesTest extends MigrateDrupal6TestBase {
 
+  /**
+   * Modules
+   *
+   * @var string[]
+   */
   static $modules = array('aggregator');
 
   /**
@@ -37,6 +43,7 @@ class MigrateDependenciesTest extends MigrateDrupalTestBase {
    */
   public function testMigrateDependenciesOrder() {
     $migration_items = array('d6_comment', 'd6_filter_format', 'd6_node');
+    /** @var \Drupal\migrate\Entity\Migration[] $migrations */
     $migrations = entity_load_multiple('migration', $migration_items);
     $expected_order = array('d6_filter_format', 'd6_node', 'd6_comment');
     $this->assertEqual(array_keys($migrations), $expected_order);
@@ -56,10 +63,7 @@ class MigrateDependenciesTest extends MigrateDrupalTestBase {
   public function testAggregatorMigrateDependencies() {
     /** @var \Drupal\migrate\entity\Migration $migration */
     $migration = entity_load('migration', 'd6_aggregator_item');
-    $dumps = array(
-      $this->getDumpDirectory() . '/Drupal6AggregatorItem.php',
-    );
-    $this->prepare($migration, $dumps);
+    $this->loadDrupal6Dump(new Drupal6AggregatorItem());
     $executable = new MigrateExecutable($migration, $this);
     $this->startCollectingMessages();
     $executable->import();

@@ -7,13 +7,15 @@
 
 namespace Drupal\migrate_drupal\Tests\Dump;
 
-class Drupal6Book extends Drupal6DumpBase {
+use Drupal\migrate_drupal\Tests\d6\Drupal6DbWrapper;
+
+class Drupal6Book implements DumpInterface {
 
   /**
    * {@inheritdoc}
    */
-  public function load() {
-    $this->createTable('book', array(
+  public function load(Drupal6DbWrapper $dbWrapper) {
+    $dbWrapper->ensureTable('book', array(
       'fields' => array(
         'mlid' => array(
           'type' => 'int',
@@ -50,7 +52,7 @@ class Drupal6Book extends Drupal6DumpBase {
       'module' => 'book',
       'name' => 'book',
     ));
-    $this->createTable('menu_links', array(
+    $dbWrapper->ensureTable('menu_links', array(
       'fields' => array(
         'menu_name' => array(
           'type' => 'varchar',
@@ -238,7 +240,7 @@ class Drupal6Book extends Drupal6DumpBase {
       'module' => 'system',
       'name' => 'menu_links',
     ));
-    $this->database->insert('book')->fields(array(
+    $dbWrapper->getConnection()->insert('book')->fields(array(
       'mlid',
       'nid',
       'bid',
@@ -269,7 +271,7 @@ class Drupal6Book extends Drupal6DumpBase {
       'bid' => '8',
     ))
     ->execute();
-    $this->database->insert('menu_links')->fields(array(
+    $dbWrapper->getConnection()->insert('menu_links')->fields(array(
       'menu_name',
       'mlid',
       'plid',

@@ -8,13 +8,14 @@
 namespace Drupal\migrate_drupal\Tests\d6;
 
 use Drupal\migrate\MigrateExecutable;
-use Drupal\migrate_drupal\Tests\MigrateDrupalTestBase;
+use Drupal\migrate_drupal\Tests\Dump\Drupal6SearchPage;
+use Drupal\migrate_drupal\Tests\MigrateDrupal6TestBase;
 use Drupal\Core\Database\Database;
 
 /**
  * Tests Drupal 6 search settings to Drupal 8 search page entity migration.
  */
-class MigrateSearchPageTest extends MigrateDrupalTestBase {
+class MigrateSearchPageTest extends MigrateDrupal6TestBase {
 
   /**
    * The modules to be enabled during the test.
@@ -41,10 +42,7 @@ class MigrateSearchPageTest extends MigrateDrupalTestBase {
     parent::setUp();
     /** @var \Drupal\migrate\entity\Migration $migration */
     $migration = entity_load('migration', 'd6_search_page');
-    $dumps = array(
-      $this->getDumpDirectory() . '/Drupal6SearchPage.php',
-    );
-    $this->prepare($migration, $dumps);
+    $this->loadDrupal6Dump(new Drupal6SearchPage());
     $executable = new MigrateExecutable($migration, $this);
     $executable->import();
   }
@@ -73,6 +71,7 @@ class MigrateSearchPageTest extends MigrateDrupalTestBase {
       ->condition('name', 'node_rank_comments')
       ->execute();
 
+    /** @var \Drupal\migrate\Entity\Migration $migration */
     $migration = entity_load_unchanged('migration', 'd6_search_page');
     $executable = new MigrateExecutable($migration, $this);
     $executable->import();

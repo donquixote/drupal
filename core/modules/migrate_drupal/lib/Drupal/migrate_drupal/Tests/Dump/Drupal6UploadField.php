@@ -7,13 +7,15 @@
 
 namespace Drupal\migrate_drupal\Tests\Dump;
 
-class Drupal6UploadField extends Drupal6DumpBase {
+use Drupal\migrate_drupal\Tests\d6\Drupal6DbWrapper;
+
+class Drupal6UploadField implements DumpInterface {
 
   /**
    * {@inheritdoc}
    */
-  public function load() {
-    $this->setModuleVersion('upload', 6000);
+  public function load(Drupal6DbWrapper $dbWrapper) {
+    $dbWrapper->setModuleVersion('upload', 6000);
   }
 
 }

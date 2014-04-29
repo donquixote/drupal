@@ -6,17 +6,19 @@
 
 namespace Drupal\migrate_drupal\Tests\Dump;
 
+use Drupal\migrate_drupal\Tests\d6\Drupal6DbWrapper;
+
 /**
  * Database dump for testing vocabulary to field migration.
  */
-class Drupal6VocabularyField extends Drupal6DumpBase {
+class Drupal6VocabularyField implements DumpInterface {
 
   /**
    * {@inheritdoc}
    */
-  public function load() {
+  public function load(Drupal6DbWrapper $dbWrapper) {
 
-    $this->createTable('vocabulary', array(
+    $dbWrapper->ensureTable('vocabulary', array(
       'fields' => array(
         'vid' => array(
           'type' => 'serial',
@@ -101,7 +103,7 @@ class Drupal6VocabularyField extends Drupal6DumpBase {
       'name' => 'vocabulary',
     ));
 
-    $this->database->insert('vocabulary')
+    $dbWrapper->getConnection()->insert('vocabulary')
       ->fields(array(
         'vid' => 4,
         'name' => 'Tags',
@@ -118,7 +120,7 @@ class Drupal6VocabularyField extends Drupal6DumpBase {
       ->execute();
 
 
-    $this->createTable('vocabulary_node_types', array(
+    $dbWrapper->ensureTable('vocabulary_node_types', array(
       'description' => 'Stores which node types vocabularies may be used with.',
       'fields' => array(
         'vid' => array(
@@ -142,7 +144,7 @@ class Drupal6VocabularyField extends Drupal6DumpBase {
       ),
     ));
 
-    $this->database->insert('vocabulary_node_types')->fields(array(
+    $dbWrapper->getConnection()->insert('vocabulary_node_types')->fields(array(
       'vid',
       'type',
     ))
@@ -167,7 +169,7 @@ class Drupal6VocabularyField extends Drupal6DumpBase {
       'type' => 'page',
     ))
     ->execute();
-    $this->setModuleVersion('taxonomy', 6001);
+    $dbWrapper->setModuleVersion('taxonomy', 6001);
   }
 
 }

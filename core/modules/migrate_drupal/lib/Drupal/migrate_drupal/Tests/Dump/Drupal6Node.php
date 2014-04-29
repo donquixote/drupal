@@ -7,16 +7,18 @@
 
 namespace Drupal\migrate_drupal\Tests\Dump;
 
+use Drupal\migrate_drupal\Tests\d6\Drupal6DbWrapper;
+
 /**
  * Database dump for testing the node migration.
  */
-class Drupal6Node extends Drupal6DumpBase {
+class Drupal6Node implements DumpInterface {
 
   /**
    * {@inheritdoc}
    */
-  public function load() {
-    $this->createTable('node', array(
+  public function load(Drupal6DbWrapper $dbWrapper) {
+    $dbWrapper->ensureTable('node', array(
       'description' => 'The base table for nodes.',
       'fields' => array(
         'nid' => array(
@@ -132,7 +134,7 @@ class Drupal6Node extends Drupal6DumpBase {
       ),
       'primary key' => array('nid'),
     ));
-    $this->database->insert('node')->fields(array(
+    $dbWrapper->getConnection()->insert('node')->fields(array(
         'nid',
         'vid',
         'type',
@@ -184,7 +186,7 @@ class Drupal6Node extends Drupal6DumpBase {
         'translate' => 0,
       ))
       ->execute();
-    $this->createTable('node_revisions', array(
+    $dbWrapper->ensureTable('node_revisions', array(
       'description' => 'Stores information about each saved version of a {node}.',
       'fields' => array(
         'nid' => array(
@@ -251,7 +253,7 @@ class Drupal6Node extends Drupal6DumpBase {
       'primary key' => array('vid'),
     ));
 
-    $this->database->insert('node_revisions')->fields(
+    $dbWrapper->getConnection()->insert('node_revisions')->fields(
       array(
         'nid',
         'vid',
@@ -287,7 +289,7 @@ class Drupal6Node extends Drupal6DumpBase {
       ))
       ->execute();
 
-    $this->createTable('content_type_story', array(
+    $dbWrapper->ensureTable('content_type_story', array(
       'description' => 'The content type join table.',
       'fields' => array(
         'nid' => array(
@@ -314,7 +316,7 @@ class Drupal6Node extends Drupal6DumpBase {
       'primary key' => array('vid'),
     ));
 
-    $this->database->insert('content_type_story')->fields(
+    $dbWrapper->getConnection()->insert('content_type_story')->fields(
       array(
         'nid',
         'vid',
@@ -326,6 +328,6 @@ class Drupal6Node extends Drupal6DumpBase {
         'field_test_value' => 'This is a text field',
       ))
       ->execute();
-    $this->setModuleVersion('content', 6001);
+    $dbWrapper->setModuleVersion('content', 6001);
   }
 }

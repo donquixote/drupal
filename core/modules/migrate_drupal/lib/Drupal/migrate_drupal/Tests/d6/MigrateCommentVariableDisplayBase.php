@@ -8,12 +8,14 @@
 namespace Drupal\migrate_drupal\Tests\d6;
 
 use Drupal\migrate\MigrateExecutable;
-use Drupal\migrate_drupal\Tests\MigrateDrupalTestBase;
+use Drupal\migrate_drupal\Tests\Dump\Drupal6CommentVariable;
+
+use Drupal\migrate_drupal\Tests\MigrateDrupal6TestBase;
 
 /**
  * Base class for Drupal 6 comment variables to Drupal 8 entity display tests.
  */
-abstract class MigrateCommentVariableDisplayBase extends MigrateDrupalTestBase {
+abstract class MigrateCommentVariableDisplayBase extends MigrateDrupal6TestBase {
 
   /**
    * The ID of migration to run.
@@ -29,13 +31,6 @@ abstract class MigrateCommentVariableDisplayBase extends MigrateDrupalTestBase {
    * @var array
    */
   static $modules = array('comment', 'node');
-
-  /**
-   * The database dumps used.
-   *
-   * @var array
-   */
-  protected $dumps;
 
   /**
    * The node types being tested.
@@ -66,9 +61,6 @@ abstract class MigrateCommentVariableDisplayBase extends MigrateDrupalTestBase {
         'required' => 1,
       ))->save();
     }
-    $this->dumps = array(
-      $this->getDumpDirectory() . '/Drupal6CommentVariable.php',
-    );
     $id_mappings = array(
       'd6_comment_field_instance' => array(
         array(array('page'), array('node', 'comment', 'page')),
@@ -77,10 +69,9 @@ abstract class MigrateCommentVariableDisplayBase extends MigrateDrupalTestBase {
     $this->prepareIdMappings($id_mappings);
     /** @var \Drupal\migrate\entity\Migration $migration */
     $migration = entity_load('migration', static::MIGRATION);
-    $this->prepare($migration, $this->dumps);
+    $this->loadDrupal6Dump(new Drupal6Commentvariable());
     $executable = new MigrateExecutable($migration, $this);
     $executable->import();
-
   }
 
 }

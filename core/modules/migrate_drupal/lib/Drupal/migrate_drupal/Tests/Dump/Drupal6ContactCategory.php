@@ -6,16 +6,19 @@
  */
 
 namespace Drupal\migrate_drupal\Tests\Dump;
+
+use Drupal\migrate_drupal\Tests\d6\Drupal6DbWrapper;
+
 /**
  * Database dump for testing contact category migration.
  */
-class Drupal6ContactCategory extends Drupal6DumpBase {
+class Drupal6ContactCategory implements DumpInterface {
 
   /**
    * {@inheritdoc}
    */
-  public function load() {
-    $this->createTable('contact', array(
+  public function load(Drupal6DbWrapper $dbWrapper) {
+    $dbWrapper->ensureTable('contact', array(
       'description' => 'Contact form category settings.',
       'fields' => array(
         'cid' => array(
@@ -66,7 +69,7 @@ class Drupal6ContactCategory extends Drupal6DumpBase {
         'list' => array('weight', 'category'),
       ),
     ));
-    $this->database->insert('contact')->fields(array('cid', 'category', 'recipients', 'reply', 'weight', 'selected'))
+    $dbWrapper->getConnection()->insert('contact')->fields(array('cid', 'category', 'recipients', 'reply', 'weight', 'selected'))
       ->values(array(
         'cid' => '1',
         'category' => 'Website feedback',
@@ -76,6 +79,6 @@ class Drupal6ContactCategory extends Drupal6DumpBase {
         'selected' => '1',
       ))
       ->execute();
-    $this->setModuleVersion('contact', '6001');
+    $dbWrapper->setModuleVersion('contact', '6001');
   }
 }

@@ -8,6 +8,7 @@
 namespace Drupal\migrate_drupal\Tests\d6;
 
 use Drupal\migrate\MigrateExecutable;
+use Drupal\migrate_drupal\Tests\Dump\Drupal6NodeRevision;
 
 /**
  * Test cck field revision migration from Drupal 6 to 8.
@@ -73,10 +74,7 @@ class MigrateCckFieldRevisionTest extends MigrateNodeTestBase {
       ),
     );
     $this->prepareIdMappings($id_mappings);
-    $dumps = array(
-      $this->getDumpDirectory() . '/Drupal6NodeRevision.php',
-    );
-    $this->loadDumps($dumps);
+    $this->loadDrupal6Dump(new Drupal6NodeRevision());
 
     $migrations = entity_load_multiple('migration', array('d6_cck_field_revision:*'));
     foreach ($migrations as $migration) {

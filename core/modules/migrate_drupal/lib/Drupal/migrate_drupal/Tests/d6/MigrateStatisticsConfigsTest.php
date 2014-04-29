@@ -9,12 +9,13 @@ namespace Drupal\migrate_drupal\Tests\d6;
 
 use Drupal\migrate\MigrateMessage;
 use Drupal\migrate\MigrateExecutable;
-use Drupal\migrate_drupal\Tests\MigrateDrupalTestBase;
+use Drupal\migrate_drupal\Tests\Dump\Drupal6StatisticsSettings;
+use Drupal\migrate_drupal\Tests\MigrateDrupal6TestBase;
 
 /**
  * Tests migration of variables from the Statistics module.
  */
-class MigrateStatisticsConfigsTest extends MigrateDrupalTestBase {
+class MigrateStatisticsConfigsTest extends MigrateDrupal6TestBase {
 
   /**
    * Modules to enable.
@@ -39,11 +40,9 @@ class MigrateStatisticsConfigsTest extends MigrateDrupalTestBase {
    */
   protected function setUp() {
     parent::setUp();
+    /** @var \Drupal\migrate\Entity\Migration $migration */
     $migration = entity_load('migration', 'd6_statistics_settings');
-    $dumps = array(
-      $this->getDumpDirectory() . '/Drupal6StatisticsSettings.php',
-    );
-    $this->prepare($migration, $dumps);
+    $this->loadDrupal6Dump(new Drupal6StatisticsSettings());
     $executable = new MigrateExecutable($migration, new MigrateMessage());
     $executable->import();
   }

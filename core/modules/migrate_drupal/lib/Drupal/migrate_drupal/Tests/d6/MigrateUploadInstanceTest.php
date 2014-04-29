@@ -8,12 +8,13 @@
 namespace Drupal\migrate_drupal\Tests\d6;
 
 use Drupal\migrate\MigrateExecutable;
-use Drupal\migrate_drupal\Tests\MigrateDrupalTestBase;
+use Drupal\migrate_drupal\Tests\Dump\Drupal6UploadInstance;
+use Drupal\migrate_drupal\Tests\MigrateDrupal6TestBase;
 
 /**
  * Tests the Drupal 6 upload settings to Drupal 8 field instance migration.
  */
-class MigrateUploadInstanceTest extends MigrateDrupalTestBase {
+class MigrateUploadInstanceTest extends MigrateDrupal6TestBase {
 
   /**
    * The modules to be enabled during the test.
@@ -56,11 +57,9 @@ class MigrateUploadInstanceTest extends MigrateDrupalTestBase {
       'translatable' => '0',
     ))->save();
 
+    /** @var \Drupal\migrate\Entity\Migration $migration */
     $migration = entity_load('migration', 'd6_upload_field_instance');
-    $dumps = array(
-      $this->getDumpDirectory() . '/Drupal6UploadInstance.php',
-    );
-    $this->prepare($migration, $dumps);
+    $this->loadDrupal6Dump(new Drupal6UploadInstance());
     $executable = new MigrateExecutable($migration, $this);
     $executable->import();
   }

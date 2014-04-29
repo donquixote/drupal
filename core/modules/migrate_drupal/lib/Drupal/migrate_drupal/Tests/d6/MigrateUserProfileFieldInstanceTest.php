@@ -8,12 +8,13 @@
 namespace Drupal\migrate_drupal\Tests\d6;
 
 use Drupal\migrate\MigrateExecutable;
-use Drupal\migrate_drupal\Tests\MigrateDrupalTestBase;
+use Drupal\migrate_drupal\Tests\Dump\Drupal6UserProfileFields;
+use Drupal\migrate_drupal\Tests\MigrateDrupal6TestBase;
 
 /**
  * Tests migration of user profile fields.
  */
-class MigrateUserProfileFieldInstanceTest extends MigrateDrupalTestBase {
+class MigrateUserProfileFieldInstanceTest extends MigrateDrupal6TestBase {
 
   static $modules = array('field', 'link', 'options', 'datetime', 'text');
 
@@ -43,10 +44,7 @@ class MigrateUserProfileFieldInstanceTest extends MigrateDrupalTestBase {
     $this->createFields();
     /** @var \Drupal\migrate\entity\Migration $migration */
     $migration = entity_load('migration', 'd6_user_profile_field_instance');
-    $dumps = array(
-      $this->getDumpDirectory() . '/Drupal6UserProfileFields.php',
-    );
-    $this->prepare($migration, $dumps);
+    $this->loadDrupal6Dump(new Drupal6UserProfileFields());
     $executable = new MigrateExecutable($migration, $this);
     $executable->import();
 

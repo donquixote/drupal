@@ -8,13 +8,14 @@
 namespace Drupal\migrate_drupal\Tests\d6;
 
 use Drupal\migrate\MigrateExecutable;
-use Drupal\migrate_drupal\Tests\MigrateDrupalTestBase;
+use Drupal\migrate_drupal\Tests\Dump\Drupal6FieldInstance;
+use Drupal\migrate_drupal\Tests\MigrateDrupal6TestBase;
 use Drupal\link\LinkItemInterface;
 
 /**
  * Tests migration of field instances.
  */
-class MigrateFieldInstanceTest extends MigrateDrupalTestBase {
+class MigrateFieldInstanceTest extends MigrateDrupal6TestBase {
 
   /**
    * Modules to enable.
@@ -73,13 +74,10 @@ class MigrateFieldInstanceTest extends MigrateDrupalTestBase {
     entity_create('node_type', array('type' => 'story'))->save();
     entity_create('node_type', array('type' => 'article'))->save();
 
+    /** @var \Drupal\migrate\Entity\Migration $migration */
     $migration = entity_load('migration', 'd6_field_instance');
-    $dumps = array(
-      $this->getDumpDirectory() . '/Drupal6FieldInstance.php',
-    );
     $this->createFields();
-
-    $this->prepare($migration, $dumps);
+    $this->loadDrupal6Dump(new Drupal6FieldInstance());
     $executable = new MigrateExecutable($migration, $this);
     $executable->import();
 

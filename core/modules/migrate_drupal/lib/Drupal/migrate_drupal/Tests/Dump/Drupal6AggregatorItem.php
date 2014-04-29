@@ -6,16 +6,19 @@
  */
 
 namespace Drupal\migrate_drupal\Tests\Dump;
+
+use Drupal\migrate_drupal\Tests\d6\Drupal6DbWrapper;
+
 /**
  * Database dump for testing aggregator item migration.
  */
-class Drupal6AggregatorItem extends Drupal6DumpBase {
+class Drupal6AggregatorItem implements DumpInterface {
 
   /**
    * {@inheritdoc}
    */
-  public function load() {
-    $this->createTable('aggregator_item', array(
+  public function load(Drupal6DbWrapper $dbWrapper) {
+    $dbWrapper->ensureTable('aggregator_item', array(
       'description' => 'Stores the individual items imported from feeds.',
       'fields' => array(
         'iid' => array(
@@ -72,7 +75,7 @@ class Drupal6AggregatorItem extends Drupal6DumpBase {
       'indexes' => array('fid' => array('fid')),
     ));
 
-    $this->database->insert('aggregator_item')->fields(array(
+    $dbWrapper->getConnection()->insert('aggregator_item')->fields(array(
       'iid',
       'fid',
       'title',
@@ -94,7 +97,7 @@ class Drupal6AggregatorItem extends Drupal6DumpBase {
     ))
     ->execute();
 
-    $this->setModuleVersion('aggregator', '6001');
+    $dbWrapper->setModuleVersion('aggregator', '6001');
   }
 
 }

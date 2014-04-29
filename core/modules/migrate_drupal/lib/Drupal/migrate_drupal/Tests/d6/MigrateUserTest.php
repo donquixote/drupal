@@ -9,12 +9,16 @@ namespace Drupal\migrate_drupal\Tests\d6;
 
 use Drupal\Core\Database\Database;
 use Drupal\migrate\MigrateExecutable;
-use Drupal\migrate_drupal\Tests\MigrateDrupalTestBase;
+use Drupal\migrate_drupal\Tests\Dump\Drupal6FilterFormat;
+use Drupal\migrate_drupal\Tests\Dump\Drupal6User;
+use Drupal\migrate_drupal\Tests\Dump\Drupal6UserProfileFields;
+use Drupal\migrate_drupal\Tests\Dump\Drupal6UserRole;
+use Drupal\migrate_drupal\Tests\MigrateDrupal6TestBase;
 
 /**
  * Tests the Drupal6 user to Drupal 8 migration.
  */
-class MigrateUserTest extends MigrateDrupalTestBase {
+class MigrateUserTest extends MigrateDrupal6TestBase {
 
   /**
    * The modules to be enabled during the test.
@@ -91,13 +95,12 @@ class MigrateUserTest extends MigrateDrupalTestBase {
     $file->save();
 
     // Load database dumps to provide source data.
-    $dumps = array(
-      $this->getDumpDirectory() . '/Drupal6FilterFormat.php',
-      $this->getDumpDirectory() . '/Drupal6UserProfileFields.php',
-      $this->getDumpDirectory() . '/Drupal6UserRole.php',
-      $this->getDumpDirectory() . '/Drupal6User.php',
-    );
-    $this->loadDumps($dumps);
+    $this->loadDrupal6Dumps(array(
+      new Drupal6FilterFormat(),
+      new Drupal6UserProfileFields(),
+      new Drupal6UserRole(),
+      new Drupal6User(),
+    ));
 
     $id_mappings = array(
       'd6_filter_format' => array(
@@ -127,6 +130,7 @@ class MigrateUserTest extends MigrateDrupalTestBase {
     $this->prepareIdMappings($id_mappings);
 
     // Migrate users.
+    /** @var \Drupal\migrate\Entity\Migration $migration */
     $migration = entity_load('migration', 'd6_user');
     $executable = new MigrateExecutable($migration, $this);
     $executable->import();

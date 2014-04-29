@@ -6,16 +6,18 @@
 
 namespace Drupal\migrate_drupal\Tests\Dump;
 
+use Drupal\migrate_drupal\Tests\d6\Drupal6DbWrapper;
+
 /**
  * Database dump for testing url alias migrations.
  */
-class Drupal6UrlAlias extends Drupal6DumpBase {
+class Drupal6UrlAlias implements DumpInterface {
 
   /**
    * {@inheritdoc}
    */
-  public function load() {
-    $this->createTable('url_alias', array(
+  public function load(Drupal6DbWrapper $dbWrapper) {
+    $dbWrapper->ensureTable('url_alias', array(
       'description' => 'A list of URL aliases for Drupal paths; a user may visit either the source or destination path.',
       'fields' => array(
         'pid' => array(
@@ -57,7 +59,7 @@ class Drupal6UrlAlias extends Drupal6DumpBase {
       'indexes' => array('src_language_pid' => array('src', 'language', 'pid')),
     ));
 
-    $this->database->insert('url_alias')->fields(array(
+    $dbWrapper->getConnection()->insert('url_alias')->fields(array(
       'pid',
       'src',
       'dst',

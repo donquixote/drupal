@@ -7,18 +7,20 @@
 
 namespace Drupal\migrate_drupal\Tests\Dump;
 
+use Drupal\migrate_drupal\Tests\d6\Drupal6DbWrapper;
+
 /**
  * Database dump for testing field.instance.node.*.body.yml migration.
  */
-class Drupal6NodeBodyInstance extends Drupal6DumpBase {
+class Drupal6NodeBodyInstance implements DumpInterface {
 
   /**
    * {@inheritdoc}
    */
-  public function load() {
-    $this->createTable('variable');
-    $this->createTable('node_type');
-    $this->database->insert('node_type')->fields(array(
+  public function load(Drupal6DbWrapper $dbWrapper) {
+    $dbWrapper->ensureTable('variable');
+    $dbWrapper->ensureTable('node_type');
+    $dbWrapper->getConnection()->insert('node_type')->fields(array(
       'type',
       'name',
       'module',
@@ -83,7 +85,7 @@ class Drupal6NodeBodyInstance extends Drupal6DumpBase {
       'orig_type' => '',
     ))
     ->execute();
-    $this->database->insert('variable')->fields(array(
+    $dbWrapper->getConnection()->insert('variable')->fields(array(
       'name',
       'value',
     ))

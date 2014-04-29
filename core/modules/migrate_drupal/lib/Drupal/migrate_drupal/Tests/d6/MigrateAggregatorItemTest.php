@@ -10,12 +10,13 @@ namespace Drupal\migrate_drupal\Tests\d6;
 use Drupal\aggregator\Entity\Item;
 use Drupal\Core\Language\Language;
 use Drupal\migrate\MigrateExecutable;
-use Drupal\migrate_drupal\Tests\MigrateDrupalTestBase;
+use Drupal\migrate_drupal\Tests\Dump\Drupal6AggregatorItem;
+use Drupal\migrate_drupal\Tests\MigrateDrupal6TestBase;
 
 /**
  * Test Drupal 6 aggregator item migration to Drupal 8.
  */
-class MigrateAggregatorItemTest extends MigrateDrupalTestBase {
+class MigrateAggregatorItemTest extends MigrateDrupal6TestBase {
 
   static $modules = array('aggregator');
 
@@ -55,10 +56,7 @@ class MigrateAggregatorItemTest extends MigrateDrupalTestBase {
     $entity->save();
     /** @var \Drupal\migrate\entity\Migration $migration */
     $migration = entity_load('migration', 'd6_aggregator_item');
-    $dumps = array(
-      $this->getDumpDirectory() . '/Drupal6AggregatorItem.php',
-    );
-    $this->prepare($migration, $dumps);
+    $this->loadDrupal6Dump(new Drupal6AggregatorItem());
     $executable = new MigrateExecutable($migration, $this);
     $executable->import();
   }

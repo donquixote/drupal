@@ -7,13 +7,15 @@
 
 namespace Drupal\migrate_drupal\Tests\Dump;
 
-class Drupal6Comment extends Drupal6DumpBase {
+use Drupal\migrate_drupal\Tests\d6\Drupal6DbWrapper;
+
+class Drupal6Comment implements DumpInterface {
 
   /**
    * {@inheritdoc}
    */
-  public function load() {
-    $this->createTable('comments', array(
+  public function load(Drupal6DbWrapper $dbWrapper) {
+    $dbWrapper->ensureTable('comments', array(
       'description' => 'Stores comments and associated data.',
       'fields' => array(
         'cid' => array(
@@ -113,7 +115,7 @@ class Drupal6Comment extends Drupal6DumpBase {
       ),
       'primary key' => array('cid'),
     ));
-    $this->database->insert('comments')->fields(array(
+    $dbWrapper->getConnection()->insert('comments')->fields(array(
       'cid',
       'pid',
       'nid',
@@ -183,7 +185,7 @@ class Drupal6Comment extends Drupal6DumpBase {
       'homepage' => 'http://drupal.org',
     ))
     ->execute();
-    $this->setModuleVersion('comment', '6001');
+    $dbWrapper->setModuleVersion('comment', '6001');
   }
 
 }
