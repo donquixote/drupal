@@ -8,12 +8,12 @@
 namespace Drupal\migrate_drupal\Tests\d6;
 
 use Drupal\migrate\MigrateExecutable;
-use Drupal\migrate_drupal\Tests\MigrateDrupalTestBase;
+use Drupal\migrate_drupal\Tests\MigrateDrupal6TestBase;
 
 /**
  * Tests the Drupal 6 user picture to Drupal 8 entity form display migration.
  */
-class MigrateUserPictureEntityFormDisplayTest extends MigrateDrupalTestBase {
+class MigrateUserPictureEntityFormDisplayTest extends MigrateDrupal6TestBase {
 
   /**
    * Modules to enable.
@@ -45,6 +45,7 @@ class MigrateUserPictureEntityFormDisplayTest extends MigrateDrupalTestBase {
     );
     $this->prepareIdMappings($id_mappings);
 
+    /** @var \Drupal\migrate\Entity\Migration $migration */
     $migration = entity_load('migration', 'd6_user_picture_entity_form_display');
     $executable = new MigrateExecutable($migration, $this);
     $executable->import();

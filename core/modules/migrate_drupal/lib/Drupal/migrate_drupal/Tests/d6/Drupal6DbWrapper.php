@@ -5,49 +5,88 @@
  * Contains \Drupal\migrate_drupal\Tests\Dump\Drupal6DumpBase.
  */
 
-namespace Drupal\migrate_drupal\Tests\Dump;
+namespace Drupal\migrate_drupal\Tests\d6;
 use Drupal\Core\Database\Connection;
 
 /**
  * Base class for the dump classes.
  */
-class Drupal6DumpBase {
+class Drupal6DbWrapper {
 
   /**
-   * The database connection.
+   * The database connection for the Drupal 6 database.
    *
    * @var \Drupal\Core\Database\Connection
    */
   protected $database;
 
   /**
+   * An array to keep track of tables already created.
+   *
+   * @var true[]
+   */
+  protected $migrateTables;
+
+  /**
    * Sample database schema and values.
    *
    * @param \Drupal\Core\Database\Connection $database
-   *   The database connection.
+   *   The database connection for the Drupal 6 database.
    */
   public function __construct(Connection $database) {
     $this->database = $database;
   }
 
   /**
+   * @return \Drupal\Core\Database\Connection
+   *   The database connection for the Drupal 6 database.
+   */
+  public function getDbConnection() {
+    return $this->database;
+  }
+
+  /**
    * Create a new table from a Drupal table definition if it doesn't exist.
    *
-   * @param $name
+   * @param string $name
    *   The name of the table to create.
-   * @param $table
-   *   A Schema API table definition array.
+   * @param array|null $table
+   *   A Schema API table definition array, or
+   *   NULL, for a table with a known schema.
+   *
+   * @throws \Exception
    */
-  protected function createTable($name, $table = NULL) {
-    // This must be on the database connection to be shared among classes.
-    if (empty($this->database->migrateTables[$name])) {
-      $this->database->migrateTables[$name] = TRUE;
-      $this->database->schema()->createTable($name, $table ?: $this->tableDefinitions()[$name]);
+  public function createTable($name, $table = NULL) {
+    if (!empty($this->migrateTables[$name])) {
+      return;
     }
+    if (NULL === $table) {
+      $table = $this->getTableDefinition($name);
+    }
+    $this->migrateTables[$name] = TRUE;
+    $this->database->schema()->createTable($name, $table);
+  }
+
+  /**
+   * @param string $name
+   *   The name of the table to create. This must be one of the "known" table
+   *   names, see tableDefinitions() below.
+   *
+   * @throws \Exception
+   * @return array
+   */
+  protected function getTableDefinition($name) {
+    $knownDefinitions = $this->tableDefinitions();
+    if (!isset($knownDefinitions[$name])) {
+      throw new \Exception("Unknown table name '$name'.");
+    }
+    return $knownDefinitions[$name];
   }
 
   /**
    * Table definitions.
+   *
+   * @return array[]
    */
   protected function tableDefinitions() {
     return array(
@@ -232,8 +271,8 @@ class Drupal6DumpBase {
   /**
    * Sets a module version and status.
    *
-   * @param $module
-   * @param $version
+   * @param string $module
+   * @param string $version
    * @param int $status
    */
   public function setModuleVersion($module, $version, $status = 1) {

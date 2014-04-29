@@ -10,12 +10,12 @@ namespace Drupal\migrate_drupal\Tests\d6;
 use Drupal\migrate\MigrateExecutable;
 use Drupal\migrate_drupal\Tests\Dump\Drupal6User;
 use Drupal\migrate_drupal\Tests\Dump\Drupal6UserProfileFields;
-use Drupal\migrate_drupal\Tests\MigrateDrupalTestBase;
+use Drupal\migrate_drupal\Tests\MigrateDrupal6TestBase;
 
 /**
  * Tests Drupal 6 profile values to Drupal 8 migration.
  */
-class MigrateProfileValuesTest extends MigrateDrupalTestBase {
+class MigrateProfileValuesTest extends MigrateDrupal6TestBase {
 
   /**
    * The modules to be enabled during the test.
@@ -123,13 +123,13 @@ class MigrateProfileValuesTest extends MigrateDrupalTestBase {
     $this->prepareIdMappings($id_mappings);
 
     // Load database dumps to provide source data.
-    $dumps = array(
-      $this->getDumpDirectory() . '/Drupal6UserProfileFields.php',
-      $this->getDumpDirectory() . '/Drupal6User.php',
-    );
-    $this->loadDumps($dumps);
+    $this->loadDrupal6Dumps(array(
+      new Drupal6UserProfileFields(),
+      new Drupal6User(),
+    ));
 
     // Migrate profile fields.
+    /** @var \Drupal\migrate\Entity\Migration $migration_format */
     $migration_format = entity_load('migration', 'd6_profile_values:user');
     $executable = new MigrateExecutable($migration_format, $this);
     $executable->import();

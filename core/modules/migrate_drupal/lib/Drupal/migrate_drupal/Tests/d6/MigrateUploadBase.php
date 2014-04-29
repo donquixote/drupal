@@ -7,9 +7,11 @@
 
 namespace Drupal\migrate_drupal\Tests\d6;
 
-use Drupal\migrate_drupal\Tests\MigrateDrupalTestBase;
+use Drupal\migrate_drupal\Tests\Dump\Drupal6Node;
+use Drupal\migrate_drupal\Tests\Dump\Drupal6Upload;
+use Drupal\migrate_drupal\Tests\MigrateDrupal6TestBase;
 
-class MigrateUploadBase extends MigrateDrupalTestBase {
+class MigrateUploadBase extends MigrateDrupal6TestBase {
 
   /**
    * {@inheritdoc}
@@ -81,11 +83,10 @@ class MigrateUploadBase extends MigrateDrupalTestBase {
         $node->save();
       }
     }
-    $dumps = array(
-      $this->getDumpDirectory() . '/Drupal6Node.php',
-      $this->getDumpDirectory() . '/Drupal6Upload.php',
-    );
-    $this->loadDumps($dumps);
+    $this->loadDrupal6Dumps(array(
+      new Drupal6Node(),
+      new Drupal6Upload(),
+    ));
   }
 
 }

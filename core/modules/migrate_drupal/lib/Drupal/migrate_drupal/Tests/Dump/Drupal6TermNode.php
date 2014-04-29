@@ -9,14 +9,16 @@
 namespace Drupal\migrate_drupal\Tests\Dump;
 
 
-class Drupal6TermNode extends Drupal6DumpBase {
+use Drupal\migrate_drupal\Tests\d6\Drupal6DbWrapper;
+
+class Drupal6TermNode implements DumpInterface {
 
   /**
    * {@inheritdoc}
    */
-  public function load() {
-    $this->setModuleVersion('taxonomy', 6000);
-    $this->createTable('term_node', array(
+  public function load(Drupal6DbWrapper $dbWrapper) {
+    $dbWrapper->setModuleVersion('taxonomy', 6000);
+    $dbWrapper->createTable('term_node', array(
       'fields' => array(
         'nid' => array(
           'type' => 'int',
@@ -52,7 +54,7 @@ class Drupal6TermNode extends Drupal6DumpBase {
       'module' => 'taxonomy',
       'name' => 'term_node',
     ));
-    $this->database->insert('term_node')->fields(array(
+    $dbWrapper->getDbConnection()->insert('term_node')->fields(array(
       'nid',
       'vid',
       'tid',

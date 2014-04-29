@@ -10,12 +10,13 @@ namespace Drupal\migrate_drupal\Tests\d6;
 use Drupal\Core\Language\Language;
 use Drupal\custom_block\Entity\CustomBlock;
 use Drupal\migrate\MigrateExecutable;
-use Drupal\migrate_drupal\Tests\MigrateDrupalTestBase;
+use Drupal\migrate_drupal\Tests\Dump\Drupal6Box;
+use Drupal\migrate_drupal\Tests\MigrateDrupal6TestBase;
 
 /**
  * Tests the Drupal 6 custom block to Drupal 8 migration.
  */
-class MigrateCustomBlockTest extends MigrateDrupalTestBase {
+class MigrateCustomBlockTest extends MigrateDrupal6TestBase {
 
   static $modules = array('block', 'custom_block');
 
@@ -42,10 +43,7 @@ class MigrateCustomBlockTest extends MigrateDrupalTestBase {
     ));
     /** @var \Drupal\migrate\entity\Migration $migration */
     $migration = entity_load('migration', 'd6_custom_block');
-    $dumps = array(
-      $this->getDumpDirectory() . '/Drupal6Box.php',
-    );
-    $this->prepare($migration, $dumps);
+    $this->loadDrupal6Dump(new Drupal6Box());
     $executable = new MigrateExecutable($migration, $this);
     $executable->import();
   }

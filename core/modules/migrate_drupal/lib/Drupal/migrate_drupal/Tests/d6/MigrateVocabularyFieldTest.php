@@ -8,12 +8,13 @@
 namespace Drupal\migrate_drupal\Tests\d6;
 
 use Drupal\migrate\MigrateExecutable;
-use Drupal\migrate_drupal\Tests\MigrateDrupalTestBase;
+use Drupal\migrate_drupal\Tests\Dump\Drupal6VocabularyField;
+use Drupal\migrate_drupal\Tests\MigrateDrupal6TestBase;
 
 /**
  * Tests the Drupal 6 vocabulary-node type association to Drupal 8 migration.
  */
-class MigrateVocabularyFieldTest extends MigrateDrupalTestBase {
+class MigrateVocabularyFieldTest extends MigrateDrupal6TestBase {
 
   /**
    * The modules to be enabled during the test.
@@ -53,11 +54,9 @@ class MigrateVocabularyFieldTest extends MigrateDrupalTestBase {
       'vid' => 'test_vocab',
     ))->save();
 
+    /** @var \Drupal\migrate\Entity\Migration $migration */
     $migration = entity_load('migration', 'd6_vocabulary_field');
-    $dumps = array(
-      $this->getDumpDirectory() . '/Drupal6VocabularyField.php',
-    );
-    $this->prepare($migration, $dumps);
+    $this->loadDrupal6Dump(new Drupal6VocabularyField());
     $executable = new MigrateExecutable($migration, $this);
     $executable->import();
   }

@@ -8,12 +8,13 @@
 namespace Drupal\migrate_drupal\Tests\d6;
 
 use Drupal\migrate\MigrateExecutable;
-use Drupal\migrate_drupal\Tests\MigrateDrupalTestBase;
+use Drupal\migrate_drupal\Tests\Dump\Drupal6UploadField;
+use Drupal\migrate_drupal\Tests\MigrateDrupal6TestBase;
 
 /**
  * Tests the Drupal 6 upload settings to Drupal 8 field migration.
  */
-class MigrateUploadFieldTest extends MigrateDrupalTestBase {
+class MigrateUploadFieldTest extends MigrateDrupal6TestBase {
 
   /**
    * The modules to be enabled during the test.
@@ -38,13 +39,11 @@ class MigrateUploadFieldTest extends MigrateDrupalTestBase {
    */
   protected function setUp() {
     parent::setUp();
+    /** @var \Drupal\migrate\Entity\Migration $migration */
     $migration = entity_load('migration', 'd6_upload_field');
     $executable = new MigrateExecutable($migration, $this);
     $executable->import();
-    $dumps = array(
-      $this->getDumpDirectory() . '/Drupal6UploadField.php',
-    );
-    $this->prepare($migration, $dumps);
+    $this->loadDrupal6Dump(new Drupal6UploadField());
   }
 
   /**

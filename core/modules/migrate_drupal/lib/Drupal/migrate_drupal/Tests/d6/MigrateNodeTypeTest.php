@@ -9,12 +9,13 @@ namespace Drupal\migrate_drupal\Tests\d6;
 
 use Drupal\field\Field;
 use Drupal\migrate\MigrateExecutable;
-use Drupal\migrate_drupal\Tests\MigrateDrupalTestBase;
+use Drupal\migrate_drupal\Tests\Dump\Drupal6NodeType;
+use Drupal\migrate_drupal\Tests\MigrateDrupal6TestBase;
 
 /**
  * Tests Drupal 6 node type to Drupal 8 migration.
  */
-class MigrateNodeTypeTest extends MigrateDrupalTestBase {
+class MigrateNodeTypeTest extends MigrateDrupal6TestBase {
 
   /**
    * Modules to enable.
@@ -39,11 +40,9 @@ class MigrateNodeTypeTest extends MigrateDrupalTestBase {
    */
   public function setUp() {
     parent::setUp();
+    /** @var \Drupal\migrate\Entity\Migration $migration */
     $migration = entity_load('migration', 'd6_node_type');
-    $dumps = array(
-      $this->getDumpDirectory() . '/Drupal6NodeType.php',
-    );
-    $this->prepare($migration, $dumps);
+    $this->loadDrupal6Dump(new Drupal6NodeType());
     $executable = new MigrateExecutable($migration, $this);
     $executable->import();
   }

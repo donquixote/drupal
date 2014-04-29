@@ -7,17 +7,19 @@
 
 namespace Drupal\migrate_drupal\Tests\Dump;
 
+use Drupal\migrate_drupal\Tests\d6\Drupal6DbWrapper;
+
 /**
  * Database dump for testing system.performance.yml migration.
  */
-class Drupal6SystemPerformance extends Drupal6DumpBase {
+class Drupal6SystemPerformance implements DumpInterface {
 
   /**
    * {@inheritdoc}
    */
-  public function load() {
-    $this->createTable('variable');
-    $this->database->insert('variable')->fields(array(
+  public function load(Drupal6DbWrapper $dbWrapper) {
+    $dbWrapper->createTable('variable');
+    $dbWrapper->getDbConnection()->insert('variable')->fields(array(
       'name',
       'value',
     ))

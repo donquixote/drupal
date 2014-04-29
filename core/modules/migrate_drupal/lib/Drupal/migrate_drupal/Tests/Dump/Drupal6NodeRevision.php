@@ -8,13 +8,15 @@
 
 namespace Drupal\migrate_drupal\Tests\Dump;
 
-class Drupal6NodeRevision extends Drupal6DumpBase {
+use Drupal\migrate_drupal\Tests\d6\Drupal6DbWrapper;
+
+class Drupal6NodeRevision implements DumpInterface {
 
   /**
    * {@inheritdoc}
    */
-  public function load() {
-    $this->database->insert('node_revisions')->fields(
+  public function load(Drupal6DbWrapper $dbWrapper) {
+    $dbWrapper->getDbConnection()->insert('node_revisions')->fields(
       array(
         'nid',
         'vid',

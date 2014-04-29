@@ -8,12 +8,12 @@
 namespace Drupal\migrate_drupal\Tests\d6;
 
 use Drupal\migrate\MigrateExecutable;
-use Drupal\migrate_drupal\Tests\MigrateDrupalTestBase;
+use Drupal\migrate_drupal\Tests\MigrateDrupal6TestBase;
 
 /**
  * Test the user_picture field migration.
  */
-class MigrateUserPictureFieldTest extends MigrateDrupalTestBase {
+class MigrateUserPictureFieldTest extends MigrateDrupal6TestBase {
 
   static $modules = array('image');
 
@@ -33,6 +33,7 @@ class MigrateUserPictureFieldTest extends MigrateDrupalTestBase {
    */
   public function setUp() {
     parent::setUp();
+    /** @var \Drupal\migrate\Entity\Migration $migration */
     $migration = entity_load('migration', 'd6_user_picture_field');
     $executable = new MigrateExecutable($migration, $this);
     $executable->import();

@@ -10,12 +10,14 @@ namespace Drupal\migrate_drupal\Tests\d6;
 use Drupal\comment\Entity\Comment;
 use Drupal\Core\Language\Language;
 use Drupal\migrate\MigrateExecutable;
-use Drupal\migrate_drupal\Tests\MigrateDrupalTestBase;
+
+use Drupal\migrate_drupal\Tests\Dump\Drupal6Comment;
+use Drupal\migrate_drupal\Tests\MigrateDrupal6TestBase;
 
 /**
  * Tests the Drupal 6 to Drupal 6 comment migration.
  */
-class MigrateCommentTest extends MigrateDrupalTestBase {
+class MigrateCommentTest extends MigrateDrupal6TestBase {
 
   static $modules = array('node', 'comment');
 
@@ -55,11 +57,7 @@ class MigrateCommentTest extends MigrateDrupalTestBase {
     \Drupal::service('comment.manager')->addDefaultField('node', 'page');
     /** @var \Drupal\migrate\entity\Migration $migration */
     $migration = entity_load('migration', 'd6_comment');
-
-    $dumps = array(
-      $this->getDumpDirectory() . '/Drupal6Comment.php',
-    );
-    $this->prepare($migration, $dumps);
+    $this->loadDrupal6Dump(new Drupal6Comment());
     $executable = new MigrateExecutable($migration, $this);
     $executable->import();
   }

@@ -8,6 +8,7 @@
 namespace Drupal\migrate_drupal\Tests\d6;
 
 use Drupal\migrate\MigrateExecutable;
+use Drupal\migrate_drupal\Tests\Dump\Drupal6NodeRevision;
 
 /**
  * Test node revisions migration from Drupal 6 to 8.
@@ -36,11 +37,7 @@ class MigrateNodeRevisionTest extends MigrateNodeTestBase {
       ),
     );
     $this->prepareIdMappings($id_mappings);
-
-    $dumps = array(
-      $this->getDumpDirectory() . '/Drupal6NodeRevision.php',
-    );
-    $this->loadDumps($dumps);
+    $this->loadDrupal6Dump(new Drupal6NodeRevision());
     /** @var \Drupal\migrate\entity\Migration $migration */
     $migration = entity_load('migration', 'd6_node_revision');
     $executable = new MigrateExecutable($migration, $this);

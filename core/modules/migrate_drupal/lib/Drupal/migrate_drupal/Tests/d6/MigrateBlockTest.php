@@ -8,12 +8,13 @@
 namespace Drupal\migrate_drupal\Tests\d6;
 
 use Drupal\migrate\MigrateExecutable;
-use Drupal\migrate_drupal\Tests\MigrateDrupalTestBase;
+use Drupal\migrate_drupal\Tests\Dump\Drupal6Block;
+use Drupal\migrate_drupal\Tests\MigrateDrupal6TestBase;
 
 /**
  * Test the block settings migration.
  */
-class MigrateBlockTest extends MigrateDrupalTestBase {
+class MigrateBlockTest extends MigrateDrupal6TestBase {
 
   /**
    * Modules to enable.
@@ -57,10 +58,7 @@ class MigrateBlockTest extends MigrateDrupalTestBase {
     $this->prepareIdMappings(array('d6_custom_block'  => array(array(array(1), array(1)))));
     /** @var \Drupal\migrate\entity\Migration $migration */
     $migration = entity_load('migration', 'd6_block');
-    $dumps = array(
-      $this->getDumpDirectory() . '/Drupal6Block.php',
-    );
-    $this->prepare($migration, $dumps);
+    $this->loadDrupal6Dump(new Drupal6Block());
     $executable = new MigrateExecutable($migration, $this);
     $executable->import();
   }

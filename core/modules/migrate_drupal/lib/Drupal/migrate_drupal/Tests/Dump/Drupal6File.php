@@ -7,17 +7,19 @@
 
 namespace Drupal\migrate_drupal\Tests\Dump;
 
+use Drupal\migrate_drupal\Tests\d6\Drupal6DbWrapper;
+
 /**
  * Database dump for testing file migrations.
  */
-class Drupal6File extends Drupal6DumpBase {
+class Drupal6File implements DumpInterface {
 
   /**
    * {@inheritdoc}
    */
-  public function load() {
+  public function load(Drupal6DbWrapper $dbWrapper) {
 
-    $this->createTable('files', array(
+    $dbWrapper->createTable('files', array(
       'fields' => array(
         'fid' => array(
           'type' => 'serial',
@@ -83,7 +85,7 @@ class Drupal6File extends Drupal6DumpBase {
       'module' => 'system',
       'name' => 'files',
     ));
-    $this->database->insert('files')->fields(array(
+    $dbWrapper->getDbConnection()->insert('files')->fields(array(
       'fid',
       'uid',
       'filename',

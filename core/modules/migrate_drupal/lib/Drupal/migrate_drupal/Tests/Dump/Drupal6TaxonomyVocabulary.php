@@ -6,16 +6,19 @@
  */
 
 namespace Drupal\migrate_drupal\Tests\Dump;
+
+use Drupal\migrate_drupal\Tests\d6\Drupal6DbWrapper;
+
 /**
  * Database dump for testing taxonomy vocabulary migration.
  */
-class Drupal6TaxonomyVocabulary extends Drupal6DumpBase {
+class Drupal6TaxonomyVocabulary implements DumpInterface {
 
   /**
    * {@inheritdoc}
    */
-  public function load() {
-    $this->createTable('vocabulary', array(
+  public function load(Drupal6DbWrapper $dbWrapper) {
+    $dbWrapper->createTable('vocabulary', array(
       'description' => 'Stores vocabulary information.',
       'fields' => array(
         'vid' => array(
@@ -104,7 +107,7 @@ class Drupal6TaxonomyVocabulary extends Drupal6DumpBase {
         'list' => array('weight', 'name'),
       ),
     ));
-    $this->createTable('vocabulary_node_types', array(
+    $dbWrapper->createTable('vocabulary_node_types', array(
       'description' => 'Stores which node types vocabularies may be used with.',
       'fields' => array(
         'vid' => array(
@@ -127,7 +130,7 @@ class Drupal6TaxonomyVocabulary extends Drupal6DumpBase {
         'vid' => array('vid'),
       ),
     ));
-    $this->database->insert('vocabulary')->fields(array(
+    $dbWrapper->getDbConnection()->insert('vocabulary')->fields(array(
       'vid',
       'name',
       'description',
@@ -180,7 +183,7 @@ class Drupal6TaxonomyVocabulary extends Drupal6DumpBase {
       'weight' => '6',
     ))
     ->execute();
-    $this->setModuleVersion('taxonomy', 6001);
+    $dbWrapper->setModuleVersion('taxonomy', 6001);
   }
 
 }

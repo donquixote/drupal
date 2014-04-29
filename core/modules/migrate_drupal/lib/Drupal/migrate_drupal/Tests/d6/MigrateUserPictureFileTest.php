@@ -8,12 +8,13 @@
 namespace Drupal\migrate_drupal\Tests\d6;
 
 use Drupal\migrate\MigrateExecutable;
-use Drupal\migrate_drupal\Tests\MigrateDrupalTestBase;
+use Drupal\migrate_drupal\Tests\Dump\Drupal6User;
+use Drupal\migrate_drupal\Tests\MigrateDrupal6TestBase;
 
 /**
  * Tests the Drupal 6 user pictures to Drupal 8 migration.
  */
-class MigrateUserPictureFileTest extends MigrateDrupalTestBase {
+class MigrateUserPictureFileTest extends MigrateDrupal6TestBase {
 
   /**
    * Modules to enable.
@@ -38,13 +39,10 @@ class MigrateUserPictureFileTest extends MigrateDrupalTestBase {
    */
   public function setUp() {
     parent::setUp();
-    $dumps = array(
-      $this->getDumpDirectory() . '/Drupal6User.php',
-    );
     /** @var \Drupal\migrate\entity\Migration $migration */
     $migration = entity_load('migration', 'd6_user_picture_file');
     $migration->source['conf_path'] = 'core/modules/simpletest';
-    $this->prepare($migration, $dumps);
+    $this->loadDrupal6Dump(new Drupal6User());
     $executable = new MigrateExecutable($migration, $this);
     $executable->import();
   }
