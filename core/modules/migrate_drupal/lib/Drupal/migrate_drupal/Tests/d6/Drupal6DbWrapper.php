@@ -7,6 +7,7 @@
 
 namespace Drupal\migrate_drupal\Tests\d6;
 use Drupal\Core\Database\Connection;
+use Drupal\Core\Database\SchemaObjectExistsException;
 
 /**
  * Wrapper for a (temporary) Drupal 6 database.
@@ -19,13 +20,6 @@ class Drupal6DbWrapper {
    * @var \Drupal\Core\Database\Connection
    */
   protected $connection;
-
-  /**
-   * An array to keep track of tables already created.
-   *
-   * @var true[]
-   */
-  protected $migrateTables;
 
   /**
    * Sample database schema and values.
@@ -56,17 +50,25 @@ class Drupal6DbWrapper {
    *   A Schema API table definition array, or
    *   NULL, for a table with a known schema.
    *
-   * @throws \Exception
+   * @return bool
+   *   TRUE, if the table was created or it already exists.
    */
   public function createTable($name, $table = NULL) {
-    if (!empty($this->migrateTables[$name])) {
-      return;
+    if ($this->connection->schema()->tableExists($name)) {
+      // The table already exists.
+      return TRUE;
     }
     if (NULL === $table) {
       $table = $this->getTableDefinition($name);
     }
-    $this->migrateTables[$name] = TRUE;
-    $this->connection->schema()->createTable($name, $table);
+    try {
+      $this->connection->schema()->createTable($name, $table);
+      return TRUE;
+    }
+    catch (SchemaObjectExistsException $e) {
+      // The table was just created in another process.
+      return TRUE;
+    }
   }
 
   /**
