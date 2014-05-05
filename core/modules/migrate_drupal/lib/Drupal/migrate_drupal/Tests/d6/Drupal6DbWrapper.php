@@ -18,7 +18,7 @@ class Drupal6DbWrapper {
    *
    * @var \Drupal\Core\Database\Connection
    */
-  protected $database;
+  protected $connection;
 
   /**
    * An array to keep track of tables already created.
@@ -30,11 +30,11 @@ class Drupal6DbWrapper {
   /**
    * Sample database schema and values.
    *
-   * @param \Drupal\Core\Database\Connection $database
+   * @param \Drupal\Core\Database\Connection $connection
    *   The database connection for the Drupal 6 database.
    */
-  public function __construct(Connection $database) {
-    $this->database = $database;
+  public function __construct(Connection $connection) {
+    $this->connection = $connection;
   }
 
   /**
@@ -44,7 +44,7 @@ class Drupal6DbWrapper {
    *   The database connection for the Drupal 6 database.
    */
   public function getConnection() {
-    return $this->database;
+    return $this->connection;
   }
 
   /**
@@ -66,7 +66,7 @@ class Drupal6DbWrapper {
       $table = $this->getTableDefinition($name);
     }
     $this->migrateTables[$name] = TRUE;
-    $this->database->schema()->createTable($name, $table);
+    $this->connection->schema()->createTable($name, $table);
   }
 
   /**
@@ -279,7 +279,7 @@ class Drupal6DbWrapper {
    */
   public function setModuleVersion($module, $version, $status = 1) {
     $this->createTable('system');
-    $this->database->merge('system')
+    $this->connection->merge('system')
       ->key(array('filename' => "modules/$module"))
       ->fields(array(
         'type' => 'module',
