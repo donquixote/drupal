@@ -97,28 +97,12 @@ class Drupal6FilterFormat implements DumpInterface {
       'primary key' => array('format'),
       'unique keys' => array('name' => array('name')),
     ));
-    $dbWrapper->ensureTable('variable');
-    $dbWrapper->getConnection()->insert('variable')->fields(array(
-      'name',
-      'value',
-    ))
-    ->values(array(
-      'name' => 'allowed_html_1',
-      'value' => 's:61:"<a> <em> <strong> <cite> <code> <ul> <ol> <li> <dl> <dt> <dd>";',
-    ))
-    ->values(array(
-      'name' => 'filter_html_help_1',
-      'value' => 'i:1;',
-    ))
-    ->values(array(
-      'name' => 'filter_html_nofollow_1',
-      'value' => 'i:0;',
-    ))
-    ->values(array(
-      'name' => 'filter_url_length_1',
-      'value' => 's:2:"72";',
-    ))
-    ->execute();
+    $dbWrapper->variableSetMultiple(array(
+      'allowed_html_1' => '<a> <em> <strong> <cite> <code> <ul> <ol> <li> <dl> <dt> <dd>',
+      'filter_html_help_1' => 1,
+      'filter_html_nofollow_1' => 0,
+      'filter_url_length_1' => '72',
+    ));
     $dbWrapper->getConnection()->insert('filter_formats')->fields(array(
       'format',
       'name',

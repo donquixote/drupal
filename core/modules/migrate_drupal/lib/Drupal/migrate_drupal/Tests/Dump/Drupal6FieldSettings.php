@@ -18,15 +18,6 @@ class Drupal6FieldSettings implements DumpInterface {
    * {@inheritdoc}
    */
   public function load(Drupal6DbWrapper $dbWrapper) {
-    $dbWrapper->ensureTable('variable');
-    $dbWrapper->getConnection()->insert('variable')->fields(array(
-      'name',
-      'value',
-    ))
-    ->values(array(
-      'name' => 'field_language_fallback',
-      'value' => 'b:1;',
-    ))
-    ->execute();
+    $dbWrapper->variableSet('field_language_fallback', TRUE);
   }
 }

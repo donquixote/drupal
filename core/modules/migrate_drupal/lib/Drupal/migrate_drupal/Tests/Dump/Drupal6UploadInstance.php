@@ -74,24 +74,11 @@ class Drupal6UploadInstance implements DumpInterface {
       'orig_type' => 'story',
     ))
     ->execute();
-    $dbWrapper->ensureTable('variable');
-    $dbWrapper->getConnection()->insert('variable')->fields(array(
-      'name',
-      'value',
-    ))
-    ->values(array(
-      'name' => 'upload_page',
-      'value' => 'b:1;',
-    ))
-    ->values(array(
-      'name' => 'upload_story',
-      'value' => 'b:1;',
-    ))
-    ->values(array(
-      'name' => 'upload_article',
-      'value' => 'b:0;',
-    ))
-    ->execute();
+    $dbWrapper->variableSetMultiple(array(
+      'upload_page' => TRUE,
+      'upload_story' => TRUE,
+      'upload_article' => FALSE,
+    ));
   }
 
 }

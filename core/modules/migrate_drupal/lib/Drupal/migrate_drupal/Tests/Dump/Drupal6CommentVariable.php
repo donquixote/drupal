@@ -19,7 +19,6 @@ class Drupal6CommentVariable implements DumpInterface {
    * {@inheritdoc}
    */
   public function load(Drupal6DbWrapper $dbWrapper) {
-    $dbWrapper->ensureTable('variable');
     $dbWrapper->ensureTable('node_type', array(
       'fields' => array(
         'type' => array(
@@ -158,83 +157,26 @@ class Drupal6CommentVariable implements DumpInterface {
       'orig_type' => 'story',
     ))
     ->execute();
-    $dbWrapper->getConnection()->insert('variable')->fields(array(
-      'name',
-      'value',
-    ))
-    ->values(array(
-      'name' => 'comment_anonymous_page',
-      'value' => 'i:0;',
-    ))
-    ->values(array(
-      'name' => 'comment_anonymous_story',
-      'value' => 'i:1;',
-    ))
-    ->values(array(
-      'name' => 'comment_controls_page',
-      'value' => 's:1:"3";',
-    ))
-    ->values(array(
-      'name' => 'comment_controls_story',
-      'value' => 's:1:"3";',
-    ))
-    ->values(array(
-      'name' => 'comment_default_mode_page',
-      'value' => 's:1:"4";',
-    ))
-    ->values(array(
-      'name' => 'comment_default_mode_story',
-      'value' => 's:1:"2";',
-    ))
-    ->values(array(
-      'name' => 'comment_default_order_page',
-      'value' => 's:1:"1";',
-    ))
-    ->values(array(
-      'name' => 'comment_default_order_story',
-      'value' => 's:1:"1";',
-    ))
-    ->values(array(
-      'name' => 'comment_default_per_page_page',
-      'value' => 's:2:"50";',
-    ))
-    ->values(array(
-      'name' => 'comment_default_per_page_story',
-      'value' => 's:2:"70";',
-    ))
-    ->values(array(
-      'name' => 'comment_form_location_page',
-      'value' => 's:1:"0";',
-    ))
-    ->values(array(
-      'name' => 'comment_form_location_story',
-      'value' => 's:1:"0";',
-    ))
-    ->values(array(
-      'name' => 'comment_page',
-      'value' => 's:1:"0";',
-    ))
-    ->values(array(
-      'name' => 'comment_preview_page',
-      'value' => 's:1:"1";',
-    ))
-    ->values(array(
-      'name' => 'comment_preview_story',
-      'value' => 's:1:"0";',
-    ))
-    ->values(array(
-      'name' => 'comment_story',
-      'value' => 's:1:"2";',
-    ))
-    ->values(array(
-      'name' => 'comment_subject_field_page',
-      'value' => 's:1:"1";',
-    ))
-    ->values(array(
-      'name' => 'comment_subject_field_story',
-      'value' => 's:1:"0";',
-    ))
-    ->execute();
+    $dbWrapper->variableSetMultiple(array(
+      'comment_anonymous_page' => 0,
+      'comment_anonymous_story' => 1,
+      'comment_controls_page' => '3',
+      'comment_controls_story' => '3',
+      'comment_default_mode_page' => '4',
+      'comment_default_mode_story' => '2',
+      'comment_default_order_page' => '1',
+      'comment_default_order_story' => '1',
+      'comment_default_per_page_page' => '50',
+      'comment_default_per_page_story' => '70',
+      'comment_form_location_page' => '0',
+      'comment_form_location_story' => '0',
+      'comment_page' => '0',
+      'comment_preview_page' => '1',
+      'comment_preview_story' => '0',
+      'comment_story' => '2',
+      'comment_subject_field_page' => '1',
+      'comment_subject_field_story' => '0',
+    ));
     $dbWrapper->setModuleVersion('comment', '6001');
   }
 
