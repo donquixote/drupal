@@ -19,7 +19,7 @@ class Drupal6NodeType implements DumpInterface {
    */
   public function load(Drupal6DbWrapper $dbWrapper) {
     $dbWrapper->createTable('node_type');
-    $dbWrapper->getDbConnection()->insert('node_type')->fields(
+    $dbWrapper->getConnection()->insert('node_type')->fields(
       array(
         'type',
         'name',
@@ -70,7 +70,7 @@ class Drupal6NodeType implements DumpInterface {
       ))
       ->execute();
 
-    $dbWrapper->getDbConnection()->merge('node_type')
+    $dbWrapper->getConnection()->merge('node_type')
       ->key(array('type' => 'story'))
       ->fields(array(
         'name' => 'Story',
@@ -90,7 +90,7 @@ class Drupal6NodeType implements DumpInterface {
       ->execute();
 
     $dbWrapper->createTable('variable');
-    $dbWrapper->getDbConnection()->insert('variable')->fields(array(
+    $dbWrapper->getConnection()->insert('variable')->fields(array(
       'name',
       'value',
     ))

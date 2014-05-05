@@ -26,7 +26,7 @@ class Drupal6User implements DumpInterface {
       // Insert data.
       $data = static::getData($table);
       if ($data) {
-        $query = $dbWrapper->getDbConnection()->insert($table)->fields(array_keys($data[0]));
+        $query = $dbWrapper->getConnection()->insert($table)->fields(array_keys($data[0]));
         foreach ($data as $record) {
           $query->values($record);
         }

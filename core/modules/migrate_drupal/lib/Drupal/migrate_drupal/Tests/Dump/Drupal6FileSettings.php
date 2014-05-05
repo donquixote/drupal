@@ -19,7 +19,7 @@ class Drupal6FileSettings implements DumpInterface {
    */
   public function load(Drupal6DbWrapper $dbWrapper) {
     $dbWrapper->createTable('variable');
-    $dbWrapper->getDbConnection()->insert('variable')->fields(array(
+    $dbWrapper->getConnection()->insert('variable')->fields(array(
       'name',
       'value',
     ))

@@ -68,7 +68,7 @@ class Drupal6Upload implements DumpInterface {
         'nid' => array('nid'),
       ),
     ));
-    $dbWrapper->getDbConnection()->insert('upload')->fields(array(
+    $dbWrapper->getConnection()->insert('upload')->fields(array(
       'nid',
       'vid',
       'fid',

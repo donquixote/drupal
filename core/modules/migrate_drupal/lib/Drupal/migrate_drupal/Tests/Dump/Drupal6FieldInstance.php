@@ -83,7 +83,7 @@ class Drupal6FieldInstance implements DumpInterface {
       'primary key' => array('field_name', 'type_name'),
     ));
 
-    $dbWrapper->getDbConnection()->insert('content_node_field_instance')->fields(array(
+    $dbWrapper->getConnection()->insert('content_node_field_instance')->fields(array(
       'field_name',
       'type_name',
       'weight',
@@ -658,7 +658,7 @@ class Drupal6FieldInstance implements DumpInterface {
       'primary key' => array('field_name'),
     ));
 
-    $dbWrapper->getDbConnection()->insert('content_node_field')->fields(array(
+    $dbWrapper->getConnection()->insert('content_node_field')->fields(array(
       'field_name',
       'module',
       'type',
@@ -826,7 +826,7 @@ class Drupal6FieldInstance implements DumpInterface {
       ),
       'primary key' => array('vid', 'delta'),
     ));
-    $dbWrapper->getDbConnection()->insert('content_field_test_two')->fields(array(
+    $dbWrapper->getConnection()->insert('content_field_test_two')->fields(array(
       'vid',
       'nid',
       'field_test_two_value',

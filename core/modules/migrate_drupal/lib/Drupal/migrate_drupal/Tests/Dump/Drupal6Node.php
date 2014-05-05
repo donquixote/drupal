@@ -134,7 +134,7 @@ class Drupal6Node implements DumpInterface {
       ),
       'primary key' => array('nid'),
     ));
-    $dbWrapper->getDbConnection()->insert('node')->fields(array(
+    $dbWrapper->getConnection()->insert('node')->fields(array(
         'nid',
         'vid',
         'type',
@@ -253,7 +253,7 @@ class Drupal6Node implements DumpInterface {
       'primary key' => array('vid'),
     ));
 
-    $dbWrapper->getDbConnection()->insert('node_revisions')->fields(
+    $dbWrapper->getConnection()->insert('node_revisions')->fields(
       array(
         'nid',
         'vid',
@@ -316,7 +316,7 @@ class Drupal6Node implements DumpInterface {
       'primary key' => array('vid'),
     ));
 
-    $dbWrapper->getDbConnection()->insert('content_type_story')->fields(
+    $dbWrapper->getConnection()->insert('content_type_story')->fields(
       array(
         'nid',
         'vid',

@@ -20,7 +20,7 @@ class Drupal6TextSettings implements DumpInterface {
   public function load(Drupal6DbWrapper $dbWrapper) {
     $dbWrapper->createTable('variable');
     // This needs to be a merge to avoid conflicts with Drupal6NodeBodyInstance.
-    $dbWrapper->getDbConnection()->merge('variable')
+    $dbWrapper->getConnection()->merge('variable')
       ->key(array('name' => 'teaser_length'))
       ->fields(array('value' => 'i:456;'))
       ->execute();

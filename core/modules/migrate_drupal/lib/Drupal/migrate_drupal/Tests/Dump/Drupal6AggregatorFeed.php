@@ -99,7 +99,7 @@ class Drupal6AggregatorFeed implements DumpInterface {
       ),
     ));
 
-    $dbWrapper->getDbConnection()->insert('aggregator_feed')->fields(array(
+    $dbWrapper->getConnection()->insert('aggregator_feed')->fields(array(
       'fid',
       'title',
       'url',

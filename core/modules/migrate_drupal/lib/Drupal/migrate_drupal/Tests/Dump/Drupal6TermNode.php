@@ -54,7 +54,7 @@ class Drupal6TermNode implements DumpInterface {
       'module' => 'taxonomy',
       'name' => 'term_node',
     ));
-    $dbWrapper->getDbConnection()->insert('term_node')->fields(array(
+    $dbWrapper->getConnection()->insert('term_node')->fields(array(
       'nid',
       'vid',
       'tid',

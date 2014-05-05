@@ -75,7 +75,7 @@ class Drupal6AggregatorItem implements DumpInterface {
       'indexes' => array('fid' => array('fid')),
     ));
 
-    $dbWrapper->getDbConnection()->insert('aggregator_item')->fields(array(
+    $dbWrapper->getConnection()->insert('aggregator_item')->fields(array(
       'iid',
       'fid',
       'title',

@@ -20,7 +20,7 @@ class Drupal6NodeBodyInstance implements DumpInterface {
   public function load(Drupal6DbWrapper $dbWrapper) {
     $dbWrapper->createTable('variable');
     $dbWrapper->createTable('node_type');
-    $dbWrapper->getDbConnection()->insert('node_type')->fields(array(
+    $dbWrapper->getConnection()->insert('node_type')->fields(array(
       'type',
       'name',
       'module',
@@ -85,7 +85,7 @@ class Drupal6NodeBodyInstance implements DumpInterface {
       'orig_type' => '',
     ))
     ->execute();
-    $dbWrapper->getDbConnection()->insert('variable')->fields(array(
+    $dbWrapper->getConnection()->insert('variable')->fields(array(
       'name',
       'value',
     ))

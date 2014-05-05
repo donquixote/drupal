@@ -115,7 +115,7 @@ class Drupal6Comment implements DumpInterface {
       ),
       'primary key' => array('cid'),
     ));
-    $dbWrapper->getDbConnection()->insert('comments')->fields(array(
+    $dbWrapper->getConnection()->insert('comments')->fields(array(
       'cid',
       'pid',
       'nid',

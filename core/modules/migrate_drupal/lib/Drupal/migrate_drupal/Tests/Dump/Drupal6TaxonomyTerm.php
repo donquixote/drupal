@@ -96,7 +96,7 @@ class Drupal6TaxonomyTerm implements DumpInterface {
       'name' => 'term_hierarchy',
     ));
 
-    $dbWrapper->getDbConnection()->insert('term_data')->fields(array(
+    $dbWrapper->getConnection()->insert('term_data')->fields(array(
       'tid',
       'vid',
       'name',
@@ -147,7 +147,7 @@ class Drupal6TaxonomyTerm implements DumpInterface {
       ))
       ->execute();
 
-    $dbWrapper->getDbConnection()->insert('term_hierarchy')->fields(array(
+    $dbWrapper->getConnection()->insert('term_hierarchy')->fields(array(
       'tid',
       'parent',
     ))

@@ -43,7 +43,7 @@ class Drupal6DbWrapper {
    * @return \Drupal\Core\Database\Connection
    *   The database connection for the Drupal 6 database.
    */
-  public function getDbConnection() {
+  public function getConnection() {
     return $this->database;
   }
 

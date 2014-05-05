@@ -103,7 +103,7 @@ class Drupal6VocabularyField implements DumpInterface {
       'name' => 'vocabulary',
     ));
 
-    $dbWrapper->getDbConnection()->insert('vocabulary')
+    $dbWrapper->getConnection()->insert('vocabulary')
       ->fields(array(
         'vid' => 4,
         'name' => 'Tags',
@@ -144,7 +144,7 @@ class Drupal6VocabularyField implements DumpInterface {
       ),
     ));
 
-    $dbWrapper->getDbConnection()->insert('vocabulary_node_types')->fields(array(
+    $dbWrapper->getConnection()->insert('vocabulary_node_types')->fields(array(
       'vid',
       'type',
     ))

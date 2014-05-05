@@ -143,7 +143,7 @@ class Drupal6Block implements DumpInterface {
       'module' => 'block',
       'name' => 'blocks_roles',
     ));
-    $dbWrapper->getDbConnection()->insert('blocks')->fields(array(
+    $dbWrapper->getConnection()->insert('blocks')->fields(array(
       'bid',
       'module',
       'delta',

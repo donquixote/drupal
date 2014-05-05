@@ -20,7 +20,7 @@ class Drupal6UploadInstance implements DumpInterface {
   public function load(Drupal6DbWrapper $dbWrapper) {
     $dbWrapper->setModuleVersion('upload', 6000);
     $dbWrapper->createTable('node_type');
-    $dbWrapper->getDbConnection()->merge('node_type')
+    $dbWrapper->getConnection()->merge('node_type')
       ->key(array('type' => 'page'))
       ->fields(array(
         'name' => 'Page',
@@ -38,7 +38,7 @@ class Drupal6UploadInstance implements DumpInterface {
         'orig_type' => 'page',
       ))
     ->execute();
-  $dbWrapper->getDbConnection()->merge('node_type')
+  $dbWrapper->getConnection()->merge('node_type')
     ->key(array('type' => 'story'))
     ->fields(array(
       'name' => 'Story',
@@ -56,7 +56,7 @@ class Drupal6UploadInstance implements DumpInterface {
       'orig_type' => 'story',
     ))
     ->execute();
-  $dbWrapper->getDbConnection()->merge('node_type')
+  $dbWrapper->getConnection()->merge('node_type')
     ->key(array('type' => 'article'))
     ->fields(array(
       'name' => 'Article',
@@ -75,7 +75,7 @@ class Drupal6UploadInstance implements DumpInterface {
     ))
     ->execute();
     $dbWrapper->createTable('variable');
-    $dbWrapper->getDbConnection()->insert('variable')->fields(array(
+    $dbWrapper->getConnection()->insert('variable')->fields(array(
       'name',
       'value',
     ))

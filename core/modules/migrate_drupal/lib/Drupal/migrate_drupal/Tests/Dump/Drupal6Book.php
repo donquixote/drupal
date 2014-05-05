@@ -240,7 +240,7 @@ class Drupal6Book implements DumpInterface {
       'module' => 'system',
       'name' => 'menu_links',
     ));
-    $dbWrapper->getDbConnection()->insert('book')->fields(array(
+    $dbWrapper->getConnection()->insert('book')->fields(array(
       'mlid',
       'nid',
       'bid',
@@ -271,7 +271,7 @@ class Drupal6Book implements DumpInterface {
       'bid' => '8',
     ))
     ->execute();
-    $dbWrapper->getDbConnection()->insert('menu_links')->fields(array(
+    $dbWrapper->getConnection()->insert('menu_links')->fields(array(
       'menu_name',
       'mlid',
       'plid',

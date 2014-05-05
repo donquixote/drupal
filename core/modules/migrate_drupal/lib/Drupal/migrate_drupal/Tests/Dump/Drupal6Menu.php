@@ -42,7 +42,7 @@ class Drupal6Menu implements DumpInterface {
       'module' => 'menu',
       'name' => 'menu_custom',
     ));
-    $dbWrapper->getDbConnection()->insert('menu_custom')->fields(array('menu_name', 'title', 'description'))
+    $dbWrapper->getConnection()->insert('menu_custom')->fields(array('menu_name', 'title', 'description'))
       ->values(array(
         'menu_name' => 'navigation',
         'title' => 'Navigation',

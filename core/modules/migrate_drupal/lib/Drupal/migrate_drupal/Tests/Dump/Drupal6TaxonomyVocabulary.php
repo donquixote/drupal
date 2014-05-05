@@ -130,7 +130,7 @@ class Drupal6TaxonomyVocabulary implements DumpInterface {
         'vid' => array('vid'),
       ),
     ));
-    $dbWrapper->getDbConnection()->insert('vocabulary')->fields(array(
+    $dbWrapper->getConnection()->insert('vocabulary')->fields(array(
       'vid',
       'name',
       'description',

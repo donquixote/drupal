@@ -59,7 +59,7 @@ class Drupal6UrlAlias implements DumpInterface {
       'indexes' => array('src_language_pid' => array('src', 'language', 'pid')),
     ));
 
-    $dbWrapper->getDbConnection()->insert('url_alias')->fields(array(
+    $dbWrapper->getConnection()->insert('url_alias')->fields(array(
       'pid',
       'src',
       'dst',

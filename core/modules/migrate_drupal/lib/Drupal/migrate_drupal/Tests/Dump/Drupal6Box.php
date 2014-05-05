@@ -49,7 +49,7 @@ class Drupal6Box implements DumpInterface {
       'primary key' => array('bid'),
     ));
 
-    $dbWrapper->getDbConnection()->insert('boxes')->fields(array(
+    $dbWrapper->getConnection()->insert('boxes')->fields(array(
       'bid',
       'body',
       'info',

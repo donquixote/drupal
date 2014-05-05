@@ -109,7 +109,7 @@ class Drupal6UserProfileFields implements DumpInterface {
     // Insert data.
     $data = static::getData('profile_fields');
     if ($data) {
-      $query = $dbWrapper->getDbConnection()->insert('profile_fields')->fields(array_keys($data[0]));
+      $query = $dbWrapper->getConnection()->insert('profile_fields')->fields(array_keys($data[0]));
       foreach ($data as $record) {
         $query->values($record);
       }

@@ -69,7 +69,7 @@ class Drupal6ContactCategory implements DumpInterface {
         'list' => array('weight', 'category'),
       ),
     ));
-    $dbWrapper->getDbConnection()->insert('contact')->fields(array('cid', 'category', 'recipients', 'reply', 'weight', 'selected'))
+    $dbWrapper->getConnection()->insert('contact')->fields(array('cid', 'category', 'recipients', 'reply', 'weight', 'selected'))
       ->values(array(
         'cid' => '1',
         'category' => 'Website feedback',

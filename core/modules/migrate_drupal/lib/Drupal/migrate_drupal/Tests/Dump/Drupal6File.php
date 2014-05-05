@@ -85,7 +85,7 @@ class Drupal6File implements DumpInterface {
       'module' => 'system',
       'name' => 'files',
     ));
-    $dbWrapper->getDbConnection()->insert('files')->fields(array(
+    $dbWrapper->getConnection()->insert('files')->fields(array(
       'fid',
       'uid',
       'filename',

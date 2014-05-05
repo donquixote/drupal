@@ -109,7 +109,7 @@ class Drupal6CommentVariable implements DumpInterface {
       'module' => 'node',
       'name' => 'node_type',
     ));
-    $dbWrapper->getDbConnection()->insert('node_type')->fields(array(
+    $dbWrapper->getConnection()->insert('node_type')->fields(array(
       'type',
       'name',
       'module',
@@ -158,7 +158,7 @@ class Drupal6CommentVariable implements DumpInterface {
       'orig_type' => 'story',
     ))
     ->execute();
-    $dbWrapper->getDbConnection()->insert('variable')->fields(array(
+    $dbWrapper->getConnection()->insert('variable')->fields(array(
       'name',
       'value',
     ))

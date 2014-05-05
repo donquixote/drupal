@@ -16,7 +16,7 @@ class Drupal6NodeRevision implements DumpInterface {
    * {@inheritdoc}
    */
   public function load(Drupal6DbWrapper $dbWrapper) {
-    $dbWrapper->getDbConnection()->insert('node_revisions')->fields(
+    $dbWrapper->getConnection()->insert('node_revisions')->fields(
       array(
         'nid',
         'vid',

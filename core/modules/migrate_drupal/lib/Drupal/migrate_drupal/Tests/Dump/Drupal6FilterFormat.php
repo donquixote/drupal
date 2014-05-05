@@ -98,7 +98,7 @@ class Drupal6FilterFormat implements DumpInterface {
       'unique keys' => array('name' => array('name')),
     ));
     $dbWrapper->createTable('variable');
-    $dbWrapper->getDbConnection()->insert('variable')->fields(array(
+    $dbWrapper->getConnection()->insert('variable')->fields(array(
       'name',
       'value',
     ))
@@ -119,7 +119,7 @@ class Drupal6FilterFormat implements DumpInterface {
       'value' => 's:2:"72";',
     ))
     ->execute();
-    $dbWrapper->getDbConnection()->insert('filter_formats')->fields(array(
+    $dbWrapper->getConnection()->insert('filter_formats')->fields(array(
       'format',
       'name',
       'roles',
@@ -145,7 +145,7 @@ class Drupal6FilterFormat implements DumpInterface {
     ))
     ->execute();
 
-    $dbWrapper->getDbConnection()->insert('filters')->fields(array(
+    $dbWrapper->getConnection()->insert('filters')->fields(array(
       'fid',
       'format',
       'module',
