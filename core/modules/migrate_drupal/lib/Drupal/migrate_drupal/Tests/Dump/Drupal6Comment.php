@@ -15,7 +15,7 @@ class Drupal6Comment implements DumpInterface {
    * {@inheritdoc}
    */
   public function load(Drupal6DbWrapper $dbWrapper) {
-    $dbWrapper->createTable('comments', array(
+    $dbWrapper->ensureTable('comments', array(
       'description' => 'Stores comments and associated data.',
       'fields' => array(
         'cid' => array(

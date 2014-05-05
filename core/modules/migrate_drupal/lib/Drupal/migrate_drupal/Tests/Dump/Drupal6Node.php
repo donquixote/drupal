@@ -18,7 +18,7 @@ class Drupal6Node implements DumpInterface {
    * {@inheritdoc}
    */
   public function load(Drupal6DbWrapper $dbWrapper) {
-    $dbWrapper->createTable('node', array(
+    $dbWrapper->ensureTable('node', array(
       'description' => 'The base table for nodes.',
       'fields' => array(
         'nid' => array(
@@ -186,7 +186,7 @@ class Drupal6Node implements DumpInterface {
         'translate' => 0,
       ))
       ->execute();
-    $dbWrapper->createTable('node_revisions', array(
+    $dbWrapper->ensureTable('node_revisions', array(
       'description' => 'Stores information about each saved version of a {node}.',
       'fields' => array(
         'nid' => array(
@@ -289,7 +289,7 @@ class Drupal6Node implements DumpInterface {
       ))
       ->execute();
 
-    $dbWrapper->createTable('content_type_story', array(
+    $dbWrapper->ensureTable('content_type_story', array(
       'description' => 'The content type join table.',
       'fields' => array(
         'nid' => array(

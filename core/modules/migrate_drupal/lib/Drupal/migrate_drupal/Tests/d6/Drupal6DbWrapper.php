@@ -53,7 +53,7 @@ class Drupal6DbWrapper {
    * @return bool
    *   TRUE, if the table was created or it already exists.
    */
-  public function createTable($name, $table = NULL) {
+  public function ensureTable($name, $table = NULL) {
     if ($this->connection->schema()->tableExists($name)) {
       // The table already exists.
       return TRUE;
@@ -280,7 +280,7 @@ class Drupal6DbWrapper {
    * @param int $status
    */
   public function setModuleVersion($module, $version, $status = 1) {
-    $this->createTable('system');
+    $this->ensureTable('system');
     $this->connection->merge('system')
       ->key(array('filename' => "modules/$module"))
       ->fields(array(

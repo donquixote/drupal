@@ -18,7 +18,7 @@ class Drupal6FieldInstance implements DumpInterface {
    * {@inheritdoc}
    */
   public function load(Drupal6DbWrapper $dbWrapper) {
-    $dbWrapper->createTable('content_node_field_instance', array(
+    $dbWrapper->ensureTable('content_node_field_instance', array(
       'description' => 'Table that contains field instance settings.',
       'fields' => array(
         'field_name' => array(
@@ -591,7 +591,7 @@ class Drupal6FieldInstance implements DumpInterface {
     ->execute();
 
     // Create the field table.
-    $dbWrapper->createTable('content_node_field', array(
+    $dbWrapper->ensureTable('content_node_field', array(
       'description' => 'Table that contains field instance settings.',
       'fields' => array(
         'field_name' => array(
@@ -788,7 +788,7 @@ class Drupal6FieldInstance implements DumpInterface {
     ))
     ->execute();
 
-    $dbWrapper->createTable('content_field_test_two', array(
+    $dbWrapper->ensureTable('content_field_test_two', array(
       'description' => 'Table for field_test_two',
       'fields' => array(
         'vid' => array(

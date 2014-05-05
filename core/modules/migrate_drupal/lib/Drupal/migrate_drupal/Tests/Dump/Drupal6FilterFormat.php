@@ -19,7 +19,7 @@ class Drupal6FilterFormat implements DumpInterface {
    * {@inheritdoc}
    */
   public function load(Drupal6DbWrapper $dbWrapper) {
-    $dbWrapper->createTable('filters', array(
+    $dbWrapper->ensureTable('filters', array(
       'description' => 'Table that maps filters (HTML corrector) to input formats (Filtered HTML).',
       'fields' => array(
         'fid' => array(
@@ -63,7 +63,7 @@ class Drupal6FilterFormat implements DumpInterface {
         'list' => array('format', 'weight', 'module', 'delta'),
       ),
     ));
-    $dbWrapper->createTable('filter_formats', array(
+    $dbWrapper->ensureTable('filter_formats', array(
       'description' => 'Stores input formats: custom groupings of filters, such as Filtered HTML.',
       'fields' => array(
         'format' => array(
@@ -97,7 +97,7 @@ class Drupal6FilterFormat implements DumpInterface {
       'primary key' => array('format'),
       'unique keys' => array('name' => array('name')),
     ));
-    $dbWrapper->createTable('variable');
+    $dbWrapper->ensureTable('variable');
     $dbWrapper->getConnection()->insert('variable')->fields(array(
       'name',
       'value',

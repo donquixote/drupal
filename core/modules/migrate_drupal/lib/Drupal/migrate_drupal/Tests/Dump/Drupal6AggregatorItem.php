@@ -18,7 +18,7 @@ class Drupal6AggregatorItem implements DumpInterface {
    * {@inheritdoc}
    */
   public function load(Drupal6DbWrapper $dbWrapper) {
-    $dbWrapper->createTable('aggregator_item', array(
+    $dbWrapper->ensureTable('aggregator_item', array(
       'description' => 'Stores the individual items imported from feeds.',
       'fields' => array(
         'iid' => array(

@@ -18,7 +18,7 @@ class Drupal6AggregatorFeed implements DumpInterface {
    * {@inheritdoc}
    */
   public function load(Drupal6DbWrapper $dbWrapper) {
-    $dbWrapper->createTable('aggregator_feed', array(
+    $dbWrapper->ensureTable('aggregator_feed', array(
       'description' => 'Stores feeds to be parsed by the aggregator.',
       'fields' => array(
         'fid' => array(

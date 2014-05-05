@@ -18,7 +18,7 @@ class Drupal6MenuSettings implements DumpInterface {
    * {@inheritdoc}
    */
   public function load(Drupal6DbWrapper $dbWrapper) {
-    $dbWrapper->createTable('variable');
+    $dbWrapper->ensureTable('variable');
     $dbWrapper->setModuleVersion('menu', 6000);
     $dbWrapper->getConnection()->insert('variable')->fields(array(
       'name',

@@ -17,7 +17,7 @@ class Drupal6Menu implements DumpInterface {
    * {@inheritdoc}
    */
   public function load(Drupal6DbWrapper $dbWrapper) {
-    $dbWrapper->createTable('menu_custom', array(
+    $dbWrapper->ensureTable('menu_custom', array(
       'fields' => array(
         'menu_name' => array(
           'type' => 'varchar',

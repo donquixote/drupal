@@ -22,7 +22,7 @@ class Drupal6SystemFileStandalone implements DumpInterface {
    * @throws \Exception
    */
   public function load(Drupal6DbWrapper $dbWrapper) {
-    $dbWrapper->createTable('variable');
+    $dbWrapper->ensureTable('variable');
     $dbWrapper->getConnection()->insert('variable')->fields(array(
       'name',
       'value',

@@ -16,7 +16,7 @@ class Drupal6Upload implements DumpInterface {
    */
   public function load(Drupal6DbWrapper $dbWrapper) {
     $dbWrapper->setModuleVersion('upload', 6000);
-    $dbWrapper->createTable('upload', array(
+    $dbWrapper->ensureTable('upload', array(
       'fields' => array(
         'fid' => array(
           'type' => 'int',

@@ -18,8 +18,8 @@ class Drupal6NodeBodyInstance implements DumpInterface {
    * {@inheritdoc}
    */
   public function load(Drupal6DbWrapper $dbWrapper) {
-    $dbWrapper->createTable('variable');
-    $dbWrapper->createTable('node_type');
+    $dbWrapper->ensureTable('variable');
+    $dbWrapper->ensureTable('node_type');
     $dbWrapper->getConnection()->insert('node_type')->fields(array(
       'type',
       'name',

@@ -15,7 +15,7 @@ class Drupal6Box implements DumpInterface {
    * {@inheritdoc}
    */
   public function load(Drupal6DbWrapper $dbWrapper) {
-    $dbWrapper->createTable('boxes', array(
+    $dbWrapper->ensureTable('boxes', array(
       'description' => 'Stores contents of custom-made blocks.',
       'fields' => array(
         'bid' => array(

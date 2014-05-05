@@ -15,7 +15,7 @@ class Drupal6Book implements DumpInterface {
    * {@inheritdoc}
    */
   public function load(Drupal6DbWrapper $dbWrapper) {
-    $dbWrapper->createTable('book', array(
+    $dbWrapper->ensureTable('book', array(
       'fields' => array(
         'mlid' => array(
           'type' => 'int',
@@ -52,7 +52,7 @@ class Drupal6Book implements DumpInterface {
       'module' => 'book',
       'name' => 'book',
     ));
-    $dbWrapper->createTable('menu_links', array(
+    $dbWrapper->ensureTable('menu_links', array(
       'fields' => array(
         'menu_name' => array(
           'type' => 'varchar',

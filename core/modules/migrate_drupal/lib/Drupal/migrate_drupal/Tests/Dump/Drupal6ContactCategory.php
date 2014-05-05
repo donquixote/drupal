@@ -18,7 +18,7 @@ class Drupal6ContactCategory implements DumpInterface {
    * {@inheritdoc}
    */
   public function load(Drupal6DbWrapper $dbWrapper) {
-    $dbWrapper->createTable('contact', array(
+    $dbWrapper->ensureTable('contact', array(
       'description' => 'Contact form category settings.',
       'fields' => array(
         'cid' => array(

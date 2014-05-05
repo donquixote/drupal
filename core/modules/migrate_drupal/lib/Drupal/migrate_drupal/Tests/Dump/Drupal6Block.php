@@ -15,7 +15,7 @@ class Drupal6Block implements DumpInterface {
    * {@inheritdoc}
    */
   public function load(Drupal6DbWrapper $dbWrapper) {
-    $dbWrapper->createTable('blocks', array(
+    $dbWrapper->ensureTable('blocks', array(
       'fields' => array(
         'bid' => array(
           'type' => 'serial',
@@ -112,7 +112,7 @@ class Drupal6Block implements DumpInterface {
         ),
       ),
     ));
-    $dbWrapper->createTable('blocks_roles', array(
+    $dbWrapper->ensureTable('blocks_roles', array(
       'fields' => array(
         'module' => array(
           'type' => 'varchar',

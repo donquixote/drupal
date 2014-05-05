@@ -18,7 +18,7 @@ class Drupal6VocabularyField implements DumpInterface {
    */
   public function load(Drupal6DbWrapper $dbWrapper) {
 
-    $dbWrapper->createTable('vocabulary', array(
+    $dbWrapper->ensureTable('vocabulary', array(
       'fields' => array(
         'vid' => array(
           'type' => 'serial',
@@ -120,7 +120,7 @@ class Drupal6VocabularyField implements DumpInterface {
       ->execute();
 
 
-    $dbWrapper->createTable('vocabulary_node_types', array(
+    $dbWrapper->ensureTable('vocabulary_node_types', array(
       'description' => 'Stores which node types vocabularies may be used with.',
       'fields' => array(
         'vid' => array(

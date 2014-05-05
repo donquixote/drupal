@@ -19,7 +19,7 @@ class Drupal6File implements DumpInterface {
    */
   public function load(Drupal6DbWrapper $dbWrapper) {
 
-    $dbWrapper->createTable('files', array(
+    $dbWrapper->ensureTable('files', array(
       'fields' => array(
         'fid' => array(
           'type' => 'serial',

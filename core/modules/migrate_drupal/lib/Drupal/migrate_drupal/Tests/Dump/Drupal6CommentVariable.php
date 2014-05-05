@@ -19,8 +19,8 @@ class Drupal6CommentVariable implements DumpInterface {
    * {@inheritdoc}
    */
   public function load(Drupal6DbWrapper $dbWrapper) {
-    $dbWrapper->createTable('variable');
-    $dbWrapper->createTable('node_type', array(
+    $dbWrapper->ensureTable('variable');
+    $dbWrapper->ensureTable('node_type', array(
       'fields' => array(
         'type' => array(
           'type' => 'varchar',

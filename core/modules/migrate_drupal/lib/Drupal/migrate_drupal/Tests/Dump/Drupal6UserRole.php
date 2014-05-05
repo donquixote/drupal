@@ -20,7 +20,7 @@ class Drupal6UserRole implements DumpInterface {
   public function load(Drupal6DbWrapper $dbWrapper) {
     foreach (static::getSchema() as $table => $schema) {
       // Create tables.
-      $dbWrapper->createTable($table, $schema);
+      $dbWrapper->ensureTable($table, $schema);
 
       // Insert data.
       $data = static::getData($table);

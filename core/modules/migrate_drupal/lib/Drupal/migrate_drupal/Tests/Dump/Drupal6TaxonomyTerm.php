@@ -19,7 +19,7 @@ class Drupal6TaxonomyTerm implements DumpInterface {
   public function load(Drupal6DbWrapper $dbWrapper) {
     $dbWrapper->setModuleVersion('taxonomy', 6000);
 
-    $dbWrapper->createTable('term_data', array(
+    $dbWrapper->ensureTable('term_data', array(
       'fields' => array(
         'tid' => array(
           'type' => 'serial',
@@ -68,7 +68,7 @@ class Drupal6TaxonomyTerm implements DumpInterface {
       'name' => 'term_data',
     ));
 
-    $dbWrapper->createTable('term_hierarchy', array(
+    $dbWrapper->ensureTable('term_hierarchy', array(
       'fields' => array(
         'tid' => array(
           'type' => 'int',

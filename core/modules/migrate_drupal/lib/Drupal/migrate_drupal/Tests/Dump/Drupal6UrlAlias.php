@@ -17,7 +17,7 @@ class Drupal6UrlAlias implements DumpInterface {
    * {@inheritdoc}
    */
   public function load(Drupal6DbWrapper $dbWrapper) {
-    $dbWrapper->createTable('url_alias', array(
+    $dbWrapper->ensureTable('url_alias', array(
       'description' => 'A list of URL aliases for Drupal paths; a user may visit either the source or destination path.',
       'fields' => array(
         'pid' => array(

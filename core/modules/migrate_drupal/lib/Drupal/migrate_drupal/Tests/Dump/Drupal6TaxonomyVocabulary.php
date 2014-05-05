@@ -18,7 +18,7 @@ class Drupal6TaxonomyVocabulary implements DumpInterface {
    * {@inheritdoc}
    */
   public function load(Drupal6DbWrapper $dbWrapper) {
-    $dbWrapper->createTable('vocabulary', array(
+    $dbWrapper->ensureTable('vocabulary', array(
       'description' => 'Stores vocabulary information.',
       'fields' => array(
         'vid' => array(
@@ -107,7 +107,7 @@ class Drupal6TaxonomyVocabulary implements DumpInterface {
         'list' => array('weight', 'name'),
       ),
     ));
-    $dbWrapper->createTable('vocabulary_node_types', array(
+    $dbWrapper->ensureTable('vocabulary_node_types', array(
       'description' => 'Stores which node types vocabularies may be used with.',
       'fields' => array(
         'vid' => array(

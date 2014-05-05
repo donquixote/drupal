@@ -18,7 +18,7 @@ class Drupal6UserProfileFields implements DumpInterface {
    * {@inheritdoc}
    */
   public function load(Drupal6DbWrapper $dbWrapper) {
-    $dbWrapper->createTable('profile_fields', array(
+    $dbWrapper->ensureTable('profile_fields', array(
       'fields' => array(
         'fid' => array(
           'type' => 'serial',

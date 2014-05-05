@@ -18,7 +18,7 @@ class Drupal6TermNode implements DumpInterface {
    */
   public function load(Drupal6DbWrapper $dbWrapper) {
     $dbWrapper->setModuleVersion('taxonomy', 6000);
-    $dbWrapper->createTable('term_node', array(
+    $dbWrapper->ensureTable('term_node', array(
       'fields' => array(
         'nid' => array(
           'type' => 'int',

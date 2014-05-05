@@ -18,7 +18,7 @@ class Drupal6TaxonomySettings implements DumpInterface {
    * {@inheritdoc}
    */
   public function load(Drupal6DbWrapper $dbWrapper) {
-    $dbWrapper->createTable('variable');
+    $dbWrapper->ensureTable('variable');
     $dbWrapper->getConnection()->insert('variable')->fields(array(
       'name',
       'value',
