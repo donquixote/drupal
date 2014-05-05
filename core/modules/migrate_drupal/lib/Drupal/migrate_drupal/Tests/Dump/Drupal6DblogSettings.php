@@ -18,15 +18,6 @@ class Drupal6DblogSettings implements DumpInterface {
    * {@inheritdoc}
    */
   public function load(Drupal6DbWrapper $dbWrapper) {
-    $dbWrapper->ensureTable('variable');
-    $dbWrapper->getConnection()->insert('variable')->fields(array(
-      'name',
-      'value',
-    ))
-    ->values(array(
-      'name' => 'dblog_row_limit',
-      'value' => 'i:1000;',
-    ))
-    ->execute();
+    $dbWrapper->variableSet('dblog_row_limit', 1000);
   }
 }

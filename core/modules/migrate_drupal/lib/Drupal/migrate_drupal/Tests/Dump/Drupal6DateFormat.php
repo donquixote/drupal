@@ -13,24 +13,11 @@ class Drupal6DateFormat implements DumpInterface {
    * {@inheritdoc}
    */
   public function load(Drupal6DbWrapper $dbWrapper) {
-    $dbWrapper->ensureTable('variable');
-    $dbWrapper->getConnection()->insert('variable')->fields(array(
-      'name',
-      'value',
-    ))
-      ->values(array(
-        'name' => 'date_format_long',
-        'value' => 's:24:"\\L\\O\\N\\G l, F j, Y - H:i";',
-      ))
-      ->values(array(
-        'name' => 'date_format_medium',
-        'value' => 's:27:"\\M\\E\\D\\I\\U\\M D, m/d/Y - H:i";',
-      ))
-      ->values(array(
-        'name' => 'date_format_short',
-        'value' => 's:22:"\\S\\H\\O\\R\\T m/d/Y - H:i";',
-      ))
-      ->execute();
+    $dbWrapper->variableSetMultiple(array(
+      'date_format_long' => '\\L\\O\\N\\G l, F j, Y - H:i',
+      'date_format_medium' => '\\M\\E\\D\\I\\U\\M D, m/d/Y - H:i',
+      'date_format_short' => '\\S\\H\\O\\R\\T m/d/Y - H:i',
+    ));
   }
 
 }

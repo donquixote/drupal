@@ -18,16 +18,7 @@ class Drupal6ActionSettings implements DumpInterface {
    * {@inheritdoc}
    */
   public function load(Drupal6DbWrapper $dbWrapper) {
-    $dbWrapper->ensureTable('variable');
-    $dbWrapper->getConnection()->insert('variable')->fields(array(
-      'name',
-      'value',
-    ))
-    ->values(array(
-      'name' => 'actions_max_stack',
-      'value' => 'i:35;',
-    ))
-    ->execute();
+    $dbWrapper->variableSet('actions_max_stack', 35);
   }
 
 }

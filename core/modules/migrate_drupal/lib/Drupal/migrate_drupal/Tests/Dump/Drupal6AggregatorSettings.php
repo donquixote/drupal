@@ -18,43 +18,15 @@ class Drupal6AggregatorSettings implements DumpInterface {
    * {@inheritdoc}
    */
   public function load(Drupal6DbWrapper $dbWrapper) {
-    $dbWrapper->ensureTable('variable');
-    $dbWrapper->getConnection()->insert('variable')->fields(array(
-      'name',
-      'value',
-    ))
-    ->values(array(
-      'name' => 'aggregator_fetcher',
-      'value' => 's:10:"aggregator";',
-    ))
-    ->values(array(
-      'name' => 'aggregator_parser',
-      'value' => 's:10:"aggregator";',
-    ))
-    ->values(array(
-      'name' => 'aggregator_processors',
-      'value' => 'a:1:{i:0;s:10:"aggregator";}',
-    ))
-    ->values(array(
-      'name' => 'aggregator_allowed_html_tags',
-      'value' => 's:70:"<a> <b> <br /> <dd> <dl> <dt> <em> <i> <li> <ol> <p> <strong> <u> <ul>";',
-    ))
-    ->values(array(
-      'name' => 'aggregator_teaser_length',
-      'value' => 's:3:"600";',
-    ))
-    ->values(array(
-      'name' => 'aggregator_clear',
-      'value' => 's:7:"9676800";',
-    ))
-    ->values(array(
-      'name' => 'aggregator_summary_items',
-      'value' => 's:1:"3";',
-    ))
-    ->values(array(
-      'name' => 'aggregator_category_selector',
-      'value' => 's:10:"checkboxes";',
-    ))
-    ->execute();
+    $dbWrapper->variableSetMultiple(array(
+      'aggregator_fetcher' => 'aggregator',
+      'aggregator_parser' => 'aggregator',
+      'aggregator_processors' => array('aggregator'),
+      'aggregator_allowed_html_tags' => '<a> <b> <br /> <dd> <dl> <dt> <em> <i> <li> <ol> <p> <strong> <u> <ul>',
+      'aggregator_teaser_length' => '600',
+      'aggregator_clear' => '9676800',
+      'aggregator_summary_items' => '3',
+      'aggregator_category_selector' => 'checkboxes',
+    ));
   }
 }

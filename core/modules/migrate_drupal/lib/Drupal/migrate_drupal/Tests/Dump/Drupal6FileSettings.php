@@ -18,23 +18,10 @@ class Drupal6FileSettings implements DumpInterface {
    * {@inheritdoc}
    */
   public function load(Drupal6DbWrapper $dbWrapper) {
-    $dbWrapper->ensureTable('variable');
-    $dbWrapper->getConnection()->insert('variable')->fields(array(
-      'name',
-      'value',
-    ))
-    ->values(array(
-      'name' => 'file_description_type',
-        'value' => 's:9:"textfield";',
-    ))
-    ->values(array(
-      'name' => 'file_description_length',
-        'value' => 'i:128;',
-    ))
-    ->values(array(
-      'name' => 'file_icon_directory',
-      'value' => 's:25:"sites/default/files/icons";',
-    ))
-    ->execute();
+    $dbWrapper->variableSetMultiple(array(
+      'file_description_type' => 'textfield',
+      'file_description_length' => 128,
+      'file_icon_directory' => 'sites/default/files/icons',
+    ));
   }
 }
