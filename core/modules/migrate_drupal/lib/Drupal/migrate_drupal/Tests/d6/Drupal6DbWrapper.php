@@ -72,6 +72,45 @@ class Drupal6DbWrapper {
   }
 
   /**
+   * Sets a system variable in the Drupal 6 database.
+   *
+   * Equivalent for Drupal 6 variable_set().
+   *
+   * @param string $name
+   *   The variable name.
+   * @param mixed $value
+   *   The variable value.
+   */
+  public function variableSet($name, $value) {
+    $this->ensureTable('variable');
+    $this->connection->insert('variable')
+      ->fields(array(
+        'name',
+        'value',
+      ))
+      ->values(array(
+        'name' => $name,
+        'value' => serialize($value),
+      ))
+      ->execute();
+  }
+
+  /**
+   * Sets multiple system variables in the Drupal 6 database.
+   *
+   * @param mixed[] $values
+   *   An associative array of variable names and values.
+   */
+  public function variableSetMultiple(array $values) {
+    $this->ensureTable('variable');
+    $insert = $this->connection->insert('variable')->fields(array('name', 'value'));
+    foreach ($values as $name => $value) {
+      $insert->values(array('name' => $name, 'value' => serialize($value)));
+    }
+    $insert->execute();
+  }
+
+  /**
    * @param string $name
    *   The name of the table to create. This must be one of the "known" table
    *   names, see tableDefinitions() below.
