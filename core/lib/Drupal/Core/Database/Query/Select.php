@@ -142,6 +142,8 @@ class Select extends Query implements SelectInterface {
     $this->addJoin(NULL, $table, $alias);
   }
 
+  /* Implementations of Drupal\Core\Database\Query\AlterableInterface. */
+
   /**
    * {@inheritdoc}
    */
@@ -185,6 +187,8 @@ class Select extends Query implements SelectInterface {
   public function getMetaData($key) {
     return isset($this->alterMetaData[$key]) ? $this->alterMetaData[$key] : NULL;
   }
+
+  /* Implementations of Drupal\Core\Database\Query\ConditionInterface for the WHERE clause. */
 
   /**
    * {@inheritdoc}
@@ -322,6 +326,8 @@ class Select extends Query implements SelectInterface {
     return TRUE;
   }
 
+  /* Implementations of Drupal\Core\Database\Query\ConditionInterface for the HAVING clause. */
+
   /**
    * {@inheritdoc}
    */
@@ -329,6 +335,8 @@ class Select extends Query implements SelectInterface {
     $this->having->condition($field, $value, $operator);
     return $this;
   }
+
+  /* Implementations of Drupal\Core\Database\Query\SelectInterface for the HAVING clause. */
 
   /**
    * Gets a list of all conditions in the HAVING clause.
@@ -380,6 +388,8 @@ class Select extends Query implements SelectInterface {
   public function havingCompile(Connection $connection) {
     $this->having->compile($connection, $this);
   }
+
+  /* Implementations of Drupal\Core\Database\Query\ExtendableInterface. */
 
   /**
    * {@inheritdoc}
@@ -443,6 +453,8 @@ class Select extends Query implements SelectInterface {
     $this->having->notExists($select);
     return $this;
   }
+
+  /* Alter accessors to expose the query data to alter hooks. */
 
   /**
    * {@inheritdoc}
