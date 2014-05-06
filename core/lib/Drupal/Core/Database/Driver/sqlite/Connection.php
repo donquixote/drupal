@@ -175,20 +175,27 @@ class Connection extends DatabaseConnection {
 
   /**
    * SQLite compatibility implementation for the GREATEST() SQL function.
+   *
+   * @param ...
+   *   Variadic parameters of mixed types.
+   *
+   * @return mixed|null
+   *   The greatest of the given arguments, or
+   *   NULL, if no arguments are given or one of the arguments is NULL.
    */
   public static function sqlFunctionGreatest() {
     $args = func_get_args();
-    foreach ($args as $v) {
-      if (!isset($v)) {
-        unset($args);
-      }
-    }
-    if (count($args)) {
-      return max($args);
-    }
-    else {
+    if (empty($args)) {
+      // GREATEST() without arguments should always return NULL.
       return NULL;
     }
+    foreach ($args as $v) {
+      if (NULL === $v) {
+        // GREATEST(.., NULL, ..) should always return NULL.
+        return NULL;
+      }
+    }
+    return max($args);
   }
 
   /**
