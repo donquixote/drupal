@@ -41,6 +41,9 @@ class Statement extends \PDOStatement implements StatementInterface {
     $this->setFetchMode(\PDO::FETCH_OBJ);
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function execute($args = array(), $options = array()) {
     if (isset($options['fetch'])) {
       if (is_string($options['fetch'])) {
