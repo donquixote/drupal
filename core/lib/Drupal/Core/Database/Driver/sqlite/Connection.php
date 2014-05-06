@@ -178,9 +178,9 @@ class Connection extends DatabaseConnection {
    */
   public static function sqlFunctionGreatest() {
     $args = func_get_args();
-    foreach ($args as $v) {
+    foreach ($args as $i => $v) {
       if (!isset($v)) {
-        unset($args);
+        unset($args[$i]);
       }
     }
     if (count($args)) {
