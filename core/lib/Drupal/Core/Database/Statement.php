@@ -172,7 +172,7 @@ class Statement extends \PDOStatement implements StatementInterface {
         return parent::setFetchMode($mode);
       case 2:
         return parent::setFetchMode($mode, $a1);
-      case 3:
+      default:
         return parent::setFetchMode($mode, $a1, $a2);
     }
   }
