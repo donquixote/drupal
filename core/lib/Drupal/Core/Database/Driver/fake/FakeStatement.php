@@ -129,13 +129,6 @@ class FakeStatement extends \ArrayIterator implements StatementInterface {
   /**
    * {@inheritdoc}
    */
-  public function fetchObject() {
-    // @todo Implement fetchObject() method.
-  }
-
-  /**
-   * {@inheritdoc}
-   */
   function fetchAll($mode = NULL, $column_index = NULL, $constructor_arguments = NULL) {
     // @todo Implement fetchAll() method.
   }
