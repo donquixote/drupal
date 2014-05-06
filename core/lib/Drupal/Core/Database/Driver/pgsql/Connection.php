@@ -101,7 +101,9 @@ class Connection extends DatabaseConnection {
     return $pdo;
   }
 
-
+  /**
+   * {@inheritdoc}
+   */
   public function query($query, array $args = array(), $options = array()) {
 
     $options += $this->defaultOptions();
@@ -162,6 +164,9 @@ class Connection extends DatabaseConnection {
     }
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function prepareQuery($query) {
     // mapConditionOperator converts LIKE operations to ILIKE for consistency
     // with MySQL. However, Postgres does not support ILIKE on bytea (blobs)
@@ -173,10 +178,16 @@ class Connection extends DatabaseConnection {
     return parent::prepareQuery(preg_replace('/ ([^ ]+) +(I*LIKE|NOT +I*LIKE) /i', ' ${1}::text ${2} ', $query));
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function queryRange($query, $from, $count, array $args = array(), array $options = array()) {
     return $this->query($query . ' LIMIT ' . (int) $count . ' OFFSET ' . (int) $from, $args, $options);
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function queryTemporary($query, array $args = array(), array $options = array()) {
     $tablename = $this->generateTemporaryTableName();
     $this->query('CREATE TEMPORARY TABLE {' . $tablename . '} AS ' . $query, $args, $options);
@@ -187,6 +198,9 @@ class Connection extends DatabaseConnection {
     return 'pgsql';
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function databaseType() {
     return 'pgsql';
   }
@@ -221,6 +235,9 @@ class Connection extends DatabaseConnection {
     }
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function mapConditionOperator($operator) {
     static $specials = array(
       // In PostgreSQL, 'LIKE' is case-sensitive. For case-insensitive LIKE
