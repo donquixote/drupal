@@ -365,6 +365,9 @@ class StatementPrefetch implements \Iterator, StatementInterface {
     return $this->rowCount;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function fetch($fetch_style = NULL, $cursor_orientation = \PDO::FETCH_ORI_NEXT, $cursor_offset = NULL) {
     if (isset($this->currentRow)) {
       // Set the fetch parameter.
@@ -398,10 +401,16 @@ class StatementPrefetch implements \Iterator, StatementInterface {
     }
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function fetchField($index = 0) {
     return $this->fetchColumn($index);
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function fetchObject($class_name = NULL, $constructor_args = array()) {
     if (isset($this->currentRow)) {
       if (!isset($class_name)) {
