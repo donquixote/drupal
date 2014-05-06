@@ -17,6 +17,9 @@ use Drupal\Core\Database\Query\Insert as QueryInsert;
 
 class Insert extends QueryInsert {
 
+  /**
+   * {@inheritdoc}
+   */
   public function execute() {
     if (!$this->preExecute()) {
       return NULL;

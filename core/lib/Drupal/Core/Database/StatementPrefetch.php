@@ -372,6 +372,9 @@ class StatementPrefetch implements \Iterator, StatementInterface {
 
   /* Implementations of StatementInterface. */
 
+  /**
+   * {@inheritdoc}
+   */
   public function rowCount() {
     return $this->rowCount;
   }
@@ -449,6 +452,9 @@ class StatementPrefetch implements \Iterator, StatementInterface {
     }
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function fetchAssoc() {
     if (isset($this->currentRow)) {
       $result = $this->currentRow;
@@ -484,6 +490,9 @@ class StatementPrefetch implements \Iterator, StatementInterface {
     return $result;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function fetchCol($index = 0) {
     if (isset($this->columnNames[$index])) {
       $result = array();
@@ -499,6 +508,9 @@ class StatementPrefetch implements \Iterator, StatementInterface {
     }
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function fetchAllKeyed($key_index = 0, $value_index = 1) {
     if (!isset($this->columnNames[$key_index]) || !isset($this->columnNames[$value_index]))
       return array();
@@ -515,6 +527,9 @@ class StatementPrefetch implements \Iterator, StatementInterface {
     return $result;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function fetchAllAssoc($key, $fetch_style = NULL) {
     $this->fetchStyle = isset($fetch_style) ? $fetch_style : $this->defaultFetchStyle;
     $this->fetchOptions = $this->defaultFetchOptions;

@@ -296,10 +296,16 @@ class Connection extends DatabaseConnection {
     return new Statement($this->connection, $this, $statement, $driver_options);
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function queryRange($query, $from, $count, array $args = array(), array $options = array()) {
     return $this->query($query . ' LIMIT ' . (int) $from . ', ' . (int) $count, $args, $options);
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function queryTemporary($query, array $args = array(), array $options = array()) {
     // Generate a new temporary table name and protect it from prefixing.
     // SQLite requires that temporary tables to be non-qualified.
@@ -312,10 +318,16 @@ class Connection extends DatabaseConnection {
     return $tablename;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function driver() {
     return 'sqlite';
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function databaseType() {
     return 'sqlite';
   }
@@ -336,6 +348,9 @@ class Connection extends DatabaseConnection {
     }
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function mapConditionOperator($operator) {
     // We don't want to override any of the defaults.
     static $specials = array(
@@ -345,6 +360,9 @@ class Connection extends DatabaseConnection {
     return isset($specials[$operator]) ? $specials[$operator] : NULL;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function nextId($existing_id = 0) {
     $this->startTransaction();
     // We can safely use literal queries here instead of the slower query
@@ -368,6 +386,9 @@ class Connection extends DatabaseConnection {
     return $this->query('SELECT value FROM {sequences}')->fetchField();
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function rollback($savepoint_name = 'drupal_transaction') {
     if ($this->savepointSupport) {
       return parent::rollBack($savepoint_name);
@@ -402,6 +423,9 @@ class Connection extends DatabaseConnection {
     }
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function pushTransaction($name) {
     if ($this->savepointSupport) {
       return parent::pushTransaction($name);
@@ -418,6 +442,9 @@ class Connection extends DatabaseConnection {
     $this->transactionLayers[$name] = $name;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function popTransaction($name) {
     if ($this->savepointSupport) {
       return parent::popTransaction($name);
