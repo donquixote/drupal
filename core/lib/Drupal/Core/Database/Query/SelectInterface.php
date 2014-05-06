@@ -591,11 +591,4 @@ interface SelectInterface extends ConditionInterface, AlterableInterface, Extend
    */
   public function forUpdate($set = TRUE);
 
-  /**
-   * Runs the query against the database.
-   *
-   * @return \Drupal\Core\Database\StatementInterface
-   *   The executed statement.
-   */
-  public function execute();
 }
