@@ -91,6 +91,27 @@ class FetchTest extends DatabaseTestBase {
   }
 
   /**
+   * Confirms that we can fetch a record into a new instance of a custom class.
+   * The name of the class is determined from a value of the first column.
+   *
+   * @see \Drupal\system\Tests\Database\FakeRecord
+   */
+  function testQueryFetchClassType() {
+    $records = array();
+    $result = db_query('SELECT classname, name, job FROM {test_classtype} WHERE age = :age', array(':age' => 26));
+    foreach ($result->fetchAll(\PDO::FETCH_CLASS | \PDO::FETCH_CLASSTYPE) as $record) {
+      if ($this->assertTrue($record instanceof FakeRecord, 'Record is an object of class FakeRecord.')) {
+        $this->assertIdentical($record->name, 'Kay', 'Kay is found.');
+        $this->assertIdentical($record->job, 'Web Developer', 'A 26 year old Web Developer.');
+      }
+      $this->assertTrue(!isset($record->classname), 'Classname field not found, as intended.');
+      $records[] = $record;
+    }
+
+    $this->assertIdentical(count($records), 1, 'There is exactly one record.');
+  }
+
+  /**
    * Confirms that we can fetch a record into an indexed array explicitly.
    */
   function testQueryFetchNum() {

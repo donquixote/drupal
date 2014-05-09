@@ -100,6 +100,15 @@ abstract class DatabaseTestBase extends DrupalUnitTestBase {
       ))
       ->execute();
 
+    db_insert('test_classtype')
+      ->fields(array(
+      'classname' => 'Drupal\system\Tests\Database\FakeRecord',
+      'name' => 'Kay',
+      'age' => 26,
+      'job' => 'Web Developer',
+    ))
+      ->execute();
+
     db_insert('test_task')
       ->fields(array('pid', 'task', 'priority'))
       ->values(array(
