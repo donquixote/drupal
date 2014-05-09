@@ -54,11 +54,16 @@ function database_test_schema() {
     ),
   );
 
-  // This is an alternate version of the same table that is structured the same
-  // but has a non-serial Primary Key.
-  $schema['test_people'] = array(
-    'description' => 'A duplicate version of the test table, used for additional tests.',
+  $schema['test_classtype'] = array(
+    'description' => 'A duplicate version of the test table, used for fetch_style PDO::FETCH_CLASSTYPE tests.',
     'fields' => array(
+      'classname' => array(
+        'description' => "A custom class name",
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
       'name' => array(
         'description' => "A person's name",
         'type' => 'varchar',
@@ -87,16 +92,11 @@ function database_test_schema() {
     ),
   );
 
-  $schema['test_classtype'] = array(
-    'description' => 'A duplicate version of the test table, used for fetch_style PDO::FETCH_CLASSTYPE tests.',
+  // This is an alternate version of the same table that is structured the same
+  // but has a non-serial Primary Key.
+  $schema['test_people'] = array(
+    'description' => 'A duplicate version of the test table, used for additional tests.',
     'fields' => array(
-      'classname' => array(
-        'description' => "A custom class name",
-        'type' => 'varchar',
-        'length' => 255,
-        'not null' => TRUE,
-        'default' => '',
-      ),
       'name' => array(
         'description' => "A person's name",
         'type' => 'varchar',

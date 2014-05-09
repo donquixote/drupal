@@ -23,6 +23,7 @@ abstract class DatabaseTestBase extends DrupalUnitTestBase {
     parent::setUp();
     $this->installSchema('database_test', array(
       'test',
+      'test_classtype',
       'test_people',
       'test_people_copy',
       'test_one_blob',
@@ -92,21 +93,21 @@ abstract class DatabaseTestBase extends DrupalUnitTestBase {
       ))
       ->execute();
 
+    db_insert('test_classtype')
+      ->fields(array(
+        'classname' => 'Drupal\system\Tests\Database\FakeRecord',
+        'name' => 'Kay',
+        'age' => 26,
+        'job' => 'Web Developer',
+      ))
+      ->execute();
+
     db_insert('test_people')
       ->fields(array(
         'name' => 'Meredith',
         'age' => 30,
         'job' => 'Speaker',
       ))
-      ->execute();
-
-    db_insert('test_classtype')
-      ->fields(array(
-      'classname' => 'Drupal\system\Tests\Database\FakeRecord',
-      'name' => 'Kay',
-      'age' => 26,
-      'job' => 'Web Developer',
-    ))
       ->execute();
 
     db_insert('test_task')
