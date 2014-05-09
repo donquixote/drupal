@@ -175,20 +175,30 @@ class Connection extends DatabaseConnection {
 
   /**
    * SQLite compatibility implementation for the GREATEST() SQL function.
+   *
+   * @param ...
+   *   Variadic parameters of mixed types that should be compared.
+   *   If less than two arguments are given, an exception will be thrown.
+   *
+   * @return mixed|null
+   *   The greatest of the given arguments, or
+   *   NULL, if one of the arguments is NULL.
+   *
+   * @throws \InvalidArgumentException
    */
   public static function sqlFunctionGreatest() {
     $args = func_get_args();
-    foreach ($args as $v) {
-      if (!isset($v)) {
-        unset($args);
-      }
+    if (count($args) < 2) {
+      // Implementations of GREATEST() in MySQL and Oracle require at least two arguments.
+      throw new \InvalidArgumentException("Simulated function GREATEST() requires at least two arguments.");
     }
-    if (count($args)) {
-      return max($args);
-    }
-    else {
+    if (in_array(NULL, $args, TRUE)) {
+      // Return NULL if any value is NULL.
       return NULL;
     }
+    // @todo Does max() correctly replicate GREATEST() for non-numeric values?
+    // See https://drupal.org/node/2262425
+    return max($args);
   }
 
   /**
