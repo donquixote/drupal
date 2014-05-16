@@ -10,6 +10,7 @@ namespace Drupal\Core\Extension;
 use Drupal\Component\Graph\Graph;
 use Drupal\Component\Serialization\Yaml;
 use Drupal\Component\Utility\NestedArray;
+use Drupal\Component\Utility\String;
 use Drupal\Core\Cache\CacheBackendInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -525,9 +526,12 @@ class ModuleHandler implements ModuleHandlerInterface {
       // The hook is not cached, so ensure that whether or not it has
       // implementations, the cache is updated at the end of the request.
       $this->cacheNeedsWriting = TRUE;
+      // Discover implementations.
       $this->implementations[$hook] = $this->buildImplementationInfo($hook);
+      // Implementations are always "verified" as part of the discovery.
+      $this->verified[$hook] = TRUE;
     }
-    if (!isset($this->verified[$hook])) {
+    elseif (!isset($this->verified[$hook])) {
       if (!$this->verifyImplementations($this->implementations[$hook], $hook)) {
         // One or more of the implementations did not exist and need to be
         // removed in the cache.
@@ -550,6 +554,8 @@ class ModuleHandler implements ModuleHandlerInterface {
    *   which the implementation is to be found, or FALSE, if the implementation
    *   is in the module file.
    *
+   * @throws \Exception
+   *
    * @see \Drupal\Core\Extension\ModuleHandler::getImplementationInfo()
    */
   protected function buildImplementationInfo($hook) {
@@ -563,10 +569,27 @@ class ModuleHandler implements ModuleHandlerInterface {
         $implementations[$module] = $include_file ? $hook_info[$hook]['group'] : FALSE;
       }
     }
-    // Allow modules to change the weight of specific implementations but avoid
+    // Allow modules to change the weight of specific implementations, but avoid
     // an infinite loop.
     if ($hook != 'module_implements_alter') {
+      // Remember the original implementations, before they are modified with
+      // hook_module_implements_alter().
+      $implementations_before = $implementations;
+      // Verify implementations that were added or modified.
       $this->alter('module_implements', $implementations, $hook);
+      // Verify new or modified implementations.
+      foreach (array_diff_assoc($implementations, $implementations_before) as $module => $group) {
+        // If drupal_alter('module_implements') changed or added a $group, the
+        // respective file needs to be included.
+        if ($group) {
+          $this->loadInclude($module, 'inc', "$module.$group");
+        }
+        // If a new implementation was added, verify that the function exists.
+        if (!function_exists($module . '_' . $hook)) {
+          $function = String::checkPlain($module . '_' . $hook);
+          throw new \Exception("An invalid implementation '$function' was added by hook_module_implements_alter()");
+        }
+      }
     }
     return $implementations;
   }
