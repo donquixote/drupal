@@ -524,9 +524,12 @@ class ModuleHandler implements ModuleHandlerInterface {
       // The hook is not cached, so ensure that whether or not it has
       // implementations, the cache is updated at the end of the request.
       $this->cacheNeedsWriting = TRUE;
+      // Discover implementations.
       $this->implementations[$hook] = $this->buildImplementationInfo($hook);
+      // Implementations are always "verified" as part of the discovery.
+      $this->verified[$hook] = TRUE;
     }
-    if (!isset($this->verified[$hook])) {
+    elseif (!isset($this->verified[$hook])) {
       if (!$this->verifyImplementations($this->implementations[$hook], $hook)) {
         // One or more of the implementations did not exist and need to be
         // removed in the cache.
@@ -561,10 +564,32 @@ class ModuleHandler implements ModuleHandlerInterface {
         $implementations[$module] = $include_file ? $hook_info[$hook]['group'] : FALSE;
       }
     }
-    // Allow modules to change the weight of specific implementations but avoid
+    // Allow modules to change the weight of specific implementations, but avoid
     // an infinite loop.
     if ($hook != 'module_implements_alter') {
+      // Remember the original implementations, before they are modified with
+      // hook_module_implements_alter().
+      $implementations_before = $implementations;
+      // Verify implementations that were added or modified.
       $this->alter('module_implements', $implementations, $hook);
+      // Verify new or modified implementations.
+      foreach (array_diff_assoc($implementations, $implementations_before) as $module => $group) {
+        // If drupal_alter('module_implements') changed or added a $group, the
+        // respective file needs to be included.
+        if ($group) {
+          $this->loadInclude($module, 'inc', "$module.$group");
+        }
+        // It is possible that a module removed a hook implementation without
+        // the implementations cache being rebuilt yet, so we check whether the
+        // function exists on each request to avoid undefined function errors.
+        // Since ModuleHandler::implementsHook() may needlessly try to
+        // load the include file again, function_exists() is used directly here.
+        if (!function_exists($module . '_' . $hook)) {
+          // Clear out the stale implementation from the cache and force a cache
+          // refresh to forget about no longer existing hook implementations.
+          unset($implementations[$module]);
+        }
+      }
     }
     return $implementations;
   }
