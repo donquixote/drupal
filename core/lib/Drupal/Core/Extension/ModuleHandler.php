@@ -49,6 +49,14 @@ class ModuleHandler implements ModuleHandlerInterface {
   protected $implementations;
 
   /**
+   * List of hooks where the implementations have been "verified".
+   *
+   * @var true[]
+   *   Associative array where keys are hook names.
+   */
+  protected $verified;
+
+  /**
    * Information returned by hook_hook_info() implementations.
    *
    * @var array
@@ -508,6 +516,7 @@ class ModuleHandler implements ModuleHandlerInterface {
   protected function getImplementationInfo($hook) {
     if (!isset($this->implementations)) {
       $this->implementations = array();
+      $this->verified = array();
       if ($cache = $this->cacheBackend->get('module_implements')) {
         $this->implementations = $cache->data;
       }
@@ -518,12 +527,13 @@ class ModuleHandler implements ModuleHandlerInterface {
       $this->cacheNeedsWriting = TRUE;
       $this->implementations[$hook] = $this->buildImplementationInfo($hook);
     }
-    else {
+    if (!isset($this->verified[$hook])) {
       if (!$this->verifyImplementations($this->implementations[$hook], $hook)) {
         // One or more of the implementations did not exist and need to be
         // removed in the cache.
         $this->cacheNeedsWriting = TRUE;
       }
+      $this->verified[$hook] = TRUE;
     }
     return $this->implementations[$hook];
   }
