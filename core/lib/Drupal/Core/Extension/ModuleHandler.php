@@ -519,23 +519,10 @@ class ModuleHandler implements ModuleHandlerInterface {
       $this->implementations[$hook] = $this->buildImplementationInfo($hook);
     }
     else {
-      foreach ($this->implementations[$hook] as $module => $group) {
-        // If this hook implementation is stored in a lazy-loaded file, include
-        // that file first.
-        if ($group) {
-          $this->loadInclude($module, 'inc', "$module.$group");
-        }
-        // It is possible that a module removed a hook implementation without
-        // the implementations cache being rebuilt yet, so we check whether the
-        // function exists on each request to avoid undefined function errors.
-        // Since ModuleHandler::implementsHook() may needlessly try to
-        // load the include file again, function_exists() is used directly here.
-        if (!function_exists($module . '_' . $hook)) {
-          // Clear out the stale implementation from the cache and force a cache
-          // refresh to forget about no longer existing hook implementations.
-          unset($this->implementations[$hook][$module]);
-          $this->cacheNeedsWriting = TRUE;
-        }
+      if (!$this->verifyImplementations($this->implementations[$hook], $hook)) {
+        // One or more of the implementations did not exist and need to be
+        // removed in the cache.
+        $this->cacheNeedsWriting = TRUE;
       }
     }
     return $this->implementations[$hook];
@@ -572,6 +559,45 @@ class ModuleHandler implements ModuleHandlerInterface {
       $this->alter('module_implements', $implementations, $hook);
     }
     return $implementations;
+  }
+
+  /**
+   * Verifies an array of implementations loaded from the cache, by including
+   * the lazy-loaded $module.$group.inc, and checking function_exists().
+   *
+   * @param string[] $implementations
+   *   Implementation "group" by module name.
+   * @param string $hook
+   *   The hook name.
+   *
+   * @return bool
+   *   TRUE, if all implementations exist.
+   *   FALSE, if one or more implementations don't exist and need to be removed
+   *     from the cache.
+   */
+  protected function verifyImplementations(&$implementations, $hook) {
+    $all_valid = TRUE;
+    foreach ($implementations as $module => $group) {
+      // If this hook implementation is stored in a lazy-loaded file, include
+      // that file first.
+      if ($group) {
+        $this->loadInclude($module, 'inc', "$module.$group");
+      }
+      // It is possible that a module removed a hook implementation without
+      // the implementations cache being rebuilt yet, so we check whether the
+      // function exists on each request to avoid undefined function errors.
+      // Since ModuleHandler::implementsHook() may needlessly try to
+      // load the include file again, function_exists() is used directly here.
+      if (!function_exists($module . '_' . $hook)) {
+        // Clear out the stale implementation from the cache and force a cache
+        // refresh to forget about no longer existing hook implementations.
+        unset($implementations[$module]);
+        // One of the implementations did not exist and needs to be removed in
+        // the cache.
+        $all_valid = FALSE;
+      }
+    }
+    return $all_valid;
   }
 
   /**
