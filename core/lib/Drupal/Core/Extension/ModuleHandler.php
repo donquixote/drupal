@@ -499,10 +499,11 @@ class ModuleHandler implements ModuleHandlerInterface {
    * @param string $hook
    *   The name of the hook (e.g. "help" or "menu").
    *
-   * @return array
+   * @return mixed[]
    *   An array whose keys are the names of the modules which are implementing
-   *   this hook and whose values are either an array of information from
-   *   hook_hook_info() or FALSE if the implementation is in the module file.
+   *   this hook and whose values are either a string identifying a file in
+   *   which the implementation is to be found, or FALSE, if the implementation
+   *   is in the module file.
    */
   protected function getImplementationInfo($hook) {
     if (!isset($this->implementations)) {
@@ -546,10 +547,11 @@ class ModuleHandler implements ModuleHandlerInterface {
    * @param string $hook
    *   The name of the hook (e.g. "help" or "menu").
    *
-   * @return array
+   * @return mixed[]
    *   An array whose keys are the names of the modules which are implementing
-   *   this hook and whose values are either an array of information from
-   *   hook_hook_info() or FALSE if the implementation is in the module file.
+   *   this hook and whose values are either a string identifying a file in
+   *   which the implementation is to be found, or FALSE, if the implementation
+   *   is in the module file.
    *
    * @see \Drupal\Core\Extension\ModuleHandler::getImplementationInfo()
    */
