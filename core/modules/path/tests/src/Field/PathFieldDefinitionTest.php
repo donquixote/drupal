@@ -42,7 +42,12 @@ class PathFieldDefinitionTest extends FieldDefinitionTestBase {
    * {@inheritdoc}
    */
   protected function getNamespacePath() {
-    return dirname(dirname(dirname(__DIR__))) . '/lib/Drupal/path';
+    // @todo Remove this distinction after issue #2247991.
+    return is_dir($dir_psr4 = dirname(__DIR__) . '/src')
+      // After the PSR-4 transition.
+      ? $dir_psr4
+      // Before the PSR-4 transition.
+      : dirname(dirname(dirname(__DIR__))) . '/lib/Drupal/path';
   }
 
   /**
