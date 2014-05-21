@@ -42,6 +42,11 @@ class ModuleImplementsAlterTest extends WebTestBase {
    */
   function testModuleImplementsAlter() {
 
+    // Get an instance of the container, to observe how it is going to be
+    // replaced.
+    $container = \Drupal::getContainer();
+    debug(get_class($container));
+
     // Get an instance of the module handler, to observe how it is going to be
     // replaced.
     $module_handler = \Drupal::moduleHandler();
@@ -51,6 +56,11 @@ class ModuleImplementsAlterTest extends WebTestBase {
 
     // Install the module_test module.
     \Drupal::moduleHandler()->install(array('module_test'));
+
+    // Assert that the \Drupal::getContainer() instance has been replaced.
+    $this->assertFalse($container === \Drupal::getContainer(),
+      'The \Drupal::getContainer() instance has been replaced during \Drupal::moduleHandler()->install().');
+    debug(get_class(\Drupal::getContainer()));
 
     // Assert that the \Drupal::moduleHandler() instance has been replaced.
     $this->assertFalse($module_handler === \Drupal::moduleHandler(),
