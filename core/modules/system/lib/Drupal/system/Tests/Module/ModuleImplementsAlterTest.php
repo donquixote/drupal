@@ -2,12 +2,11 @@
 
 /**
  * @file
- * Definition of Drupal\system\Tests\Module\ModuleApiTest.
+ * Definition of Drupal\system\Tests\Module\ModuleImplementsAlterTest.
  */
 
 namespace Drupal\system\Tests\Module;
 
-use Drupal\Core\Extension\ModuleHandler;
 use Drupal\simpletest\WebTestBase;
 
 /**
