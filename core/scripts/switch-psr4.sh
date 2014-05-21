@@ -187,7 +187,9 @@ function process_candidate_dir($dir) {
 function process_extension($name, $dir) {
 
   if (!is_dir($source = "$dir/lib/Drupal/$name")) {
-    // Nothing to do in this module.
+    // No PSR-0 class files to be moved, but there could still be a remaining
+    // empty "lib" directory.
+    remove_empty_directory_tree_if_exists("$dir/lib");
     return;
   }
 
@@ -199,8 +201,7 @@ function process_extension($name, $dir) {
   move_directory_contents($source, $destination);
 
   // Clean up.
-  require_dir_empty("$dir/lib/Drupal");
-  rmdir("$dir/lib/Drupal");
+  remove_empty_directory_tree("$dir/lib");
 }
 
 /**
@@ -218,6 +219,9 @@ function process_extension_phpunit($name, $dir) {
 
   if (!is_dir($source = "$dir/tests/Drupal/$name/Tests")) {
     // Nothing to do in this module.
+    // No PSR-0 PHPUnit class files to be moved, but there could still be a
+    // remaining empty "tests/lib" directory.
+    remove_empty_directory_tree_if_exists("$dir/tests/lib");
     return;
   }
 
@@ -229,10 +233,7 @@ function process_extension_phpunit($name, $dir) {
   move_directory_contents($source, $dest);
 
   // Clean up.
-  require_dir_empty("$dir/tests/Drupal/$name");
-  rmdir("$dir/tests/Drupal/$name");
-  require_dir_empty("$dir/tests/Drupal");
-  rmdir("$dir/tests/Drupal");
+  remove_empty_directory_tree("$dir/tests/Drupal");
 }
 
 /**
@@ -284,6 +285,63 @@ function move_directory_contents($source, $destination) {
 }
 
 /**
+ * Removes a directory tree, if it exists and it contains no files.
+ *
+ * Throws an exception, if the given path is a file instead of a directory, or
+ * if the directory tree contains any files.
+ *
+ * @param string $dir
+ *   Path to the directory tree to be removed.
+ *
+ * @throws \Exception
+ */
+function remove_empty_directory_tree_if_exists($dir) {
+
+  if (!file_exists($dir)) {
+    // The path is neither a file nor a directory.
+    return;
+  }
+
+  // Recursively remove the directory and subfolders, and throw an exception if
+  // any file is found.
+  remove_empty_directory_tree($dir);
+}
+
+/**
+ * Removes a directory tree, if it contains only subdirectories and no files.
+ *
+ * Throws an exception if any file is found.
+ *
+ * @param string $dir
+ *   Path to the directory tree to be removed.
+ *
+ * @throws \Exception
+ */
+function remove_empty_directory_tree($dir) {
+
+  // Throw an exception if the directory does not exist.
+  require_is_readable_dir($dir);
+
+  // Recursively remove subdirectories, and verify that no files exist anywhere
+  // in the directory tree.
+  foreach (new \DirectoryIterator($dir) as $fileinfo) {
+    if ($fileinfo->isDot()) {
+      continue;
+    }
+    $path = $fileinfo->getPathname();
+    if ($fileinfo->isFile()) {
+      throw new \Exception("File '$path' found in a directory that is expected to not contain any files.");
+    }
+    if ($fileinfo->isDir()) {
+      remove_empty_directory_tree($path);
+    }
+  }
+
+  // Remove the parent directory.
+  rmdir($dir);
+}
+
+/**
  * Throws an exception if a directory is not empty.
  *
  * @param string $dir
@@ -292,18 +350,11 @@ function move_directory_contents($source, $destination) {
  * @throws \Exception
  */
 function require_dir_empty($dir) {
-  if (is_file($dir)) {
-    throw new \Exception("The path '$dir' is a file, when it should be a directory.");
-  }
-  if (!is_dir($dir)) {
-    throw new \Exception("The directory '$dir' does not exist.");
-  }
-  if (!is_readable($dir)) {
-    throw new \Exception("The directory '$dir' is not readable.");
-  }
-  /**
-   * @var \DirectoryIterator $fileinfo
-   */
+
+  // Throw an exception if the directory does not exist.
+  require_is_readable_dir($dir);
+
+  // Verify that no files or subfolders exist anywhere in the directory.
   foreach (new \DirectoryIterator($dir) as $fileinfo) {
     if ($fileinfo->isDot()) {
       continue;
@@ -315,5 +366,24 @@ function require_dir_empty($dir) {
     elseif ($fileinfo->isDir()) {
       throw new \Exception("Subdirectory '$path' found in a directory that should be empty.");
     }
+  }
+}
+
+/**
+ * Throws an exception if a given path is not a readable directory.
+ *
+ * @param $dir
+ *
+ * @throws \Exception
+ */
+function require_is_readable_dir($dir) {
+  if (is_file($dir)) {
+    throw new \Exception("The path '$dir' is a file, when it should be a directory.");
+  }
+  if (!is_dir($dir)) {
+    throw new \Exception("The directory '$dir' does not exist.");
+  }
+  if (!is_readable($dir)) {
+    throw new \Exception("The directory '$dir' is not readable.");
   }
 }
