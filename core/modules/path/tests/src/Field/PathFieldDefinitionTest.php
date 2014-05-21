@@ -39,13 +39,6 @@ class PathFieldDefinitionTest extends FieldDefinitionTestBase {
   }
 
   /**
-   * {@inheritdoc}
-   */
-  protected function getNamespacePath() {
-    return dirname(dirname(dirname(__DIR__))) . '/lib/Drupal/path';
-  }
-
-  /**
    * Tests FieldDefinition::getColumns().
    *
    * @covers \Drupal\Core\Field\FieldDefinition::getColumns
