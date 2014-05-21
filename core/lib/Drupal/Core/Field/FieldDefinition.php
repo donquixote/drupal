@@ -475,7 +475,16 @@ class FieldDefinition extends ListDataDefinition implements FieldDefinitionInter
     if (!isset($this->schema)) {
       // Get the schema from the field item class.
       $definition = \Drupal::service('plugin.manager.field.field_type')->getDefinition($this->getType());
+      if (!isset($definition['class'])) {
+        throw new \Exception("\$definition['class'] is not set.");
+      }
       $class = $definition['class'];
+      if (!class_exists($class)) {
+        throw new \Exception(var_export($class, TRUE) . " is not a class.");
+      }
+      if (!is_subclass_of($class, 'Drupal\Core\Field\FieldItemInterface')) {
+        throw new \Exception("class $class must implement FieldItemInterface.");
+      }
       $schema = $class::schema($this);
       // Fill in default values.
       $schema += array(
