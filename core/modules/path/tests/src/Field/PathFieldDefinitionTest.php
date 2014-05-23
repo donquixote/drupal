@@ -39,13 +39,6 @@ class PathFieldDefinitionTest extends FieldDefinitionTestBase {
   }
 
   /**
-   * {@inheritdoc}
-   */
-  protected function getModuleAndPath() {
-    return array('path', dirname(dirname(dirname(__DIR__))));
-  }
-
-  /**
    * Tests FieldDefinition::getColumns().
    *
    * @covers \Drupal\Core\Field\FieldDefinition::getColumns
