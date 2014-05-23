@@ -28,15 +28,22 @@ abstract class FieldDefinitionTestBase extends UnitTestCase {
    * {@inheritdoc}
    */
   public function setUp() {
-    $namespace_path = $this->getNamespacePath();
-    // Suppport both PSR-0 and PSR-4 directory layouts.
-    $module_name = basename($namespace_path);
-    if ($module_name == 'src') {
-      $module_name = basename($module_name);
+
+    $module_info_file = $this->getModuleInfoFilePath();
+    if (!preg_match('#^(.*)/([^/]+)\.info\.yml$#', $module_info_file, $m)) {
+      throw new \Exception("Unexpected module info file.");
     }
-    $namespaces = new \ArrayObject(array(
-      'Drupal\\' . $module_name => $namespace_path,
-    ));
+
+    list(, $module_dir, $module_name) = $m;
+
+    $namespaces = new \ArrayObject(
+      array(
+        "Drupal\\$module_name" => array(
+          $module_dir . '/src',
+          $module_dir . '/lib/Drupal/' . $module_name,
+        ),
+      )
+    );
 
     $language_manager = $this->getMock('Drupal\Core\Language\LanguageManagerInterface');
     $language_manager->expects($this->once())
@@ -72,15 +79,16 @@ abstract class FieldDefinitionTestBase extends UnitTestCase {
   abstract protected function getPluginId();
 
   /**
-   * Returns the path to the module's classes.
+   * Returns the path to the *.info.yml file of the module where the test should
+   * look for plugins.
    *
-   * Depending on whether the module follows the PSR-0 or PSR-4 directory layout
-   * this should be either /path/to/module/lib/Drupal/mymodule or
-   * /path/to/module/src.
+   * This will be used to determine both the module name and the module
+   * directory.
    *
    * @return string
-   *   The path to the module's classes.
+   *   The path to the MODULE.info.yml file, e.g.
+   *   DRUPAL_ROOT . "/core/modules/path/path.info.yml".
    */
-  abstract protected function getNamespacePath();
+  abstract protected function getModuleInfoFilePath();
 
 }
