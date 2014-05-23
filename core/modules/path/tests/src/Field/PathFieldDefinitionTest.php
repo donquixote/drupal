@@ -41,8 +41,8 @@ class PathFieldDefinitionTest extends FieldDefinitionTestBase {
   /**
    * {@inheritdoc}
    */
-  protected function getNamespacePath() {
-    return dirname(dirname(dirname(__DIR__))) . '/lib/Drupal/path';
+  protected function getModuleInfoFilePath() {
+    return dirname(dirname(dirname(__DIR__))) . '/path.info.yml';
   }
 
   /**
