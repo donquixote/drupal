@@ -126,4 +126,27 @@ class String {
     return '<em class="placeholder">' . static::checkPlain($text) . '</em>';
   }
 
+  /**
+   * Removes a suffix from a string, if possible.
+   *
+   * @param string $string
+   *   A string to test.
+   * @param string $suffix
+   *   A string that could be a suffix of $string.
+   *
+   * @return bool|string
+   *   The $prefix, so that $prefix . $suffix === $string, or
+   *   FALSE, if $string does not end with $suffix.
+   */
+  public static function removeSuffix($string, $suffix) {
+    if (FALSE !== $pos = strrpos($string, $suffix)) {
+      if ($pos + strlen($suffix) === strlen($string)) {
+        // $string ends with $suffix, so return the beginning of $string.
+        return substr($string, 0, $pos);
+      }
+    }
+    // $string does not end with $suffix.
+    return FALSE;
+  }
+
 }
