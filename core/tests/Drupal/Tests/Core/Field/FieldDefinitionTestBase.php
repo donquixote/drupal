@@ -28,15 +28,20 @@ abstract class FieldDefinitionTestBase extends UnitTestCase {
    * {@inheritdoc}
    */
   public function setUp() {
-    $namespace_path = $this->getNamespacePath();
-    // Suppport both PSR-0 and PSR-4 directory layouts.
-    $module_name = basename($namespace_path);
-    if ($module_name == 'src') {
-      $module_name = basename($module_name);
-    }
-    $namespaces = new \ArrayObject(array(
-      'Drupal\\' . $module_name => $namespace_path,
-    ));
+
+    list($module_name, $module_dir) = $this->getModuleAndPath();
+
+    $namespaces = new \ArrayObject(
+      array(
+        "Drupal\\$module_name" => array(
+          // Suppport both PSR-0 and PSR-4 directory layouts.
+          $module_dir . '/src',
+          // @todo Remove this when PSR-0 support ends.
+          // @see https://drupal.org/node/2247287
+          $module_dir . '/lib/Drupal/' . $module_name,
+        ),
+      )
+    );
 
     $language_manager = $this->getMock('Drupal\Core\Language\LanguageManagerInterface');
     $language_manager->expects($this->once())
@@ -72,15 +77,16 @@ abstract class FieldDefinitionTestBase extends UnitTestCase {
   abstract protected function getPluginId();
 
   /**
-   * Returns the path to the module's classes.
+   * Returns the module name and the module directory, for the module that
+   * contains the plugin to be tested.
    *
-   * Depending on whether the module follows the PSR-0 or PSR-4 directory layout
-   * this should be either /path/to/module/lib/Drupal/mymodule or
-   * /path/to/module/src.
+   * drupal_get_path() cannot be used here, because it is not available in
+   * Drupal PHPUnit tests.
    *
-   * @return string
-   *   The path to the module's classes.
+   * @return string[]
+   *   Numeric array containing the module name and the module directory, e.g.
+   *   array('path', DRUPAL_CORE . 'core/modules/path')
    */
-  abstract protected function getNamespacePath();
+  abstract protected function getModuleAndPath();
 
 }
