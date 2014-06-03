@@ -20,16 +20,15 @@
  * @link authorize Authorized operation helper functions @endlink
  */
 
-use Drupal\Core\DrupalKernel;
 use Drupal\Core\Url;
-use Symfony\Component\HttpFoundation\Request;
+use Drupal\Core\CoreContainer\CoreServices;
 use Drupal\Core\Site\Settings;
 use Drupal\Core\Page\DefaultHtmlPageRenderer;
 
 // Change the directory to the Drupal root.
 chdir('..');
 
-$autoloader = require_once __DIR__ . '/vendor/autoload.php';
+require_once __DIR__ . '/vendor/autoload.php';
 
 /**
  * Global flag to identify update.php and authorize.php runs.
@@ -54,8 +53,9 @@ function authorize_access_allowed() {
   return Settings::get('allow_authorize_operations', TRUE) && \Drupal::currentUser()->hasPermission('administer software updates');
 }
 
-$request = Request::createFromGlobals();
-$kernel = DrupalKernel::createFromRequest($request, $autoloader, 'prod');
+$core_services = CoreServices::create();
+$request = $core_services->Request;
+$kernel = $core_services->DrupalKernel;
 $kernel->prepareLegacyRequest($request);
 
 // We have to enable the user and system modules, even to check access and
