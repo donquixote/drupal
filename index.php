@@ -18,10 +18,10 @@ try {
 
   $request = Request::createFromGlobals();
   $kernel = DrupalKernel::createFromRequest($request, $autoloader, 'prod');
-  $response = $kernel
-      ->handle($request)
-      // Handle the response object.
-      ->prepare($request)->send();
+  $response = $kernel->handle($request);
+  // Handle the response object.
+  $response->prepare($request);
+  $response->send();
   $kernel->terminate($request, $response);
 }
 catch (Exception $e) {
