@@ -1,6 +1,7 @@
 <?php
 
 use Drupal\Component\Utility\UrlHelper;
+use Drupal\Core\CoreContainer\CoreServices;
 use Drupal\Core\DrupalKernel;
 use Drupal\Core\Config\BootstrapConfigStorageFactory;
 use Drupal\Core\Database\Database;
@@ -17,7 +18,6 @@ use Drupal\Core\StringTranslation\Translator\FileTranslation;
 use Drupal\Core\Extension\ExtensionDiscovery;
 use Drupal\Core\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Reference;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 use GuzzleHttp\Exception\RequestException;
@@ -254,7 +254,11 @@ function install_state_defaults() {
  *   modified with information gleaned from the beginning of the page request.
  */
 function install_begin_request(&$install_state) {
-  $request = Request::createFromGlobals();
+
+  $core_services = (new CoreServices)
+    ->disableContainerDumping();
+
+  $request = $core_services->Request;
 
   // Add any installation parameters passed in via the URL.
   if ($install_state['interactive']) {
@@ -344,14 +348,11 @@ function install_begin_request(&$install_state) {
   // Replace services with in-memory and null implementations. This kernel is
   // replaced with a regular one in drupal_install_system().
   if (!$install_state['base_system_verified']) {
-    $environment = 'install';
+    $core_services->setEnvironment('install');
     $GLOBALS['conf']['container_service_providers']['InstallerServiceProvider'] = 'Drupal\Core\Installer\InstallerServiceProvider';
   }
-  else {
-    $environment = 'prod';
-  }
 
-  $kernel = DrupalKernel::createFromRequest($request, drupal_classloader(), $environment, FALSE);
+  $kernel = $core_services->DrupalKernel;
   $kernel->setSitePath($site_path);
   $kernel->boot();
   $container = $kernel->getContainer();
