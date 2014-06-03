@@ -8,8 +8,7 @@
  *  Plain-text passwords in quotes (or with spaces backslash escaped).
  */
 
-use Drupal\Core\DrupalKernel;
-use Symfony\Component\HttpFoundation\Request;
+use Drupal\Core\CoreContainer\CoreServices;
 
 if (PHP_SAPI !== 'cli') {
   return;
@@ -55,10 +54,10 @@ EOF;
 // Password list to be processed.
 $passwords = $_SERVER['argv'];
 
-$autoloader = require __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
-$request = Request::createFromGlobals();
-$kernel = DrupalKernel::createFromRequest($request, $autoloader, 'prod', FALSE);
+$core_services = CoreServices::create()->disableContainerDumping();
+$kernel = $core_services->DrupalKernel;
 $kernel->boot();
 
 $password_hasher = $kernel->getContainer()->get('password');
