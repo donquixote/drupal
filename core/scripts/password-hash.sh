@@ -8,12 +8,12 @@
  *  Plain-text passwords in quotes (or with spaces backslash escaped).
  */
 
-use Drupal\Core\DrupalKernel;
-use Symfony\Component\HttpFoundation\Request;
 
 // Check for $_SERVER['argv'] instead of PHP_SAPI === 'cli' to allow this script
 // to be tested with the Simpletest UI test runner.
 // @see \Drupal\system\Tests\System\ScriptTest
+use Drupal\Core\CoreContainer\CoreServices;
+
 if (!isset($_SERVER['argv']) || !is_array($_SERVER['argv'])) {
   return;
 }
@@ -57,10 +57,11 @@ EOF;
 // Password list to be processed.
 $passwords = $_SERVER['argv'];
 
-$autoloader = require __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
-$request = Request::createFromGlobals();
-$kernel = DrupalKernel::createFromRequest($request, $autoloader, 'prod', FALSE);
+$core_services = (new CoreServices)
+  ->disableContainerDumping();
+$kernel = $core_services->DrupalKernel;
 $kernel->boot();
 
 $password_hasher = $kernel->getContainer()->get('password');
