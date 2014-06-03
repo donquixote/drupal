@@ -8,16 +8,16 @@
  * See COPYRIGHT.txt and LICENSE.txt files in the "core" directory.
  */
 
-use Drupal\Core\DrupalKernel;
+use Drupal\Core\CoreContainer\CoreServices;
 use Drupal\Core\Site\Settings;
-use Symfony\Component\HttpFoundation\Request;
 
-$autoloader = require_once __DIR__ . '/core/vendor/autoload.php';
+require_once __DIR__ . '/core/vendor/autoload.php';
 
 try {
 
-  $request = Request::createFromGlobals();
-  $kernel = DrupalKernel::createFromRequest($request, $autoloader, 'prod');
+  $core_services = new CoreServices();
+  $request = $core_services->Request;
+  $kernel = $core_services->DrupalKernel;
   $kernel->handlePageCache($request);
   $response = $kernel->handle($request);
   // Handle the response object.

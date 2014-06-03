@@ -14,18 +14,15 @@
  * back to its original state!
  */
 
-use Drupal\Core\DrupalKernel;
+use Drupal\Core\CoreContainer\CoreServices;
 use Drupal\Core\Page\DefaultHtmlPageRenderer;
 use Drupal\Core\Site\Settings;
-use Drupal\Core\Update\Form\UpdateScriptSelectionForm;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\DependencyInjection\Reference;
 
 // Change the directory to the Drupal root.
 chdir('..');
 
-$autoloader = require_once __DIR__ . '/vendor/autoload.php';
+require_once __DIR__ . '/vendor/autoload.php';
 
 // Exit early if an incompatible PHP version would cause fatal errors.
 // The minimum version is specified explicitly, as DRUPAL_MINIMUM_PHP is not
@@ -300,8 +297,10 @@ ini_set('display_errors', FALSE);
 require_once __DIR__ . '/includes/update.inc';
 require_once __DIR__ . '/includes/install.inc';
 
-$request = Request::createFromGlobals();
-$kernel = DrupalKernel::createFromRequest($request, $autoloader, 'update', FALSE);
+$core_services = (new CoreServices)
+  ->setEnvironment('update')
+  ->disableContainerDumping();
+$kernel = $core_services->DrupalKernel;
 
 // Enable UpdateServiceProvider service overrides.
 // @see update_flush_all_caches()
@@ -320,7 +319,7 @@ if (db_table_exists('system')) {
   }
 }
 
-$kernel->prepareLegacyRequest($request);
+$kernel->prepareLegacyRequest($core_services->Request);
 
 // Determine if the current user has access to run update.php.
 \Drupal::service('session_manager')->initialize();
