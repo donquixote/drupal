@@ -352,10 +352,8 @@ function install_begin_request(&$install_state) {
     $GLOBALS['conf']['container_service_providers']['InstallerServiceProvider'] = 'Drupal\Core\Installer\InstallerServiceProvider';
   }
 
-  $kernel = $core_services->DrupalKernel;
-  $kernel->setSitePath($site_path);
-  $kernel->boot();
-  $container = $kernel->getContainer();
+  $core_services->setCustomSitePath($site_path);
+  $container = $core_services->Container;
 
   // Register the file translation service.
   if (isset($GLOBALS['config']['locale.settings']['translation.path'])) {
@@ -368,7 +366,7 @@ function install_begin_request(&$install_state) {
   $container->get('string_translation')
     ->addTranslator($container->get('string_translator.file_translation'));
 
-  $kernel->prepareLegacyRequest($request);
+  $core_services->BootstrappedDrupalKernel->prepareLegacyRequest($request);
 
   // Set the default language to the selected language, if any.
   if (isset($install_state['parameters']['langcode'])) {

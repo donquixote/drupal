@@ -61,10 +61,8 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 $core_services = (new CoreServices)
   ->disableContainerDumping();
-$kernel = $core_services->DrupalKernel;
-$kernel->boot();
 
-$password_hasher = $kernel->getContainer()->get('password');
+$password_hasher = $core_services->Container->get('password');
 
 foreach ($passwords as $password) {
   print("\npassword: $password \t\thash: ". $password_hasher->hash($password) ."\n");
