@@ -28,8 +28,7 @@ if ($args['help'] || $count == 0) {
 simpletest_script_init();
 
 $core_services = new CoreServices();
-$kernel = $core_services->DrupalKernel;
-$kernel->prepareLegacyRequest($request);
+$core_services->BootstrappedDrupalKernel->prepareLegacyRequest($request);
 
 if ($args['execute-test']) {
   simpletest_script_setup_database();

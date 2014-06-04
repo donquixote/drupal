@@ -7,6 +7,7 @@
 
 namespace Drupal\Core;
 
+use Drupal\Core\DrupalKernel\SiteDrupalKernelInterface;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -16,14 +17,7 @@ use Symfony\Component\HttpFoundation\Request;
  * This interface extends Symfony's KernelInterface and adds methods for
  * responding to modules being enabled or disabled during its lifetime.
  */
-interface DrupalKernelInterface extends HttpKernelInterface {
-
-  /**
-   * Boots the current kernel.
-   *
-   * @return $this
-   */
-  public function boot();
+interface DrupalKernelInterface extends HttpKernelInterface, SiteDrupalKernelInterface {
 
   /**
    * Shuts down the kernel.
@@ -52,7 +46,8 @@ interface DrupalKernelInterface extends HttpKernelInterface {
   /**
    * Gets the current container.
    *
-   * @return ContainerInterface A ContainerInterface instance
+   * @return \Symfony\Component\DependencyInjection\ContainerInterface
+   *   The container.
    */
   public function getContainer();
 
@@ -105,22 +100,6 @@ interface DrupalKernelInterface extends HttpKernelInterface {
    * @see example.sites.php
    */
   public static function findSitePath(Request $request, $require_settings = TRUE);
-
-  /**
-   * Set the current site path.
-   *
-   * @param $path
-   *   The current site path.
-   */
-  public function setSitePath($path);
-
-  /**
-   * Get the site path.
-   *
-   * @return string
-   *   The current site path.
-   */
-  public function getSitePath();
 
   /**
    * Updates the kernel's list of modules to the new list.
