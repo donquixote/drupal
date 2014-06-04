@@ -135,6 +135,9 @@ class Drupal {
    *   The specified service.
    */
   public static function service($id) {
+    if (!isset(static::$container)) {
+      throw new \Exception("Container not initialized yet.");
+    }
     return static::$container->get($id);
   }
 
@@ -272,6 +275,9 @@ class Drupal {
    *   A configuration object.
    */
   public static function config($name) {
+    if (!isset(static::$container)) {
+      throw new \Exception("Container not initialized yet.");
+    }
     return static::$container->get('config.factory')->get($name);
   }
 
@@ -401,6 +407,9 @@ class Drupal {
    * @return \Drupal\Core\Extension\ModuleHandlerInterface
    */
   public static function moduleHandler() {
+    if (!isset(static::$container)) {
+      throw new \Exception("Container not initialized yet.");
+    }
     return static::$container->get('module_handler');
   }
 
