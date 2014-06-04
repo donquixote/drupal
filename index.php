@@ -17,7 +17,7 @@ try {
 
   $core_services = new CoreServices();
   $request = $core_services->Request;
-  $kernel = $core_services->DrupalKernel;
+  $kernel = $core_services->BootstrappedDrupalKernel;
   $kernel->handlePageCache($request);
   $response = $kernel->handle($request);
   // Handle the response object.
