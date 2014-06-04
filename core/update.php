@@ -300,14 +300,14 @@ require_once __DIR__ . '/includes/install.inc';
 $core_services = (new CoreServices)
   ->setEnvironment('update')
   ->disableContainerDumping();
-$kernel = $core_services->DrupalKernel;
 $request = $core_services->Request;
 
 // Enable UpdateServiceProvider service overrides.
 // @see update_flush_all_caches()
 $GLOBALS['conf']['container_service_providers']['UpdateServiceProvider'] = 'Drupal\Core\DependencyInjection\UpdateServiceProvider';
 $GLOBALS['conf']['update_service_provider_overrides'] = TRUE;
-$kernel->boot();
+
+$kernel = $core_services->BootstrappedDrupalKernel;
 
 // Updating from a site schema version prior to 8000 should block the update
 // process. Ensure that the site is not attempting to update a database
