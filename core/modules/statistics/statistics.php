@@ -13,10 +13,9 @@ chdir('../../..');
 require_once dirname(dirname(__DIR__)) . '/vendor/autoload.php';
 
 $core_services = new CoreServices();
-$kernel = $core_services->DrupalKernel;
-$kernel->boot();
+$container = $core_services->Container;
 
-$views = $kernel->getContainer()
+$views = $container
   ->get('config.factory')
   ->get('statistics.settings')
   ->get('count_content_views');
