@@ -366,7 +366,7 @@ function install_begin_request(&$install_state) {
   $container->get('string_translation')
     ->addTranslator($container->get('string_translator.file_translation'));
 
-  $core_services->BootstrappedDrupalKernel->prepareLegacyRequest($request);
+  $core_services->BootState->LegacyRequestPrepared;
 
   // Set the default language to the selected language, if any.
   if (isset($install_state['parameters']['langcode'])) {

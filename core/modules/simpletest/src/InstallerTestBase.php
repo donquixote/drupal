@@ -112,8 +112,11 @@ abstract class InstallerTestBase extends WebTestBase {
     $this->setUpSite();
 
     // Import new settings.php written by the installer.
-    $request = Request::createFromGlobals();
-    Settings::initialize(DrupalKernel::findSitePath($request));
+    $core_services = CoreServices::create()
+      ->disableContainerDumping();
+    $core_services->BootState->SiteSettingsInitialized;
+    $request = $core_services->Request;
+
     foreach ($GLOBALS['config_directories'] as $type => $path) {
       $this->configDirectories[$type] = $path;
     }
@@ -125,9 +128,9 @@ abstract class InstallerTestBase extends WebTestBase {
     // WebTestBase::tearDown() will delete the entire test site directory.
     // Not using File API; a potential error must trigger a PHP warning.
     chmod(DRUPAL_ROOT . '/' . $this->siteDirectory, 0777);
-    $this->kernel = DrupalKernel::createFromRequest($request, drupal_classloader(), 'prod', FALSE);
-    $this->kernel->prepareLegacyRequest($request);
-    $this->container = $this->kernel->getContainer();
+    drupal_classloader();
+    $this->kernel = $core_services->LegacyPreparedDrupalKernel;
+    $this->container = $core_services->Container;
     $config = $this->container->get('config.factory');
 
     // Manually configure the test mail collector implementation to prevent

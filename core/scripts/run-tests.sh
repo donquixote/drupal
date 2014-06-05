@@ -28,10 +28,10 @@ if ($args['help'] || $count == 0) {
 
 simpletest_script_init();
 
+// Make sure that a kernel and container are created, and that
+// DrupalKernel::prepareLegacyRequest() is called.
 $core_services = TestRunnerCoreServices::create();
-$request = $core_services->Request;
-$kernel = $core_services->BootstrappedDrupalKernel;
-$kernel->prepareLegacyRequest($request);
+$core_services->BootState->LegacyRequestPrepared;
 
 if ($args['execute-test']) {
   simpletest_script_setup_database();
