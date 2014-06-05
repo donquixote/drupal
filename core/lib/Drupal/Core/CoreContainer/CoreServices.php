@@ -152,6 +152,8 @@ class CoreServices extends AbstractLightContainer {
   }
 
   /**
+   * Wrapper for the site path.
+   *
    * @return \Drupal\Core\Site\SiteDirectory
    *
    * @see CoreServices::SiteDirectory

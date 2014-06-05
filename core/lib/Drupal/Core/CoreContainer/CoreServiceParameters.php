@@ -29,6 +29,8 @@ class CoreServiceParameters extends AbstractLightContainerParameters {
 
   /**
    * @return string
+   *
+   * @see CoreServiceParameters::Environment
    */
   protected function getEnvironment() {
     // Return the default environment.
@@ -37,6 +39,8 @@ class CoreServiceParameters extends AbstractLightContainerParameters {
 
   /**
    * @return bool
+   *
+   * @see CoreServiceParameters::AllowContainerDumping
    */
   protected function getAllowContainerDumping() {
     return TRUE;
@@ -44,6 +48,8 @@ class CoreServiceParameters extends AbstractLightContainerParameters {
 
   /**
    * @return string
+   *
+   * @see CoreServiceParameters::SitePath
    */
   protected function getSitePath() {
     return $this->coreServices->SitePathFinder->findSitePath(
