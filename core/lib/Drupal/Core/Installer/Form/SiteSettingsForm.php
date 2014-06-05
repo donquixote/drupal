@@ -27,7 +27,7 @@ class SiteSettingsForm extends FormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, array &$form_state) {
-    $conf_path = './' . conf_path(FALSE);
+    $conf_path = './' . conf_path();
     $settings_file = $conf_path . '/settings.php';
 
     $form['#title'] = $this->t('Database configuration');

@@ -206,13 +206,11 @@ define('DRUPAL_ROOT', dirname(dirname(__DIR__)));
  * Returns the appropriate configuration directory.
  *
  * @param bool $require_settings
- *   Only configuration directories with an existing settings.php file
- *   will be recognized. Defaults to TRUE. During initial installation,
- *   this is set to FALSE so that Drupal can detect a matching directory,
- *   then create a new settings.php file in it.
+ *   This parameter has no effect since https://drupal.org/node/2280409.
+ *   Unused parameters stay until the entire function is removed.
  * @param bool $reset
- *   Force a full search for matching directories even if one had been
- *   found previously. Defaults to FALSE.
+ *   This parameter has no effect since https://drupal.org/node/2016629.
+ *   Unused parameters stay until the entire function is removed.
  * @param \Symfony\Component\HttpFoundation\Request $request
  *   (optional) The current request. Defaults to \Drupal::request() or a new
  *   request created from globals.
@@ -239,10 +237,11 @@ function conf_path($require_settings = TRUE, $reset = FALSE, Request $request = 
     $site_path = \Drupal::service('kernel')->getSitePath();
   }
   if (!isset($site_path) || empty($site_path)) {
-    $site_path = DrupalKernel::findSitePath($request, $require_settings);
+    $site_path = DrupalKernel::findSitePath($request);
   }
   return $site_path;
 }
+
 /**
  * Returns the path of a configuration directory.
  *

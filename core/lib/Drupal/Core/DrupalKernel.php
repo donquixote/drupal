@@ -291,11 +291,6 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
    *
    * @param \Symfony\Component\HttpFoundation\Request $request
    *   The current request.
-   * @param bool $require_settings
-   *   Only directories with an existing settings.php file will be recognized.
-   *   Defaults to TRUE. During initial installation, this is set to FALSE so
-   *   that Drupal can detect a matching directory, then create a new
-   *   settings.php file in it.
    *
    * @return string
    *   The path of the matching directory.
@@ -305,7 +300,7 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
    * @see default.settings.php
    * @see example.sites.php
    */
-  public static function findSitePath(Request $request, $require_settings = TRUE) {
+  public static function findSitePath(Request $request) {
     // Check for a simpletest override.
     if ($test_prefix = drupal_valid_test_ua()) {
       return 'sites/simpletest/' . substr($test_prefix, 10);
@@ -334,7 +329,7 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
         if (isset($sites[$dir]) && file_exists(DRUPAL_ROOT . '/sites/' . $sites[$dir])) {
           $dir = $sites[$dir];
         }
-        if (file_exists(DRUPAL_ROOT . '/sites/' . $dir . '/settings.php') || (!$require_settings && file_exists(DRUPAL_ROOT . '/sites/' . $dir))) {
+        if (file_exists(DRUPAL_ROOT . '/sites/' . $dir)) {
           return "sites/$dir";
         }
       }

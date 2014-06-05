@@ -1115,7 +1115,7 @@ abstract class TestBase {
     // After preparing the environment and changing the database prefix, we are
     // in a valid test environment.
     drupal_valid_test_ua($this->databasePrefix);
-    conf_path(FALSE, TRUE);
+    conf_path();
 
     // Reset settings.
     new Settings(array(
@@ -1218,7 +1218,7 @@ abstract class TestBase {
     else {
       drupal_valid_test_ua(FALSE);
     }
-    conf_path(TRUE, TRUE);
+    conf_path();
 
     // Restore stream wrappers of the test runner.
     file_get_stream_wrappers();

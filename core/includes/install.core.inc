@@ -282,7 +282,7 @@ function install_begin_request(&$install_state) {
     exit;
   }
 
-  $site_path = DrupalKernel::findSitePath($request, FALSE);
+  $site_path = DrupalKernel::findSitePath($request);
   Settings::initialize($site_path);
 
   // Ensure that procedural dependencies are loaded as early as possible,
@@ -1000,7 +1000,7 @@ function install_verify_completed_task() {
 function install_verify_database_settings() {
   if ($database = Database::getConnectionInfo()) {
     $database = $database['default'];
-    $settings_file = './' . conf_path(FALSE) . '/settings.php';
+    $settings_file = './' . conf_path() . '/settings.php';
     $errors = install_database_errors($database, $settings_file);
     if (empty($errors)) {
       return TRUE;
@@ -1881,7 +1881,7 @@ function install_check_requirements($install_state) {
   if (!$install_state['settings_verified']) {
     $readable = FALSE;
     $writable = FALSE;
-    $conf_path = './' . conf_path(FALSE);
+    $conf_path = './' . conf_path();
     $settings_file = $conf_path . '/settings.php';
     $default_settings_file = './sites/default/default.settings.php';
     $file = $conf_path;

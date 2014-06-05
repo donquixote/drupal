@@ -195,7 +195,7 @@ function drupal_get_database_types() {
  */
 function drupal_rewrite_settings($settings = array(), $settings_file = NULL) {
   if (!isset($settings_file)) {
-    $settings_file = conf_path(FALSE) . '/settings.php';
+    $settings_file = conf_path() . '/settings.php';
   }
   // Build list of setting names and insert the values into the global namespace.
   $variable_names = array();
