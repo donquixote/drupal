@@ -163,6 +163,29 @@ class CoreServices extends AbstractLightContainer {
   }
 
   /**
+   * Same as SiteDirectory, but with exception if site already installed.
+   *
+   * @return SiteDirectory
+   *
+   * @see CoreServices::EmptySiteDirectory
+   */
+  protected function getEmptySiteDirectory() {
+    $this->BootState->SiteNotInstalled;
+  }
+
+  /**
+   * Same as SiteDirectory, but with exception if settings.php is missing.
+   *
+   * @return SiteDirectory
+   *
+   * @see CoreServices::InstalledSiteDirectory
+   */
+  protected function getInstalledSiteDirectory() {
+    $this->BootState->SiteSettingsInitialized;
+    return $this->SiteDirectory;
+  }
+
+  /**
    * @return \Drupal\Core\Site\Settings
    *
    * @see CoreServices::SiteSettings
