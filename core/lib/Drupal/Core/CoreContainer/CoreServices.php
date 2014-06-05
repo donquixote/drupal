@@ -4,6 +4,7 @@
 namespace Drupal\Core\CoreContainer;
 
 use Drupal\Component\LightContainer\AbstractLightContainer;
+use Drupal\Core\CoreRequestHandler;
 use Drupal\Core\Database\Database;
 use Drupal\Core\DrupalKernel;
 use Drupal\Core\DrupalKernel\SiteDrupalKernelInterface;
@@ -184,6 +185,13 @@ class CoreServices extends AbstractLightContainer {
    */
   protected function getContainer() {
     return $this->BootstrappedDrupalKernel->getContainer();
+  }
+
+  /**
+   * @return \Drupal\Core\CoreRequestHandler
+   */
+  protected function getCoreRequestHandler() {
+    return new CoreRequestHandler($this->Request, $this->BootstrappedDrupalKernel);
   }
 
 } 
