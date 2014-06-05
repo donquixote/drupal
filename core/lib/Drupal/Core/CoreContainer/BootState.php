@@ -16,9 +16,13 @@ use Drupal\Core\Site\Settings;
  *   state changes, or other things.
  * - trigger the a global state change.
  *
+ * @property true SiteNotInstalled
+ *   Causes the site directory to be determined.
+ *   Throws an exception if site is already installed.
  * @property true SiteSettingsInitialized
  *   Causes the site directory to be determined, site settings to be read and
- *   registered in Settings::* static variable.
+ *   registered in Settings::* static variable. Throws an exception if site not
+ *   installed yet.
  * @property true BootstrapComplete
  *   Causes DrupalKernel::boot(), which also initializes the container.
  * @property true LegacyRequestPrepared
