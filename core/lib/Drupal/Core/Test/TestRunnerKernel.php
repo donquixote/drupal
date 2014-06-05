@@ -74,6 +74,8 @@ class TestRunnerKernel extends DrupalKernel {
     if (!is_dir('public://simpletest')) {
       mkdir('public://simpletest', 0777, TRUE);
     }
+
+    return $this;
   }
 
   /**
