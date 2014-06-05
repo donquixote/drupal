@@ -307,7 +307,7 @@ $request = $core_services->Request;
 $GLOBALS['conf']['container_service_providers']['UpdateServiceProvider'] = 'Drupal\Core\DependencyInjection\UpdateServiceProvider';
 $GLOBALS['conf']['update_service_provider_overrides'] = TRUE;
 
-$kernel = $core_services->BootstrappedDrupalKernel;
+$core_services->BootState->BootstrapComplete;
 
 // Updating from a site schema version prior to 8000 should block the update
 // process. Ensure that the site is not attempting to update a database
@@ -320,7 +320,7 @@ if (db_table_exists('system')) {
   }
 }
 
-$kernel->prepareLegacyRequest($request);
+$core_services->BootState->LegacyRequestPrepared;
 
 // Determine if the current user has access to run update.php.
 \Drupal::service('session_manager')->initialize();
