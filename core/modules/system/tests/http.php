@@ -5,8 +5,7 @@
  * Fake an HTTP request, for use during testing.
  */
 
-use Drupal\Core\Test\TestKernel;
-use Symfony\Component\HttpFoundation\Request;
+use Drupal\Core\Test\TestingCoreServices;
 
 chdir('../../../..');
 
@@ -23,11 +22,8 @@ foreach ($_SERVER as &$value) {
   $value = str_replace('https://', 'http://', $value);
 }
 
-$request = Request::createFromGlobals();
-$kernel = TestKernel::createFromRequest($request, $autoloader, 'testing', TRUE);
-$response = $kernel
-  ->handlePageCache($request)
-  ->handle($request)
-    // Handle the response object.
-    ->prepare($request)->send();
-$kernel->terminate($request, $response);
+$core_services = TestingCoreServices::create();
+
+$core_services->exitIfNoTest();
+
+$core_services->CoreRequestHandler->handleRequestAndExit();

@@ -8,6 +8,7 @@
 use Drupal\Component\Utility\Timer;
 use Drupal\Core\Database\Database;
 use Drupal\Core\Site\Settings;
+use Drupal\Core\Test\TestRunnerCoreServices;
 use Drupal\Core\Test\TestRunnerKernel;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -27,8 +28,9 @@ if ($args['help'] || $count == 0) {
 
 simpletest_script_init();
 
-$request = Request::createFromGlobals();
-$kernel = TestRunnerKernel::createFromRequest($request, $autoloader);
+$core_services = TestRunnerCoreServices::create();
+$request = $core_services->Request;
+$kernel = $core_services->BootstrappedDrupalKernel;
 $kernel->prepareLegacyRequest($request);
 
 if ($args['execute-test']) {
