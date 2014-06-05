@@ -39,6 +39,13 @@ class CoreServices extends AbstractLightContainer {
   protected $parameters;
 
   /**
+   * @return CoreServices
+   */
+  public static function create() {
+    return new self();
+  }
+
+  /**
    * Constructs a SiteContainer object.
    */
   public function __construct() {
