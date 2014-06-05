@@ -14,7 +14,7 @@ use Drupal\Core\Site\Settings;
 require_once __DIR__ . '/core/vendor/autoload.php';
 
 try {
-  $core_services = new CoreServices;
+  $core_services = CoreServices::create();
   $core_services->CoreRequestHandler->handleRequestAndExit();
 }
 catch (Exception $e) {
