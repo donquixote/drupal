@@ -4,6 +4,7 @@
 namespace Drupal\Core\CoreContainer;
 
 use Drupal\Component\MiniContainer\MiniContainerBase;
+use Drupal\Core\CoreRequestHandler;
 use Drupal\Core\Database\Database;
 use Drupal\Core\DrupalKernel;
 use Drupal\Core\Site\Settings;
@@ -28,6 +29,7 @@ use Symfony\Component\HttpFoundation\Request;
  * @property \Drupal\Core\CoreContainer\BootState BootState
  * @property \Drupal\Core\Site\SitePathFinder SitePathFinder
  * @property \Symfony\Component\DependencyInjection\ContainerInterface Container
+ * @property \Drupal\Core\CoreRequestHandler CoreRequestHandler
  */
 class CoreServices extends MiniContainerBase {
 
@@ -217,6 +219,15 @@ class CoreServices extends MiniContainerBase {
    */
   protected function get_Container() {
     return $this->BootstrappedDrupalKernel->getContainer();
+  }
+
+  /**
+   * @return \Drupal\Core\CoreRequestHandler
+   *
+   * @see CoreServices::CoreRequestHandler
+   */
+  protected function get_CoreRequestHandler() {
+    return new CoreRequestHandler($this->Request, $this->BootstrappedDrupalKernel);
   }
 
 }
