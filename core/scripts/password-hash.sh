@@ -59,7 +59,7 @@ $passwords = $_SERVER['argv'];
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-$core_services = (new CoreServices)
+$core_services = CoreServices::create()
   ->disableContainerDumping();
 
 $password_hasher = $core_services->Container->get('password');

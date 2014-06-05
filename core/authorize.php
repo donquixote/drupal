@@ -52,7 +52,7 @@ function authorize_access_allowed() {
   return Settings::get('allow_authorize_operations', TRUE) && user_access('administer software updates');
 }
 
-$core_services = new CoreServices();
+$core_services = CoreServices::create();
 $core_services->BootState->LegacyRequestPrepared;
 
 // We have to enable the user and system modules, even to check access and

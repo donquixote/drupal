@@ -255,7 +255,7 @@ function install_state_defaults() {
  */
 function install_begin_request(&$install_state) {
 
-  $core_services = (new CoreServices)
+  $core_services = CoreServices::create()
     ->disableContainerDumping();
 
   $request = $core_services->Request;

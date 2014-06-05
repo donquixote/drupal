@@ -12,7 +12,7 @@ chdir('../../..');
 
 require_once dirname(dirname(__DIR__)) . '/vendor/autoload.php';
 
-$core_services = new CoreServices();
+$core_services = CoreServices::create();
 $container = $core_services->Container;
 
 $views = $container
