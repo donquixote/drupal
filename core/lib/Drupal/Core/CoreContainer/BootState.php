@@ -4,7 +4,6 @@
 namespace Drupal\Core\CoreContainer;
 
 use Drupal\Component\LightContainer\AbstractLightPhaseContainer;
-use Drupal\Core\DrupalKernel;
 use Drupal\Core\Site\Settings;
 
 
