@@ -69,4 +69,39 @@ abstract class UnitTestBase extends TestBase {
 
     $this->setup = TRUE;
   }
+
+
+  /**
+   * Sets the class up to use memory-based storage for the bootstrap config.
+   */
+  public function initializeBootrapConfig() {
+    $this->bootstrapConfig = new ConfigMemoryStorage();
+    $this->settingsSet('drupal_bootstrap_config_storage', array($this, 'getBootstrapConfig'));
+  }
+
+  /**
+   * Getter for $bootstrapConfig.
+   *
+   * @return ConfigMemoryStorage
+   *   An instance of ConfigMemoryStorage.
+   */
+  public function getBootstrapConfig() {
+    return $this->bootstrapConfig;
+  }
+
+  /**
+   * Updates the module list in the memory-based bootstrap config.
+   *
+   * @param $modules
+   *   An array of modules names.
+   */
+  protected function updateModules($modules) {
+    $module_config = array('enabled' => array());
+    $modules = array_flip($modules);
+
+    foreach ($modules as $module => $weight) {
+      $module_config['enabled'][$module] = $weight;
+    }
+    $this->bootstrapConfig->setModuleList($module_config);
+  }
 }

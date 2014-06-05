@@ -412,7 +412,8 @@ function update_prepare_d8_bootstrap() {
       update_prepare_d8_language();
       // Rebuild kernel after new language fields are added in the database
       // because the translation service depends on them being there.
-      \Drupal::service('kernel')->updateModules($sorted_with_filenames, $sorted_with_filenames);
+
+      \Drupal::service('event_dispatcher')->dispatch('drupal.update_modules');
 
       // Change language column to langcode in url_alias.
       if (db_table_exists('url_alias') && db_field_exists('url_alias', 'language')) {

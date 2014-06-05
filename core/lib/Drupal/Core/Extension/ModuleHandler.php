@@ -141,6 +141,61 @@ class ModuleHandler implements ModuleHandlerInterface {
   }
 
   /**
+   * Returns the file name for each enabled module.
+   *
+   * @return array
+   *   An array of module names.
+   */
+  public function getModuleNames() {
+    return array_keys($this->moduleList);
+  }
+
+  /**
+   * Returns the file name for each enabled module.
+   *
+   * @return array
+   *   An array of module filenames.
+   */
+  public function getModuleFileNames() {
+    return array_values($this->moduleList);
+  }
+
+  /**
+   * Returns the file name for a given enabled module.
+   *
+   * @return string
+   *   The module's filename.
+   */
+  public function getModuleFileName($module) {
+    return $this->moduleList[$module];
+  }
+
+  /**
+   * Returns the directory name for a given enabled module.
+   *
+   * @return string
+   *   The module's directory name.
+   */
+  public function getModuleDirectory($module) {
+    return dirname($this->moduleList[$module]);
+  }
+
+  /**
+   * Gets the namespaces of each enabled module.
+   *
+   * @return array
+   *   An array of module namespaces.
+   */
+  public function getModuleNamespaces() {
+    $namespaces = array();
+    foreach ($this->getModuleNames() as $module) {
+      $directory = $this->getModuleDirectory($module);
+      $namespaces["Drupal\\$module"] = DRUPAL_ROOT . '/' . $directory . '/lib';
+    }
+    return $namespaces;
+  }
+
+  /**
    * Implements \Drupal\Core\Extension\ModuleHandlerInterface::buildModuleDependencies().
    */
   public function buildModuleDependencies(array $modules) {
@@ -609,8 +664,8 @@ class ModuleHandler implements ModuleHandlerInterface {
         // taken over as %container.modules% parameter, which is passed to a fresh
         // ModuleHandler instance upon first retrieval.
         // @todo install_begin_request() creates a container without a kernel.
-        if ($kernel = \Drupal::service('kernel', ContainerInterface::NULL_ON_INVALID_REFERENCE)) {
-          $kernel->updateModules($module_filenames, $module_filenames);
+        if ($dispatcher = \Drupal::service('event_dispatcher')) {
+          $dispatcher->dispatch('drupal.update_modules');
         }
 
         // Refresh the schema to include it.
@@ -747,8 +802,7 @@ class ModuleHandler implements ModuleHandlerInterface {
       // Clear the entity info cache.
       entity_info_cache_clear();
 
-      // Update the kernel to exclude the uninstalled modules.
-      \Drupal::service('kernel')->updateModules($module_filenames, $module_filenames);
+      \Drupal::service('event_dispatcher')->dispatch('drupal.update_modules');
 
       // Update the theme registry to remove the newly uninstalled module.
       drupal_theme_rebuild();

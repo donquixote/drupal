@@ -7,6 +7,7 @@
 
 namespace Drupal\simpletest;
 
+use Drupal\Component\Utility\Settings;
 use Drupal\Core\DependencyInjection\ContainerBuilder;
 use Drupal\Core\DrupalKernel;
 use Drupal\Core\KeyValueStore\KeyValueMemoryFactory;
@@ -64,6 +65,13 @@ abstract class DrupalUnitTestBase extends UnitTestBase {
   protected $keyValueFactory;
 
   /**
+   * An instance of ConfigMemoryStorage.
+   *
+   * @var ConfigMemoryStorage
+   */
+  protected $bootstrapConfig;
+
+  /**
    * Overrides \Drupal\simpletest\UnitTestBase::__construct().
    */
   function __construct($test_id = NULL) {
@@ -78,6 +86,7 @@ abstract class DrupalUnitTestBase extends UnitTestBase {
    * @see \DrupalUnitTestBase
    */
   protected function setUp() {
+    $this->initializeBootrapConfig();
     // Copy/prime extension file lists once to avoid filesystem scans.
     if (!isset($this->moduleFiles)) {
       $this->moduleFiles = \Drupal::state()->get('system.module.files') ?: array();
@@ -124,6 +133,7 @@ abstract class DrupalUnitTestBase extends UnitTestBase {
     // In order to use theme functions default theme config needs to exist.
     \Drupal::config('system.theme')->set('default', 'stark');
   }
+
 
   protected function tearDown() {
     $this->kernel->shutdown();
@@ -270,13 +280,17 @@ abstract class DrupalUnitTestBase extends UnitTestBase {
     }
     $module_handler->setModuleList($module_filenames);
     $module_handler->resetImplementations();
+
+    $this->updateModules(array_keys($module_filenames));
+
     // Update the kernel to make their services available.
-    $this->kernel->updateModules($module_filenames, $module_filenames);
+    \Drupal::service('event_dispatcher')->dispatch('drupal.update_modules');
 
     // Ensure isLoaded() is TRUE in order to make theme() work.
     // Note that the kernel has rebuilt the container; this $module_handler is
     // no longer the $module_handler instance from above.
     $module_handler = $this->container->get('module_handler');
+    $module_handler->setModuleList($module_filenames);
     $module_handler->reload();
     $this->pass(format_string('Enabled modules: %modules.', array(
       '%modules' => implode(', ', $modules),
@@ -301,8 +315,10 @@ abstract class DrupalUnitTestBase extends UnitTestBase {
     }
     $module_handler->setModuleList($module_filenames);
     $module_handler->resetImplementations();
+
+    $this->updateModules(array_keys($module_filenames));
     // Update the kernel to remove their services.
-    $this->kernel->updateModules($module_filenames, $module_filenames);
+    \Drupal::service('event_dispatcher')->dispatch('drupal.update_modules');
 
     // Ensure isLoaded() is TRUE in order to make theme() work.
     // Note that the kernel has rebuilt the container; this $module_handler is

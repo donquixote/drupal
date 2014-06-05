@@ -13,7 +13,7 @@ use Drupal\Core\CoreServiceProvider;
 use Drupal\Core\DependencyInjection\ContainerBuilder;
 use Drupal\Core\DependencyInjection\ServiceProviderInterface;
 use Drupal\Core\DependencyInjection\YamlFileLoader;
-use Symfony\Component\Config\Loader\LoaderInterface;
+use Drupal\Core\Extension\ModuleHandlerFactory;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\DependencyInjection\Dumper\PhpDumper;
 use Symfony\Component\HttpFoundation\Request;
@@ -61,15 +61,6 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
   protected $booted;
 
   /**
-   * Holds the list of enabled modules.
-   *
-   * @var array
-   *   An associative array whose keys are module names and whose values are
-   *   ignored.
-   */
-  protected $moduleList;
-
-  /**
    * Holds an updated list of enabled modules.
    *
    * @var array
@@ -87,6 +78,13 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
    * @var array
    */
   protected $moduleData = array();
+
+  /**
+   * ModuleHandler to get information on installed modules.
+   *
+   * @var \Drupal\Core\Extension\ModuleHandler
+   */
+  protected $moduleHandler;
 
   /**
    * PHP code storage object to use for the compiled container.
@@ -174,6 +172,9 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
     if ($this->booted) {
       return;
     }
+
+    $this->configStorage = BootstrapConfigStorageFactory::get();
+    $this->moduleHandler = ModuleHandlerFactory::get($this->configStorage);
     $this->initializeContainer();
     $this->booted = TRUE;
     if ($this->containerNeedsDumping && !$this->dumpDrupalContainer($this->container, static::CONTAINER_BASE_CLASS)) {
@@ -203,7 +204,6 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
    * {@inheritdoc}
    */
   public function discoverServiceProviders() {
-    $this->configStorage = BootstrapConfigStorageFactory::get();
     $serviceProviders = array(
       'CoreServiceProvider' => new CoreServiceProvider(),
     );
@@ -212,17 +212,10 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
     );
     $this->serviceProviderClasses = array('Drupal\Core\CoreServiceProvider');
 
-    // Ensure we know what modules are enabled and that their namespaces are
-    // registered.
-    if (!isset($this->moduleList)) {
-      $module_list = $this->configStorage->read('system.module');
-      $this->moduleList = isset($module_list['enabled']) ? $module_list['enabled'] : array();
-    }
-    $module_filenames = $this->getModuleFileNames();
-    $this->registerNamespaces($this->getModuleNamespaces($module_filenames));
+    $this->registerNamespaces($this->moduleHandler->getModuleNamespaces());
 
     // Load each module's serviceProvider class.
-    foreach ($this->moduleList as $module => $weight) {
+    foreach ($this->moduleHandler->getModuleNames() as $module) {
       $camelized = ContainerBuilder::camelize($module);
       $name = "{$camelized}ServiceProvider";
       $class = "Drupal\\{$module}\\{$name}";
@@ -230,7 +223,7 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
         $serviceProviders[$name] = new $class();
         $this->serviceProviderClasses[] = $class;
       }
-      $filename = dirname($module_filenames[$module]) . "/$module.services.yml";
+      $filename = $this->moduleHandler->getModuleDirectory($module) . "/$module.services.yml";
       if (file_exists($filename)) {
         $this->serviceYamls[] = $filename;
       }
@@ -283,53 +276,16 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
   }
 
   /**
-   * Returns module data on the filesystem.
-   *
-   * @param $module
-   *   The name of the module.
-   *
-   * @return \stdClass|bool
-   *   Returns a stdClass object if the module data is found containing at
-   *   least an uri property with the module path, for example
-   *   core/modules/user/user.module.
+   * Rebuilds the container during the request. Used when the list of modules
+   * changes.
    */
-  protected function moduleData($module) {
-    if (!$this->moduleData) {
-      // First, find profiles.
-      $profiles_scanner = new SystemListing();
-      $all_profiles = $profiles_scanner->scan('/^' . DRUPAL_PHP_FUNCTION_PATTERN . '\.profile$/', 'profiles');
-      $profiles = array_keys(array_intersect_key($this->moduleList, $all_profiles));
-      // If a module is within a profile directory but specifies another
-      // profile for testing, it needs to be found in the parent profile.
-      if (($parent_profile_config = $this->configStorage->read('simpletest.settings')) && isset($parent_profile_config['parent_profile']) && $parent_profile_config['parent_profile'] != $profiles[0]) {
-        // In case both profile directories contain the same extension, the
-        // actual profile always has precedence.
-        array_unshift($profiles, $parent_profile_config['parent_profile']);
-      }
-      // Now find modules.
-      $modules_scanner = new SystemListing($profiles);
-      $this->moduleData = $all_profiles + $modules_scanner->scan('/^' . DRUPAL_PHP_FUNCTION_PATTERN . '\.module$/', 'modules');
-    }
-    return isset($this->moduleData[$module]) ? $this->moduleData[$module] : FALSE;
-  }
-
-  /**
-   * Implements Drupal\Core\DrupalKernelInterface::updateModules().
-   *
-   * @todo Remove obsolete $module_list parameter. Only $module_filenames is
-   *   needed.
-   */
-  public function updateModules(array $module_list, array $module_filenames = array()) {
-    $this->newModuleList = $module_list;
-    foreach ($module_filenames as $module => $filename) {
-      $this->moduleData[$module] = (object) array('uri' => $filename);
-    }
-    // If we haven't yet booted, we don't need to do anything: the new module
-    // list will take effect when boot() is called. If we have already booted,
-    // then reboot in order to refresh the serviceProvider list and container.
+  public function rebuildContainer() {
+    // If we haven't yet booted, we don't need to do anything. If we have
+    // already booted, then reboot in order to refresh the bundle list and
+    // container.
     if ($this->booted) {
-      $this->booted = FALSE;
-      $this->boot();
+      $this->moduleHandler = ModuleHandlerFactory::get($this->configStorage);
+      $this->initializeContainer(TRUE);
     }
   }
 
@@ -366,8 +322,7 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
   /**
    * Initializes the service container.
    */
-  protected function initializeContainer() {
-    $this->containerNeedsDumping = FALSE;
+  protected function initializeContainer($rebuild = FALSE) {
     $persist = $this->getServicesToPersist();
     // The request service requires custom persisting logic, since it is also
     // potentially scoped. During Drupal installation, there is a request
@@ -383,28 +338,15 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
     }
     $this->container = NULL;
     $class = $this->getClassName();
-    $cache_file = $class . '.php';
 
     if ($this->allowDumping) {
-      // First, try to load.
-      if (!class_exists($class, FALSE)) {
-        $this->storage()->load($cache_file);
-      }
-      // If the load succeeded or the class already existed, use it.
-      if (class_exists($class, FALSE)) {
-        $fully_qualified_class_name = '\\' . $class;
-        $this->container = new $fully_qualified_class_name;
-        $this->persistServices($persist);
-      }
+      $this->container = $this->initializeCachedContainer($class, $persist);
     }
-    // First check whether the list of modules changed in this request.
-    if (isset($this->newModuleList)) {
-      if (isset($this->container) && isset($this->moduleList) && array_keys($this->moduleList) !== array_keys($this->newModuleList)) {
-        unset($this->container);
-      }
-      $this->moduleList = $this->newModuleList;
-      unset($this->newModuleList);
+
+    if ($rebuild) {
+      unset($this->container);
     }
+
     // Second, check if some other request -- for example on another web
     // frontend or during the installer -- changed the list of enabled modules.
     if (isset($this->container)) {
@@ -412,13 +354,9 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
       // from the container.
       $container_modules = $this->container->getParameter('container.modules');
       $namespaces_before = $this->classLoader->getPrefixes();
-      $this->registerNamespaces($this->getModuleNamespaces($container_modules));
+      $this->registerNamespaces($this->moduleHandler->getModuleNamespaces($container_modules));
 
-      // If 'container.modules' is wrong, the container must be rebuilt.
-      if (!isset($this->moduleList)) {
-        $this->moduleList = $this->container->get('config.factory')->get('system.module')->load()->get('enabled');
-      }
-      if (array_keys($this->moduleList) !== array_keys($container_modules)) {
+      if ($this->moduleHandler->getModuleNames() !== array_keys($container_modules)) {
         $persist = $this->getServicesToPersist();
         unset($this->container);
         // Revert the class loader to its prior state. However,
@@ -433,7 +371,7 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
 
     if (!isset($this->container)) {
       $this->container = $this->buildContainer();
-      $this->persistServices($persist);
+      $this->persistServices($this->container, $persist);
 
       // The namespaces are marked as persistent, so objects like the annotated
       // class discovery still has the right object. We may have updated the
@@ -458,6 +396,11 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
     if (isset($request)) {
       $this->container->set('request', $request);
     }
+
+    $this->container->get('event_dispatcher')->addListener(
+      'drupal.update_modules', array($this, 'rebuildContainer')
+    );
+
     \Drupal::setContainer($this->container);
   }
 
@@ -480,12 +423,12 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
   /**
    * Moves persistent service instances into a new container.
    */
-  protected function persistServices(array $persist) {
+  protected function persistServices($container, array $persist) {
     foreach ($persist as $id => $object) {
       // Do not override services already set() on the new container, for
       // example 'service_container'.
-      if (!$this->container->initialized($id)) {
-        $this->container->set($id, $object);
+      if (!$container->initialized($id)) {
+        $container->set($id, $object);
       }
     }
   }
@@ -500,10 +443,10 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
     $container = $this->getContainerBuilder();
     $container->set('kernel', $this);
     $container->setParameter('container.service_providers', $this->serviceProviderClasses);
-    $container->setParameter('container.modules', $this->getModuleFileNames());
+    $container->setParameter('container.modules', $this->moduleHandler->getModuleList());
 
     // Get a list of namespaces and put it onto the container.
-    $namespaces = $this->getModuleNamespaces($this->getModuleFileNames());
+    $namespaces = $this->moduleHandler->getModuleNamespaces();
     // Add all components in \Drupal\Core and \Drupal\Component that have a
     // Plugin directory.
     foreach (array('Core', 'Component') as $parent_directory) {
@@ -632,35 +575,40 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
   }
 
   /**
-   * Returns the file name for each enabled module.
-   */
-  protected function getModuleFileNames() {
-    $filenames = array();
-    foreach ($this->moduleList as $module => $weight) {
-      if ($data = $this->moduleData($module)) {
-        $filenames[$module] = $data->uri;
-      }
-    }
-    return $filenames;
-  }
-
-  /**
-   * Gets the namespaces of each enabled module.
-   */
-  protected function getModuleNamespaces($moduleFileNames) {
-    $namespaces = array();
-    foreach ($moduleFileNames as $module => $filename) {
-      $namespaces["Drupal\\$module"] = DRUPAL_ROOT . '/' . dirname($filename) . '/lib';
-    }
-    return $namespaces;
-  }
-
-  /**
    * Registers a list of namespaces.
+   *
+   * @param array $namespaces
+   *   An array of namespaces.to register.
    */
   protected function registerNamespaces(array $namespaces = array()) {
     foreach ($namespaces as $prefix => $path) {
       $this->classLoader->add($prefix, $path);
     }
+  }
+
+  /**
+   * Initializes the cached container.
+   *
+   * @param string $class
+   *   The classname of the cached container.
+   * @param bool $persist
+   *   Whether or not to persist the cached container.
+   * @return ContainerInterface
+   *   The cached container.
+   */
+  protected function initializeCachedContainer($class, $persist) {
+    $container = NULL;
+    $cache_file = $class . '.php';
+    // First, try to load.
+    if (!class_exists($class, FALSE)) {
+      $this->storage()->load($cache_file);
+    }
+    // If the load succeeded or the class already existed, use it.
+    if (class_exists($class, FALSE)) {
+      $fully_qualified_class_name = '\\' . $class;
+      $container = new $fully_qualified_class_name;
+      $this->persistServices($container, $persist);
+    }
+    return $container;
   }
 }

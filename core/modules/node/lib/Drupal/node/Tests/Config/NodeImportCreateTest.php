@@ -52,7 +52,8 @@ class NodeImportCreateTest extends DrupalUnitTestBase {
 
     // Enable node_test_config module and check that the content type
     // shipped in the module's default config is created.
-    $this->container->get('module_handler')->install(array('node_test_config'));
+    $this->enableModules(array('node_test_config'));
+    $this->installConfig(array('node_test_config'));
     $node_type = entity_load('node_type', $node_type_id);
     $this->assertTrue($node_type, 'The default content type was created.');
   }

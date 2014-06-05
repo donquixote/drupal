@@ -46,7 +46,8 @@ class FieldImportCreateTest extends FieldUnitTestBase {
 
     // Enable field_test_config module and check that the field and instance
     // shipped in the module's default config were created.
-    \Drupal::moduleHandler()->install(array('field_test_config'));
+    $this->enableModules(array('field_test_config'));
+    $this->installConfig(array('field_test_config'));
 
     // A field with one instance.
     $field = entity_load('field_entity', $field_id);

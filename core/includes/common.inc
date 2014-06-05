@@ -5014,16 +5014,8 @@ function drupal_flush_all_caches() {
   $module_data = system_rebuild_module_data();
   system_rebuild_theme_data();
 
-  // Rebuild and reboot a new kernel. A simple DrupalKernel reboot is not
-  // sufficient, since the list of enabled modules might have been adjusted
-  // above due to changed code.
-  $files = array();
-  foreach ($module_data as $module => $data) {
-    if (isset($data->uri) && $data->status) {
-      $files[$module] = $data->uri;
-    }
-  }
-  \Drupal::service('kernel')->updateModules($module_handler->getModuleList(), $files);
+  \Drupal::service('event_dispatcher')->dispatch('drupal.update_modules');
+
   // New container, new module handler.
   $module_handler = \Drupal::moduleHandler();
 

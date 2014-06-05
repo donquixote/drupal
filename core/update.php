@@ -87,7 +87,7 @@ function update_helpful_links() {
  */
 function update_flush_all_caches() {
   unset($GLOBALS['conf']['container_service_providers']['UpdateServiceProvider']);
-  \Drupal::service('kernel')->updateModules(\Drupal::moduleHandler()->getModuleList());
+  \Drupal::service('event_dispatcher')->dispatch('drupal.update_modules');
 
   // No updates to run, so caches won't get flushed later.  Clear them now.
   drupal_flush_all_caches();
@@ -254,7 +254,7 @@ function update_access_allowed() {
     $module_filenames['user'] = 'core/modules/user/user.module';
     $module_handler->setModuleList($module_filenames);
     $module_handler->reload();
-    drupal_container()->get('kernel')->updateModules($module_filenames, $module_filenames);
+    \Drupal::service('event_dispatcher')->dispatch('drupal.update_modules');
     return user_access('administer software updates');
   }
   catch (\Exception $e) {
