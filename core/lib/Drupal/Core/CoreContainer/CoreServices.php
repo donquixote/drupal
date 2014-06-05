@@ -28,14 +28,9 @@ use Symfony\Component\HttpFoundation\Request;
  * @property \Drupal\Core\CoreContainer\BootState BootState
  * @property \Drupal\Core\Site\SitePathFinder SitePathFinder
  * @property \Symfony\Component\DependencyInjection\ContainerInterface Container
+ * @property \Drupal\Core\CoreRequestHandler CoreRequestHandler
  */
 class CoreServices extends AbstractLightContainer {
-
-  /**
-   * @var bool
-   *   FALSE to stop the container from being written to or read from disk.
-   */
-  protected $allowContainerDumping = TRUE;
 
   /**
    * @var CoreServiceParameters
@@ -113,7 +108,7 @@ class CoreServices extends AbstractLightContainer {
   }
 
   /**
-   * @return \Drupal\Core\DrupalKernel
+   * @return \Drupal\Core\DrupalKernel\RawDrupalKernelInterface
    */
   protected function getRawDrupalKernel() {
 
@@ -149,7 +144,7 @@ class CoreServices extends AbstractLightContainer {
   }
 
   /**
-   * @return SiteDrupalKernelInterface
+   * @return \Drupal\Core\DrupalKernel\SiteDrupalKernelInterface
    */
   protected function getSiteDrupalKernel() {
 

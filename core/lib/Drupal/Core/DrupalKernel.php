@@ -534,8 +534,9 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
       return;
     }
 
-    if ($this->getHttpKernel() instanceof TerminableInterface) {
-      $this->getHttpKernel()->terminate($request, $response);
+    $http_kernel = $this->getHttpKernel();
+    if ($http_kernel instanceof TerminableInterface) {
+      $http_kernel->terminate($request, $response);
     }
   }
 
