@@ -14,16 +14,8 @@ use Drupal\Core\Site\Settings;
 require_once __DIR__ . '/core/vendor/autoload.php';
 
 try {
-
-  $core_services = new CoreServices();
-  $request = $core_services->Request;
-  $kernel = $core_services->BootstrappedDrupalKernel;
-  $kernel->handlePageCache($request);
-  $response = $kernel->handle($request);
-  // Handle the response object.
-  $response->prepare($request);
-  $response->send();
-  $kernel->terminate($request, $response);
+  $core_services = new CoreServices;
+  $core_services->CoreRequestHandler->handleRequestAndExit();
 }
 catch (Exception $e) {
   $message = 'If you have just changed code (for example deployed a new module or moved an existing one) read <a href="http://drupal.org/documentation/rebuild">http://drupal.org/documentation/rebuild</a>';
