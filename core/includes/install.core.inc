@@ -413,7 +413,7 @@ function install_begin_request(&$install_state) {
   // checked by other subsystems (e.g., the theme system).
   $module_handler->loadAll();
 
-  $core_services->BootstrappedDrupalKernel->prepareLegacyRequest($request);
+  $core_services->BootState->LegacyRequestPrepared;
 
   // Prepare for themed output. We need to run this at the beginning of the
   // page request to avoid a different theme accidentally getting set. (We also

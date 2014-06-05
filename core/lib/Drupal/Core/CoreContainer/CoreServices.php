@@ -30,6 +30,8 @@ use Symfony\Component\HttpFoundation\Request;
  * @property \Drupal\Core\Site\SitePathFinder SitePathFinder
  * @property \Symfony\Component\DependencyInjection\ContainerInterface Container
  * @property \Drupal\Core\CoreRequestHandler CoreRequestHandler
+ * @property \Drupal\Core\DrupalKernel LegacyPreparedDrupalKernel
+ *   A DrupalKernel where prepareLegacyRequest() was called.
  */
 class CoreServices extends AbstractLightContainer {
 
@@ -185,6 +187,18 @@ class CoreServices extends AbstractLightContainer {
    */
   protected function getBootstrappedDrupalKernel() {
     return $this->SiteDrupalKernel->boot();
+  }
+
+  /**
+   * Returns a bootstrapped Drupal kernel where prepareLegacyRequest() was
+   * called.
+   *
+   * @return DrupalKernel
+   */
+  protected function getLegacyPreparedDrupalKernel() {
+    $kernel = $this->BootstrappedDrupalKernel;
+    $kernel->prepareLegacyRequest($this->Request);
+    return $kernel;
   }
 
   /**
