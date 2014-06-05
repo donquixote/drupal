@@ -7,6 +7,7 @@
 
 namespace Drupal\simpletest;
 
+use Drupal\Core\CoreContainer\CoreServices;
 use Drupal\Core\DrupalKernel;
 use Drupal\Core\Session\UserSession;
 use Drupal\Core\Site\Settings;
