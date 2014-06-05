@@ -8,7 +8,13 @@ use Drupal\Core\Site\Settings;
 
 
 /**
- * All the global state..
+ * Each of these magic properties will, if called **for the first time**,
+ * trigger the method with 'init' . $name.
+ *
+ * This may
+ * - trigger initialization of dependencies, which can be services, global
+ *   state changes, or other things.
+ * - trigger the a global state change.
  *
  * @property true SiteSettingsInitialized
  */
