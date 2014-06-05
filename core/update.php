@@ -297,7 +297,7 @@ ini_set('display_errors', FALSE);
 require_once __DIR__ . '/includes/update.inc';
 require_once __DIR__ . '/includes/install.inc';
 
-$core_services = (new CoreServices)
+$core_services = CoreServices::create()
   ->setEnvironment('update')
   ->disableContainerDumping();
 $request = $core_services->Request;
