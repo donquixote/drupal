@@ -7,7 +7,6 @@ use Drupal\Component\LightContainer\AbstractLightContainer;
 use Drupal\Core\CoreRequestHandler;
 use Drupal\Core\Database\Database;
 use Drupal\Core\DrupalKernel;
-use Drupal\Core\DrupalKernel\SiteDrupalKernelInterface;
 use Drupal\Core\Site\Settings;
 use Drupal\Core\Site\SiteDirectory;
 use Drupal\Core\Site\SitePathFinder;
@@ -66,6 +65,7 @@ class CoreServices extends AbstractLightContainer {
 
   /**
    * @param string $environment
+   *   E.g. 'prod' or 'testing'.
    *
    * @return $this
    */
@@ -81,6 +81,7 @@ class CoreServices extends AbstractLightContainer {
    * be useful for tests.
    *
    * @param string $site_path
+   *   E.g. 'sites/default'.
    *
    * @return $this
    */
@@ -91,6 +92,8 @@ class CoreServices extends AbstractLightContainer {
 
   /**
    * @return Request
+   *
+   * @see CoreServices::Request
    */
   protected function getRequest() {
     return Request::createFromGlobals();
@@ -98,6 +101,8 @@ class CoreServices extends AbstractLightContainer {
 
   /**
    * @return \Composer\Autoload\ClassLoader
+   *
+   * @see CoreServices::ClassLoader
    */
   protected function getClassLoader() {
     return require dirname(dirname(dirname(dirname(__DIR__)))) . '/vendor/autoload.php';
@@ -105,6 +110,8 @@ class CoreServices extends AbstractLightContainer {
 
   /**
    * @return \Drupal\Core\CoreContainer\StaticContext
+   *
+   * @see CoreServices::StaticContext
    */
   protected function getStaticContext() {
     return new StaticContext();
@@ -112,6 +119,8 @@ class CoreServices extends AbstractLightContainer {
 
   /**
    * @return BootState
+   *
+   * @see CoreServices::BootState
    */
   protected function getBootState() {
     return new BootState($this);
@@ -119,6 +128,8 @@ class CoreServices extends AbstractLightContainer {
 
   /**
    * @return \Drupal\Core\DrupalKernel\RawDrupalKernelInterface
+   *
+   * @see CoreServices::RawDrupalKernel
    */
   protected function getRawDrupalKernel() {
 
@@ -133,6 +144,8 @@ class CoreServices extends AbstractLightContainer {
 
   /**
    * @return SitePathFinder
+   *
+   * @see CoreServices::SitePathFinder
    */
   protected function getSitePathFinder() {
     return new SitePathFinder();
@@ -140,6 +153,8 @@ class CoreServices extends AbstractLightContainer {
 
   /**
    * @return \Drupal\Core\Site\SiteDirectory
+   *
+   * @see CoreServices::SiteDirectory
    */
   protected function getSiteDirectory() {
     return new SiteDirectory($this->parameters->SitePath);
@@ -147,6 +162,8 @@ class CoreServices extends AbstractLightContainer {
 
   /**
    * @return \Drupal\Core\Site\Settings
+   *
+   * @see CoreServices::SiteSettings
    */
   protected function getSiteSettings() {
     $this->BootState->SiteSettingsInitialized;
@@ -155,6 +172,8 @@ class CoreServices extends AbstractLightContainer {
 
   /**
    * @return \Drupal\Core\DrupalKernel\SiteDrupalKernelInterface
+   *
+   * @see CoreServices::SiteDrupalKernel
    */
   protected function getSiteDrupalKernel() {
 
@@ -184,6 +203,8 @@ class CoreServices extends AbstractLightContainer {
    * @return \Drupal\Core\DrupalKernel
    *
    * @throws \Exception
+   *
+   * @see CoreServices::BootstrappedDrupalKernel
    */
   protected function getBootstrappedDrupalKernel() {
     return $this->SiteDrupalKernel->boot();
@@ -194,6 +215,8 @@ class CoreServices extends AbstractLightContainer {
    * called.
    *
    * @return DrupalKernel
+   *
+   * @see CoreServices::LegacyPreparedDrupalKernel
    */
   protected function getLegacyPreparedDrupalKernel() {
     $kernel = $this->BootstrappedDrupalKernel;
@@ -203,6 +226,8 @@ class CoreServices extends AbstractLightContainer {
 
   /**
    * @return \Symfony\Component\DependencyInjection\ContainerInterface
+   *
+   * @see CoreServices::Container
    */
   protected function getContainer() {
     return $this->BootstrappedDrupalKernel->getContainer();
@@ -210,6 +235,8 @@ class CoreServices extends AbstractLightContainer {
 
   /**
    * @return \Drupal\Core\CoreRequestHandler
+   *
+   * @see CoreServices::CoreRequestHandler
    */
   protected function getCoreRequestHandler() {
     return new CoreRequestHandler($this->Request, $this->BootstrappedDrupalKernel);
