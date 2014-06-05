@@ -63,6 +63,8 @@ class TestRunnerKernel extends DrupalKernel {
     $this->getContainer()->get('module_handler')->loadAll();
 
     simpletest_classloader_register();
+
+    return $this;
   }
 
   /**
