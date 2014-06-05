@@ -30,6 +30,8 @@ use Symfony\Component\HttpFoundation\Request;
  * @property \Drupal\Core\Site\SitePathFinder SitePathFinder
  * @property \Symfony\Component\DependencyInjection\ContainerInterface Container
  * @property \Drupal\Core\CoreRequestHandler CoreRequestHandler
+ * @property \Drupal\Core\DrupalKernel LegacyPreparedDrupalKernel
+ *   A DrupalKernel where prepareLegacyRequest() was called.
  */
 class CoreServices extends MiniContainerBase {
 
@@ -210,6 +212,20 @@ class CoreServices extends MiniContainerBase {
    */
   protected function get_BootstrappedDrupalKernel() {
     return $this->SiteDrupalKernel->boot();
+  }
+
+  /**
+   * Returns a bootstrapped Drupal kernel where prepareLegacyRequest() was
+   * called.
+   *
+   * @return DrupalKernel
+   *
+   * @see CoreServices::LegacyPreparedDrupalKernel
+   */
+  protected function get_LegacyPreparedDrupalKernel() {
+    $kernel = $this->BootstrappedDrupalKernel;
+    $kernel->prepareLegacyRequest($this->Request);
+    return $kernel;
   }
 
   /**

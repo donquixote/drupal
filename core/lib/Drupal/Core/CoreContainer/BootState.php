@@ -17,6 +17,12 @@ use Drupal\Core\Site\Settings;
  * - trigger the a global state change.
  *
  * @property true SiteSettingsInitialized
+ *   Causes the site directory to be determined, site settings to be read and
+ *   registered in Settings::* static variable.
+ * @property true BootstrapComplete
+ *   Causes DrupalKernel::boot(), which also initializes the container.
+ * @property true LegacyRequestPrepared
+ *   Calls DrupalKernel::prepareLegacyRequest() and all dependencies.
  */
 class BootState extends PhaseContainerBase {
 
@@ -40,6 +46,28 @@ class BootState extends PhaseContainerBase {
   protected function init_SiteSettingsInitialized() {
     $site_path = $this->coreServices->SiteDirectory->getSitePath();
     Settings::initialize($site_path, $this->coreServices->ClassLoader);
+  }
+
+  /**
+   * Makes sure that DrupalKernel::boot() is called.
+   *
+   * @see BootState::BootstrapComplete
+   */
+  protected function init_BootstrapComplete() {
+    $this->coreServices->BootstrappedDrupalKernel;
+  }
+
+  /**
+   * Makes sure that DrupalKernel::prepareLegacyRequest() was called.
+   *
+   * This has side effects both on the kernel and on the container, which is
+   * accessible via global state.
+   *
+   * @see BootState::LegacyRequestPrepared
+   * @see \Drupal\Core\DrupalKernel::prepareLegacyRequest()
+   */
+  protected function init_LegacyRequestPrepared() {
+    $this->coreServices->LegacyPreparedDrupalKernel;
   }
 
 }
