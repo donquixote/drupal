@@ -7,6 +7,7 @@
 
 namespace Drupal\simpletest;
 
+use Drupal\Core\CoreContainer\CoreServices;
 use Drupal\Core\DrupalKernel;
 use Drupal\Core\Language\Language;
 use Drupal\Core\Session\UserSession;
@@ -137,9 +138,9 @@ abstract class InstallerTestBase extends WebTestBase {
     $this->setUpSite();
 
     // Import new settings.php written by the installer.
-    $request = Request::createFromGlobals();
-    $class_loader = require DRUPAL_ROOT . '/core/vendor/autoload.php';
-    Settings::initialize(DrupalKernel::findSitePath($request), $class_loader);
+    $core_services = CoreServices::create()->disableContainerDumping();
+    $core_services->BootState->SiteSettingsInitialized;
+
     foreach ($GLOBALS['config_directories'] as $type => $path) {
       $this->configDirectories[$type] = $path;
     }
@@ -151,9 +152,8 @@ abstract class InstallerTestBase extends WebTestBase {
     // WebTestBase::tearDown() will delete the entire test site directory.
     // Not using File API; a potential error must trigger a PHP warning.
     chmod(DRUPAL_ROOT . '/' . $this->siteDirectory, 0777);
-    $this->kernel = DrupalKernel::createFromRequest($request, $class_loader, 'prod', FALSE);
-    $this->kernel->prepareLegacyRequest($request);
-    $this->container = $this->kernel->getContainer();
+    $this->kernel = $core_services->LegacyPreparedDrupalKernel;
+    $this->container = $core_services->Container;
     $config = $this->container->get('config.factory');
 
     // Manually configure the test mail collector implementation to prevent
