@@ -19,6 +19,10 @@ class TableSortExtender extends SelectExtender {
    */
   protected $header = array();
 
+  /**
+   * @param \Drupal\Core\Database\Query\SelectInterface $query
+   * @param \Drupal\Core\Database\Connection $connection
+   */
   public function __construct(SelectInterface $query, Connection $connection) {
     parent::__construct($query, $connection);
 
@@ -66,7 +70,7 @@ class TableSortExtender extends SelectExtender {
   /**
    * Determine the current sort direction.
    *
-   * @return
+   * @return string
    *   The current sort direction ("asc" or "desc").
    *
    * @see tablesort_get_sort()
@@ -78,7 +82,7 @@ class TableSortExtender extends SelectExtender {
   /**
    * Compose a URL query parameter array to append to table sorting requests.
    *
-   * @return
+   * @return string[]
    *   A URL query parameter array that consists of all components of the current
    *   page request except for those pertaining to table sorting.
    *
@@ -91,7 +95,7 @@ class TableSortExtender extends SelectExtender {
   /**
    * Determine the current sort criterion.
    *
-   * @return
+   * @return array
    *   An associative array describing the criterion, containing the keys:
    *   - "name": The localized title of the table column.
    *   - "sql": The name of the database field to sort on.

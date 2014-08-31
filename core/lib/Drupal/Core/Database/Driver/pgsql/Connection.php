@@ -31,7 +31,7 @@ class Connection extends DatabaseConnection {
   const DATABASE_NOT_FOUND = 7;
 
   /**
-   * Constructs a connection object.
+   * {@inheritdoc}
    */
   public function __construct(\PDO $connection, array $connection_options) {
     parent::__construct($connection, $connection_options);
@@ -183,6 +183,9 @@ class Connection extends DatabaseConnection {
     return $tablename;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function driver() {
     return 'pgsql';
   }
@@ -233,10 +236,19 @@ class Connection extends DatabaseConnection {
   }
 
   /**
-   * Retrive a the next id in a sequence.
+   * Retrieve the next id in a sequence.
    *
    * PostgreSQL has built in sequences. We'll use these instead of inserting
    * and updating a sequences table.
+   *
+   * @param int $existing
+   *   After a database import, it might be that the sequences table is behind,
+   *   so by passing in the maximum existing id, it can be assured that we
+   *   never issue the same id.
+   *
+   * @return int
+   *   An integer number larger than any number returned by earlier calls and
+   *   also larger than the $existing if one was passed in.
    */
   public function nextId($existing = 0) {
 

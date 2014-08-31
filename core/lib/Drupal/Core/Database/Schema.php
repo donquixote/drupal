@@ -165,10 +165,15 @@ use Drupal\Core\Database\Query\PlaceholderInterface;
 
 abstract class Schema implements PlaceholderInterface {
 
+  /**
+   * @var \Drupal\Core\Database\Driver\Sqlite\Connection
+   */
   protected $connection;
 
   /**
    * The placeholder counter.
+   *
+   * @var int
    */
   protected $placeholder = 0;
 
@@ -185,9 +190,14 @@ abstract class Schema implements PlaceholderInterface {
 
   /**
    * A unique identifier for this query object.
+   *
+   * @var string
    */
   protected $uniqueIdentifier;
 
+  /**
+   * @param \Drupal\Core\Database\Driver\Sqlite\Connection $connection
+   */
   public function __construct($connection) {
     $this->uniqueIdentifier = uniqid('', TRUE);
     $this->connection = $connection;
@@ -202,6 +212,8 @@ abstract class Schema implements PlaceholderInterface {
 
   /**
    * Implements PlaceHolderInterface::uniqueIdentifier().
+   *
+   * @return string
    */
   public function uniqueIdentifier() {
     return $this->uniqueIdentifier;
@@ -217,13 +229,13 @@ abstract class Schema implements PlaceholderInterface {
   /**
    * Get information about the table name and schema from the prefix.
    *
-   * @param
-   *   Name of table to look prefix up for. Defaults to 'default' because thats
+   * @param string $table
+   *   Name of table to look prefix up for. Defaults to 'default' because that is the
    *   default key for prefix.
-   * @param $add_prefix
-   *   Boolean that indicates whether the given table name should be prefixed.
+   * @param bool $add_prefix
+   *   TRUE, if the given table name should be prefixed. FALSE, otherwise.
    *
-   * @return
+   * @return array
    *   A keyed array with information about the schema, table name and prefix.
    */
   protected function getPrefixInfo($table = 'default', $add_prefix = TRUE) {
@@ -278,11 +290,11 @@ abstract class Schema implements PlaceholderInterface {
    * to make all the others work. For example see
    * core/includes/databases/mysql/schema.inc.
    *
-   * @param $table_name
+   * @param string $table_name
    *   The name of the table in question.
-   * @param $operator
+   * @param string $operator
    *   The operator to apply on the 'table' part of the condition.
-   * @param $add_prefix
+   * @param bool $add_prefix
    *   Boolean to indicate whether the table name needs to be prefixed.
    *
    * @return \Drupal\Core\Database\Query\Condition
@@ -304,10 +316,10 @@ abstract class Schema implements PlaceholderInterface {
   /**
    * Check if a table exists.
    *
-   * @param $table
+   * @param string $table
    *   The name of the table in drupal (no prefixing).
    *
-   * @return
+   * @return bool
    *   TRUE if the given table exists, otherwise FALSE.
    */
   public function tableExists($table) {
@@ -324,11 +336,11 @@ abstract class Schema implements PlaceholderInterface {
   /**
    * Find all tables that are like the specified base table name.
    *
-   * @param $table_expression
+   * @param string $table_expression
    *   An SQL expression, for example "simpletest%" (without the quotes).
    *   BEWARE: this is not prefixed, the caller should take care of that.
    *
-   * @return
+   * @return string[]
    *   Array, both the keys and the values are the matching tables.
    */
   public function findTables($table_expression) {
@@ -346,12 +358,12 @@ abstract class Schema implements PlaceholderInterface {
   /**
    * Check if a column exists in the given table.
    *
-   * @param $table
+   * @param string $table
    *   The name of the table in drupal (no prefixing).
-   * @param $name
+   * @param string $column
    *   The name of the column.
    *
-   * @return
+   * @return bool
    *   TRUE if the given column exists, otherwise FALSE.
    */
   public function fieldExists($table, $column) {
@@ -381,9 +393,9 @@ abstract class Schema implements PlaceholderInterface {
   /**
    * Rename a table.
    *
-   * @param $table
+   * @param string $table
    *   The table to be renamed.
-   * @param $new_name
+   * @param string $new_name
    *   The new name for the table.
    *
    * @throws \Drupal\Core\Database\SchemaObjectDoesNotExistException
@@ -396,7 +408,7 @@ abstract class Schema implements PlaceholderInterface {
   /**
    * Drop a table.
    *
-   * @param $table
+   * @param string $table
    *   The table to be dropped.
    *
    * @return
@@ -426,17 +438,17 @@ abstract class Schema implements PlaceholderInterface {
   /**
    * Add a new field to a table.
    *
-   * @param $table
+   * @param string $table
    *   Name of the table to be altered.
-   * @param $field
+   * @param string $field
    *   Name of the field to be added.
-   * @param $spec
+   * @param array $spec
    *   The field specification array, as taken from a schema definition.
    *   The specification may also contain the key 'initial', the newly
    *   created field will be set to the value of the key in all rows.
    *   This is most useful for creating NOT NULL columns with no default
    *   value in existing tables.
-   * @param $keys_new
+   * @param array $keys_new
    *   (optional) Keys and indexes specification to be created on the
    *   table along with adding the field. The format is the same as a
    *   table specification but without the 'fields' element. If you are
@@ -454,12 +466,12 @@ abstract class Schema implements PlaceholderInterface {
   /**
    * Drop a field.
    *
-   * @param $table
+   * @param string $table
    *   The table to be altered.
-   * @param $field
+   * @param string $field
    *   The field to be dropped.
    *
-   * @return
+   * @return bool
    *   TRUE if the field was successfully dropped, FALSE if there was no field
    *   by that name to begin with.
    */
@@ -468,11 +480,11 @@ abstract class Schema implements PlaceholderInterface {
   /**
    * Set the default value for a field.
    *
-   * @param $table
+   * @param string $table
    *   The table to be altered.
-   * @param $field
+   * @param string $field
    *   The field to be altered.
-   * @param $default
+   * @param string $default
    *   Default value to be set. NULL for 'default NULL'.
    *
    * @throws \Drupal\Core\Database\SchemaObjectDoesNotExistException
@@ -483,9 +495,9 @@ abstract class Schema implements PlaceholderInterface {
   /**
    * Set a field to have no default value.
    *
-   * @param $table
+   * @param string $table
    *   The table to be altered.
-   * @param $field
+   * @param string $field
    *   The field to be altered.
    *
    * @throws \Drupal\Core\Database\SchemaObjectDoesNotExistException
@@ -496,12 +508,12 @@ abstract class Schema implements PlaceholderInterface {
   /**
    * Checks if an index exists in the given table.
    *
-   * @param $table
+   * @param string $table
    *   The name of the table in drupal (no prefixing).
-   * @param $name
+   * @param string $name
    *   The name of the index in drupal (no prefixing).
    *
-   * @return
+   * @return bool
    *   TRUE if the given index exists, otherwise FALSE.
    */
   abstract public function indexExists($table, $name);
@@ -509,9 +521,9 @@ abstract class Schema implements PlaceholderInterface {
   /**
    * Add a primary key.
    *
-   * @param $table
+   * @param string $table
    *   The table to be altered.
-   * @param $fields
+   * @param string $fields
    *   Fields for the primary key.
    *
    * @throws \Drupal\Core\Database\SchemaObjectDoesNotExistException
@@ -524,10 +536,10 @@ abstract class Schema implements PlaceholderInterface {
   /**
    * Drop the primary key.
    *
-   * @param $table
+   * @param string $table
    *   The table to be altered.
    *
-   * @return
+   * @return bool
    *   TRUE if the primary key was successfully dropped, FALSE if there was no
    *   primary key on this table to begin with.
    */
@@ -536,11 +548,11 @@ abstract class Schema implements PlaceholderInterface {
   /**
    * Add a unique key.
    *
-   * @param $table
+   * @param string $table
    *   The table to be altered.
-   * @param $name
+   * @param string $name
    *   The name of the key.
-   * @param $fields
+   * @param array $fields
    *   An array of field names.
    *
    * @throws \Drupal\Core\Database\SchemaObjectDoesNotExistException
@@ -553,12 +565,12 @@ abstract class Schema implements PlaceholderInterface {
   /**
    * Drop a unique key.
    *
-   * @param $table
+   * @param string $table
    *   The table to be altered.
-   * @param $name
+   * @param string $name
    *   The name of the key.
    *
-   * @return
+   * @return bool
    *   TRUE if the key was successfully dropped, FALSE if there was no key by
    *   that name to begin with.
    */
@@ -567,11 +579,11 @@ abstract class Schema implements PlaceholderInterface {
   /**
    * Add an index.
    *
-   * @param $table
+   * @param string $table
    *   The table to be altered.
-   * @param $name
+   * @param string $name
    *   The name of the index.
-   * @param $fields
+   * @param array $fields
    *   An array of field names.
    *
    * @throws \Drupal\Core\Database\SchemaObjectDoesNotExistException
@@ -584,12 +596,12 @@ abstract class Schema implements PlaceholderInterface {
   /**
    * Drop an index.
    *
-   * @param $table
+   * @param string $table
    *   The table to be altered.
-   * @param $name
+   * @param string $name
    *   The name of the index.
    *
-   * @return
+   * @return bool
    *   TRUE if the index was successfully dropped, FALSE if there was no index
    *   by that name to begin with.
    */
@@ -642,15 +654,15 @@ abstract class Schema implements PlaceholderInterface {
    * unless you are converting a field to be type serial. You can use
    * the $keys_new argument in all cases.
    *
-   * @param $table
+   * @param string $table
    *   Name of the table.
-   * @param $field
+   * @param string $field
    *   Name of the field to change.
-   * @param $field_new
+   * @param string $field_new
    *   New name for the field (set to the same as $field if you don't want to change the name).
-   * @param $spec
+   * @param string $spec
    *   The field specification for the new field.
-   * @param $keys_new
+   * @param array $keys_new
    *   (optional) Keys and indexes specification to be created on the
    *   table along with changing the field. The format is the same as a
    *   table specification but without the 'fields' element.
@@ -665,9 +677,9 @@ abstract class Schema implements PlaceholderInterface {
   /**
    * Create a new table from a Drupal table definition.
    *
-   * @param $name
+   * @param string $name
    *   The name of the table to create.
-   * @param $table
+   * @param array $table
    *   A Schema API table definition array.
    *
    * @throws \Drupal\Core\Database\SchemaObjectExistsException
@@ -689,10 +701,12 @@ abstract class Schema implements PlaceholderInterface {
    * This is usually an identity function but if a key/index uses a column prefix
    * specification, this function extracts just the name.
    *
-   * @param $fields
-   *   An array of key/index column specifiers.
+   * @param array $fields
+   *   An array of key/index column specifiers. Each array value can be either
+   *   - a string field name.
+   *   - an of two strings: array($field_name, $field_alias).
    *
-   * @return
+   * @return string[]
    *   An array of field names.
    */
   public function fieldNames($fields) {
@@ -711,13 +725,13 @@ abstract class Schema implements PlaceholderInterface {
   /**
    * Prepare a table or column comment for database query.
    *
-   * @param $comment
+   * @param string $comment
    *   The comment string to prepare.
-   * @param $length
+   * @param int $length
    *   Optional upper limit on the returned string length.
    *
-   * @return
-   *   The prepared comment.
+   * @return string|false
+   *   The prepared comment, or FALSE if the driver does not support it.
    */
   public function prepareComment($comment, $length = NULL) {
     return $this->connection->quote($comment);

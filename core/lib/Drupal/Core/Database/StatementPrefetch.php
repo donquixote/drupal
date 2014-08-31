@@ -135,6 +135,12 @@ class StatementPrefetch implements \Iterator, StatementInterface {
    */
   public $allowRowCount = FALSE;
 
+  /**
+   * @param \PDO $dbh
+   * @param \Drupal\Core\Database\Connection $connection
+   * @param string $query
+   * @param array $driver_options
+   */
   public function __construct(\PDO $dbh, Connection $connection, $query, array $driver_options = array()) {
     $this->dbh = $dbh;
     $this->connection = $connection;
@@ -145,11 +151,12 @@ class StatementPrefetch implements \Iterator, StatementInterface {
   /**
    * Executes a prepared statement.
    *
-   * @param $args
+   * @param array $args
    *   An array of values with as many elements as there are bound parameters in the SQL statement being executed.
-   * @param $options
+   * @param array $options
    *   An array of options for this query.
-   * @return
+   *
+   * @return bool
    *   TRUE on success, or FALSE on failure.
    */
   public function execute($args = array(), $options = array()) {
@@ -228,8 +235,8 @@ class StatementPrefetch implements \Iterator, StatementInterface {
    * Some drivers (including SQLite) will need to perform some preparation
    * themselves to get the statement right.
    *
-   * @param $query
-   *   The query.
+   * @param string $query
+   *   The query string.
    * @param array $args
    *   An array of arguments.
    * @return \PDOStatement
@@ -241,12 +248,21 @@ class StatementPrefetch implements \Iterator, StatementInterface {
 
   /**
    * Return the object's SQL query string.
+   *
+   * @return string
    */
   public function getQueryString() {
     return $this->queryString;
   }
 
   /**
+   * @param int $fetchStyle
+   *   One of the PDO::FETCH_* constants.
+   * @param mixed $a2
+   *   Varies based on fetchStyle
+   * @param mixed $a3
+   *   Varies based on fetchStyle
+   *
    * @see \PDOStatement::setFetchMode()
    */
   public function setFetchMode($fetchStyle, $a2 = NULL, $a3 = NULL) {
@@ -278,8 +294,8 @@ class StatementPrefetch implements \Iterator, StatementInterface {
    * array position in $this->data and format it according to $this->fetchStyle
    * and $this->fetchMode.
    *
-   * @return
-   *  The current row formatted as requested.
+   * @return array|mixed|object
+   *   The current row formatted as requested.
    */
   public function current() {
     if (isset($this->currentRow)) {
@@ -383,6 +399,17 @@ class StatementPrefetch implements \Iterator, StatementInterface {
     }
   }
 
+  /**
+   * Returns a single field value from the next row of a result set.
+   *
+   * Mimicks the \PDO::fetchColumn() method.
+   * @link http://php.net/manual/en/pdostatement.fetchcolumn.php
+   *
+   * @param int $index
+   *   The column index.
+   * @return string|false
+   *   The fetched field value, or FALSE, if no further row was found.
+   */
   public function fetchColumn($index = 0) {
     if (isset($this->currentRow) && isset($this->columnNames[$index])) {
       // We grab the value directly from $this->data, and format it.

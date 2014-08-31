@@ -21,7 +21,7 @@ interface AlterableInterface {
    * letters, numbers, and underscore, and start with a letter. That is, they
    * should follow the same rules as PHP identifiers in general.
    *
-   * @param $tag
+   * @param string $tag
    *   The tag to add.
    *
    * @return \Drupal\Core\Database\Query\AlterableInterface
@@ -35,7 +35,7 @@ interface AlterableInterface {
    * @param $tag
    *   The tag to check.
    *
-   * @return
+   * @return bool
    *   TRUE if this query has been marked with this tag, FALSE otherwise.
    */
   public function hasTag($tag);
@@ -43,10 +43,10 @@ interface AlterableInterface {
   /**
    * Determines if a given query has all specified tags.
    *
-   * @param $tags
+   * @param ...
    *   A variable number of arguments, one for each tag to check.
    *
-   * @return
+   * @return bool
    *   TRUE if this query has been marked with all specified tags, FALSE
    *   otherwise.
    */
@@ -55,10 +55,10 @@ interface AlterableInterface {
   /**
    * Determines if a given query has any specified tag.
    *
-   * @param $tags
+   * @param ...
    *   A variable number of arguments, one for each tag to check.
    *
-   * @return
+   * @return bool
    *   TRUE if this query has been marked with at least one of the specified
    *   tags, FALSE otherwise.
    */
@@ -71,10 +71,10 @@ interface AlterableInterface {
    * hooks. Alter hooks may then use that information to decide if and how
    * to take action.
    *
-   * @param $key
+   * @param string $key
    *   The unique identifier for this piece of metadata. Must be a string that
    *   follows the same rules as any other PHP identifier.
-   * @param $object
+   * @param mixed $object
    *   The additional data to add to the query. May be any valid PHP variable.
    *
    * @return \Drupal\Core\Database\Query\AlterableInterface
@@ -85,10 +85,10 @@ interface AlterableInterface {
   /**
    * Retrieves a given piece of metadata.
    *
-   * @param $key
+   * @param string $key
    *   The unique identifier for the piece of metadata to retrieve.
    *
-   * @return
+   * @return mixed
    *   The previously attached metadata object, or NULL if one doesn't exist.
    */
   public function getMetaData($key);

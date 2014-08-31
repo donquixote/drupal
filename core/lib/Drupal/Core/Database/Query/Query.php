@@ -48,18 +48,22 @@ abstract class Query implements PlaceholderInterface {
 
   /**
    * A unique identifier for this query object.
+   *
+   * @var string
    */
   protected $uniqueIdentifier;
 
   /**
    * The placeholder counter.
+   *
+   * @var int
    */
   protected $nextPlaceholder = 0;
 
   /**
    * An array of comments that can be prepended to a query.
    *
-   * @var array
+   * @var string[]
    */
   protected $comments = array();
 
@@ -151,7 +155,7 @@ abstract class Query implements PlaceholderInterface {
    * The comment string will be sanitized to remove * / and other characters
    * that may terminate the string early so as to avoid SQL injection attacks.
    *
-   * @param $comment
+   * @param string $comment
    *   The comment string to be inserted into the query.
    *
    * @return $this
@@ -173,7 +177,7 @@ abstract class Query implements PlaceholderInterface {
    * $comments =& $query->getComments();
    * @endcode
    *
-   * @return array
+   * @return string[]&
    *   A reference to the comments array structure.
    */
   public function &getComments() {

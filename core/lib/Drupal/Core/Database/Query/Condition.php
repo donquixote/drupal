@@ -40,7 +40,10 @@ class Condition implements ConditionInterface, \Countable {
   protected $changed = TRUE;
 
   /**
-   * The identifier of the query placeholder this condition has been compiled against.
+   * The identifier of the query placeholder this condition has been compiled
+   * against.
+   *
+   * @var string
    */
   protected $queryPlaceholderIdentifier;
 
@@ -60,6 +63,8 @@ class Condition implements ConditionInterface, \Countable {
    * Returns the size of this conditional. The size of the conditional is the
    * size of its conditional array minus one, because one element is the the
    * conjunction.
+   *
+   * @return int
    */
   public function count() {
     return count($this->conditions) - 1;
@@ -280,10 +285,10 @@ class Condition implements ConditionInterface, \Countable {
    * the value data they pass in is not a simple value. This is a simple
    * overridable lookup function.
    *
-   * @param $operator
+   * @param string $operator
    *   The condition operator, such as "IN", "BETWEEN", etc. Case-sensitive.
    *
-   * @return
+   * @return array
    *   The extra handling directives for the specified operator, or NULL.
    */
   protected function mapConditionOperator($operator) {
