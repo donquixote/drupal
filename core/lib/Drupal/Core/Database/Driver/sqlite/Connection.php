@@ -230,7 +230,15 @@ class Connection extends DatabaseConnection {
    * @param int $length
    *   The length of the substring.
    *
-   * @return string
+   * @return string|false
+   *   - Substring of $string beginning at $from - 1, and ending after $length
+   *     characters from there, or
+   *   - FALSE, whenever substr($string, $from - 1, $length) returns false.
+   *     Esp., if strlen($string) <= $from.
+   *
+   * @see substr()
+   *
+   * @todo Verify that the return value FALSE is appropriate for sqlite.
    */
   public static function sqlFunctionSubstring($string, $from, $length) {
     return substr($string, $from - 1, $length);

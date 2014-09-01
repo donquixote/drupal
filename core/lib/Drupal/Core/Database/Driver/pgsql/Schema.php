@@ -647,6 +647,8 @@ class Schema extends DatabaseSchema {
   }
 
   /**
+   * Creates an SQL expression to create a database index.
+   *
    * @param string $table
    *   The table on which the index will be created.
    * @param string $name
@@ -682,11 +684,21 @@ class Schema extends DatabaseSchema {
   }
 
   /**
-   * Retrieve a table or column comment.
+   * Retrieves a table or column comment.
+   *
    * @param string $table
    *   The database table whose comments to return.
    * @param string $column
    *   (optional) A column in $table whose comments to return.
+   *
+   * @return string|false
+   *   One of:
+   *   - the description of the database table, if $column === NULL.
+   *   - the description of the database table column, if $column !== NULL.
+   *   - An empty string, if the table or column has no description.
+   *   - FALSE, if the table or column does not exist.
+   *
+   * @todo Verify that '' is returned if the table or column has no description.
    */
   public function getComment($table, $column = NULL) {
     $info = $this->getPrefixInfo($table);

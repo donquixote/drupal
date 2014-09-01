@@ -196,7 +196,10 @@ abstract class Schema implements PlaceholderInterface {
   protected $uniqueIdentifier;
 
   /**
-   * @param \Drupal\Core\Database\Driver\Sqlite\Connection $connection
+   * Constructs a Schema object.
+   *
+   * @param \Drupal\Core\Database\Connection $connection
+   *   The database connection.
    */
   public function __construct($connection) {
     $this->uniqueIdentifier = uniqid('', TRUE);
@@ -214,6 +217,7 @@ abstract class Schema implements PlaceholderInterface {
    * Implements PlaceHolderInterface::uniqueIdentifier().
    *
    * @return string
+   *   The unique identifier.
    */
   public function uniqueIdentifier() {
     return $this->uniqueIdentifier;

@@ -54,10 +54,12 @@ class Schema extends DatabaseSchema {
   }
 
   /**
-   * Build the SQL expression for indexes.
+   * Builds the SQL expression to generate all indexes for the specific table.
    *
    * @param string $tablename
+   *   The table name.
    * @param array $schema
+   *   The schema array for the table.
    *
    * @return string[]
    *   Array of SQL statements to create the indexes.
@@ -79,10 +81,12 @@ class Schema extends DatabaseSchema {
   }
 
   /**
-   * Build the SQL expression for creating columns.
+   * Builds the SQL expression to create all columns of the specified table.
    *
    * @param string $tablename
+   *   The table name.
    * @param array $schema
+   *   The schema array for the table.
    *
    * @return string
    *   Generated SQL snippet.
@@ -129,6 +133,9 @@ class Schema extends DatabaseSchema {
    *
    * @param array $field
    *   A field description array, as specified in the schema documentation.
+   *
+   * @return array
+   *   The $field array, with additional properties added.
    */
   protected function processField($field) {
     if (!isset($field['size'])) {

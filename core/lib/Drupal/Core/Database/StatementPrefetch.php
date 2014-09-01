@@ -136,10 +136,14 @@ class StatementPrefetch implements \Iterator, StatementInterface {
   public $allowRowCount = FALSE;
 
   /**
+   * Constructs a StatementPrefetch object.
+   *
    * @param \PDO $dbh
    * @param \Drupal\Core\Database\Connection $connection
    * @param string $query
+   *   The query string.
    * @param array $driver_options
+   *   Driver-specific options. Can be used by child classes.
    */
   public function __construct(\PDO $dbh, Connection $connection, $query, array $driver_options = array()) {
     $this->dbh = $dbh;

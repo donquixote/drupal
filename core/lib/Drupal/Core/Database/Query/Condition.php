@@ -65,6 +65,7 @@ class Condition implements ConditionInterface, \Countable {
    * conjunction.
    *
    * @return int
+   *   The number of conditions to be combined with the conjunction operator.
    */
   public function count() {
     return count($this->conditions) - 1;

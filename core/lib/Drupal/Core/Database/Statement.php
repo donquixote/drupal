@@ -37,7 +37,11 @@ class Statement extends \PDOStatement implements StatementInterface {
   public $allowRowCount = FALSE;
 
   /**
+   * Constructs a Statement object.
+   *
    * @param \Drupal\Core\Database\Connection $dbh
+   *   The database connection for this statement. the name $dbh is inherited
+   *   from \PDOStatement.
    */
   protected function __construct(Connection $dbh) {
     $this->dbh = $dbh;

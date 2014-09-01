@@ -128,7 +128,7 @@ interface SelectInterface extends ConditionInterface, AlterableInterface, Extend
   /**
    * Compiles and returns an associative array of the arguments for this prepared statement.
    *
-   * @param PlaceholderInterface $queryPlaceholder
+   * @param \Drupal\Core\Database\Query\PlaceholderInterface $queryPlaceholder
    *   When collecting the arguments of a subquery, the main placeholder
    *   object should be passed as this parameter.
    *
@@ -221,7 +221,7 @@ interface SelectInterface extends ConditionInterface, AlterableInterface, Extend
    *
    * This method is a convenience method for innerJoin().
    *
-   * @param string|SelectInterface $table
+   * @param string|\Drupal\Core\Database\Query\SelectInterface $table
    *   The table against which to join. May be a string or another SelectQuery
    *   object. If a query object is passed, it will be used as a subselect.
    *   Unless the table name starts with the database / schema name and a dot
@@ -248,7 +248,7 @@ interface SelectInterface extends ConditionInterface, AlterableInterface, Extend
   /**
    * Inner Join against another table in the database.
    *
-   * @param string|SelectInterface $table
+   * @param string|\Drupal\Core\Database\Query\SelectInterface $table
    *   The table against which to join. May be a string or another SelectQuery
    *   object. If a query object is passed, it will be used as a subselect.
    *   Unless the table name starts with the database / schema name and a dot
@@ -275,7 +275,7 @@ interface SelectInterface extends ConditionInterface, AlterableInterface, Extend
   /**
    * Left Outer Join against another table in the database.
    *
-   * @param string|SelectInterface $table
+   * @param string|\Drupal\Core\Database\Query\SelectInterface $table
    *   The table against which to join. May be a string or another SelectQuery
    *   object. If a query object is passed, it will be used as a subselect.
    *   Unless the table name starts with the database / schema name and a dot
@@ -302,7 +302,7 @@ interface SelectInterface extends ConditionInterface, AlterableInterface, Extend
   /**
    * Right Outer Join against another table in the database.
    *
-   * @param string|SelectInterface $table
+   * @param string|\Drupal\Core\Database\Query\SelectInterface $table
    *   The table against which to join. May be a string or another SelectQuery
    *   object. If a query object is passed, it will be used as a subselect.
    *   Unless the table name starts with the database / schema name and a dot
@@ -335,7 +335,7 @@ interface SelectInterface extends ConditionInterface, AlterableInterface, Extend
    *
    * @param string $type
    *   The type of join. Typically one one of INNER, LEFT OUTER, and RIGHT OUTER.
-   * @param string|SelectInterface $table
+   * @param string|\Drupal\Core\Database\Query\SelectInterface $table
    *   The table against which to join. May be a string or another SelectQuery
    *   object. If a query object is passed, it will be used as a subselect.
    *   Unless the table name starts with the database / schema name and a dot
@@ -484,7 +484,7 @@ interface SelectInterface extends ConditionInterface, AlterableInterface, Extend
   /**
    * Generic preparation and validation for a SELECT query.
    *
-   * @param SelectInterface $query
+   * @param \Drupal\Core\Database\Query\SelectInterface $query
    *   Optional query object to use instead of $this.
    *
    * @return bool

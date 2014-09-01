@@ -186,12 +186,15 @@ class Insert extends Query {
   /**
    * Executes the insert query.
    *
-   * @throws \Exception
-   * @return \Drupal\Core\Database\StatementInterface|int|NULL
+   * @return \Drupal\Core\Database\StatementInterface|int|null
    *   The last insert ID of the query, if one exists. If the query
    *   was given multiple sets of values to insert, the return value is
    *   undefined. If no fields are specified, this method will do nothing and
    *   return NULL. That makes it safe to use in multi-insert loops.
+   *
+   * @throws \Exception
+   *   If an exception occurs while executing the query, the transaction will be
+   *   rolled back, and the exception is thrown again.
    */
   public function execute() {
     // If validation fails, simply return NULL. Note that validation routines
