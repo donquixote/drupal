@@ -64,4 +64,9 @@ interface Reader
      * @return mixed
      */
     function getPropertyAnnotation(\ReflectionProperty $property, $annotationName);
+
+    /**
+     * @param string $namespace
+     */
+    public function addNamespace($namespace);
 }

@@ -7,6 +7,7 @@
 
 namespace Drupal\Core\Plugin\Discovery;
 
+use Doctrine\Tests\Common\Annotations\SimpleAnnotationReaderTest;
 use Drupal\Component\Annotation\AnnotationInterface;
 use Drupal\Component\Annotation\Plugin\Discovery\AnnotatedClassDiscovery as ComponentAnnotatedClassDiscovery;
 use Drupal\Component\Utility\Unicode;

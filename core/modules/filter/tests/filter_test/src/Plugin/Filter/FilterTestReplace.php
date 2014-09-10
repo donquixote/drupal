@@ -17,8 +17,10 @@ use Drupal\filter\Plugin\FilterBase;
  *   id = "filter_test_replace",
  *   title = @Translation("Testing filter"),
  *   description = @Translation("Replaces all content with filter and text format information."),
- *   type = Drupal\filter\Plugin\FilterInterface::TYPE_TRANSFORM_IRREVERSIBLE
+ *   type = @see \Drupal\filter\Plugin\FilterInterface::TYPE_TRANSFORM_IRREVERSIBLE
  * )
+ *
+ * @see \Drupal\filter\Plugin\FilterInterface::TYPE_TRANSFORM_IRREVERSIBLE
  */
 class FilterTestReplace extends FilterBase {
 
