@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "7d34fdcf5f05caf22258954b560e70f6",
+    "hash": "f11a6c029ef5f6a1c0f665fb0322c0b0",
     "packages": [
         {
             "name": "doctrine/annotations",
@@ -2350,6 +2350,56 @@
                 "templating"
             ],
             "time": "2013-12-06 07:47:10"
+        },
+        {
+            "name": "vektah/parser-combinator",
+            "version": "0.2.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Vektah/parser-combinator.git",
+                "reference": "da7abe686184350eea446235c5c78d06c64cba80"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Vektah/parser-combinator/zipball/da7abe686184350eea446235c5c78d06c64cba80",
+                "reference": "da7abe686184350eea446235c5c78d06c64cba80",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.4.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "3.7.21",
+                "squizlabs/php_codesniffer": "1.4.5",
+                "vektah/bugfree-dangerzone": "0.3.*",
+                "vektah/psr2": "*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "vektah\\parser_combinator": "src/main/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-2-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Adam Scarr",
+                    "email": "scarr.adam@gmail.com",
+                    "homepage": "http://github.com/Vektah",
+                    "role": "Developer"
+                }
+            ],
+            "homepage": "https://github.com/Vektah/parser-combinator",
+            "keywords": [
+                "combinator",
+                "lexer",
+                "parser",
+                "parser combinator"
+            ],
+            "time": "2014-02-12 06:49:49"
         },
         {
             "name": "zendframework/zend-escaper",
