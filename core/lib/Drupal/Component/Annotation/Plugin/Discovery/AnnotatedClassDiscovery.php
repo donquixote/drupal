@@ -14,6 +14,9 @@ use Doctrine\Common\Annotations\SimpleAnnotationReader;
 use Doctrine\Common\Annotations\AnnotationRegistry;
 use Doctrine\Common\Reflection\StaticReflectionParser;
 use Drupal\Component\Plugin\Discovery\DiscoveryTrait;
+use vektah\parser_combinator\exception\ParseException;
+use vektah\parser_combinator\language\php\annotation\DoctrineAnnotation;
+use vektah\parser_combinator\language\php\annotation\PhpAnnotationParser;
 
 /**
  * Defines a discovery mechanism to find annotated plugins in PSR-0 namespaces.
@@ -32,6 +35,8 @@ class AnnotatedClassDiscovery implements DiscoveryInterface {
   /**
    * The name of the annotation that contains the plugin definition.
    *
+   * E.g. "Drupal\filter\Annotation\Filter"
+   *
    * The class corresponding to this name must implement
    * \Drupal\Component\Annotation\AnnotationInterface.
    *
@@ -40,11 +45,33 @@ class AnnotatedClassDiscovery implements DiscoveryInterface {
   protected $pluginDefinitionAnnotationName;
 
   /**
+   * The short name of the annotation that contains the plugin definition.
+   *
+   * This is the same as $pluginDefinitionAnnotationName, but without the
+   * namespace.
+   *
+   * E.g. "Filter", instead of "Drupal\filter\Annotation\Filter"
+   *
+   * @var string
+   */
+  protected $pluginDefinitionAnnotationShortname;
+
+  /**
    * The doctrine annotation reader.
    *
    * @var \Doctrine\Common\Annotations\Reader
    */
   protected $annotationReader;
+
+  /**
+   * @var PhpAnnotationParser
+   */
+  protected $parser;
+
+  /**
+   * @var \Drupal\Component\Annotation\Plugin\Discovery\Argument\ArgumentsResolver
+   */
+  protected $argumentsResolver;
 
   /**
    * Constructs an AnnotatedClassDiscovery object.
@@ -59,6 +86,12 @@ class AnnotatedClassDiscovery implements DiscoveryInterface {
   function __construct($plugin_namespaces = array(), $plugin_definition_annotation_name = 'Drupal\Component\Annotation\Plugin') {
     $this->pluginNamespaces = $plugin_namespaces;
     $this->pluginDefinitionAnnotationName = $plugin_definition_annotation_name;
+    if (FALSE !== $pos = strrpos($plugin_definition_annotation_name, '\\')) {
+      $this->pluginDefinitionAnnotationShortname = substr($plugin_definition_annotation_name, $pos + 1);
+    }
+    else {
+      $this->pluginDefinitionAnnotationShortname = $plugin_definition_annotation_name;
+    }
   }
 
   /**
@@ -84,13 +117,6 @@ class AnnotatedClassDiscovery implements DiscoveryInterface {
   public function getDefinitions() {
     $definitions = array();
 
-    $reader = $this->getAnnotationReader();
-
-    // Clear the annotation loaders of any previous annotation classes.
-    AnnotationRegistry::reset();
-    // Register the namespaces of classes that can be used for annotations.
-    AnnotationRegistry::registerLoader('class_exists');
-
     // Search for classes within all PSR-0 namespace locations.
     foreach ($this->getPluginNamespaces() as $namespace => $dirs) {
       foreach ($dirs as $dir) {
@@ -109,13 +135,18 @@ class AnnotatedClassDiscovery implements DiscoveryInterface {
               // mock version.
               $finder = MockFileFinder::create($fileinfo->getPathName());
               $parser = new StaticReflectionParser($class, $finder, TRUE);
+              $docComment = $parser->getReflectionClass()->getDocComment();
+              foreach ($this->findClassAnnotations($docComment) as $id => $args) {
+                // The arguments may contain things such as "@Translation(..)",
+                // which need to be resolved.
+                $args = $this->argumentsResolver->resolveArguments($args);
+                $annotationClass = $this->pluginDefinitionAnnotationName;
 
-              /** @var $annotation \Drupal\Component\Annotation\AnnotationInterface */
-              if ($annotation = $reader->getClassAnnotation($parser->getReflectionClass(), $this->pluginDefinitionAnnotationName)) {
+                // @todo Do we still need to instantiate an $annotation object?
+                /** @var $annotation \Drupal\Component\Annotation\AnnotationInterface */
+                $annotation = new $annotationClass($args);
                 $this->prepareAnnotationDefinition($annotation, $class);
-                // AnnotationInterface::get() returns the array definition
-                // instead of requiring us to work with the annotation object.
-                $definitions[$annotation->getId()] = $annotation->get();
+                $definitions[$id] = $annotation->get();
               }
             }
           }
@@ -123,10 +154,49 @@ class AnnotatedClassDiscovery implements DiscoveryInterface {
       }
     }
 
-    // Don't let annotation loaders pile up.
-    AnnotationRegistry::reset();
-
     return $definitions;
+  }
+
+  /**
+   * Extracts doctrine-style annotations from a class doc comment, and returns
+   * only those that match $this->pluginDefinitionAnnotationName.
+   *
+   * @param string $docComment
+   *
+   * @return array[]
+   */
+  protected function findClassAnnotations($docComment) {
+    $annotations = array();
+    try {
+      // The parser returns different pieces of the doc comment, some of which
+      // may be doctrine annotations.
+      $candidates = $this->parser->parseString($docComment);
+    }
+    catch (ParseException $e) {
+      return array();
+    }
+    foreach ($candidates as $candidate) {
+      if (!$candidate instanceof DoctrineAnnotation) {
+        // This is some other part of the doc comment, which is not a
+        // doctrine annotation.
+        continue;
+      }
+      if ( $candidate->name !== $this->pluginDefinitionAnnotationName
+        && $candidate->name !== $this->pluginDefinitionAnnotationShortname
+      ) {
+        // This is not one of the annotations we are interested in.
+        continue;
+      }
+      // Annotations can define arguments as e,g. @AnnotationName(key = "value")
+      $args = $candidate->arguments;
+      if (empty($args['id'])) {
+        // Required argument 'id' missing.
+        continue;
+      }
+      $id = $args['id'];
+      $annotations[$id] = $args;
+    }
+    return $annotations;
   }
 
   /**
