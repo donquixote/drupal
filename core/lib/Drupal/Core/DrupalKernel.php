@@ -352,6 +352,7 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
    */
   public function setSitePath($path) {
     $this->sitePath = $path;
+    return $this;
   }
 
   /**
