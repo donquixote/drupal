@@ -15,7 +15,7 @@ require_once __DIR__ . '/core/vendor/autoload.php';
 
 try {
   $core_services = CoreServices::create();
-  $core_services->CoreRequestHandler->handleRequestAndExit();
+  $core_services->IndexPhp->sendResponse();
 }
 catch (Exception $e) {
   $message = 'If you have just changed code (for example deployed a new module or moved an existing one) read <a href="http://drupal.org/documentation/rebuild">http://drupal.org/documentation/rebuild</a>';

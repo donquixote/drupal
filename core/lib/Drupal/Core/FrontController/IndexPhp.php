@@ -1,40 +1,38 @@
 <?php
 
 
-namespace Drupal\Core;
+namespace Drupal\Core\FrontController;
 
-
+use Drupal\Core\DrupalKernelInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\TerminableInterface;
 
 /**
+ * Front controller for the index.php in case of a web request on an installed
+ * site.
  *
+ * @see CoreServices::IndexPhp
  */
-class CoreRequestHandler {
+class IndexPhp extends FrontControllerBase {
 
   /**
-   * @var Request
-   */
-  protected $request;
-
-  /**
-   * @var DrupalKernelInterface
+   * @var \Drupal\Core\DrupalKernelInterface
    */
   protected $kernel;
 
   /**
-   * @param Request $request
-   * @param DrupalKernelInterface $kernel
+   * @param \Symfony\Component\HttpFoundation\Request $request
+   * @param \Drupal\Core\DrupalKernelInterface $kernel
    */
   function __construct(Request $request, DrupalKernelInterface $kernel) {
-    $this->request = $request;
+    parent::__construct($request);
     $this->kernel = $kernel;
   }
 
   /**
-   * Handles the request and exits.
+   * Executes the front controller operation.
    */
-  function handleRequestAndExit() {
+  function sendResponse() {
 
     $request = $this->request;
     $kernel = $this->kernel;
@@ -48,4 +46,4 @@ class CoreRequestHandler {
       $kernel->terminate($request, $response);
     }
   }
-} 
+}
