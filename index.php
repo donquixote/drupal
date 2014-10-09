@@ -16,7 +16,7 @@ require_once __DIR__ . '/core/vendor/autoload.php';
 try {
   $core_services = CoreServices::create();
   $request = $core_services->Request;
-  $kernel = $core_services->DrupalKernel;
+  $kernel = $core_services->BootstrappedDrupalKernel;
   $response = $kernel
     ->handle($request)
     // Handle the response object.
