@@ -4,11 +4,14 @@
 namespace Drupal\Core\CoreContainer;
 
 use Drupal\Component\MiniContainer\MiniContainerBase;
-use Drupal\Core\CoreRequestHandler;
 use Drupal\Core\Database\Database;
 use Drupal\Core\DrupalKernel;
+use Drupal\Core\FrontController\IndexPhp;
+use Drupal\Core\FrontController\NeedRebuildFrontController;
+use Drupal\Core\FrontController\RedirectFrontController;
 use Drupal\Core\Site\Settings;
 use Drupal\Core\Site\SiteDirectory;
+use Drupal\Core\Site\SiteNotInstalledException;
 use Drupal\Core\Site\SitePathFinder;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -29,9 +32,11 @@ use Symfony\Component\HttpFoundation\Request;
  * @property \Drupal\Core\CoreContainer\BootState BootState
  * @property \Drupal\Core\Site\SitePathFinder SitePathFinder
  * @property \Symfony\Component\DependencyInjection\ContainerInterface Container
- * @property \Drupal\Core\CoreRequestHandler CoreRequestHandler
  * @property \Drupal\Core\DrupalKernel LegacyPreparedDrupalKernel
  *   A DrupalKernel where prepareLegacyRequest() was called.
+ *
+ * Front controllers:
+ * @property \Drupal\Core\FrontController\FrontControllerInterface IndexPhp
  */
 class CoreServices extends MiniContainerBase {
 
@@ -134,7 +139,7 @@ class CoreServices extends MiniContainerBase {
     // Include our bootstrap file.
     $this->StaticContext->BootstrapIncIncluded;
 
-    // @todo Different DrupalKernel class depending on situation.
+    // Subclasses of CoreContainer may use different Kernel classes.
     return new DrupalKernel(
       $this->Parameters->Environment,
       $this->ClassLoader,
@@ -261,12 +266,20 @@ class CoreServices extends MiniContainerBase {
   }
 
   /**
-   * @return \Drupal\Core\CoreRequestHandler
+   * @return \Drupal\Core\FrontController\FrontControllerInterface
    *
-   * @see CoreServices::CoreRequestHandler
+   * @see CoreServices::IndexPhp
    */
-  protected function get_CoreRequestHandler() {
-    return new CoreRequestHandler($this->Request, $this->BootstrappedDrupalKernel);
+  protected function get_IndexPhp() {
+    try {
+      return new IndexPhp($this->Request, $this->BootstrappedDrupalKernel);
+    }
+    catch (SiteNotInstalledException $e) {
+      return new RedirectFrontController($this->Request, 'core/install.php');
+    }
+    catch (\Exception $e) {
+      return new NeedRebuildFrontController($e);
+    }
   }
 
 }
