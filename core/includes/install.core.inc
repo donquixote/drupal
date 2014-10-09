@@ -364,10 +364,8 @@ function install_begin_request(&$install_state) {
     $GLOBALS['conf']['container_service_providers']['InstallerServiceProvider'] = 'Drupal\Core\Installer\InstallerServiceProvider';
   }
 
-  $kernel = $core_services->DrupalKernel;
-  $kernel->setSitePath($site_path);
-  $kernel->boot();
-  $container = $kernel->getContainer();
+  $core_services->setCustomSitePath($site_path);
+  $container = $core_services->Container;
   $container->get('request_stack')->push($request);
 
   // Register the file translation service.
@@ -420,7 +418,7 @@ function install_begin_request(&$install_state) {
   // checked by other subsystems (e.g., the theme system).
   $module_handler->loadAll();
 
-  $kernel->prepareLegacyRequest($request);
+  $core_services->BootstrappedDrupalKernel->prepareLegacyRequest($request);
 
   // Prepare for themed output. We need to run this at the beginning of the
   // page request to avoid a different theme accidentally getting set. (We also

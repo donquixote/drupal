@@ -12,8 +12,21 @@ use Drupal\Component\MiniContainer\MiniContainerException;
  * @property string Environment
  *   Either 'prod' or 'install'.
  * @property bool AllowContainerDumping
+ * @property string SitePath
  */
 class CoreServiceParameters extends MiniContainerBase {
+
+  /**
+   * @var CoreServices
+   */
+  protected $coreServices;
+
+  /**
+   * @param CoreServices $core_services
+   */
+  public function __construct(CoreServices $core_services) {
+    $this->coreServices = $core_services;
+  }
 
   /**
    * @return string
@@ -64,5 +77,15 @@ class CoreServiceParameters extends MiniContainerBase {
     if (TRUE !== $value && FALSE !== $value) {
       throw new MiniContainerException('AllowContainerDumping must be either TRUE or FALSE.');
     }
+  }
+
+  /**
+   * @return string
+   *
+   * @see CoreServiceParameters::SitePath
+   */
+  protected function get_SitePath() {
+    return $this->coreServices->SitePathFinder->findSitePath(
+      $this->coreServices->Request);
   }
 }

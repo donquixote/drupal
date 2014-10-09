@@ -56,8 +56,7 @@ function authorize_access_allowed() {
 
 $core_services = CoreServices::create();
 $request = $core_services->Request;
-$kernel = $core_services->DrupalKernel;
-$kernel->prepareLegacyRequest($request);
+$core_services->BootstrappedDrupalKernel->prepareLegacyRequest($request);
 
 // We have to enable the user and system modules, even to check access and
 // display errors via the maintenance theme.
