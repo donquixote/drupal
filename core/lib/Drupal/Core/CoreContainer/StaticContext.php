@@ -22,7 +22,7 @@ class StaticContext extends PhaseContainerBase {
    *
    * @see StaticContext::PhpEnvironmentReady
    */
-  function init_BootstrapIncIncluded() {
+  protected function init_BootstrapIncIncluded() {
     require_once dirname(dirname(dirname(dirname(__DIR__)))) . '/includes/bootstrap.inc';
   }
 
@@ -31,7 +31,7 @@ class StaticContext extends PhaseContainerBase {
    *
    * @see StaticContext::BootstrapIncIncluded
    */
-  function init_PhpEnvironmentReady() {
+  protected function init_PhpEnvironmentReady() {
     $this->BootstrapIncIncluded;
     // @todo Move this method elsewhere.
     DrupalKernel::bootEnvironment();
