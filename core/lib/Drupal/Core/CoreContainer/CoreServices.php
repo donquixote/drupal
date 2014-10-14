@@ -7,10 +7,12 @@ use Drupal\Component\MiniContainer\MiniContainerBase;
 use Drupal\Core\Database\Database;
 use Drupal\Core\DrupalKernel;
 use Drupal\Core\FrontController\IndexPhp;
+use Drupal\Core\FrontController\InstallPhp;
 use Drupal\Core\FrontController\NeedRebuildFrontController;
 use Drupal\Core\FrontController\RedirectFrontController;
 use Drupal\Core\Site\Settings;
 use Drupal\Core\Site\SiteDirectory;
+use Drupal\Core\Site\SiteInstalledException;
 use Drupal\Core\Site\SiteNotInstalledException;
 use Drupal\Core\Site\SitePathFinder;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -37,6 +39,7 @@ use Symfony\Component\HttpFoundation\Request;
  *
  * Front controllers:
  * @property \Drupal\Core\FrontController\FrontControllerInterface IndexPhp
+ * @property \Drupal\Core\FrontController\FrontControllerInterface InstallPhp
  */
 class CoreServices extends MiniContainerBase {
 
@@ -275,6 +278,23 @@ class CoreServices extends MiniContainerBase {
       return new IndexPhp($this->Request, $this->BootstrappedDrupalKernel);
     }
     catch (SiteNotInstalledException $e) {
+      return new RedirectFrontController($this->Request, 'core/install.php');
+    }
+    catch (\Exception $e) {
+      return new NeedRebuildFrontController($e);
+    }
+  }
+
+  /**
+   * @return \Drupal\Core\FrontController\FrontControllerInterface
+   *
+   * @see CoreServices::InstallPhp
+   */
+  protected function get_InstallPhp() {
+    try {
+      return new InstallPhp($this->Request, $this->InstallerKernel);
+    }
+    catch (SiteInstalledException $e) {
       return new RedirectFrontController($this->Request, 'core/install.php');
     }
     catch (\Exception $e) {

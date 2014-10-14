@@ -15,5 +15,5 @@ interface FrontControllerInterface {
   /**
    * Executes the front controller operation.
    */
-  function sendResponse();
+  public function sendResponse();
 } 

@@ -12,7 +12,6 @@ use Drupal\Core\Form\FormState;
 use Drupal\Core\Installer\Exception\AlreadyInstalledException;
 use Drupal\Core\Installer\Exception\InstallerException;
 use Drupal\Core\Installer\Exception\NoProfilesException;
-use Drupal\Core\Installer\InstallerKernel;
 use Drupal\Core\Language\Language;
 use Drupal\Core\Language\LanguageManager;
 use Drupal\Core\Page\DefaultHtmlPageRenderer;
@@ -74,7 +73,7 @@ const INSTALL_TASK_RUN_IF_NOT_COMPLETED = 3;
  * an error is thrown, (b) a new page needs to be displayed, or (c) the
  * installation finishes (whichever happens first).
  *
- * @param $settings
+ * @param array $settings
  *   An optional array of installation settings. Leave this empty for a normal,
  *   interactive, browser-based installation intended to occur over multiple
  *   page requests. Alternatively, if an array of settings is passed in, the
@@ -253,7 +252,7 @@ function install_state_defaults() {
  * This function performs commands that must run at the beginning of every page
  * request. It throws an exception if the installation should not proceed.
  *
- * @param $install_state
+ * @param array $install_state
  *   An array of information about the current installation state. This is
  *   modified with information gleaned from the beginning of the page request.
  */
@@ -270,10 +269,16 @@ function install_begin_request(&$install_state) {
 
   // Validate certain core settings that are used throughout the installation.
   if (!empty($install_state['parameters']['profile'])) {
-    $install_state['parameters']['profile'] = preg_replace('/[^a-zA-Z_0-9]/', '', $install_state['parameters']['profile']);
+    $install_state['parameters']['profile'] = preg_replace(
+      '/[^a-zA-Z_0-9]/',
+      '',
+      $install_state['parameters']['profile']);
   }
   if (!empty($install_state['parameters']['langcode'])) {
-    $install_state['parameters']['langcode'] = preg_replace('/[^a-zA-Z_0-9\-]/', '', $install_state['parameters']['langcode']);
+    $install_state['parameters']['langcode'] = preg_replace(
+      '/[^a-zA-Z_0-9\-]/',
+      '',
+      $install_state['parameters']['langcode']);
   }
 
   // Allow command line scripts to override server variables used by Drupal.
@@ -284,7 +289,10 @@ function install_begin_request(&$install_state) {
   // The user agent header is used to pass a database prefix in the request when
   // running tests. However, for security reasons, it is imperative that no
   // installation be permitted using such a prefix.
-  if ($install_state['interactive'] && strpos($request->server->get('HTTP_USER_AGENT'), 'simpletest') !== FALSE && !drupal_valid_test_ua()) {
+  if (1
+    && $install_state['interactive']
+    && strpos($request->server->get('HTTP_USER_AGENT'), 'simpletest') !== FALSE && !drupal_valid_test_ua()
+  ) {
     header($request->server->get('SERVER_PROTOCOL') . ' 403 Forbidden');
     exit;
   }
@@ -331,7 +339,8 @@ function install_begin_request(&$install_state) {
   \Drupal::setContainer($container);
 
   // Determine whether base system services are ready to operate.
-  $install_state['config_verified'] = install_verify_config_directory(CONFIG_ACTIVE_DIRECTORY) && install_verify_config_directory(CONFIG_STAGING_DIRECTORY);
+  $install_state['config_verified'] = install_verify_config_directory(CONFIG_ACTIVE_DIRECTORY)
+    && install_verify_config_directory(CONFIG_STAGING_DIRECTORY);
   $install_state['database_verified'] = install_verify_database_settings();
   $install_state['settings_verified'] = $install_state['config_verified'] && $install_state['database_verified'];
 
@@ -430,7 +439,9 @@ function install_begin_request(&$install_state) {
 
     // Do not install over a configured settings.php.
     if (Database::getConnectionInfo()) {
-      throw new AlreadyInstalledException($container->get('string_translation'));
+      /** @var \Drupal\Core\StringTranslation\TranslationInterface $string_translation_service */
+      $string_translation_service = $container->get('string_translation');
+      throw new AlreadyInstalledException($string_translation_service);
     }
   }
 
@@ -455,12 +466,13 @@ function install_begin_request(&$install_state) {
  * user, or until a page redirect is required. Otherwise, tasks will be
  * attempted until the installation is finished.
  *
- * @param $install_state
+ * @param array $install_state
  *   An array of information about the current installation state. This is
  *   passed along to each task, so it can be modified if necessary.
  *
- * @return
- *   HTML output from the last completed task.
+ * @return string|array|null
+ *   HTML output from the last completed task, or a Drupal render array, or
+ *   NULL, if the loop stopped with no output.
  */
 function install_run_tasks(&$install_state) {
   do {
@@ -493,7 +505,13 @@ function install_run_tasks(&$install_state) {
     // installation, also stop if we have some output to send to the browser,
     // the URL parameters have changed, or an end to the page request was
     // specifically called for.
-    $finished = empty($tasks_to_perform) || ($install_state['interactive'] && (isset($output) || $install_state['parameters_changed'] || $install_state['stop_page_request']));
+    $finished = empty($tasks_to_perform)
+      || ( $install_state['interactive']
+        && ( isset($output)
+          || $install_state['parameters_changed']
+          || $install_state['stop_page_request']
+        )
+      );
   } while (!$finished);
   return $output;
 }
@@ -501,13 +519,13 @@ function install_run_tasks(&$install_state) {
 /**
  * Runs an individual installation task.
  *
- * @param $task
+ * @param array $task
  *   An array of information about the task to be run.
- * @param $install_state
+ * @param array $install_state
  *   An array of information about the current installation state. This is
  *   passed in by reference so that it can be modified by the task.
  *
- * @return
+ * @return mixed|null
  *   The output of the task function, if there is any.
  */
 function install_run_task($task, &$install_state) {
@@ -525,7 +543,7 @@ function install_run_task($task, &$install_state) {
       if (empty($batch)) {
         // If the task did some processing and decided no batch was necessary,
         // there is nothing more to do here.
-        return;
+        return NULL;
       }
       batch_set($batch);
       // For interactive batches, we need to store the fact that this batch
@@ -571,7 +589,7 @@ function install_run_task($task, &$install_state) {
       if ($output === FALSE) {
         // Return nothing so the next task will run in the same request.
         \Drupal::state()->delete('install_current_batch');
-        return;
+        return NULL;
       }
       else {
         // We need to force the page request to end if the task is not
@@ -587,6 +605,8 @@ function install_run_task($task, &$install_state) {
     // For normal tasks, just return the function result, whatever it is.
     return $function($install_state);
   }
+
+  return NULL;
 }
 
 /**
@@ -596,21 +616,76 @@ function install_run_task($task, &$install_state) {
  * the page request evolves (for example, if an installation profile hasn't
  * been selected yet, we don't yet know which profile tasks need to be run).
  *
- * @param $install_state
+ * @param array $install_state
  *   An array of information about the current installation state.
  *
- * @return
+ * @return array
  *   A list of tasks to be performed, with associated metadata.
  */
 function install_tasks_to_perform($install_state) {
   // Start with a list of all currently available tasks.
   $tasks = install_tasks($install_state);
+
+  // If we started this page request with an indication of the last task that
+  // was completed, skip that task and all those that come before it, unless
+  // they are marked as always needing to run.
+  if (isset($install_state['completed_task'])) {
+    $completed_task_name = $install_state['completed_task'];
+    if (isset($tasks[$completed_task_name])) {
+      foreach ($tasks as $name => $task) {
+        if ($task['run'] !== INSTALL_TASK_RUN_IF_REACHED) {
+          unset($tasks[$name]);
+        }
+        if ($name === $completed_task_name) {
+          break;
+        }
+      }
+    }
+  }
+
+  // Filter out all tasks that have already run.
+  foreach ($install_state['tasks_performed'] as $performed_task_name) {
+    unset($tasks[$performed_task_name]);
+  }
+
+  // Filter out all tasks that should be skipped.
   foreach ($tasks as $name => $task) {
+    if ($task['run'] === INSTALL_TASK_SKIP) {
+      unset($tasks[$name]);
+    }
+  }
+
+
+  foreach ($tasks as $name => $task) {
+    // Remove any tasks that never should run.
+    if ($task['run'] == INSTALL_TASK_SKIP) {
+      unset($tasks[$name]);
+    }
+    // Remove any tasks that were already performed.
+    elseif (in_array($name, $install_state['tasks_performed'])) {
+      unset($tasks[$name]);
+    }
+    // Also, if we started this page request with an indication of the last
+    // task that was completed, skip that task and all those that come before
+    // it, unless they are marked as always needing to run.
+    elseif (1
+      && !empty($install_state['completed_task'])
+      && empty($completed_task_found)
+      && $task['run'] !== INSTALL_TASK_RUN_IF_REACHED
+    ) {
+      unset($tasks[$name]);
+    }
     // Remove any tasks that were already performed or that never should run.
     // Also, if we started this page request with an indication of the last
     // task that was completed, skip that task and all those that come before
     // it, unless they are marked as always needing to run.
-    if ($task['run'] == INSTALL_TASK_SKIP || in_array($name, $install_state['tasks_performed']) || (!empty($install_state['completed_task']) && empty($completed_task_found) && $task['run'] != INSTALL_TASK_RUN_IF_REACHED)) {
+    if ( $task['run'] == INSTALL_TASK_SKIP
+      || in_array($name, $install_state['tasks_performed'])
+      || ( !empty($install_state['completed_task'])
+        && empty($completed_task_found)
+        && $task['run'] != INSTALL_TASK_RUN_IF_REACHED
+      )
+    ) {
       unset($tasks[$name]);
     }
     if (!empty($install_state['completed_task']) && $name == $install_state['completed_task']) {
@@ -629,10 +704,10 @@ function install_tasks_to_perform($install_state) {
  * hasn't been selected yet, we don't yet know which profile tasks will be
  * available).
  *
- * @param $install_state
+ * @param array $install_state
  *   An array of information about the current installation state.
  *
- * @return
+ * @return array
  *   A list of tasks, with associated metadata.
  */
 function install_tasks($install_state) {
@@ -649,24 +724,30 @@ function install_tasks($install_state) {
   // Start with the core installation tasks that run before handing control
   // to the installation profile.
   $tasks = array(
+    /* @see install_select_language() -> $container | FORM */
     'install_select_language' => array(
       'display_name' => t('Choose language'),
       'run' => INSTALL_TASK_RUN_IF_REACHED,
     ),
+    /* @see install_download_translation() -> $systemState->TranslationDownloaded */
     'install_download_translation' => array(
       'run' => $needs_download ? INSTALL_TASK_RUN_IF_REACHED : INSTALL_TASK_SKIP,
     ),
+    /* @see install_select_profile() -> $container | FORM */
     'install_select_profile' => array(
       'display_name' => t('Choose profile'),
       'display' => empty($install_state['profile_info']['distribution']['name']) && count($install_state['profiles']) != 1,
       'run' => INSTALL_TASK_RUN_IF_REACHED,
     ),
+    /* @see install_load_profile() -> $staticContext->ProfileLoaded */
     'install_load_profile' => array(
       'run' => INSTALL_TASK_RUN_IF_REACHED,
     ),
+    /* @see install_verify_requirements() -> $container */
     'install_verify_requirements' => array(
       'display_name' => t('Verify requirements'),
     ),
+    /* @see install_settings_form() -> STEP */
     'install_settings_form' => array(
       'display_name' => t('Set up database'),
       'type' => 'form',
@@ -676,25 +757,31 @@ function install_tasks($install_state) {
       'run' => $install_state['settings_verified'] ? INSTALL_TASK_SKIP : INSTALL_TASK_RUN_IF_NOT_COMPLETED,
       'function' => 'Drupal\Core\Installer\Form\SiteSettingsForm',
     ),
+    /* @see install_base_system() -> $systemState->BaseSystemInstalled */
     'install_base_system' => array(
       'run' => $install_state['base_system_verified'] ? INSTALL_TASK_SKIP : INSTALL_TASK_RUN_IF_NOT_COMPLETED,
     ),
     // All tasks below are executed in a regular, full Drupal environment.
+    /* @see install_bootstrap_full() -> $staticContext->InstallBootstrapComplete */
     'install_bootstrap_full' => array(
       'run' => INSTALL_TASK_RUN_IF_REACHED,
     ),
+    /* @see install_profile_modules() -> BATCH */
     'install_profile_modules' => array(
       'display_name' => t('Install site'),
       'type' => 'batch',
     ),
+    /* @see install_profile_themes() -> $systemState->ProfileThemesInstalled */
     'install_profile_themes' => array(
     ),
+    /* @see install_import_translations() -> BATCH */
     'install_import_translations' => array(
       'display_name' => t('Set up translations'),
       'display' => $needs_translations,
       'type' => 'batch',
       'run' => $needs_translations ? INSTALL_TASK_RUN_IF_NOT_COMPLETED : INSTALL_TASK_SKIP,
     ),
+    /* @see Drupal\Core\Installer\Form\SiteConfigureForm -> STEP */
     'install_configure_form' => array(
       'display_name' => t('Configure site'),
       'type' => 'form',
@@ -722,18 +809,21 @@ function install_tasks($install_state) {
 
   // Finish by adding the remaining core tasks.
   $tasks += array(
+    /* @see install_import_translations_remaining() -> BATCH */
     'install_import_translations_remaining' => array(
       'display_name' => t('Finish translations'),
       'display' => $needs_translations,
       'type' => 'batch',
       'run' => $needs_translations ? INSTALL_TASK_RUN_IF_NOT_COMPLETED : INSTALL_TASK_SKIP,
     ),
+    /* @see install_update_configuration_translations() -> BATCH */
     'install_update_configuration_translations' => array(
       'display_name' => t('Translate configuration'),
       'display' => $needs_translations,
       'type' => 'batch',
       'run' => $needs_translations ? INSTALL_TASK_RUN_IF_NOT_COMPLETED : INSTALL_TASK_SKIP,
     ),
+    /* @see install_finished() */
     'install_finished' => array(
     ),
   );
@@ -980,7 +1070,7 @@ function install_base_system(&$install_state) {
 /**
  * Verifies and returns the last installation task that was completed.
  *
- * @return
+ * @return string
  *   The last completed task, if there is one. An exception is thrown if Drupal
  *   is already installed.
  */
@@ -1053,15 +1143,17 @@ function install_database_errors($database, $settings_file) {
 /**
  * Selects which profile to install.
  *
- * @param $install_state
+ * @param array $install_state
  *   An array of information about the current installation state. The chosen
  *   profile will be added here, if it was not already selected previously, as
  *   will a list of all available profiles.
  *
- * @return
+ * @return array
  *   For interactive installations, a form allowing the profile to be selected,
  *   if the user has a choice that needs to be made. Otherwise, an exception is
  *   thrown if a profile cannot be chosen automatically.
+ *
+ * @throws \Exception
  */
 function install_select_profile(&$install_state) {
   if (empty($install_state['parameters']['profile'])) {
@@ -1101,7 +1193,7 @@ function install_select_profile(&$install_state) {
  *   The current installer state, containing a 'profiles' key, which is an
  *   associative array of profiles with the machine-readable names as keys.
  *
- * @return
+ * @return string|null
  *   The machine-readable name of the selected profile or NULL if no profile was
  *   selected.
  */
@@ -1154,12 +1246,12 @@ function install_find_translations() {
 /**
  * Selects which language to use during installation.
  *
- * @param $install_state
+ * @param array $install_state
  *   An array of information about the current installation state. The chosen
  *   langcode will be added here, if it was not already selected previously, as
  *   will a list of all available languages.
  *
- * @return
+ * @return array|null
  *   For interactive installations, a form or other page output allowing the
  *   language to be selected or providing information about language selection,
  *   if a language has not been chosen. Otherwise, an exception is thrown if a
@@ -1181,7 +1273,7 @@ function install_select_language(&$install_state) {
     $langcode = $install_state['parameters']['langcode'];
     if ($langcode == 'en' || isset($files[$langcode]) || isset($standard_languages[$langcode])) {
       $install_state['parameters']['langcode'] = $langcode;
-      return;
+      return NULL;
     }
   }
 
@@ -1200,13 +1292,15 @@ function install_select_language(&$install_state) {
     else {
       if (count($files) == 1) {
         $install_state['parameters']['langcode'] = current(array_keys($files));
-        return;
+        return NULL;
       }
       else {
         throw new InstallerException(t('Sorry, you must select a language to continue the installation.'));
       }
     }
   }
+
+  return NULL;
 }
 
 /**

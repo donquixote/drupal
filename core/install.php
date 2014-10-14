@@ -6,6 +6,8 @@
  */
 
 // Change the directory to the Drupal root.
+use Drupal\Core\CoreContainer\CoreServices;
+
 chdir('..');
 
 /**
@@ -28,5 +30,9 @@ if (version_compare(PHP_VERSION, '5.4.2') < 0) {
 
 // Start the installer.
 require_once __DIR__ . '/vendor/autoload.php';
-require_once __DIR__ . '/includes/install.core.inc';
-install_drupal();
+# require_once __DIR__ . '/includes/install.core.inc';
+# install_drupal();
+
+$container = CoreServices::create()->disableContainerDumping();
+$container->Parameters->Environment = 'install';
+$container->InstallPhp->sendResponse();
