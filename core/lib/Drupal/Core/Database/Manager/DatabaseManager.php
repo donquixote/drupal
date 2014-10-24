@@ -128,10 +128,12 @@ class DatabaseManager {
    *   The corresponding connection object.
    */
   public function getConnection($target = 'default', $key = NULL) {
+
     if (!isset($key)) {
       // By default, we want the active connection, set in setActiveConnection.
       $key = $this->activeKey;
     }
+
     // If the requested target does not exist, or if it is ignored, we fall back
     // to the default target. The target is typically either "default" or
     // "replica", indicating to use a replica SQL server if one is available. If
@@ -141,11 +143,9 @@ class DatabaseManager {
       $target = 'default';
     }
 
-    if (!isset($this->connections[$key][$target])) {
-      // If necessary, a new connection is opened.
-      $this->connections[$key][$target] = $this->openConnection($key, $target);
-    }
-    return $this->connections[$key][$target];
+    return isset($this->connections[$key][$target])
+      ? $this->connections[$key][$target]
+      : $this->connections[$key][$target] = $this->openConnection($key, $target);
   }
 
   /**
