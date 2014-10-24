@@ -355,18 +355,21 @@ class DatabaseManager {
       throw new ConnectionNotDefinedException('The specified database connection is not defined: ' . $key);
     }
 
-    // @todo Verify that $this->databaseInfo[$key][$target] is set.
-    // @todo Verify that $this->databaseInfo[$key][$target]['driver'] is set.
-    // @todo Use local variable $info = $this->databaseInfo[$key][$target].
+    if (!isset($this->databaseInfo[$key][$target])) {
+      throw new ConnectionNotDefinedException('The specified database connection target is not defined: ' . $key . ' / ' . $target);
+    }
+    $info = $this->databaseInfo[$key][$target];
+
+    if (empty($info['driver'])) {
+      throw new DriverNotSpecifiedException('Driver not specified for this database connection: ' . $key);
+    }
+    $driver = $info['driver'];
+
     // @todo Wrap $info into a ConnectionInfo class.
     // @todo Introduce $info->openConnection()
 
-    if (!$driver = $this->databaseInfo[$key][$target]['driver']) {
-      throw new DriverNotSpecifiedException('Driver not specified for this database connection: ' . $key);
-    }
-
-    if (!empty($this->databaseInfo[$key][$target]['namespace'])) {
-      $driver_class = $this->databaseInfo[$key][$target]['namespace'] . '\\Connection';
+    if (!empty($info['namespace'])) {
+      $driver_class = $info['namespace'] . '\\Connection';
     }
     else {
       // Fallback for Drupal 7 settings.php.
@@ -374,9 +377,9 @@ class DatabaseManager {
     }
 
     /** @var \Drupal\Core\Database\Connection $driver_class */
-    $pdo_connection = $driver_class::open($this->databaseInfo[$key][$target]);
+    $pdo_connection = $driver_class::open($info);
     /** @var \Drupal\Core\Database\Connection $new_connection */
-    $new_connection = new $driver_class($pdo_connection, $this->databaseInfo[$key][$target]);
+    $new_connection = new $driver_class($pdo_connection, $info);
     $new_connection->setTarget($target);
     $new_connection->setKey($key);
 
