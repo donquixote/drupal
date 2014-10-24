@@ -3,6 +3,7 @@
 
 namespace Drupal\Core\Database\Manager;
 
+use Drupal\Core\Database\Database;
 use Drupal\Core\Database\DriverNotSpecifiedException;
 use Drupal\Core\Database\ConnectionNotDefinedException;
 use Drupal\Core\Database\Log;
@@ -183,42 +184,6 @@ class DatabaseManager {
   }
 
   /**
-   * Process the configuration file for database information.
-   *
-   * @param array $info
-   *   The database connection information, as defined in settings.php. The
-   *   structure of this array depends on the database driver it is connecting
-   *   to.
-   *
-   * @return array
-   *   The modified $info array with database connection information.
-   *
-   * @todo Wrap $info into a ConnectionInfo class.
-   */
-  public function parseConnectionInfo(array $info) {
-    // If there is no "driver" property, then we assume it's an array of
-    // possible connections for this target. Pick one at random. That allows
-    // us to have, for example, multiple replica servers.
-    if (empty($info['driver'])) {
-      $info = $info[mt_rand(0, count($info) - 1)];
-    }
-    // Parse the prefix information.
-    if (!isset($info['prefix'])) {
-      // Default to an empty prefix.
-      $info['prefix'] = array(
-        'default' => '',
-      );
-    }
-    elseif (!is_array($info['prefix'])) {
-      // Transform the flat form into an array form.
-      $info['prefix'] = array(
-        'default' => $info['prefix'],
-      );
-    }
-    return $info;
-  }
-
-  /**
    * Adds database connection information for a given key/target.
    *
    * This method allows to add new connections at runtime.
@@ -241,7 +206,7 @@ class DatabaseManager {
    */
   public function addConnectionInfo($key, $target, array $info) {
     if (empty($this->databaseInfo[$key][$target])) {
-      $this->databaseInfo[$key][$target] = $this->parseConnectionInfo($info);
+      $this->databaseInfo[$key][$target] = Database::parseConnectionInfo($info);
     }
   }
 
