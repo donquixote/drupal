@@ -465,22 +465,63 @@ function drupal_find_theme_functions($cache, $prefixes) {
   $implementations = array();
   $functions = get_defined_functions();
 
+  static $lookup_table = NULL;
+  static $seen = array();
+
+  foreach ($functions['user'] as $function) {
+    if (isset($seen[$function])) {
+      continue;
+    }
+    $seen[$function] = TRUE;
+    $t = explode('_', $function);
+    $count = count($t);
+    $prefix = '';
+    for ($i = 0; $i < $count; $i++) {
+      $prefix .= $t[$i];
+      $lookup_table[$prefix][] = $function;
+      $prefix .= '_';
+    }
+  }
+
+  $lookup_by_prefix = array();
+  $lookup_by_suffix = array();
+  foreach ($functions['user'] as $function) {
+    if (isset($seen[$function])) {
+      continue;
+    }
+    $seen[$function] = TRUE;
+    $pos = 0;
+    while (FALSE !== $pos = strpos($function, '_', $pos)) {
+      $prefix = substr($function, 0, $pos);
+      $suffix = substr($function, $pos + 1);
+      $lookup_by_prefix[$prefix][$suffix] = $function;
+      $lookup_by_suffix[$suffix][$prefix] = $function;
+    }
+  }
+
+  // Filter out prefixes that do not provide implementations.
+  foreach ($prefixes as $i => $prefix) {
+    if (!isset($lookup_by_prefix[$prefix])) {
+      unset($prefixes[$i]);
+    }
+  }
+
   foreach ($cache as $hook => $info) {
-    foreach ($prefixes as $prefix) {
-      // Find theme functions that implement possible "suggestion" variants of
-      // registered theme hooks and add those as new registered theme hooks.
-      // The 'pattern' key defines a common prefix that all suggestions must
-      // start with. The default is the name of the hook followed by '__'. An
-      // 'base hook' key is added to each entry made for a found suggestion,
-      // so that common functionality can be implemented for all suggestions of
-      // the same base hook. To keep things simple, deep hierarchy of
-      // suggestions is not supported: each suggestion's 'base hook' key
-      // refers to a base hook, not to another suggestion, and all suggestions
-      // are found using the base hook's pattern, not a pattern from an
-      // intermediary suggestion.
-      $pattern = isset($info['pattern']) ? $info['pattern'] : ($hook . '__');
-      if (!isset($info['base hook']) && !empty($pattern)) {
-        $matches = preg_grep('/^' . $prefix . '_' . $pattern . '/', $functions['user']);
+    // Find theme functions that implement possible "suggestion" variants of
+    // registered theme hooks and add those as new registered theme hooks.
+    // The 'pattern' key defines a common prefix that all suggestions must
+    // start with. The default is the name of the hook followed by '__'. An
+    // 'base hook' key is added to each entry made for a found suggestion,
+    // so that common functionality can be implemented for all suggestions of
+    // the same base hook. To keep things simple, deep hierarchy of
+    // suggestions is not supported: each suggestion's 'base hook' key
+    // refers to a base hook, not to another suggestion, and all suggestions
+    // are found using the base hook's pattern, not a pattern from an
+    // intermediary suggestion.
+    $pattern = isset($info['pattern']) ? $info['pattern'] : ($hook . '__');
+    if (!isset($info['base hook']) && !empty($pattern)) {
+      foreach ($prefixes as $prefix) {
+        $matches = preg_grep('/^' . $prefix . '_' . $pattern . '/', $lookup_table[$prefix]);
         if ($matches) {
           foreach ($matches as $match) {
             $new_hook = substr($match, strlen($prefix) + 1);
@@ -496,7 +537,7 @@ function drupal_find_theme_functions($cache, $prefixes) {
       // Find theme functions that implement registered theme hooks and include
       // that in what is returned so that the registry knows that the theme has
       // this implementation.
-      if (function_exists($prefix . '_' . $hook)) {
+      if (isset($seen[$prefix . '_' . $hook])) {
         $implementations[$hook] = array(
           'function' => $prefix . '_' . $hook,
         );
