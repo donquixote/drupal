@@ -11,7 +11,8 @@ use Symfony\Component\DependencyInjection\ScopeInterface;
  * A placeholder container that throws an exception whenever it does anything.
  *
  * Used in
- * @see \Drupal
+ * @see \Drupal::$container
+ * @see \Drupal\Core\DrupalKernel::$container
  */
 class PlaceholderContainer implements ContainerInterface {
 
@@ -110,4 +111,25 @@ class PlaceholderContainer implements ContainerInterface {
   public function isScopeActive($name) {
     throw new ContainerNotInitializedException($this->message);
   }
+
+  /**
+   * Checks whether the given service has been initialized yet.
+   *
+   * This method is not part of Symfony's ContainerInterface, but it is needed
+   * for DrupalKernel::$container.
+   *
+   * @param string $id
+   *   The service identifier
+   *
+   * @return bool
+   *   TRUE, if the service has already been initialized. FALSE, otherwise
+   * @throws \Drupal\Core\DependencyInjection\ContainerNotInitializedException
+   *
+   * @see \Drupal\Core\DependencyInjection\Container::initialized()
+   * @see \Drupal\Core\DrupalKernel::$container
+   */
+  public function initialized($id) {
+    throw new ContainerNotInitializedException($this->message);
+  }
+
 }

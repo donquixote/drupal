@@ -15,6 +15,7 @@ use Drupal\Core\Config\BootstrapConfigStorageFactory;
 use Drupal\Core\Config\NullStorage;
 use Drupal\Core\Database\Database;
 use Drupal\Core\DependencyInjection\ContainerBuilder;
+use Drupal\Core\DependencyInjection\PlaceholderContainer;
 use Drupal\Core\DependencyInjection\ServiceProviderInterface;
 use Drupal\Core\DependencyInjection\YamlFileLoader;
 use Drupal\Core\Extension\ExtensionDiscovery;
@@ -56,7 +57,12 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
    *
    * @todo Create an interface with $container->initialized($id).
    *
-   * @var \Symfony\Component\DependencyInjection\ContainerInterface|\Drupal\Core\DependencyInjection\Container|null
+   * Before its initialization in $this->initializeContainer(), $this->container
+   * will be filled with a PlaceholderContainer object.
+   *
+   * @see \Drupal\Core\DependencyInjection\PlaceholderContainer
+   *
+   * @var \Symfony\Component\DependencyInjection\ContainerInterface|\Drupal\Core\DependencyInjection\Container
    */
   protected $container;
 
@@ -252,6 +258,7 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
     $this->environment = $environment;
     $this->classLoader = $class_loader;
     $this->allowDumping = $allow_dumping;
+    $this->container = new PlaceholderContainer('DrupalKernel::$container is not initialized yet.');
   }
 
   /**
@@ -408,7 +415,7 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
     }
     $this->container->get('stream_wrapper_manager')->unregister();
     $this->booted = FALSE;
-    $this->container = NULL;
+    $this->container = new PlaceholderContainer('DrupalKernel::$container is not available after shutdown.');
     $this->moduleList = NULL;
     $this->moduleData = array();
   }
@@ -417,6 +424,10 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
    * {@inheritdoc}
    */
   public function getContainer() {
+    if ($this->container instanceof PlaceholderContainer) {
+      // @todo Throw an exception?
+      return NULL;
+    }
     return $this->container;
   }
 
@@ -686,7 +697,7 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
   protected function initializeContainer($rebuild = FALSE) {
     $this->containerNeedsDumping = FALSE;
     $session_manager_started = FALSE;
-    if (isset($this->container)) {
+    if (!$this->container instanceof PlaceholderContainer) {
       // If there is a session manager, close and save the session.
       if ($this->container->initialized('session_manager')) {
         $session_manager = $this->container->get('session_manager');
@@ -721,6 +732,8 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
 
     $this->attachSynthetic($container);
 
+    // From here forward, $this->container is definitely not a
+    // PlaceholderContainer anymore, but a "real" container.
     $this->container = $container;
     if ($session_manager_started) {
       $this->container->get('session_manager')->start();
@@ -1004,7 +1017,7 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
    */
   protected function attachSynthetic(ContainerInterface $container) {
     $persist = array();
-    if (isset($this->container)) {
+    if (!$this->container instanceof PlaceholderContainer) {
       $persist = $this->getServicesToPersist($this->container);
     }
     $this->persistServices($container, $persist);
