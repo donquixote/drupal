@@ -3,7 +3,6 @@
 
 namespace Drupal\Core\Database\Manager;
 
-use Drupal\Core\Database\ConnectionNotDefinedException;
 use Drupal\Core\Database\Log;
 
 /**
@@ -26,10 +25,9 @@ class DatabaseManager {
    * Processed database connection information from settings.php, wrapped in
    * ConnectionInfo objects.
    *
-   * @var ConnectionInfo[][]
-   *   Format: $[$key][$target] instanceof ConnectionInfo
+   * @var ConnectionInfoPool
    */
-  protected $databaseInfo = array();
+  protected $connectionInfoPool = array();
 
   /**
    * A list of key/target credentials to simply ignore.
@@ -139,7 +137,7 @@ class DatabaseManager {
     // "replica", indicating to use a replica SQL server if one is available. If
     // it's not available, then the default/primary server is the correct server
     // to use.
-    if (!empty($this->ignoreTargets[$key][$target]) || !isset($this->databaseInfo[$key][$target])) {
+    if (!empty($this->ignoreTargets[$key][$target]) || !$this->connectionInfoPool->targetExists($key, $target)) {
       $target = 'default';
     }
 
@@ -173,7 +171,7 @@ class DatabaseManager {
    *   The previous database connection key.
    */
   public function setActiveConnection($key = 'default') {
-    if (!empty($this->databaseInfo[$key])) {
+    if (!$this->connectionInfoPool->keyExists($key)) {
       $old_key = $this->activeKey;
       $this->activeKey = $key;
       return $old_key;
@@ -204,10 +202,7 @@ class DatabaseManager {
    *   to.
    */
   public function addConnectionInfo($key, $target, array $info) {
-    if (empty($this->databaseInfo[$key][$target])) {
-      $infoObject = ConnectionInfo::createFromInfoArray($info);
-      $this->databaseInfo[$key][$target] = $infoObject;
-    }
+    $this->connectionInfoPool->addConnectionInfo($key, $target, $info);
   }
 
   /**
@@ -220,14 +215,7 @@ class DatabaseManager {
    *   Format: $[$target] = $info
    */
   public function getConnectionInfo($key = 'default') {
-    if (empty($this->databaseInfo[$key])) {
-      return NULL;
-    }
-    $targets = array();
-    foreach ($this->databaseInfo[$key] as $target => $infoObject) {
-      $targets[$target] = $infoObject->toArray();
-    }
-    return $targets;
+    return $this->connectionInfoPool->getConnectionInfo($key);
   }
 
   /**
@@ -236,13 +224,7 @@ class DatabaseManager {
    * @return array[][]
    */
   public function getAllConnectionInfo() {
-    $all = array();
-    foreach ($this->databaseInfo as $key => $targets) {
-      foreach ($targets as $target => $infoObject) {
-        $all[$key][$target] = $infoObject->toArray();
-      }
-    }
-    return $all;
+    return $this->connectionInfoPool->getAllConnectionInfo();
   }
 
   /**
@@ -253,11 +235,7 @@ class DatabaseManager {
    *   defined in settings.php.
    */
   public function setMultipleConnectionInfo(array $databases) {
-    foreach ($databases as $key => $targets) {
-      foreach ($targets as $target => $info) {
-        $this->addConnectionInfo($key, $target, $info);
-      }
-    }
+    $this->connectionInfoPool->setMultipleConnectionInfo($databases);
   }
 
   /**
@@ -272,11 +250,7 @@ class DatabaseManager {
    *   TRUE in case of success, FALSE otherwise.
    */
   public function renameConnection($old_key, $new_key) {
-    if (!empty($this->databaseInfo[$old_key]) && empty($this->databaseInfo[$new_key])) {
-      // Migrate the database connection information.
-      $this->databaseInfo[$new_key] = $this->databaseInfo[$old_key];
-      unset($this->databaseInfo[$old_key]);
-
+    if ($this->connectionInfoPool->renameConnection($old_key, $new_key)) {
       // Migrate over the DatabaseConnection object if it exists.
       if (isset($this->connections[$old_key])) {
         $this->connections[$new_key] = $this->connections[$old_key];
@@ -300,9 +274,8 @@ class DatabaseManager {
    *   TRUE in case of success, FALSE otherwise.
    */
   public function removeConnection($key) {
-    if (isset($this->databaseInfo[$key])) {
+    if ($this->connectionInfoPool->removeConnection($key)) {
       $this->closeConnection(NULL, $key);
-      unset($this->databaseInfo[$key]);
       return TRUE;
     }
     else {
@@ -326,7 +299,7 @@ class DatabaseManager {
    * @throws \Drupal\Core\Database\DriverNotSpecifiedException
    */
   protected function openConnection($key, $target) {
-    $info = $this->requireConnectionInfo($key, $target);
+    $info = $this->connectionInfoPool->requireConnectionInfo($key, $target);
 
     $new_connection = $info->openConnection();
     $new_connection->setTarget($target);
@@ -339,30 +312,6 @@ class DatabaseManager {
     }
 
     return $new_connection;
-  }
-
-  /**
-   * @param string $key
-   *   The database connection key, as specified in settings.php. The default is
-   *   "default".
-   * @param string $target
-   *   The database target to open.
-   *
-   * @return \Drupal\Core\Database\Manager\ConnectionInfo
-   *
-   * @throws \Drupal\Core\Database\ConnectionNotDefinedException
-   */
-  protected function requireConnectionInfo($key, $target) {
-
-    if (isset($this->databaseInfo[$key][$target])) {
-      return $this->databaseInfo[$key][$target];
-    }
-
-    if (!isset($this->databaseInfo[$key])) {
-      throw new ConnectionNotDefinedException('The specified database connection is not defined: ' . $key);
-    }
-
-    throw new ConnectionNotDefinedException('The specified database connection target is not defined: ' . $key . ' / ' . $target);
   }
 
   /**
