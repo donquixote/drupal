@@ -51,7 +51,7 @@ abstract class Database {
   /**
    * Gets the static instance of self::$databaseManager, and lazy-instantiates
    * it if needed.
-   * 
+   *
    * @return \Drupal\Core\Database\Manager\DatabaseManager
    */
   public static function getDatabaseManager() {
@@ -188,7 +188,7 @@ abstract class Database {
    * @param string $key
    *   (optional) The connection key for which to return information.
    *
-   * @return array|null
+   * @return array[]|null
    */
   final public static function getConnectionInfo($key = 'default') {
     return self::getDatabaseManager()->getConnectionInfo($key);
@@ -197,7 +197,7 @@ abstract class Database {
   /**
    * Gets connection information for all available databases.
    *
-   * @return array
+   * @return array[][]
    */
   final public static function getAllConnectionInfo() {
     return self::getDatabaseManager()->getAllConnectionInfo();
@@ -206,7 +206,7 @@ abstract class Database {
   /**
    * Sets connection information for multiple databases.
    *
-   * @param array $databases
+   * @param array[][] $databases
    *   A multi-dimensional array specifying database connection parameters, as
    *   defined in settings.php.
    */
