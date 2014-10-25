@@ -43,21 +43,24 @@ abstract class Database {
    * An nested array of all active connections. It is keyed by database name
    * and target.
    *
-   * @var array
+   * @var \Drupal\Core\Database\Connection[][]
+   *   Format: $[$key][$target] = $connection
    */
   static protected $connections = array();
 
   /**
    * A processed copy of the database connection information from settings.php.
    *
-   * @var array
+   * @var array[][]
+   *   Format: $[$key][$target] = $info
    */
   static protected $databaseInfo = array();
 
   /**
    * A list of key/target credentials to simply ignore.
    *
-   * @var array
+   * @var bool[]
+   *   Format: $[$key][$target] = TRUE
    */
   static protected $ignoreTargets = array();
 
@@ -74,11 +77,8 @@ abstract class Database {
    * Every connection has one and only one logger object for all targets and
    * logging keys.
    *
-   * array(
-   *   '$db_key' => DatabaseLog object.
-   * );
-   *
-   * @var array
+   * @var \Drupal\Core\Database\Log[]
+   *   Format: $[$db_key] = $log
    */
   static protected $logs = array();
 
@@ -190,7 +190,10 @@ abstract class Database {
   /**
    * Sets the active connection to the specified key.
    *
-   * @return string|null
+   * @param string $key
+   *   The key identifying the database connection that should be set as active.
+   *
+   * @return null|string
    *   The previous database connection key.
    */
   final public static function setActiveConnection($key = 'default') {
@@ -208,6 +211,9 @@ abstract class Database {
    *   The database connection information, as defined in settings.php. The
    *   structure of this array depends on the database driver it is connecting
    *   to.
+   *
+   * @return array
+   *   The modified $info array with database connection information.
    */
   final public static function parseConnectionInfo(array $info) {
     // If there is no "driver" property, then we assume it's an array of
@@ -265,7 +271,8 @@ abstract class Database {
    * @param string $key
    *   (optional) The connection key for which to return information.
    *
-   * @return array|null
+   * @return array[]|null
+   *   Format: $[$target] = $info
    */
   final public static function getConnectionInfo($key = 'default') {
     if (!empty(self::$databaseInfo[$key])) {
@@ -276,7 +283,8 @@ abstract class Database {
   /**
    * Gets connection information for all available databases.
    *
-   * @return array
+   * @return array[][]
+   *   Format: $[$key][$target] = $info
    */
   final public static function getAllConnectionInfo() {
     return self::$databaseInfo;
@@ -285,7 +293,7 @@ abstract class Database {
   /**
    * Sets connection information for multiple databases.
    *
-   * @param array $databases
+   * @param array[][] $databases
    *   A multi-dimensional array specifying database connection parameters, as
    *   defined in settings.php.
    */
@@ -356,6 +364,9 @@ abstract class Database {
    * @param string $target
    *   The database target to open.
    *
+   * @return \Drupal\Core\Database\Connection
+   *   The newly opened database connection.
+   *
    * @throws \Drupal\Core\Database\ConnectionNotDefinedException
    * @throws \Drupal\Core\Database\DriverNotSpecifiedException
    */
@@ -378,7 +389,9 @@ abstract class Database {
       $driver_class = "Drupal\\Core\\Database\\Driver\\{$driver}\\Connection";
     }
 
+    /** @var \Drupal\Core\Database\Connection $driver_class */
     $pdo_connection = $driver_class::open(self::$databaseInfo[$key][$target]);
+    /** @var \Drupal\Core\Database\Connection $new_connection */
     $new_connection = new $driver_class($pdo_connection, self::$databaseInfo[$key][$target]);
     $new_connection->setTarget($target);
     $new_connection->setKey($key);
