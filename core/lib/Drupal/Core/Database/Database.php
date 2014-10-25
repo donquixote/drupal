@@ -43,21 +43,24 @@ abstract class Database {
    * An nested array of all active connections. It is keyed by database name
    * and target.
    *
-   * @var array
+   * @var \Drupal\Core\Database\Connection[][]
+   *   Format: $[$key][$target] = $connection
    */
   static protected $connections = array();
 
   /**
    * A processed copy of the database connection information from settings.php.
    *
-   * @var array
+   * @var array[][]
+   *   Format: $[$key][$target] = $info
    */
   static protected $databaseInfo = array();
 
   /**
    * A list of key/target credentials to simply ignore.
    *
-   * @var array
+   * @var bool[]
+   *   Format: $[$key][$target] = TRUE
    */
   static protected $ignoreTargets = array();
 
@@ -74,11 +77,8 @@ abstract class Database {
    * Every connection has one and only one logger object for all targets and
    * logging keys.
    *
-   * array(
-   *   '$db_key' => DatabaseLog object.
-   * );
-   *
-   * @var array
+   * @var \Drupal\Core\Database\Log[]
+   *   Format: $[$db_key] = $log
    */
   static protected $logs = array();
 
@@ -265,7 +265,7 @@ abstract class Database {
    * @param string $key
    *   (optional) The connection key for which to return information.
    *
-   * @return array|null
+   * @return array[]|null
    */
   final public static function getConnectionInfo($key = 'default') {
     if (!empty(self::$databaseInfo[$key])) {
@@ -276,7 +276,7 @@ abstract class Database {
   /**
    * Gets connection information for all available databases.
    *
-   * @return array
+   * @return array[][]
    */
   final public static function getAllConnectionInfo() {
     return self::$databaseInfo;
@@ -285,7 +285,7 @@ abstract class Database {
   /**
    * Sets connection information for multiple databases.
    *
-   * @param array $databases
+   * @param array[][] $databases
    *   A multi-dimensional array specifying database connection parameters, as
    *   defined in settings.php.
    */
