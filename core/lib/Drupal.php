@@ -13,7 +13,7 @@ use Drupal\Core\Url;
  * Initialize \Drupal::$container with a placeholder object.
  * See https://www.drupal.org/node/2363341
  */
-\Drupal::setContainer(NULL);
+\Drupal::initStaticProperties(NULL);
 
 /**
  * Static Service Container wrapper.
@@ -107,13 +107,6 @@ class Drupal {
   protected static $container;
 
   /**
-   * The currently active container object, or NULL.
-   *
-   * @var \Symfony\Component\DependencyInjection\ContainerInterface|null
-   */
-  protected static $containerOrNull;
-
-  /**
    * Sets a new global container.
    *
    * @param \Symfony\Component\DependencyInjection\ContainerInterface $container
@@ -122,10 +115,29 @@ class Drupal {
    *   environment does not leak into a test.
    */
   public static function setContainer(ContainerInterface $container = NULL) {
-    static::$container = isset($container)
-      ? $container
-      : new PlaceholderContainer();
-    static::$containerOrNull = $container;
+    if (!isset($container)) {
+      // @todo Remove the NULL case, and use unsetContainer() instead.
+      $container = new PlaceholderContainer('\Drupal::$container was unset with setContainer(NULL).');
+    }
+    static::$container = $container;
+  }
+
+  /**
+   * @param string|null $message
+   */
+  public static function unsetContainer($message = NULL) {
+    if (!isset($message)) {
+      $message = '\Drupal::$container was unset with \Drupal::unsetContainer().';
+    }
+    static::setContainer(new PlaceholderContainer($message));
+  }
+
+  /**
+   * Initializes the static properties. Called from within the class file.
+   */
+  public static function initStaticProperties() {
+    $message = '\Drupal::$container is not initialized yet. \Drupal::setContainer() must be called with a real container.';
+    static::setContainer(new PlaceholderContainer($message));
   }
 
   /**
@@ -137,7 +149,13 @@ class Drupal {
    * @return \Symfony\Component\DependencyInjection\ContainerInterface|null
    */
   public static function getContainer() {
-    return static::$containerOrNull;
+    if (static::$container instanceof PlaceholderContainer) {
+      // Currently, some components depend on this method returning NULL if not
+      // initialized.
+      // @todo Throw an exception instead, and change all code that expects NULL.
+      return NULL;
+    }
+    return static::$container;
   }
 
   /**

@@ -16,17 +16,36 @@ use Symfony\Component\DependencyInjection\ScopeInterface;
 class PlaceholderContainer implements ContainerInterface {
 
   /**
+   * Message for ContainerNotInitializedException.
+   * 
+   * @var string
+   */
+  protected $message;
+
+  /**
+   * Constructs a PlaceholderContainer object.
+   * 
+   * @param string $exception_message
+   *   Message for ContainerNotInitializedException.
+   */
+  public function __construct($exception_message = NULL) {
+    $this->message = isset($exception_message)
+      ? $exception_message
+      : 'Container not initialized.';
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function set($id, $service, $scope = self::SCOPE_CONTAINER) {
-    throw new ContainerNotInitializedException();
+    throw new ContainerNotInitializedException($this->message);
   }
 
   /**
    * {@inheritdoc}
    */
   public function get($id, $invalidBehavior = self::EXCEPTION_ON_INVALID_REFERENCE) {
-    throw new ContainerNotInitializedException();
+    throw new ContainerNotInitializedException($this->message);
   }
 
   /**
@@ -40,55 +59,55 @@ class PlaceholderContainer implements ContainerInterface {
    * {@inheritdoc}
    */
   public function getParameter($name) {
-    throw new ContainerNotInitializedException();
+    throw new ContainerNotInitializedException($this->message);
   }
 
   /**
    * {@inheritdoc}
    */
   public function hasParameter($name) {
-    throw new ContainerNotInitializedException();
+    throw new ContainerNotInitializedException($this->message);
   }
 
   /**
    * {@inheritdoc}
    */
   public function setParameter($name, $value) {
-    throw new ContainerNotInitializedException();
+    throw new ContainerNotInitializedException($this->message);
   }
 
   /**
    * {@inheritdoc}
    */
   public function enterScope($name) {
-    throw new ContainerNotInitializedException();
+    throw new ContainerNotInitializedException($this->message);
   }
 
   /**
    * {@inheritdoc}
    */
   public function leaveScope($name) {
-    throw new ContainerNotInitializedException();
+    throw new ContainerNotInitializedException($this->message);
   }
 
   /**
    * {@inheritdoc}
    */
   public function addScope(ScopeInterface $scope) {
-    throw new ContainerNotInitializedException();
+    throw new ContainerNotInitializedException($this->message);
   }
 
   /**
    * {@inheritdoc}
    */
   public function hasScope($name) {
-    throw new ContainerNotInitializedException();
+    throw new ContainerNotInitializedException($this->message);
   }
 
   /**
    * {@inheritdoc}
    */
   public function isScopeActive($name) {
-    throw new ContainerNotInitializedException();
+    throw new ContainerNotInitializedException($this->message);
   }
 }
