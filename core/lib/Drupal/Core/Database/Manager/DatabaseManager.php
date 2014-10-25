@@ -3,8 +3,6 @@
 
 namespace Drupal\Core\Database\Manager;
 
-use Drupal\Core\Database\Database;
-use Drupal\Core\Database\DriverNotSpecifiedException;
 use Drupal\Core\Database\ConnectionNotDefinedException;
 use Drupal\Core\Database\Log;
 
@@ -25,10 +23,11 @@ class DatabaseManager {
   protected $connections = array();
 
   /**
-   * A processed copy of the database connection information from settings.php.
+   * Processed database connection information from settings.php, wrapped in
+   * ConnectionInfo objects.
    *
-   * @var array[][]
-   *   Format: $[$key][$target] = $info
+   * @var ConnectionInfo[][]
+   *   Format: $[$key][$target] instanceof ConnectionInfo
    */
   protected $databaseInfo = array();
 
@@ -207,7 +206,8 @@ class DatabaseManager {
    */
   public function addConnectionInfo($key, $target, array $info) {
     if (empty($this->databaseInfo[$key][$target])) {
-      $this->databaseInfo[$key][$target] = Database::parseConnectionInfo($info);
+      $infoObject = ConnectionInfo::createFromInfoArray($info);
+      $this->databaseInfo[$key][$target] = $infoObject;
     }
   }
 
@@ -221,9 +221,14 @@ class DatabaseManager {
    *   Format: $[$target] = $info
    */
   public function getConnectionInfo($key = 'default') {
-    return !empty($this->databaseInfo[$key])
-      ? $this->databaseInfo[$key]
-      : NULL;
+    if (empty($this->databaseInfo[$key])) {
+      return NULL;
+    }
+    $targets = array();
+    foreach ($this->databaseInfo[$key] as $target => $infoObject) {
+      $targets[$target] = $infoObject->toArray();
+    }
+    return $targets;
   }
 
   /**
@@ -232,7 +237,13 @@ class DatabaseManager {
    * @return array[][]
    */
   public function getAllConnectionInfo() {
-    return $this->databaseInfo;
+    $all = array();
+    foreach ($this->databaseInfo as $key => $targets) {
+      foreach ($targets as $target => $infoObject) {
+        $all[$key][$target] = $infoObject->toArray();
+      }
+    }
+    return $all;
   }
 
   /**
@@ -316,37 +327,9 @@ class DatabaseManager {
    * @throws \Drupal\Core\Database\DriverNotSpecifiedException
    */
   protected function openConnection($key, $target) {
-    // If the requested database does not exist then it is an unrecoverable
-    // error.
-    if (!isset($this->databaseInfo[$key])) {
-      throw new ConnectionNotDefinedException('The specified database connection is not defined: ' . $key);
-    }
+    $info = $this->requireConnectionInfo($key, $target);
 
-    if (!isset($this->databaseInfo[$key][$target])) {
-      throw new ConnectionNotDefinedException('The specified database connection target is not defined: ' . $key . ' / ' . $target);
-    }
-    $info = $this->databaseInfo[$key][$target];
-
-    if (empty($info['driver'])) {
-      throw new DriverNotSpecifiedException('Driver not specified for this database connection: ' . $key);
-    }
-    $driver = $info['driver'];
-
-    // @todo Wrap $info into a ConnectionInfo class.
-    // @todo Introduce $info->openConnection()
-
-    if (!empty($info['namespace'])) {
-      $driver_class = $info['namespace'] . '\\Connection';
-    }
-    else {
-      // Fallback for Drupal 7 settings.php.
-      $driver_class = "Drupal\\Core\\Database\\Driver\\{$driver}\\Connection";
-    }
-
-    /** @var \Drupal\Core\Database\Connection $driver_class */
-    $pdo_connection = $driver_class::open($info);
-    /** @var \Drupal\Core\Database\Connection $new_connection */
-    $new_connection = new $driver_class($pdo_connection, $info);
+    $new_connection = $info->openConnection();
     $new_connection->setTarget($target);
     $new_connection->setKey($key);
 
@@ -357,6 +340,30 @@ class DatabaseManager {
     }
 
     return $new_connection;
+  }
+
+  /**
+   * @param string $key
+   *   The database connection key, as specified in settings.php. The default is
+   *   "default".
+   * @param string $target
+   *   The database target to open.
+   *
+   * @return \Drupal\Core\Database\Manager\ConnectionInfo
+   *
+   * @throws \Drupal\Core\Database\ConnectionNotDefinedException
+   */
+  protected function requireConnectionInfo($key, $target) {
+
+    if (isset($this->databaseInfo[$key][$target])) {
+      return $this->databaseInfo[$key][$target];
+    }
+
+    if (!isset($this->databaseInfo[$key])) {
+      throw new ConnectionNotDefinedException('The specified database connection is not defined: ' . $key);
+    }
+
+    throw new ConnectionNotDefinedException('The specified database connection target is not defined: ' . $key . ' / ' . $target);
   }
 
   /**
