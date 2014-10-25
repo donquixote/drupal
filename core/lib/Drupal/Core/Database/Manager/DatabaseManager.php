@@ -56,6 +56,15 @@ class DatabaseManager {
   protected $logs = array();
 
   /**
+   * Constructs a DatabaseManager object.
+   *
+   * @param \Drupal\Core\Database\Manager\ConnectionInfoPool $connection_info_pool
+   */
+  public function __construct(ConnectionInfoPool $connection_info_pool) {
+    $this->connectionInfoPool = $connection_info_pool;
+  }
+
+  /**
    * Starts logging a given logging key on the specified connection.
    *
    * @param string $logging_key

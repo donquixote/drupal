@@ -7,6 +7,7 @@
 
 namespace Drupal\Core\Database;
 
+use Drupal\Core\Database\Manager\ConnectionInfoPool;
 use Drupal\Core\Database\Manager\DatabaseManager;
 
 /**
@@ -57,7 +58,7 @@ abstract class Database {
   public static function getDatabaseManager() {
     return isset(self::$databaseManager)
       ? self::$databaseManager
-      : self::$databaseManager = new DatabaseManager();
+      : self::$databaseManager = new DatabaseManager(new ConnectionInfoPool());
   }
 
   /**
