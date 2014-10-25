@@ -9,6 +9,12 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Url;
 
 /**
+ * Initialize \Drupal::$container with a placeholder object.
+ * See https://www.drupal.org/node/2363341
+ */
+\Drupal::initPlaceholder();
+
+/**
  * Static Service Container wrapper.
  *
  * Generally, code in Drupal should accept its dependencies via either
@@ -93,11 +99,29 @@ class Drupal {
   const CORE_MINIMUM_SCHEMA_VERSION = 8000;
 
   /**
-   * The currently active container object, or NULL if not initialized yet.
+   * The currently active container object, or a placeholder container.
+   *
+   * @var \Symfony\Component\DependencyInjection\ContainerInterface
+   */
+  protected static $container;
+
+  /**
+   * The currently active container object, or NULL.
    *
    * @var \Symfony\Component\DependencyInjection\ContainerInterface|null
    */
-  protected static $container;
+  protected static $containerOrNull;
+
+  /**
+   * Fills self::$container with a placeholder.
+   */
+  public static function initPlaceholder() {
+    if (isset(self::$container)) {
+      // This method should only be called from this file.
+      throw new \Exception('Placeholder already initialized.');
+    }
+    self::$container = new \Drupal\Core\DependencyInjection\PlaceholderContainer();
+  }
 
   /**
    * Sets a new global container.
@@ -109,6 +133,7 @@ class Drupal {
    */
   public static function setContainer(ContainerInterface $container = NULL) {
     static::$container = $container;
+    static::$containerOrNull = $container;
   }
 
   /**
@@ -120,7 +145,7 @@ class Drupal {
    * @return \Symfony\Component\DependencyInjection\ContainerInterface|null
    */
   public static function getContainer() {
-    return static::$container;
+    return static::$containerOrNull;
   }
 
   /**
@@ -149,7 +174,7 @@ class Drupal {
    *   TRUE if the specified service exists, FALSE otherwise.
    */
   public static function hasService($id) {
-    return static::$container && static::$container->has($id);
+    return static::$container->has($id);
   }
 
   /**
@@ -168,7 +193,8 @@ class Drupal {
    *   TRUE if there is a currently active request object, FALSE otherwise.
    */
   public static function hasRequest() {
-    return static::$container && static::$container->has('request_stack') && static::$container->get('request_stack')->getCurrentRequest() !== NULL;
+    return static::$container->has('request_stack')
+      && static::$container->get('request_stack')->getCurrentRequest() !== NULL;
   }
 
   /**
