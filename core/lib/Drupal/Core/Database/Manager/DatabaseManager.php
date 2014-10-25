@@ -216,7 +216,8 @@ class DatabaseManager {
    * @param string $key
    *   (optional) The connection key for which to return information.
    *
-   * @return array|null
+   * @return array[]|null
+   *   Format: $[$target] = $info
    */
   public function getConnectionInfo($key = 'default') {
     return !empty($this->databaseInfo[$key])
@@ -227,7 +228,7 @@ class DatabaseManager {
   /**
    * Gets connection information for all available databases.
    *
-   * @return array
+   * @return array[][]
    */
   public function getAllConnectionInfo() {
     return $this->databaseInfo;
@@ -236,7 +237,7 @@ class DatabaseManager {
   /**
    * Sets connection information for multiple databases.
    *
-   * @param array $databases
+   * @param array[][] $databases
    *   A multi-dimensional array specifying database connection parameters, as
    *   defined in settings.php.
    */
