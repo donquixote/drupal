@@ -4,6 +4,7 @@
 namespace Drupal\Core\CoreContainer;
 
 use Drupal\Component\MiniContainer\PhaseContainerBase;
+use Drupal\Core\Database\Database;
 use Drupal\Core\Site\Settings;
 
 
@@ -50,6 +51,15 @@ class BootState extends PhaseContainerBase {
   protected function init_SiteSettingsInitialized() {
     $site_path = $this->coreServices->SiteDirectory->getSitePath();
     Settings::initialize($site_path, $this->coreServices->ClassLoader);
+  }
+
+  /**
+   * Initializes Database::$databaseManager
+   *
+   * @see BootState::DatabaseInitialized
+   */
+  protected function init_DatabaseInitialized() {
+    Database::setDatabaseManager($this->coreServices->DatabaseManager);
   }
 
   /**
