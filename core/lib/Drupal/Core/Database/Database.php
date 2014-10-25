@@ -155,7 +155,26 @@ abstract class Database {
    *   The modified $info array with database connection information.
    */
   final public static function parseConnectionInfo(array $info) {
-    return self::getDatabaseManager()->parseConnectionInfo($info);
+    // If there is no "driver" property, then we assume it's an array of
+    // possible connections for this target. Pick one at random. That allows
+    // us to have, for example, multiple replica servers.
+    if (empty($info['driver'])) {
+      $info = $info[mt_rand(0, count($info) - 1)];
+    }
+    // Parse the prefix information.
+    if (!isset($info['prefix'])) {
+      // Default to an empty prefix.
+      $info['prefix'] = array(
+        'default' => '',
+      );
+    }
+    elseif (!is_array($info['prefix'])) {
+      // Transform the flat form into an array form.
+      $info['prefix'] = array(
+        'default' => $info['prefix'],
+      );
+    }
+    return $info;
   }
 
   /**
