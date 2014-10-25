@@ -5,6 +5,8 @@ namespace Drupal\Core\CoreContainer;
 
 use Drupal\Component\MiniContainer\MiniContainerBase;
 use Drupal\Core\Database\Database;
+use Drupal\Core\Database\Manager\ConnectionInfoPool;
+use Drupal\Core\Database\Manager\DatabaseManager;
 use Drupal\Core\DrupalKernel;
 use Drupal\Core\FrontController\IndexPhp;
 use Drupal\Core\FrontController\NeedRebuildFrontController;
@@ -29,6 +31,7 @@ use Symfony\Component\HttpFoundation\Request;
  * @property \Drupal\Core\DrupalKernel BootstrappedDrupalKernel
  * @property \Drupal\Core\Site\SiteDirectory SiteDirectory
  * @property \Drupal\Core\Site\Settings SiteSettings
+ * @property \Drupal\Core\Database\Manager\DatabaseManager DatabaseManager
  * @property \Drupal\Core\CoreContainer\BootState BootState
  * @property \Drupal\Core\Site\SitePathFinder SitePathFinder
  * @property \Symfony\Component\DependencyInjection\ContainerInterface Container
@@ -197,6 +200,15 @@ class CoreServices extends MiniContainerBase {
   protected function get_SiteSettings() {
     $this->BootState->SiteSettingsInitialized;
     return Settings::getInstance();
+  }
+
+  /**
+   * @return \Drupal\Core\Database\Manager\DatabaseManager
+   *
+   * @see CoreServices::DatabaseManager
+   */
+  protected function get_DatabaseManager() {
+    return new DatabaseManager(new ConnectionInfoPool());
   }
 
   /**
