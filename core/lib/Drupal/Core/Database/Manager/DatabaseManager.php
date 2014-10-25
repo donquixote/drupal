@@ -180,7 +180,7 @@ class DatabaseManager {
    *   The previous database connection key.
    */
   public function setActiveConnection($key = 'default') {
-    if (!$this->connectionInfoPool->keyExists($key)) {
+    if ($this->connectionInfoPool->keyExists($key)) {
       $old_key = $this->activeKey;
       $this->activeKey = $key;
       return $old_key;
