@@ -5,6 +5,7 @@
  * Contains Drupal.
  */
 
+use Drupal\Core\DependencyInjection\PlaceholderContainer;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Url;
 
@@ -12,7 +13,7 @@ use Drupal\Core\Url;
  * Initialize \Drupal::$container with a placeholder object.
  * See https://www.drupal.org/node/2363341
  */
-\Drupal::initPlaceholder();
+\Drupal::setContainer(NULL);
 
 /**
  * Static Service Container wrapper.
@@ -113,17 +114,6 @@ class Drupal {
   protected static $containerOrNull;
 
   /**
-   * Fills self::$container with a placeholder.
-   */
-  public static function initPlaceholder() {
-    if (isset(self::$container)) {
-      // This method should only be called from this file.
-      throw new \Exception('Placeholder already initialized.');
-    }
-    self::$container = new \Drupal\Core\DependencyInjection\PlaceholderContainer();
-  }
-
-  /**
    * Sets a new global container.
    *
    * @param \Symfony\Component\DependencyInjection\ContainerInterface $container
@@ -132,7 +122,9 @@ class Drupal {
    *   environment does not leak into a test.
    */
   public static function setContainer(ContainerInterface $container = NULL) {
-    static::$container = $container;
+    static::$container = isset($container)
+      ? $container
+      : new PlaceholderContainer();
     static::$containerOrNull = $container;
   }
 
