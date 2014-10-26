@@ -17,6 +17,7 @@ use Drupal\Core\Database\Database;
 use Drupal\Core\DependencyInjection\ContainerBuilder;
 use Drupal\Core\DependencyInjection\ServiceProviderInterface;
 use Drupal\Core\DependencyInjection\YamlFileLoader;
+use Drupal\Core\Extension\Extension;
 use Drupal\Core\Extension\ExtensionDiscovery;
 use Drupal\Core\Language\Language;
 use Drupal\Core\PageCache\RequestPolicyInterface;
@@ -602,22 +603,16 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
       // If a module is within a profile directory but specifies another
       // profile for testing, it needs to be found in the parent profile.
       $settings = $this->getConfigStorage()->read('simpletest.settings');
-      $parent_profile = !empty($settings['parent_profile'])
-        ? $settings['parent_profile']
-        : NULL;
-
+      $parent_profile = !empty($settings['parent_profile']) ? $settings['parent_profile'] : NULL;
       if ($parent_profile && !isset($profiles[$parent_profile])) {
         // In case both profile directories contain the same extension, the
         // actual profile always has precedence.
         $profiles = array($parent_profile => $all_profiles[$parent_profile]) + $profiles;
       }
 
-      $profile_directories = array_map(
-        function ($profile) {
-          /** @var \Drupal\Core\Extension\Extension $profile */
-          return $profile->getPath();
-        },
-        $profiles);
+      $profile_directories = array_map(function (Extension $profile) {
+        return $profile->getPath();
+      }, $profiles);
 
       $listing->setProfileDirectories($profile_directories);
 
@@ -951,7 +946,7 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
    *   A service container that implements $container->initialized($id)
    *
    * @return object[]
-   *   Array of services to persist, keyed by service id.
+   *   Array of services to persist, keyed by service ID.
    */
   protected function getServicesToPersist(ContainerInterface $container) {
     $persist = array();
@@ -970,7 +965,7 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
    * @param \Symfony\Component\DependencyInjection\ContainerInterface|\Drupal\Core\DependencyInjection\Container $container
    *   A service container that implements $container->initialized($id)
    * @param object[] $persist
-   *   Array of services to persist, keyed by service id.
+   *   Array of services to persist, keyed by service ID.
    */
   protected function persistServices(ContainerInterface $container, array $persist) {
     foreach ($persist as $id => $object) {
