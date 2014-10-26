@@ -12,6 +12,21 @@ use Drupal\Core\Url;
 /**
  * Initialize \Drupal::$container with a placeholder object.
  * See https://www.drupal.org/node/2363341
+ *
+ * This technique is the most reliable way to initialize static properties with
+ * non-trivial expressions. It should NOT be used for anything else. Also, the
+ * code being called MUST NOT have any side effects other than initializing the
+ * static properties.
+ *
+ * In general (e.g. in PSR-1), a PHP file should either declare symbols OR have
+ * side-effects, but not both. This specific case is ok only because the side
+ * effect applies to nothing else but the class declared in the same file, and
+ * it happens immediately after the class is being declared. A version of the
+ * class without this initialization applied is never available to the outside
+ * world.
+ *
+ * Note: PHP does not care whether this is called before or after the class
+ * declaration. It is called before only for better visibility.
  */
 \Drupal::initStaticProperties(NULL);
 
