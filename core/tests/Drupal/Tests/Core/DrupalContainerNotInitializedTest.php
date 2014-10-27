@@ -8,7 +8,6 @@
 namespace Drupal\Tests\Core;
 
 use Drupal\Core\DependencyInjection\ContainerNotInitializedException;
-use Drupal\Tests\UnitTestCase;
 use Drupal\Core\Url;
 
 /**
@@ -16,15 +15,7 @@ use Drupal\Core\Url;
  *
  * @group DrupalTest
  */
-class DrupalContainerNotInitializedTest extends UnitTestCase {
-
-  /**
-   * Overrides the parent setUp() method, to make sure that \Drupal::$container
-   * is not initialized.
-   */
-  protected function setUp() {
-    // Do nothing here, and do not call the parent method.
-  }
+class DrupalContainerNotInitializedTest extends \PHPUnit_Framework_TestCase {
 
   /**
    * Tests the case where \Drupal::$container is not initialized.
