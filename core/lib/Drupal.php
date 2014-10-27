@@ -5,8 +5,30 @@
  * Contains Drupal.
  */
 
+use Drupal\Core\DependencyInjection\PlaceholderContainer;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Url;
+
+/**
+ * Initialize \Drupal::$container with a placeholder object.
+ * See https://www.drupal.org/node/2363341
+ *
+ * This technique is the most reliable way to initialize static properties with
+ * non-trivial expressions. It should NOT be used for anything else. Also, the
+ * code being called MUST NOT have any side effects other than initializing the
+ * static properties.
+ *
+ * In general (e.g. in PSR-1), a PHP file should either declare symbols OR have
+ * side-effects, but not both. This specific case is ok only because the side
+ * effect applies to nothing else but the class declared in the same file, and
+ * it happens immediately after the class is being declared. A version of the
+ * class without this initialization applied is never available to the outside
+ * world.
+ *
+ * Note: PHP does not care whether this is called before or after the class
+ * declaration. It is called before only for better visibility.
+ */
+\Drupal::initStaticProperties(NULL);
 
 /**
  * Static Service Container wrapper.
@@ -93,7 +115,7 @@ class Drupal {
   const CORE_MINIMUM_SCHEMA_VERSION = 8000;
 
   /**
-   * The currently active container object.
+   * The currently active container object, or a placeholder container.
    *
    * @var \Symfony\Component\DependencyInjection\ContainerInterface
    */
@@ -108,7 +130,29 @@ class Drupal {
    *   environment does not leak into a test.
    */
   public static function setContainer(ContainerInterface $container = NULL) {
+    if (!isset($container)) {
+      // @todo Remove the NULL case, and use unsetContainer() instead.
+      $container = new PlaceholderContainer('\Drupal::$container was unset with setContainer(NULL).');
+    }
     static::$container = $container;
+  }
+
+  /**
+   * @param string|null $message
+   */
+  public static function unsetContainer($message = NULL) {
+    if (!isset($message)) {
+      $message = '\Drupal::$container was unset with \Drupal::unsetContainer().';
+    }
+    static::setContainer(new PlaceholderContainer($message));
+  }
+
+  /**
+   * Initializes the static properties. Called from within the class file.
+   */
+  public static function initStaticProperties() {
+    $message = '\Drupal::$container is not initialized yet. \Drupal::setContainer() must be called with a real container.';
+    static::setContainer(new PlaceholderContainer($message));
   }
 
   /**
@@ -117,9 +161,15 @@ class Drupal {
    * @deprecated This method is only useful for the testing environment. It
    * should not be used otherwise.
    *
-   * @return \Symfony\Component\DependencyInjection\ContainerInterface
+   * @return \Symfony\Component\DependencyInjection\ContainerInterface|null
    */
   public static function getContainer() {
+    if (static::$container instanceof PlaceholderContainer) {
+      // Currently, some components depend on this method returning NULL if not
+      // initialized.
+      // @todo Throw an exception instead, and change all code that expects NULL.
+      return NULL;
+    }
     return static::$container;
   }
 
@@ -149,7 +199,7 @@ class Drupal {
    *   TRUE if the specified service exists, FALSE otherwise.
    */
   public static function hasService($id) {
-    return static::$container && static::$container->has($id);
+    return static::$container->has($id);
   }
 
   /**
@@ -159,7 +209,8 @@ class Drupal {
    *   TRUE if there is a currently active request object, FALSE otherwise.
    */
   public static function hasRequest() {
-    return static::$container && static::$container->has('request_stack') && static::$container->get('request_stack')->getCurrentRequest() !== NULL;
+    return static::$container->has('request_stack')
+      && static::$container->get('request_stack')->getCurrentRequest() !== NULL;
   }
 
   /**
@@ -469,6 +520,17 @@ class Drupal {
    * the base path (like robots.txt) use Url::fromUri()->toString() with the
    * base:// scheme.
    *
+   * @param string $route_name
+   *   The name of the route
+   * @param array $route_parameters
+   *   An associative array of parameter names and values.
+   * @param array $options
+   *   (optional) An associative array of additional options,
+   *
+   * @return string
+   *   The generated URL for the given route.
+   *
+   * @see \Drupal\Core\Routing\UrlGeneratorInterface::generateFromRoute()
    * @see \Drupal\Core\Url
    * @see \Drupal\Core\Url::fromRoute()
    * @see \Drupal\Core\Url::fromUri()
@@ -492,6 +554,12 @@ class Drupal {
    * This method is a convenience wrapper for the link generator service's
    * generate() method. For detailed documentation, see
    * \Drupal\Core\Routing\LinkGeneratorInterface::generate().
+   *
+   * @param string $text
+   * @param \Drupal\Core\Url $url
+   *
+   * @return string
+   *   An HTML string containing a link to the given route and parameters.
    *
    * @see \Drupal\Core\Utility\LinkGeneratorInterface::generate()
    * @see \Drupal\Core\Url
