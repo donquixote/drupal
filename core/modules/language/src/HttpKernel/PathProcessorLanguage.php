@@ -11,7 +11,7 @@ use Drupal\Component\Utility\Unicode;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\PathProcessor\InboundPathProcessorInterface;
 use Drupal\Core\PathProcessor\OutboundPathProcessorInterface;
-use Drupal\Core\Site\Settings;
+use Drupal\Core\Site\Settings\SettingsInterface;
 use Drupal\language\ConfigurableLanguageManagerInterface;
 use Drupal\language\LanguageNegotiatorInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -69,7 +69,7 @@ class PathProcessorLanguage implements InboundPathProcessorInterface, OutboundPa
    *
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config
    *   A config factory object for retrieving configuration settings.
-   * @param \Drupal\Core\Site\Settings $settings
+   * @param \Drupal\Core\Site\Settings\SettingsInterface $settings
    *   The settings instance.
    * @param \Drupal\language\ConfigurableLanguageManagerInterface $language_manager
    *   The configurable language manager.
@@ -78,7 +78,7 @@ class PathProcessorLanguage implements InboundPathProcessorInterface, OutboundPa
    * @param \Drupal\Core\Session\AccountInterface $current_user
    *   The current active user.
    */
-  public function __construct(ConfigFactoryInterface $config, Settings $settings, ConfigurableLanguageManagerInterface $language_manager, LanguageNegotiatorInterface $negotiator, AccountInterface $current_user) {
+  public function __construct(ConfigFactoryInterface $config, SettingsInterface $settings, ConfigurableLanguageManagerInterface $language_manager, LanguageNegotiatorInterface $negotiator, AccountInterface $current_user) {
     $this->config = $config;
     $this->mixedModeSessions = $settings->get('mixed_mode_sessions', FALSE);
     $this->languageManager = $language_manager;

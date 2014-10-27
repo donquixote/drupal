@@ -7,7 +7,7 @@
 
 namespace Drupal\Core\Session;
 
-use Drupal\Core\Site\Settings;
+use Drupal\Core\Site\Settings\SettingsInterface;
 use Symfony\Component\HttpFoundation\Session\Storage\MetadataBag as SymfonyMetadataBag;
 
 /**
@@ -23,10 +23,10 @@ class MetadataBag extends SymfonyMetadataBag {
   /**
    * Constructs a new metadata bag instance.
    *
-   * @param \Drupal\Core\Site\Settings $settings
+   * @param \Drupal\Core\Site\Settings\SettingsInterface $settings
    *   The settings instance.
    */
-  public function __construct(Settings $settings) {
+  public function __construct(SettingsInterface $settings) {
     $update_threshold = $settings->get('session_write_interval', 180);
     parent::__construct('_sf2_meta', $update_threshold);
   }

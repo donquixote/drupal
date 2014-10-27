@@ -323,7 +323,7 @@ function drupal_rewrite_settings($settings = array(), $settings_file = NULL) {
       // Settings singleton.
       if (!empty($settings_settings)) {
         $old_settings = Settings::getAll();
-        new Settings($settings_settings + $old_settings);
+        Settings::setCreateInstance($settings_settings + $old_settings);
       }
       // The existing settings.php file might have been included already. In
       // case an opcode cache is enabled, the rewritten contents of the file

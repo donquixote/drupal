@@ -49,7 +49,7 @@ class TwigEnvironmentTest extends KernelTestBase {
     $settings['twig_debug'] = TRUE;
     $settings['twig_auto_reload'] = TRUE;
 
-    new Settings($settings);
+    Settings::setCreateInstance($settings);
     $this->container = $this->kernel->rebuildContainer();
     \Drupal::setContainer($this->container);
 

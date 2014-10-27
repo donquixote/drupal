@@ -26,7 +26,7 @@ class SettingsTest extends UnitTestCase {
   /**
    * The class under test.
    *
-   * @var \Drupal\Core\Site\Settings
+   * @var \Drupal\Core\Site\Settings\SettingsInterface
    */
   protected $settings;
 
@@ -39,7 +39,7 @@ class SettingsTest extends UnitTestCase {
       'two' => '2',
       'hash_salt' => $this->randomMachineName(),
     );
-    $this->settings = new Settings($this->config);
+    $this->settings = Settings::setCreateInstance($this->config);
   }
 
   /**
@@ -66,7 +66,7 @@ class SettingsTest extends UnitTestCase {
    * @covers ::getInstance
    */
   public function testGetInstance() {
-    $singleton = $this->settings->getInstance();
+    $singleton = Settings::getInstance();
     $this->assertEquals($singleton, $this->settings);
   }
 
@@ -90,7 +90,7 @@ class SettingsTest extends UnitTestCase {
    */
   public function testGetHashSaltEmpty(array $config) {
     // Re-create settings with no 'hash_salt' key.
-    $settings = new Settings($config);
+    $settings = Settings::setCreateInstance($config);
     $settings->getHashSalt();
   }
 

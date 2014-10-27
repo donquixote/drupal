@@ -61,7 +61,7 @@ class CsrfTokenGeneratorTest extends UnitTestCase {
       'hash_salt' => $this->randomMachineName(),
     );
 
-    new Settings($settings);
+    Settings::setCreateInstance($settings);
 
     $this->generator = new CsrfTokenGenerator($this->privateKey, $this->sessionMetadata);
   }
@@ -208,7 +208,7 @@ class CsrfTokenGeneratorTest extends UnitTestCase {
    */
   public function testGetWithNoHashSalt() {
     // Update settings with no hash salt.
-    new Settings(array());
+    Settings::setCreateInstance(array());
     $generator = new CsrfTokenGenerator($this->privateKey, $this->sessionMetadata);
     $generator->get();
   }

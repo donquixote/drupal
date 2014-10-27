@@ -82,7 +82,7 @@ class PhpStorageFactoryTest extends DrupalUnitTestBase {
       'secret' => $this->randomString(),
       'bin' => 'test',
     );
-    new Settings($settings);
+    Settings::setCreateInstance($settings);
   }
 
 }

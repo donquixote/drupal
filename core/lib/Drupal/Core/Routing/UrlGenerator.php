@@ -20,7 +20,7 @@ use Drupal\Component\Utility\UrlHelper;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\PathProcessor\OutboundPathProcessorInterface;
 use Drupal\Core\RouteProcessor\OutboundRouteProcessorInterface;
-use Drupal\Core\Site\Settings;
+use Drupal\Core\Site\Settings\SettingsInterface;
 
 /**
  * Generates URLs from route names and parameters.
@@ -78,14 +78,14 @@ class UrlGenerator extends ProviderBasedGenerator implements UrlGeneratorInterfa
    *   The route processor.
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config
    *    The config factory.
-   * @param \Drupal\Core\Site\Settings $settings
+   * @param \Drupal\Core\Site\Settings\SettingsInterface $settings
    *    The read only settings.
    * @param \Psr\Log\LoggerInterface $logger
    *   An optional logger for recording errors.
    * @param \Symfony\Component\HttpFoundation\RequestStack $request_stack
    *   A request stack object.
    */
-  public function __construct(RouteProviderInterface $provider, OutboundPathProcessorInterface $path_processor, OutboundRouteProcessorInterface $route_processor, ConfigFactoryInterface $config, Settings $settings, LoggerInterface $logger = NULL, RequestStack $request_stack) {
+  public function __construct(RouteProviderInterface $provider, OutboundPathProcessorInterface $path_processor, OutboundRouteProcessorInterface $route_processor, ConfigFactoryInterface $config, SettingsInterface $settings, LoggerInterface $logger = NULL, RequestStack $request_stack) {
     parent::__construct($provider, $logger);
 
     $this->pathProcessor = $path_processor;

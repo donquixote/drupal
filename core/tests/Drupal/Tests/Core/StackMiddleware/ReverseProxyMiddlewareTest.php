@@ -8,6 +8,7 @@
 namespace Drupal\Tests\Core\StackMiddleware;
 
 use Drupal\Core\Site\Settings;
+use Drupal\Core\Site\Settings\SettingsInterface;
 use Drupal\Core\StackMiddleware\ReverseProxyMiddleware;
 use Drupal\Tests\UnitTestCase;
 use Symfony\Component\HttpFoundation\Request;
@@ -35,7 +36,7 @@ class ReverseProxyMiddlewareTest extends UnitTestCase {
    * Tests that subscriber does not act when reverse proxy is not set.
    */
   public function testNoProxy() {
-    $settings = new Settings(array());
+    $settings = Settings::setCreateInstance(array());
     $this->assertEquals(0, $settings->get('reverse_proxy'));
 
     $middleware = new ReverseProxyMiddleware($this->mockHttpKernel, $settings);
@@ -55,7 +56,7 @@ class ReverseProxyMiddlewareTest extends UnitTestCase {
    */
   public function testReverseProxyEnabled($provided_settings) {
       // Enable reverse proxy and add test values.
-      $settings = new Settings(array('reverse_proxy' => 1) + $provided_settings);
+      $settings = Settings::setCreateInstance(array('reverse_proxy' => 1) + $provided_settings);
       $this->trustedHeadersAreSet($settings);
   }
 
@@ -86,10 +87,10 @@ class ReverseProxyMiddlewareTest extends UnitTestCase {
    * \Symfony\Component\HttpFoundation\Request::setTrustedProxies() should
    * always be called when reverse proxy settings are enabled.
    *
-   * @param \Drupal\Core\Site\Settings $settings
+   * @param \Drupal\Core\Site\Settings\SettingsInterface $settings
    *   The settings object that holds reverse proxy configuration.
    */
-  protected function trustedHeadersAreSet(Settings $settings) {
+  protected function trustedHeadersAreSet(SettingsInterface $settings) {
     $middleware = new ReverseProxyMiddleware($this->mockHttpKernel, $settings);
     $request = new Request();
 

@@ -12,7 +12,6 @@ use Drupal\comment\Plugin\Field\FieldType\CommentItemInterface;
 use Drupal\Component\Utility\String;
 use Drupal\Core\DrupalKernel;
 use Drupal\Core\Session\UserSession;
-use Drupal\Core\Site\Settings;
 use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\node\Entity\NodeType;
 use Drupal\simpletest\WebTestBase;

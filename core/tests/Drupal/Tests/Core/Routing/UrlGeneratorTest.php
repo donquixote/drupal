@@ -137,12 +137,12 @@ class UrlGeneratorTest extends UnitTestCase {
 
     $config_factory_stub = $this->getConfigFactoryStub(array('system.filter' => array('protocols' => array('http', 'https'))));
 
-    $generator = new UrlGenerator($provider, $processor_manager, $this->routeProcessorManager, $config_factory_stub, new Settings(array()), NULL, $this->requestStack);
+    $generator = new UrlGenerator($provider, $processor_manager, $this->routeProcessorManager, $config_factory_stub, Settings::setCreateInstance(array()), NULL, $this->requestStack);
     $generator->setContext($context);
     $this->generator = $generator;
 
     // Second generator for mixed-mode sessions.
-    $generator = new UrlGenerator($provider, $processor_manager, $this->routeProcessorManager, $config_factory_stub, new Settings(array('mixed_mode_sessions' => TRUE)), NULL, $this->requestStack);
+    $generator = new UrlGenerator($provider, $processor_manager, $this->routeProcessorManager, $config_factory_stub, Settings::setCreateInstance(array('mixed_mode_sessions' => TRUE)), NULL, $this->requestStack);
     $generator->setContext($context);
     $this->generatorMixedMode = $generator;
   }

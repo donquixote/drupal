@@ -6,7 +6,7 @@
 
 namespace Drupal\Core\StackMiddleware;
 
-use Drupal\Core\Site\Settings;
+use Drupal\Core\Site\Settings\SettingsInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 
@@ -25,7 +25,7 @@ class ReverseProxyMiddleware implements HttpKernelInterface {
   /**
    * The site settings.
    *
-   * @var \Drupal\Core\Site\Settings
+   * @var \Drupal\Core\Site\Settings\SettingsInterface
    */
   protected $settings;
 
@@ -34,10 +34,10 @@ class ReverseProxyMiddleware implements HttpKernelInterface {
    *
    * @param \Symfony\Component\HttpKernel\HttpKernelInterface $http_kernel
    *   The decorated kernel.
-   * @param \Drupal\Core\Site\Settings $settings
+   * @param \Drupal\Core\Site\Settings\SettingsInterface $settings
    *   The site settings.
    */
-  public function __construct(HttpKernelInterface $http_kernel, Settings $settings) {
+  public function __construct(HttpKernelInterface $http_kernel, SettingsInterface $settings) {
     $this->httpKernel = $http_kernel;
     $this->settings = $settings;
   }
