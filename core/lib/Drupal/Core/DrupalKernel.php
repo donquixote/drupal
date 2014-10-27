@@ -15,6 +15,7 @@ use Drupal\Core\Config\BootstrapConfigStorageFactory;
 use Drupal\Core\Config\NullStorage;
 use Drupal\Core\Database\Database;
 use Drupal\Core\DependencyInjection\ContainerBuilder;
+use Drupal\Core\DependencyInjection\PlaceholderContainer;
 use Drupal\Core\DependencyInjection\ServiceProviderInterface;
 use Drupal\Core\DependencyInjection\YamlFileLoader;
 use Drupal\Core\Extension\ExtensionDiscovery;
@@ -27,10 +28,8 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\DependencyInjection\Dumper\PhpDumper;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\TerminableInterface;
-use Composer\Autoload\ClassLoader;
 
 /**
  * The DrupalKernel class is the core of Drupal itself.
@@ -50,9 +49,20 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
   const CONTAINER_BASE_CLASS = '\Drupal\Core\DependencyInjection\Container';
 
   /**
-   * Holds the container instance.
+   * The service container.
    *
-   * @var \Symfony\Component\DependencyInjection\ContainerInterface
+   * It is assumed that the container implements $container->initialized($id),
+   * There is currently no interface to define this method, hence the
+   * alternative "|\Drupal\..\Container" in the type hint.
+   *
+   * @todo Create an interface with $container->initialized($id).
+   *
+   * Before its initialization in $this->initializeContainer(), $this->container
+   * will be filled with a PlaceholderContainer object.
+   *
+   * @see \Drupal\Core\DependencyInjection\PlaceholderContainer
+   *
+   * @var \Symfony\Component\DependencyInjection\ContainerInterface|\Drupal\Core\DependencyInjection\Container
    */
   protected $container;
 
@@ -248,6 +258,7 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
     $this->environment = $environment;
     $this->classLoader = $class_loader;
     $this->allowDumping = $allow_dumping;
+    $this->container = new PlaceholderContainer('DrupalKernel::$container is not initialized yet.');
   }
 
   /**
@@ -404,7 +415,7 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
     }
     $this->container->get('stream_wrapper_manager')->unregister();
     $this->booted = FALSE;
-    $this->container = NULL;
+    $this->container = new PlaceholderContainer('DrupalKernel::$container is not available after shutdown.');
     $this->moduleList = NULL;
     $this->moduleData = array();
   }
@@ -413,6 +424,10 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
    * {@inheritdoc}
    */
   public function getContainer() {
+    if ($this->container instanceof PlaceholderContainer) {
+      // @todo Throw an exception?
+      return NULL;
+    }
     return $this->container;
   }
 
@@ -458,6 +473,7 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
       $cache_enabled = TRUE;
     }
     else {
+      /** @var \Drupal\Core\Config\Config $config */
       $config = $this->getContainer()->get('config.factory')->get('system.performance');
       $cache_enabled = $config->get('cache.page.use_internal');
     }
@@ -550,8 +566,9 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
       return;
     }
 
-    if ($this->getHttpKernel() instanceof TerminableInterface) {
-      $this->getHttpKernel()->terminate($request, $response);
+    $http_kernel = $this->getHttpKernel();
+    if ($http_kernel instanceof TerminableInterface) {
+      $http_kernel->terminate($request, $response);
     }
   }
 
@@ -596,16 +613,23 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
       // If a module is within a profile directory but specifies another
       // profile for testing, it needs to be found in the parent profile.
       $settings = $this->getConfigStorage()->read('simpletest.settings');
-      $parent_profile = !empty($settings['parent_profile']) ? $settings['parent_profile'] : NULL;
+      $parent_profile = !empty($settings['parent_profile'])
+        ? $settings['parent_profile']
+        : NULL;
+
       if ($parent_profile && !isset($profiles[$parent_profile])) {
         // In case both profile directories contain the same extension, the
         // actual profile always has precedence.
         $profiles = array($parent_profile => $all_profiles[$parent_profile]) + $profiles;
       }
 
-      $profile_directories = array_map(function ($profile) {
-        return $profile->getPath();
-      }, $profiles);
+      $profile_directories = array_map(
+        function ($profile) {
+          /** @var \Drupal\Core\Extension\Extension $profile */
+          return $profile->getPath();
+        },
+        $profiles);
+
       $listing->setProfileDirectories($profile_directories);
 
       // Now find modules.
@@ -619,6 +643,11 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
    *
    * @todo Remove obsolete $module_list parameter. Only $module_filenames is
    *   needed.
+   *
+   * @param array $module_list
+   *   The new list of modules.
+   * @param array $module_filenames
+   *   List of module filenames, keyed by module name.
    */
   public function updateModules(array $module_list, array $module_filenames = array()) {
     $this->moduleList = $module_list;
@@ -668,7 +697,7 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
   protected function initializeContainer($rebuild = FALSE) {
     $this->containerNeedsDumping = FALSE;
     $session_manager_started = FALSE;
-    if (isset($this->container)) {
+    if (!$this->container instanceof PlaceholderContainer) {
       // If there is a session manager, close and save the session.
       if ($this->container->initialized('session_manager')) {
         $session_manager = $this->container->get('session_manager');
@@ -703,6 +732,8 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
 
     $this->attachSynthetic($container);
 
+    // From here forward, $this->container is definitely not a
+    // PlaceholderContainer anymore, but a "real" container.
     $this->container = $container;
     if ($session_manager_started) {
       $this->container->get('session_manager')->start();
@@ -928,6 +959,12 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
 
   /**
    * Returns service instances to persist from an old container to a new one.
+   *
+   * @param \Symfony\Component\DependencyInjection\ContainerInterface|\Drupal\Core\DependencyInjection\Container $container
+   *   A service container that implements $container->initialized($id)
+   *
+   * @return object[]
+   *   Array of services to persist, keyed by service id.
    */
   protected function getServicesToPersist(ContainerInterface $container) {
     $persist = array();
@@ -942,6 +979,11 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
 
   /**
    * Moves persistent service instances into a new container.
+   *
+   * @param \Symfony\Component\DependencyInjection\ContainerInterface|\Drupal\Core\DependencyInjection\Container $container
+   *   A service container that implements $container->initialized($id)
+   * @param object[] $persist
+   *   Array of services to persist, keyed by service id.
    */
   protected function persistServices(ContainerInterface $container, array $persist) {
     foreach ($persist as $id => $object) {
@@ -975,7 +1017,7 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
    */
   protected function attachSynthetic(ContainerInterface $container) {
     $persist = array();
-    if (isset($this->container)) {
+    if (!$this->container instanceof PlaceholderContainer) {
       $persist = $this->getServicesToPersist($this->container);
     }
     $this->persistServices($container, $persist);

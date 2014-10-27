@@ -556,13 +556,14 @@ class Drupal {
    * \Drupal\Core\Routing\LinkGeneratorInterface::generate().
    *
    * @param string $text
+   *   The link text for the anchor tag as a translated string or render array.
    * @param \Drupal\Core\Url $url
+   *   The URL object used for the link,
    *
    * @return string
    *   An HTML string containing a link to the given route and parameters.
    *
    * @see \Drupal\Core\Utility\LinkGeneratorInterface::generate()
-   * @see \Drupal\Core\Url
    */
   public static function l($text, Url $url) {
     return static::$container->get('link_generator')->generate($text, $url);

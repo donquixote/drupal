@@ -52,8 +52,8 @@ interface DrupalKernelInterface extends HttpKernelInterface {
   /**
    * Gets the current container.
    *
-   * @return \Symfony\Component\DependencyInjection\ContainerInterface
-   *   A ContainerInterface instance.
+   * @return \Symfony\Component\DependencyInjection\ContainerInterface|null
+   *   A ContainerInterface instance, or NULL if not initialized yet.
    */
   public function getContainer();
 
