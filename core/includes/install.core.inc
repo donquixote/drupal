@@ -2,6 +2,7 @@
 
 use Drupal\Component\Utility\SafeMarkup;
 use Drupal\Component\Utility\UrlHelper;
+use Drupal\Core\CoreContainer\CoreServices;
 use Drupal\Core\DrupalKernel;
 use Drupal\Core\Config\BootstrapConfigStorageFactory;
 use Drupal\Core\Database\Database;
@@ -21,7 +22,6 @@ use Drupal\Core\Extension\ExtensionDiscovery;
 use Drupal\Core\DependencyInjection\ContainerBuilder;
 use Drupal\language\Entity\ConfigurableLanguage;
 use Symfony\Component\DependencyInjection\Reference;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 use GuzzleHttp\Exception\RequestException;
@@ -258,7 +258,10 @@ function install_state_defaults() {
  *   modified with information gleaned from the beginning of the page request.
  */
 function install_begin_request(&$install_state) {
-  $request = Request::createFromGlobals();
+
+  $core_services = CoreServices::create()->disableContainerDumping();
+
+  $request = $core_services->Request;
 
   // Add any installation parameters passed in via the URL.
   if ($install_state['interactive']) {
@@ -357,15 +360,11 @@ function install_begin_request(&$install_state) {
   // Replace services with in-memory and null implementations. This kernel is
   // replaced with a regular one in drupal_install_system().
   if (!$install_state['base_system_verified']) {
-    $environment = 'install';
+    $core_services->Parameters->Environment = 'install';
     $GLOBALS['conf']['container_service_providers']['InstallerServiceProvider'] = 'Drupal\Core\Installer\InstallerServiceProvider';
   }
-  else {
-    $environment = 'prod';
-  }
 
-  // Only allow dumping the container once the hash salt has been created.
-  $kernel = InstallerKernel::createFromRequest($request, $class_loader, $environment, (bool) Settings::get('hash_salt', FALSE));
+  $kernel = $core_services->DrupalKernel;
   $kernel->setSitePath($site_path);
   $kernel->boot();
   $container = $kernel->getContainer();
