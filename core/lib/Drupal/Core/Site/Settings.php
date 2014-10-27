@@ -8,37 +8,74 @@
 namespace Drupal\Core\Site;
 
 use Drupal\Core\Database\Database;
+use Drupal\Core\Site\Settings\PlaceholderSettings;
+use Drupal\Core\Site\Settings\SettingsInstance;
+use Drupal\Core\Site\Settings\SettingsInterface;
+
+/**
+ * Initialize Settings::$instance with a placeholder object.
+ * See https://www.drupal.org/node/2363881
+ *
+ * This technique is the most reliable way to initialize static properties with
+ * non-trivial expressions. It should NOT be used for anything else. Also, the
+ * code being called MUST NOT have any side effects other than initializing the
+ * static properties.
+ *
+ * In general (e.g. in PSR-1), a PHP file should either declare symbols OR have
+ * side-effects, but not both. This specific case is ok only because the side
+ * effect applies to nothing else but the class declared in the same file, and
+ * it happens immediately after the class is being declared. A version of the
+ * class without this initialization applied is never available to the outside
+ * world.
+ *
+ * Note: PHP does not care whether this is called before or after the class
+ * declaration. It is called before only for better visibility.
+ */
+Settings::initStaticProperties();
 
 /**
  * Read only settings that are initialized with the class.
  *
  * @ingroup utility
  */
-final class Settings {
-
-  /**
-   * Array with the settings.
-   *
-   * @var array
-   */
-  private $storage = array();
+abstract class Settings {
 
   /**
    * Singleton instance.
    *
-   * @var \Drupal\Core\Site\Settings
+   * @var \Drupal\Core\Site\Settings\SettingsInterface
    */
-  private static $instance;
+  protected static $instance;
 
   /**
-   * Constructor.
+   * Initializes the static properties. Called once from within the class file.
+   */
+  public static function initStaticProperties() {
+    static::$instance = new PlaceholderSettings('Settings::$instance is not initialized yet.');
+  }
+
+  /**
+   * Sets or replaces static::$instance with a new Settings object created from a
+   * settings array.
    *
    * @param array $settings
    *   Array with the settings.
+   *
+   * @return \Drupal\Core\Site\Settings\SettingsInterface
+   *   The new value of static::$instance.
    */
-  public function __construct(array $settings) {
-    $this->storage = $settings;
-    self::$instance = $this;
+  public static function setCreateInstance(array $settings) {
+    static::$instance = new SettingsInstance($settings);
+    return static::$instance;
+  }
+
+  /**
+   * Sets or replaces static::$instance with the given Settings object.
+   *
+   * @param \Drupal\Core\Site\Settings\SettingsInterface $instance
+   */
+  public static function setInstance(SettingsInterface $instance) {
+    static::$instance = $instance;
   }
 
   /**
@@ -47,10 +84,13 @@ final class Settings {
    * A singleton is used because this class is used before the container is
    * available.
    *
-   * @return \Drupal\Core\Site\Settings
+   * @return \Drupal\Core\Site\Settings\SettingsInterface|null
    */
   public static function getInstance() {
-    return self::$instance;
+    if (static::$instance instanceof PlaceholderSettings) {
+      return NULL;
+    }
+    return static::$instance;
   }
 
   /**
@@ -69,7 +109,7 @@ final class Settings {
    *   The value of the setting, the provided default if not set.
    */
   public static function get($name, $default = NULL) {
-    return isset(self::$instance->storage[$name]) ? self::$instance->storage[$name] : $default;
+    return static::$instance->get($name, $default);
   }
 
   /**
@@ -79,7 +119,7 @@ final class Settings {
    *   All the settings.
    */
   public static function getAll() {
-    return self::$instance->storage;
+    return static::$instance->getAll();
   }
 
   /**
@@ -110,7 +150,7 @@ final class Settings {
     Database::setMultipleConnectionInfo($databases);
 
     // Initialize Settings.
-    new Settings($settings);
+    static::setCreateInstance($settings);
   }
 
   /**
@@ -122,15 +162,7 @@ final class Settings {
    * @throws \RuntimeException
    */
   public static function getHashSalt() {
-    $hash_salt = self::$instance->get('hash_salt');
-    // This should never happen, as it breaks user logins and many other
-    // services. Therefore, explicitly notify the user (developer) by throwing
-    // an exception.
-    if (empty($hash_salt)) {
-      throw new \RuntimeException('Missing $settings[\'hash_salt\'] in settings.php.');
-    }
-
-    return $hash_salt;
+    return static::$instance->getHashSalt();
   }
 
 }

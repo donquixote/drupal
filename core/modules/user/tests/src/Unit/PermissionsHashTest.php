@@ -67,7 +67,7 @@ class PermissionsHashTest extends UnitTestCase {
   protected function setUp() {
     parent::setUp();
 
-    new Settings(array('hash_salt' => 'test'));
+    Settings::setCreateInstance(array('hash_salt' => 'test'));
 
     // Account 1: 'administrator' and 'authenticated' roles.
     $roles_1 = array('administrator', 'authenticated');

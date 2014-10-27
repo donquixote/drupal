@@ -53,7 +53,7 @@ class TestRunnerKernel extends DrupalKernel {
   public function boot() {
     // Ensure that required Settings exist.
     if (!Settings::getAll()) {
-      new Settings(array(
+      Settings::setCreateInstance(array(
         'hash_salt' => 'run-tests',
         // If there is no settings.php, then there is no parent site. In turn,
         // there is no public files directory; use a custom public files path.

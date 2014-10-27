@@ -161,7 +161,7 @@ abstract class KernelTestBase extends TestBase {
     // Restore and merge settings.
     // DrupalKernel::boot() initializes new Settings, and the containerBuild()
     // method sets additional settings.
-    new Settings($settings + Settings::getAll());
+    Settings::setCreateInstance($settings + Settings::getAll());
 
     // Set the request scope.
     $this->container = $this->kernel->getContainer();

@@ -10,7 +10,7 @@ namespace Drupal\Core\Cache;
 /**
  * Defines the cache backend factory.
  */
-use Drupal\Core\Site\Settings;
+use Drupal\Core\Site\Settings\SettingsInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -22,7 +22,7 @@ class CacheFactory implements CacheFactoryInterface,  ContainerAwareInterface {
   /**
    * The settings array.
    *
-   * @var \Drupal\Core\Site\Settings
+   * @var \Drupal\Core\Site\Settings\SettingsInterface
    */
   protected $settings;
 
@@ -42,13 +42,13 @@ class CacheFactory implements CacheFactoryInterface,  ContainerAwareInterface {
   /**
    * Constructs CacheFactory object.
    *
-   * @param \Drupal\Core\Site\Settings $settings
+   * @param \Drupal\Core\Site\Settings\SettingsInterface $settings
    *   The settings array.
    * @param array $default_bin_backends
    *   (optional) A mapping of bin to backend service name. Mappings in
    *   $settings take precedence over this.
    */
-  public function __construct(Settings $settings, array $default_bin_backends = array()) {
+  public function __construct(SettingsInterface $settings, array $default_bin_backends = array()) {
     $this->settings = $settings;
     $this->defaultBinBackends = $default_bin_backends;
   }

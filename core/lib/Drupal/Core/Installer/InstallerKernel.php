@@ -9,7 +9,6 @@ namespace Drupal\Core\Installer;
 
 use Drupal\Core\DependencyInjection\ContainerBuilder;
 use Drupal\Core\DrupalKernel;
-use Drupal\Core\Site\Settings;
 use Symfony\Component\DependencyInjection\Exception\RuntimeException;
 
 /**

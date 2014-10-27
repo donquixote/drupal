@@ -9,7 +9,7 @@ namespace Drupal\update\Access;
 
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Routing\Access\AccessInterface;
-use Drupal\Core\Site\Settings;
+use Drupal\Core\Site\Settings\SettingsInterface;
 
 /**
  * Determines whether allow authorized operations is set.
@@ -19,17 +19,17 @@ class UpdateManagerAccessCheck implements AccessInterface {
   /**
    * Settings Service.
    *
-   * @var \Drupal\Core\Site\Settings
+   * @var \Drupal\Core\Site\Settings\SettingsInterface
    */
   protected $settings;
 
   /**
    * Constructs a UpdateManagerAccessCheck object.
    *
-   * @param \Drupal\Core\Site\Settings $settings
+   * @param \Drupal\Core\Site\Settings\SettingsInterface $settings
    *   The read-only settings container.
    */
-  public function __construct(Settings $settings) {
+  public function __construct(SettingsInterface $settings) {
     $this->settings = $settings;
   }
 

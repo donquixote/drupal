@@ -11,7 +11,7 @@ use Drupal\Component\Utility\Crypt;
 use Drupal\Core\Database\Connection;
 use Drupal\Core\Session\AnonymousUserSession;
 use Drupal\Core\Session\SessionHandler;
-use Drupal\Core\Site\Settings;
+use Drupal\Core\Site\Settings\SettingsInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\Storage\Handler\WriteCheckSessionHandler;
 use Symfony\Component\HttpFoundation\Session\Storage\NativeSessionStorage;
@@ -84,10 +84,10 @@ class SessionManager extends NativeSessionStorage implements SessionManagerInter
    *   The database connection.
    * @param \Drupal\Core\Session\MetadataBag $metadata_bag
    *   The session metadata bag.
-   * @param \Drupal\Core\Site\Settings $settings
+   * @param \Drupal\Core\Site\Settings\SettingsInterface $settings
    *   The settings instance.
    */
-  public function __construct(RequestStack $request_stack, Connection $connection, MetadataBag $metadata_bag, Settings $settings) {
+  public function __construct(RequestStack $request_stack, Connection $connection, MetadataBag $metadata_bag, SettingsInterface $settings) {
     $options = array();
     $this->requestStack = $request_stack;
     $this->connection = $connection;

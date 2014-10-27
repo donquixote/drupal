@@ -1090,7 +1090,7 @@ abstract class TestBase {
     conf_path(FALSE, TRUE);
 
     // Reset settings.
-    new Settings(array(
+    Settings::setCreateInstance(array(
       // For performance, simply use the database prefix as hash salt.
       'hash_salt' => $this->databasePrefix,
     ));
@@ -1179,7 +1179,7 @@ abstract class TestBase {
     // Restore original in-memory configuration.
     $GLOBALS['config'] = $this->originalConfig;
     $GLOBALS['conf'] = $this->originalConf;
-    new Settings($this->originalSettings);
+    Settings::setCreateInstance($this->originalSettings);
 
     // Restore original statics and globals.
     \Drupal::setContainer($this->originalContainer);
@@ -1279,7 +1279,7 @@ abstract class TestBase {
   protected function settingsSet($name, $value) {
     $settings = Settings::getAll();
     $settings[$name] = $value;
-    new Settings($settings);
+    Settings::setCreateInstance($settings);
   }
 
   /**

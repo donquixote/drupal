@@ -7,7 +7,7 @@
 
 namespace Drupal\Core\Queue;
 
-use Drupal\Core\Site\Settings;
+use Drupal\Core\Site\Settings\SettingsInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 
@@ -28,15 +28,17 @@ class QueueFactory implements ContainerAwareInterface {
   /**
    * The settings object.
    *
-   * @var \Drupal\Core\Site\Settings
+   * @var \Drupal\Core\Site\Settings\SettingsInterface
    */
   protected $settings;
 
-
   /**
    * Constructs a queue factory.
+   *
+   * @param \Drupal\Core\Site\Settings\SettingsInterface $settings
+   *   The settings object.
    */
-  function __construct(Settings $settings) {
+  function __construct(SettingsInterface $settings) {
     $this->settings = $settings;
   }
 

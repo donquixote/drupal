@@ -6,7 +6,8 @@
  */
 
 namespace Drupal\Core\Cache;
-use Drupal\Core\Site\Settings;
+
+use Drupal\Core\Site\Settings\SettingsInterface;
 use Symfony\Component\DependencyInjection\ContainerAwareTrait;
 
 /**
@@ -33,7 +34,7 @@ class ChainedFastBackendFactory implements CacheFactoryInterface {
   /**
    * Constructs ChainedFastBackendFactory object.
    *
-   * @param \Drupal\Core\Site\Settings|NULL $settings
+   * @param \Drupal\Core\Site\Settings\SettingsInterface|NULL $settings
    *   (optional) The settings object.
    * @param string|NULL $consistent_service_name
    *   (optional) The service name of the consistent backend factory. Defaults
@@ -45,7 +46,7 @@ class ChainedFastBackendFactory implements CacheFactoryInterface {
    *   - 'cache.backend.apcu' (if the PHP process has APCu enabled)
    *   - NULL (if the PHP process doesn't have APCu enabled)
    */
-  public function __construct(Settings $settings = NULL, $consistent_service_name = NULL, $fast_service_name = NULL) {
+  public function __construct(SettingsInterface $settings = NULL, $consistent_service_name = NULL, $fast_service_name = NULL) {
     // Default the consistent backend to the site's default backend.
     if (!isset($consistent_service_name)) {
       $cache_settings = isset($settings) ? $settings->get('cache') : array();
