@@ -116,7 +116,7 @@ abstract class Connection implements \Serializable {
    *
    * Set to NULL when the schema is destroyed.
    *
-   * @var \Drupal\Core\Database\Schema|Null
+   * @var \Drupal\Core\Database\Schema|null
    */
   protected $schema = NULL;
 
