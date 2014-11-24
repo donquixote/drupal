@@ -27,7 +27,7 @@ abstract class Connection implements \Serializable {
    *
    * We need this information for later auditing and logging.
    *
-   * @var string
+   * @var string|null
    */
   protected $target = NULL;
 
@@ -370,8 +370,8 @@ abstract class Connection implements \Serializable {
   /**
    * Returns the target this connection is associated with.
    *
-   * @return string
-   *   The target string of this connection.
+   * @return string|null
+   *   The target string of this connection, or NULL if no target is set.
    */
   public function getTarget() {
     return $this->target;
