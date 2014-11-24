@@ -38,7 +38,7 @@ abstract class Connection implements \Serializable {
    * connection can be a single server or a cluster of primary and replicas
    * (use target to pick between primary and replica).
    *
-   * @var string
+   * @var string|null
    */
   protected $key = NULL;
 
@@ -392,8 +392,8 @@ abstract class Connection implements \Serializable {
   /**
    * Returns the key this connection is associated with.
    *
-   * @return string
-   *   The key of this connection.
+   * @return string|null
+   *   The key of this connection, or NULL if no key is set.
    */
   public function getKey() {
     return $this->key;
