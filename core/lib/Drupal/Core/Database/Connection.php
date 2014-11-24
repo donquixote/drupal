@@ -265,7 +265,7 @@ abstract class Connection implements \Serializable {
   /**
    * Set the list of prefixes used by this database connection.
    *
-   * @param $prefix
+   * @param mixed $prefix
    *   The prefixes, in any of the multiple forms documented in
    *   default.settings.php.
    */
@@ -665,11 +665,11 @@ abstract class Connection implements \Serializable {
   /**
    * Prepares and returns a SELECT query object.
    *
-   * @param $table
+   * @param string $table
    *   The base table for this query, that is, the first table in the FROM
    *   clause. This table will also be used as the "base" table for query_alter
    *   hook implementations.
-   * @param $alias
+   * @param string|null $alias
    *   The alias of the base table of this query.
    * @param $options
    *   An array of options on the query.
@@ -852,7 +852,7 @@ abstract class Connection implements \Serializable {
    * DatabaseConnection::escapeTable(), this doesn't allow the period (".")
    * because that is not allowed in aliases.
    *
-   * @param $field
+   * @param string $field
    *   An unsanitized alias name.
    *
    * @return string
@@ -902,7 +902,10 @@ abstract class Connection implements \Serializable {
   }
 
   /**
-   * Determines current transaction depth.
+   * Determines the current transaction depth.
+   *
+   * @return int
+   *   The current transaction depth.
    */
   public function transactionDepth() {
     return count($this->transactionLayers);
@@ -911,7 +914,7 @@ abstract class Connection implements \Serializable {
   /**
    * Returns a new DatabaseTransaction object on this connection.
    *
-   * @param $name
+   * @param string $name
    *   (optional) The name of the savepoint.
    *
    * @return \Drupal\Core\Database\Transaction
@@ -1017,7 +1020,7 @@ abstract class Connection implements \Serializable {
    * back the transaction as necessary. If no transaction is active, we return
    * because the transaction may have manually been rolled back.
    *
-   * @param $name
+   * @param string $name
    *   The name of the savepoint
    *
    * @throws \Drupal\Core\Database\TransactionNoActiveException
@@ -1121,7 +1124,7 @@ abstract class Connection implements \Serializable {
    *   (optional) An associative array of options to control how the query is run. See
    *   the documentation for DatabaseConnection::defaultOptions() for details.
    *
-   * @return
+   * @return string
    *   The name of the temporary table.
    */
   abstract function queryTemporary($query, array $args = array(), array $options = array());
