@@ -45,7 +45,7 @@ abstract class Connection implements \Serializable {
   /**
    * The current database logging object for this connection.
    *
-   * @var Log
+   * @var \Drupal\Core\Database\Log
    */
   protected $logger = NULL;
 
@@ -114,7 +114,9 @@ abstract class Connection implements \Serializable {
   /**
    * The schema object for this connection.
    *
-   * @var object
+   * Set to NULL when the schema is destroyed.
+   *
+   * @var \Drupal\Core\Database\Schema|Null
    */
   protected $schema = NULL;
 
@@ -141,6 +143,14 @@ abstract class Connection implements \Serializable {
 
   /**
    * Constructs a Connection object.
+   *
+   * @param \PDO $connection
+   *   An object of the PDO class representing a database connection.
+   * @param array $connection_options
+   *   An array of options for the connection. May include the following:
+   *   - prefix
+   *   - namespace
+   *   - Other, driver specific options.
    */
   public function __construct(\PDO $connection, array $connection_options) {
     // Initialize and prepare the connection prefix.
@@ -224,7 +234,7 @@ abstract class Connection implements \Serializable {
    *   that behavior and simply return NULL on failure, set this option to
    *   FALSE.
    *
-   * @return
+   * @return array
    *   An array of default query options.
    */
   protected function defaultOptions() {
@@ -244,7 +254,7 @@ abstract class Connection implements \Serializable {
    * is for requesting the connection information of this specific
    * open connection object.
    *
-   * @return
+   * @return array
    *   An array of the connection information. The exact list of
    *   properties is driver-dependent.
    */
@@ -292,10 +302,10 @@ abstract class Connection implements \Serializable {
    * tables, allowing Drupal to coexist with other systems in the same database
    * and/or schema if necessary.
    *
-   * @param $sql
+   * @param string $sql
    *   A string containing a partial or entire SQL query.
    *
-   * @return
+   * @return string
    *   The properly-prefixed string.
    */
   public function prefixTables($sql) {
@@ -307,6 +317,9 @@ abstract class Connection implements \Serializable {
    *
    * This function is for when you want to know the prefix of a table. This
    * is not used in prefixTables due to performance reasons.
+   *
+   * @param string $table
+   *   (optional) The table to find the prefix for.
    */
   public function tablePrefix($table = 'default') {
     if (isset($this->prefixes[$table])) {
@@ -344,8 +357,8 @@ abstract class Connection implements \Serializable {
    * signature. We therefore also ensure that this function is only ever
    * called once.
    *
-   * @param $target
-   *   The target this connection is for. Set to NULL (default) to disable
+   * @param string|null $target
+   *   (optional) The target this connection is for. Set to NULL (default) to disable
    *   logging entirely.
    */
   public function setTarget($target = NULL) {
@@ -357,7 +370,7 @@ abstract class Connection implements \Serializable {
   /**
    * Returns the target this connection is associated with.
    *
-   * @return
+   * @return string
    *   The target string of this connection.
    */
   public function getTarget() {
@@ -367,7 +380,7 @@ abstract class Connection implements \Serializable {
   /**
    * Tells this connection object what its key is.
    *
-   * @param $target
+   * @param string $key
    *   The key this connection is for.
    */
   public function setKey($key) {
@@ -379,7 +392,7 @@ abstract class Connection implements \Serializable {
   /**
    * Returns the key this connection is associated with.
    *
-   * @return
+   * @return string
    *   The key of this connection.
    */
   public function getKey() {
@@ -389,7 +402,7 @@ abstract class Connection implements \Serializable {
   /**
    * Associates a logging object with this connection.
    *
-   * @param $logger
+   * @param \Drupal\Core\Database\Log $logger
    *   The logging object we want to use.
    */
   public function setLogger(Log $logger) {
@@ -413,12 +426,12 @@ abstract class Connection implements \Serializable {
    * This information is exposed to all database drivers, although it is only
    * useful on some of them. This method is table prefix-aware.
    *
-   * @param $table
+   * @param string $table
    *   The table name to use for the sequence.
-   * @param $field
+   * @param string $field
    *   The field name to use for the sequence.
    *
-   * @return
+   * @return string
    *   A table prefix-parsed string for the sequence name.
    */
   public function makeSequenceName($table, $field) {
@@ -430,10 +443,10 @@ abstract class Connection implements \Serializable {
    *
    * The comment string will be sanitized to avoid SQL injection attacks.
    *
-   * @param $comments
+   * @param string[] $comments
    *   An array of query comment strings.
    *
-   * @return
+   * @return string
    *   A sanitized comment string.
    */
   public function makeComment($comments) {
@@ -472,10 +485,10 @@ abstract class Connection implements \Serializable {
    * Unless the comment is sanitised first, the SQL server would drop the
    * node table and ignore the rest of the SQL statement.
    *
-   * @param $comment
+   * @param string $comment
    *   A query comment string.
    *
-   * @return
+   * @return string
    *   A sanitized version of the query comment string.
    */
   protected function filterComment($comment = '') {
@@ -489,7 +502,7 @@ abstract class Connection implements \Serializable {
    * query. All queries executed by Drupal are executed as PDO prepared
    * statements.
    *
-   * @param $query
+   * @param string|\Drupal\Core\Database\StatementInterface $query
    *   The query to execute. In most cases this will be a string containing
    *   an SQL query with placeholders. An already-prepared instance of
    *   StatementInterface may also be passed in order to allow calling
@@ -498,22 +511,24 @@ abstract class Connection implements \Serializable {
    *   It is extremely rare that module code will need to pass a statement
    *   object to this method. It is used primarily for database drivers for
    *   databases that require special LOB field handling.
-   * @param $args
+   * @param array $args
    *   An array of arguments for the prepared statement. If the prepared
    *   statement uses ? placeholders, this array must be an indexed array.
    *   If it contains named placeholders, it must be an associative array.
-   * @param $options
+   * @param array $options
    *   An associative array of options to control how the query is run. See
    *   the documentation for DatabaseConnection::defaultOptions() for details.
    *
-   * @return \Drupal\Core\Database\StatementInterface
-   *   This method will return one of: the executed statement, the number of
-   *   rows affected by the query (not the number matched), or the generated
-   *   insert ID of the last query, depending on the value of
-   *   $options['return']. Typically that value will be set by default or a
-   *   query builder and should not be set by a user. If there is an error,
-   *   this method will return NULL and may throw an exception if
-   *   $options['throw_exception'] is TRUE.
+   * @return \Drupal\Core\Database\StatementInterface|int|null
+   *   Depending on the value of $options['return'], this method will return one
+   *   of:
+   *   - The executed statement,
+   *   - The number of rows affected by the query (not the number matched), or
+   *   - The generated insert ID of the last query.
+   *   Typically, this option will be set by default or by a query builder, and
+   *   should not be set by a user. If there is an error, this method will
+   *   return NULL and may throw an exception if $options['throw_exception'] is
+   *   TRUE.
    *
    * @throws \PDOException
    * @throws \Drupal\Core\Database\IntegrityConstraintViolationException
@@ -581,12 +596,12 @@ abstract class Connection implements \Serializable {
    * Drupal supports an alternate syntax for doing arrays of values. We
    * therefore need to expand them out into a full, executable query string.
    *
-   * @param $query
+   * @param string $query
    *   The query string to modify.
-   * @param $args
+   * @param array $args
    *   The arguments for the query.
    *
-   * @return
+   * @return bool
    *   TRUE if the query was modified, FALSE otherwise.
    */
   protected function expandArguments(&$query, &$args) {
@@ -674,8 +689,10 @@ abstract class Connection implements \Serializable {
   /**
    * Prepares and returns an INSERT query object.
    *
-   * @param $options
-   *   An array of options on the query.
+   * @param string $table
+   *   The table to use for the insert statement.
+   * @param array $options
+   *   (optional) An array of options on the query.
    *
    * @return \Drupal\Core\Database\Query\Insert
    *   A new Insert query object.
@@ -690,8 +707,10 @@ abstract class Connection implements \Serializable {
   /**
    * Prepares and returns a MERGE query object.
    *
-   * @param $options
-   *   An array of options on the query.
+   * @param string $table
+   *   The table to use for the merge statement.
+   * @param array $options
+   *   (optional) An array of options on the query.
    *
    * @return \Drupal\Core\Database\Query\Merge
    *   A new Merge query object.
@@ -707,8 +726,10 @@ abstract class Connection implements \Serializable {
   /**
    * Prepares and returns an UPDATE query object.
    *
-   * @param $options
-   *   An array of options on the query.
+   * @param string $table
+   *   The table to use for the update statement.
+   * @param array $options
+   *   (optional) An array of options on the query.
    *
    * @return \Drupal\Core\Database\Query\Update
    *   A new Update query object.
@@ -723,8 +744,10 @@ abstract class Connection implements \Serializable {
   /**
    * Prepares and returns a DELETE query object.
    *
-   * @param $options
-   *   An array of options on the query.
+   * @param string $table
+   *   The table to use for the delete statement.
+   * @param array $options
+   *   (optional) An array of options on the query.
    *
    * @return \Drupal\Core\Database\Query\Delete
    *   A new Delete query object.
@@ -739,8 +762,10 @@ abstract class Connection implements \Serializable {
   /**
    * Prepares and returns a TRUNCATE query object.
    *
-   * @param $options
-   *   An array of options on the query.
+   * @param string $table
+   *   The table to use for the truncate statement.
+   * @param array $options
+   *   (optional) An array of options on the query.
    *
    * @return \Drupal\Core\Database\Query\Truncate
    *   A new Truncate query object.
@@ -775,8 +800,11 @@ abstract class Connection implements \Serializable {
    * For some database drivers, it may also wrap the database name in
    * database-specific escape characters.
    *
+   * @param string $database
+   *   An unsanitized database name.
+   *
    * @return string
-   *   The sanitized database name string.
+   *   The sanitized database name.
    */
   public function escapeDatabase($database) {
     return preg_replace('/[^A-Za-z0-9_.]+/', '', $database);
@@ -789,8 +817,11 @@ abstract class Connection implements \Serializable {
    * For some database drivers, it may also wrap the table name in
    * database-specific escape characters.
    *
-   * @return
-   *   The sanitized table name string.
+   * @param string $table
+   *   An unsanitized table name.
+   *
+   * @return string
+   *   The sanitized table name.
    */
   public function escapeTable($table) {
     return preg_replace('/[^A-Za-z0-9_.]+/', '', $table);
@@ -803,8 +834,11 @@ abstract class Connection implements \Serializable {
    * For some database drivers, it may also wrap the field name in
    * database-specific escape characters.
    *
-   * @return
-   *   The sanitized field name string.
+   * @param string $field
+   *   An unsanitized field name.
+   *
+   * @return string
+   *   The sanitized field name.
    */
   public function escapeField($field) {
     return preg_replace('/[^A-Za-z0-9_.]+/', '', $field);
@@ -818,8 +852,11 @@ abstract class Connection implements \Serializable {
    * DatabaseConnection::escapeTable(), this doesn't allow the period (".")
    * because that is not allowed in aliases.
    *
-   * @return
-   *   The sanitized field name string.
+   * @param $field
+   *   An unsanitized alias name.
+   *
+   * @return string
+   *   The sanitized alias name.
    */
   public function escapeAlias($field) {
     return preg_replace('/[^A-Za-z0-9_]+/', '', $field);
@@ -844,10 +881,10 @@ abstract class Connection implements \Serializable {
    * Backslash is defined as escape character for LIKE patterns in
    * Drupal\Core\Database\Query\Condition::mapConditionOperator().
    *
-   * @param $string
+   * @param string $string
    *   The string to escape.
    *
-   * @return
+   * @return string
    *   The escaped string.
    */
   public function escapeLike($string) {
@@ -857,7 +894,7 @@ abstract class Connection implements \Serializable {
   /**
    * Determines if there is an active transaction open.
    *
-   * @return
+   * @return bool
    *   TRUE if we're currently in a transaction, FALSE otherwise.
    */
   public function inTransaction() {
@@ -875,7 +912,7 @@ abstract class Connection implements \Serializable {
    * Returns a new DatabaseTransaction object on this connection.
    *
    * @param $name
-   *   Optional name of the savepoint.
+   *   (optional) The name of the savepoint.
    *
    * @return \Drupal\Core\Database\Transaction
    *   A Transaction object.
@@ -892,10 +929,11 @@ abstract class Connection implements \Serializable {
    *
    * This method throws an exception if no transaction is active.
    *
-   * @param $savepoint_name
-   *   The name of the savepoint. The default, 'drupal_transaction', will roll
+   * @param string $savepoint_name
+   *   (optional) The name of the savepoint. The default, 'drupal_transaction', will roll
    *   the entire transaction back.
    *
+   * @throws \Drupal\Core\Database\TransactionOutOfOrderException
    * @throws \Drupal\Core\Database\TransactionNoActiveException
    *
    * @see \Drupal\Core\Database\Transaction::rollback()
@@ -946,6 +984,9 @@ abstract class Connection implements \Serializable {
    * Increases the depth of transaction nesting.
    *
    * If no transaction is already active, we begin a new transaction.
+   *
+   * @param string $name
+   *   The name of the transaction.
    *
    * @throws \Drupal\Core\Database\TransactionNameNonUniqueException
    *
@@ -1033,16 +1074,16 @@ abstract class Connection implements \Serializable {
    * separate parameters so that they can be properly escaped to avoid SQL
    * injection attacks.
    *
-   * @param $query
+   * @param string $query
    *   A string containing an SQL query.
-   * @param $args
-   *   An array of values to substitute into the query at placeholder markers.
-   * @param $from
+   * @param int $from
    *   The first result row to return.
-   * @param $count
+   * @param int $count
    *   The maximum number of result rows to return.
-   * @param $options
-   *   An array of options on the query.
+   * @param array $args
+   *   (optional) An array of values to substitute into the query at placeholder markers.
+   * @param array $options
+   *   (optional) An array of options on the query.
    *
    * @return \Drupal\Core\Database\StatementInterface
    *   A database query result resource, or NULL if the query was not executed
@@ -1053,7 +1094,7 @@ abstract class Connection implements \Serializable {
   /**
    * Generates a temporary table name.
    *
-   * @return
+   * @return string
    *   A table name.
    */
   protected function generateTemporaryTableName() {
@@ -1072,12 +1113,12 @@ abstract class Connection implements \Serializable {
    * Note that if you need to know how many results were returned, you should do
    * a SELECT COUNT(*) on the temporary table afterwards.
    *
-   * @param $query
+   * @param string $query
    *   A string containing a normal SELECT SQL query.
-   * @param $args
-   *   An array of values to substitute into the query at placeholder markers.
-   * @param $options
-   *   An associative array of options to control how the query is run. See
+   * @param array $args
+   *   (optional) An array of values to substitute into the query at placeholder markers.
+   * @param array $options
+   *   (optional) An associative array of options to control how the query is run. See
    *   the documentation for DatabaseConnection::defaultOptions() for details.
    *
    * @return
@@ -1092,6 +1133,8 @@ abstract class Connection implements \Serializable {
    * instance, there could be two MySQL drivers, mysql and mysql_mock. This
    * function would return different values for each, but both would return
    * "mysql" for databaseType().
+   *
+   * @return string
    */
   abstract public function driver();
 
@@ -1105,7 +1148,7 @@ abstract class Connection implements \Serializable {
   /**
    * Determines if this driver supports transactions.
    *
-   * @return
+   * @return bool
    *   TRUE if this connection supports transactions, FALSE otherwise.
    */
   public function supportsTransactions() {
@@ -1117,7 +1160,7 @@ abstract class Connection implements \Serializable {
    *
    * DDL queries are those that change the schema, such as ALTER queries.
    *
-   * @return
+   * @return bool
    *   TRUE if this connection supports transactions for DDL queries, FALSE
    *   otherwise.
    */
@@ -1149,7 +1192,7 @@ abstract class Connection implements \Serializable {
    * overridable lookup function. Database connections should define only
    * those operators they wish to be handled differently than the default.
    *
-   * @param $operator
+   * @param string $operator
    *   The condition operator, such as "IN", "BETWEEN", etc. Case-sensitive.
    *
    * @return
@@ -1184,7 +1227,7 @@ abstract class Connection implements \Serializable {
    * value. Or sometimes you just need a unique integer.
    *
    * @param $existing_id
-   *   After a database import, it might be that the sequences table is behind,
+   *   (optional) After a database import, it might be that the sequences table is behind,
    *   so by passing in the maximum existing id, it can be assured that we
    *   never issue the same id.
    *
