@@ -516,22 +516,35 @@ abstract class Connection implements \Serializable {
    *   statement uses ? placeholders, this array must be an indexed array.
    *   If it contains named placeholders, it must be an associative array.
    * @param array $options
-   *   An associative array of options to control how the query is run. See
-   *   the documentation for DatabaseConnection::defaultOptions() for details.
+   *   An associative array of options to control how the query is run. The
+   *   given options will be merged with self::defaultOptions(). See the
+   *   documentation for self::defaultOptions() for details.
+   *   Typically, $options['return'] will be set by a default or by a query
+   *   builder, and should not be set by a user.
    *
    * @return \Drupal\Core\Database\StatementInterface|int|null
-   *   Depending on the value of $options['return'], this method will return one
-   *   of:
-   *   - The executed statement,
-   *   - The number of rows affected by the query (not the number matched), or
-   *   - The generated insert ID of the last query.
-   *   Typically, this option will be set by default or by a query builder, and
-   *   should not be set by a user. If there is an error, this method will
-   *   return NULL and may throw an exception if $options['throw_exception'] is
-   *   TRUE.
+   *   If no exception occurs during query execution, this method will return
+   *   one of:
+   *   - the executed statement, if
+   *     $options['return'] === self::RETURN_STATEMENT, or if
+   *     $options['return'] is not set (due to self::defaultOptions()).
+   *   - the number of rows affected by the query (not the number matched), if
+   *     $options['return'] === self::RETURN_AFFECTED.
+   *   - the generated insert ID of the last query, if
+   *     $options['return'] === self::RETURN_INSERT_ID.
+   *   - NULL, if
+   *     $options['return'] === self::RETURN_NULL.
+   *   If an exception occurs during query execution, this method will
+   *   - throw an exception, if
+   *     $options['throw_exception'] evaluates to TRUE, or
+   *     $options['throw_exception'] is not set (due to self::defaultOptions()).
+   *   - return NULL, if
+   *     $options['throw_exception'] evaluates to FALSE.
    *
    * @throws \PDOException
    * @throws \Drupal\Core\Database\IntegrityConstraintViolationException
+   *
+   * @see \Drupal\Core\Database\Connection::defaultOptions()
    */
   public function query($query, array $args = array(), $options = array()) {
 
