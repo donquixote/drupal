@@ -45,7 +45,7 @@ abstract class Connection implements \Serializable {
   /**
    * The current database logging object for this connection.
    *
-   * @var \Drupal\Core\Database\Log
+   * @var \Drupal\Core\Database\Log|null
    */
   protected $logger = NULL;
 
@@ -412,7 +412,7 @@ abstract class Connection implements \Serializable {
   /**
    * Gets the current logging object for this connection.
    *
-   * @return \Drupal\Core\Database\Log
+   * @return \Drupal\Core\Database\Log|null
    *   The current logging object for this connection. If there isn't one,
    *   NULL is returned.
    */
