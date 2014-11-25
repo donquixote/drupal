@@ -43,18 +43,12 @@ class DrupalContainerNotInitializedTest extends \PHPUnit_Framework_TestCase {
    *   The static method to call on \Drupal::
    * @param array $args
    *   Arguments to pass into \Drupal::$method(..)
+   *
+   * @expectedException \Drupal\Core\DependencyInjection\ContainerNotInitializedException
+   * @expectedExceptionMessage \Drupal::$container is not initialized yet. \Drupal::setContainer() must be called with a real container.
    */
   public function testContainerNotInitializedException($method, $args = array()) {
-    try {
-      call_user_func_array(['Drupal', $method], $args);
-    }
-    catch (ContainerNotInitializedException $e) {
-      $this->assertEquals(
-        '\Drupal::$container is not initialized yet. \Drupal::setContainer() must be called with a real container.',
-        $e->getMessage());
-      return;
-    }
-    $this->fail('\Drupal::service() should trigger an exception, if no container is available.');
+    call_user_func_array(['Drupal', $method], $args);
   }
 
   /**
@@ -84,17 +78,13 @@ class DrupalContainerNotInitializedTest extends \PHPUnit_Framework_TestCase {
    *   The static method to call on \Drupal::
    * @param array $args
    *   Arguments to pass into \Drupal::$method(..)
+   *
+   * @expectedException \Drupal\Core\DependencyInjection\ContainerNotInitializedException
+   * @expectedExceptionMessage Custom exception message.
    */
   public function testUnsetContainerException($method, $args = array()) {
-    try {
-      \Drupal::unsetContainer(__METHOD__);
-      call_user_func_array(['Drupal', $method], $args);
-    }
-    catch (ContainerNotInitializedException $e) {
-      $this->assertEquals(__METHOD__, $e->getMessage());
-      return;
-    }
-    $this->fail('\Drupal::service() should trigger an exception, if no container is available.');
+    \Drupal::unsetContainer('Custom exception message.');
+    call_user_func_array(['Drupal', $method], $args);
   }
 
   /**
