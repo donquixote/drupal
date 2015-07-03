@@ -105,6 +105,7 @@ class Element {
       $children += $weight_elements;
     }
     $elements += $children;
+    $elements['#sorted'] = TRUE;
     return array_keys($children);
   }
 
