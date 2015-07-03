@@ -70,56 +70,42 @@ class Element {
    * @param bool $sort
    *   Boolean to indicate whether the children should be sorted by weight.
    *
-   * @return array
+   * @return string[]
    *   The array keys of the element's children.
    */
   public static function children(array &$elements, $sort = FALSE) {
     // Do not attempt to sort elements which have already been sorted.
-    $sort = isset($elements['#sorted']) ? !$elements['#sorted'] : $sort;
+    if (isset($element['#sorted']) ? $element['#sorted'] : !$sort) {
+      // Fast-pass: Just collect the keys, don't sort.
+      $child_keys = array();
+      foreach ($elements as $key => $value) {
+        if ($key === '' || $key[0] !== '#') {
+          $child_keys[] = $key;
+        }
+      }
+      return $child_keys;
+    }
 
-    // Filter out properties from the element, leaving only children.
-    $count = count($elements);
-    $child_weights = array();
-    $i = 0;
-    $sortable = FALSE;
+    $grouped = array();
     foreach ($elements as $key => $value) {
       if ($key === '' || $key[0] !== '#') {
         if (is_array($value)) {
-          if (isset($value['#weight'])) {
-            $weight = $value['#weight'];
-            $sortable = TRUE;
-          }
-          else {
-            $weight = 0;
-          }
-          // Supports weight with up to three digit precision and conserve
-          // the insertion order.
-          $child_weights[$key] = floor($weight * 1000) + $i / $count;
+          $weight = isset($value['#weight']) ? $value['#weight'] : 0;
+          $grouped[$weight][$key] = $value;
+          unset($elements[$key]);
         }
-        // Only trigger an error if the value is not null.
-        // @see https://www.drupal.org/node/1283892
         elseif (isset($value)) {
           trigger_error(SafeMarkup::format('"@key" is an invalid render array key', array('@key' => $key)), E_USER_ERROR);
         }
       }
-      $i++;
     }
-
-    // Sort the children if necessary.
-    if ($sort && $sortable) {
-      asort($child_weights);
-      // Put the sorted children back into $elements in the correct order, to
-      // preserve sorting if the same element is passed through
-      // \Drupal\Core\Render\Element::children() twice.
-      foreach ($child_weights as $key => $weight) {
-        $value = $elements[$key];
-        unset($elements[$key]);
-        $elements[$key] = $value;
-      }
-      $elements['#sorted'] = TRUE;
+    ksort($grouped);
+    $children = array();
+    foreach ($grouped as $weight => $weight_elements) {
+      $children += $weight_elements;
     }
-
-    return array_keys($child_weights);
+    $elements += $children;
+    return array_keys($children);
   }
 
   /**
