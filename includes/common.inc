@@ -7383,6 +7383,18 @@ function drupal_write_record($table, &$record, $primary_keys = array()) {
   }
   else {
     $query = db_update($table)->fields($fields);
+    // Only update rows with actual changes.
+    $or = db_or();
+    foreach ($fields as $field => $value) {
+      if ($value !== NULL) {
+        $or->condition($field, $value, '!=');
+        $or->isNull($field);
+      }
+      else {
+        $or->isNotNull($field);
+      }
+      $query->condition($or);
+    }
     foreach ($primary_keys as $key) {
       $query->condition($key, $object->$key);
     }
