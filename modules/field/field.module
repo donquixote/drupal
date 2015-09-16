@@ -454,6 +454,10 @@ function field_associate_fields($module) {
     db_update('field_config')
       ->fields(array('module' => $module, 'active' => 1))
       ->condition('type', array_keys($field_types))
+      ->condition(db_or()
+        ->condition('module', $module, '!=')
+        ->condition('active', 1, '!=')
+      )
       ->execute();
   }
   // Associate storage backends.
