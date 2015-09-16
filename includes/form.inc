@@ -2922,6 +2922,11 @@ function form_get_options($element, $key) {
  */
 function theme_fieldset($variables) {
   $element = $variables['element'];
+
+  if (isset($element['#attributes']['class']) && !is_array($element['#attributes']['class'])) {
+    dpm($element, __FUNCTION__);
+  }
+
   element_set_attributes($element, array('id'));
   _form_set_class($element, array('form-wrapper'));
 
@@ -3414,6 +3419,10 @@ function theme_container($variables) {
       $element['#attributes']['id'] = $element['#id'];
     }
     // Add the 'form-wrapper' class.
+    if (isset($element['#attributes']['class']) && !is_array($element['#attributes']['class'])) {
+      dpm(ddebug_backtrace(TRUE));
+      $element['#attributes']['class'] = array($element['#attributes']['class']);
+    }
     $element['#attributes']['class'][] = 'form-wrapper';
   }
 
