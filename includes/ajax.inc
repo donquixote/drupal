@@ -332,7 +332,10 @@ function ajax_get_form() {
     // system/ajax without actually viewing the concerned form in the browser.
     // This is likely a hacking attempt as it never happens under normal
     // circumstances, so we just do nothing.
-    watchdog('ajax', 'Invalid form POST data.', array(), WATCHDOG_WARNING);
+    if (user_access('administer site configuration')) {
+      drupal_set_message(t('No form data for @id found in cache.', array('@id' => $form_build_id)), 'warning');
+    }
+    watchdog('ajax', 'Invalid form POST data for @id.', array('@id' => $form_build_id), WATCHDOG_WARNING);
     drupal_exit();
   }
 
