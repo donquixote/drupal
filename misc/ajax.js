@@ -507,6 +507,10 @@ Drupal.ajax.prototype.commands = {
     // our presets.
     var wrapper = response.selector ? $(response.selector) : $(ajax.wrapper);
     var method = response.method || ajax.method;
+    console.log('WRAPPER', wrapper);
+    console.log('METHOD', method);
+    console.log('RESPONSE', response);
+    console.log('AJAX', ajax);
     var effect = ajax.getEffect(response);
 
     // We don't know what response.data contains: it might be a string of text
