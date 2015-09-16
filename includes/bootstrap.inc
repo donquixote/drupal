@@ -2095,6 +2095,10 @@ function drupal_set_message($message = NULL, $type = 'status', $repeat = TRUE) {
  * @see theme_status_messages()
  */
 function drupal_get_messages($type = NULL, $clear_queue = TRUE) {
+  if ('system/ajax' === $_GET['q'] || 0 === strpos($_GET['q'], 'js')) {
+    return array();
+    # $clear_queue = FALSE;
+  }
   if ($messages = drupal_set_message()) {
     if ($type) {
       if ($clear_queue) {
