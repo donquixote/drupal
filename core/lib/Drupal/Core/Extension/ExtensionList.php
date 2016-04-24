@@ -9,7 +9,7 @@ use Drupal\Core\Cache\CacheBackendInterface;
  *
  * The extension list is per extension type, like module theme and profile.
  */
-abstract class ExtensionList {
+abstract class ExtensionList implements ExtensionListInterface {
 
   /**
    * The type of the extension, such as "module" or "theme".
