@@ -18,7 +18,7 @@ use Symfony\Component\HttpFoundation\Request;
  * to your settings.php.
  *
  */
-class ExtensionDiscovery {
+class ExtensionDiscovery implements ExtensionDiscoveryInterface {
 
   /**
    * Origin directory weight: Core.
