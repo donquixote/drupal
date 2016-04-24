@@ -21,8 +21,6 @@ class GetFilenameUnitTest extends KernelTestBase {
     $install_state['parameters']['profile'] = 'testing';
 
     // Rebuild system.module.files state data.
-    // @todo Remove as part of https://www.drupal.org/node/2186491
-    drupal_static_reset('system_rebuild_module_data');
     system_rebuild_module_data();
 
     // Retrieving the location of a module.

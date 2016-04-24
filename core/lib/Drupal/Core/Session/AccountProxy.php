@@ -45,6 +45,13 @@ class AccountProxy implements AccountProxyInterface {
   /**
    * {@inheritdoc}
    */
+  public function hasAccount() {
+    return isset($this->account);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function getAccount() {
     if (!isset($this->account)) {
       if ($this->initialAccountId) {

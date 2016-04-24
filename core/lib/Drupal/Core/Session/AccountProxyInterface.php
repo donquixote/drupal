@@ -6,6 +6,7 @@ namespace Drupal\Core\Session;
  * Defines an interface for a service which has the current account stored.
  *
  * @ingroup user_api
+ * @internal
  */
 interface AccountProxyInterface extends AccountInterface {
 
@@ -42,5 +43,13 @@ interface AccountProxyInterface extends AccountInterface {
    *   The id of the initial account.
    */
   public function setInitialAccountId($account_id);
+
+  /**
+   * Checks whether an account is currently wrapped.
+   *
+   * @return bool
+   *   TRUE, if an account is currently wrapped. FALSE otherwise.
+   */
+  public function hasAccount();
 
 }

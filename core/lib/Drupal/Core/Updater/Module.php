@@ -49,8 +49,7 @@ class Module extends Updater implements UpdaterInterface {
   public function isInstalled() {
     // Check if the module exists in the file system, regardless of whether it
     // is enabled or not.
-    $modules = \Drupal::state()->get('system.module.files', array());
-    return isset($modules[$this->name]);
+    return \Drupal::service('extension.list.module')->extensionExists($this->name);
   }
 
   /**
