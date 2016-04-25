@@ -56,7 +56,7 @@ abstract class ExtensionList implements ExtensionListInterface {
   /**
    * The statically cached extensions.
    *
-   * @var \Drupal\Core\Extension\Extension[]
+   * @var \Drupal\Core\Extension\Extension[]|null
    */
   protected $extensions;
 
