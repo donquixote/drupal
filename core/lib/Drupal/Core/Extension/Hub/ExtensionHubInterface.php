@@ -1,15 +1,20 @@
 <?php
-namespace Drupal\Core\Extension;
+namespace Drupal\Core\Extension\Hub;
+
+use Drupal\Core\Extension\FilenameList\ExtensionFilenameListInterface;
+use Drupal\Core\Extension\InfoList\ExtensionInfoListInterface;
+use Drupal\Core\Extension\List_\ExtensionListInterface;
 
 /**
- * Provides available extensions.
- *
- * The extension list is per extension type, like module theme and profile.
+ * Provides various information about available extensions, for a specific
+ * extension type (e.g. 'module', 'theme' or 'profile').
  */
-interface ExtensionListInterface {
+interface ExtensionHubInterface extends ExtensionListInterface, ExtensionFilenameListInterface, ExtensionInfoListInterface {
 
   /**
-   * Resets the stored extension list.
+   * Resets any stored or buffered data.
+   *
+   * @return $this
    */
   public function reset();
 
@@ -52,13 +57,6 @@ interface ExtensionListInterface {
   public function nameGetExtension($name);
 
   /**
-   * Returns all available extensions.
-   *
-   * @return \Drupal\Core\Extension\Extension[]
-   */
-  public function listExtensions();
-
-  /**
    * Returns information about a specified extension.
    *
    * This function returns the contents of the .info.yml file for the specified
@@ -75,25 +73,6 @@ interface ExtensionListInterface {
    *   If there is no extension with the supplied name.
    */
   public function nameGetInfo($extension_name);
-
-  /**
-   * Returns an array of information about enabled modules or themes.
-   *
-   * This function returns the contents of the .info.yml file for each installed
-   * extension.
-   *
-   * @return array[]
-   *   An associative array of extension information keyed by name. If no
-   *   records are available, an empty array is returned.
-   */
-  public function getAllInfo();
-
-  /**
-   * Returns a list of extension folder names keyed by extension name.
-   *
-   * @return string[]
-   */
-  public function getFilenames();
 
   /**
    * Sets the filename for an extension.

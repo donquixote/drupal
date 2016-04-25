@@ -6,41 +6,37 @@ use Drupal\Component\Serialization\Yaml;
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Extension\Extension;
 use Drupal\Core\Extension\ExtensionDiscovery;
-use Drupal\Core\Extension\ExtensionList;
+use Drupal\Core\Extension\Hub\ExtensionHub;
 use Drupal\Core\Extension\InfoParserInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
+use Drupal\Core\Extension\List_\DiscoveryExtensionListBase;
 use Drupal\Tests\UnitTestCase;
 use org\bovigo\vfs\vfsStream;
 use Prophecy\Argument;
 
 /**
- * @coversDefaultClass \Drupal\Core\Extension\ExtensionList
+ * @coversDefaultClass \Drupal\Core\Extension\Hub\ExtensionHub
  * @group Extension
  */
-class ExtensionListTest extends UnitTestCase {
+class ExtensionHubTest extends UnitTestCase {
 
   /**
    * @covers ::nameGetLabel
    * @expectedException \InvalidArgumentException
    */
   public function testGetNameWithNonExistingExtension() {
-    list($cache, $info_parser, $module_handler) = $this->getMocks();
-    $test_extension_list = new TestExtension($this->root, 'test_extension', $cache->reveal(), $info_parser->reveal(), $module_handler->reveal());
+    $test_extension_hub = $this->setupEmptyTestExtensionHub();
 
-    $extension_discovery = $this->prophesize(ExtensionDiscovery::class);
-    $extension_discovery->scan('test_extension')->willReturn([]);
-    $test_extension_list->setExtensionDiscovery($extension_discovery->reveal());
-
-    $test_extension_list->nameGetLabel('test_name');
+    $test_extension_hub->nameGetLabel('test_name');
   }
 
   /**
    * @covers ::nameGetLabel
    */
   public function testGetName() {
-    $test_extension_list = $this->setupTestExtensionList();
+    $test_extension_hub = $this->setupTestExtensionHub();
 
-    static::assertEquals('test name', $test_extension_list->nameGetLabel('test_name'));
+    static::assertEquals('test name', $test_extension_hub->nameGetLabel('test_name'));
   }
 
   /**
@@ -48,23 +44,18 @@ class ExtensionListTest extends UnitTestCase {
    * @expectedException \InvalidArgumentException
    */
   public function testGetExtensionWithNonExistingExtension() {
-    list($cache, $info_parser, $module_handler) = $this->getMocks();
-    $test_extension_list = new TestExtension($this->root, 'test_extension', $cache->reveal(), $info_parser->reveal(), $module_handler->reveal());
+    $test_extension_hub = $this->setupEmptyTestExtensionHub();
 
-    $extension_discovery = $this->prophesize(ExtensionDiscovery::class);
-    $extension_discovery->scan('test_extension')->willReturn([]);
-    $test_extension_list->setExtensionDiscovery($extension_discovery->reveal());
-
-    $test_extension_list->nameGetExtension('test_name');
+    $test_extension_hub->nameGetExtension('test_name');
   }
 
   /**
    * @covers ::nameGetExtension
    */
   public function testGetExtension() {
-    $test_extension_list = $this->setupTestExtensionList();
+    $test_extension_hub = $this->setupTestExtensionHub();
 
-    $extension = $test_extension_list->nameGetExtension('test_name');
+    $extension = $test_extension_hub->nameGetExtension('test_name');
     static::assertInstanceOf(Extension::class, $extension);
     static::assertEquals('test_name', $extension->getName());
   }
@@ -73,7 +64,7 @@ class ExtensionListTest extends UnitTestCase {
    * @covers ::listExtensions
    */
   public function testListExtensions() {
-    $test_extension_list = $this->setupTestExtensionList();
+    $test_extension_list = $this->setupTestExtensionHub();
 
     $extensions = $test_extension_list->listExtensions();
     static::assertCount(1, $extensions);
@@ -85,7 +76,7 @@ class ExtensionListTest extends UnitTestCase {
    * @covers ::getAllInfo
    */
   public function testGetInfo() {
-    $test_extension_list = $this->setupTestExtensionList();
+    $test_extension_list = $this->setupTestExtensionHub();
 
     $info = $test_extension_list->nameGetInfo('test_name');
     static::assertEquals([
@@ -100,7 +91,7 @@ class ExtensionListTest extends UnitTestCase {
    * @covers ::getAllInfo
    */
   public function testGetAllInfo() {
-    $test_extension_list = $this->setupTestExtensionList();
+    $test_extension_list = $this->setupTestExtensionHub();
 
     $infos = $test_extension_list->getAllInfo();
     static::assertEquals(['test_name' => [
@@ -115,7 +106,7 @@ class ExtensionListTest extends UnitTestCase {
    * @covers ::getFilenames
    */
   public function testGetFilenames() {
-    $test_extension_list = $this->setupTestExtensionList();
+    $test_extension_list = $this->setupTestExtensionHub();
 
     $filenames = $test_extension_list->getFilenames();
     static::assertEquals([
@@ -127,7 +118,7 @@ class ExtensionListTest extends UnitTestCase {
    * @covers ::nameGetFilename
    */
   public function testGetFilename() {
-    $test_extension_list = $this->setupTestExtensionList();
+    $test_extension_list = $this->setupTestExtensionHub();
 
     $filename = $test_extension_list->nameGetFilename('test_name');
     static::assertEquals('vfs://drupal_root/example/test_name/test_name.info.yml', $filename);
@@ -139,7 +130,7 @@ class ExtensionListTest extends UnitTestCase {
    * @covers ::nameGetFilename
    */
   public function testSetFilename() {
-    $test_extension_list = $this->setupTestExtensionList();
+    $test_extension_list = $this->setupTestExtensionHub();
 
     $test_extension_list->nameSetFilename('test_name', 'vfs://drupal_root/example2/test_name/test_name.info.yml');
     static::assertEquals('vfs://drupal_root/example2/test_name/test_name.info.yml', $test_extension_list->nameGetFilename('test_name'));
@@ -149,16 +140,35 @@ class ExtensionListTest extends UnitTestCase {
    * @covers ::nameGetPath
    */
   public function testGetPath() {
-    $test_extension_list = $this->setupTestExtensionList();
+    $test_extension_list = $this->setupTestExtensionHub();
 
     $path = $test_extension_list->nameGetPath('test_name');
     static::assertEquals('vfs://drupal_root/example/test_name', $path);
   }
 
   /**
-   * @return \Drupal\Tests\Core\Extension\TestExtension
+   * @return \Drupal\Core\Extension\Hub\ExtensionHubInterface
    */
-  protected function setupTestExtensionList() {
+  protected function setupEmptyTestExtensionHub() {
+    list($cache, $info_parser, $module_handler) = $this->getMocks();
+
+    $extension_discovery = $this->prophesize(ExtensionDiscovery::class);
+    $extension_discovery->scan('test_extension')->willReturn([]);
+
+    return ExtensionHub::create(
+      'test_extension',
+      TestExtensionList::create(
+        'test_extension',
+        $info_parser->reveal(),
+        $module_handler->reveal(),
+        $extension_discovery->reveal()),
+      $cache->reveal());
+  }
+
+  /**
+   * @return \Drupal\Core\Extension\Hub\ExtensionHubInterface
+   */
+  protected function setupTestExtensionHub() {
     vfsStream::setup('drupal_root');
     vfsStream::create([
       'example' => [
@@ -178,12 +188,17 @@ class ExtensionListTest extends UnitTestCase {
       return Yaml::decode(file_get_contents($args[0]));
     });
 
-    $test_extension_list = new TestExtension('vfs://drupal_root', 'test_extension', $cache->reveal(), $info_parser->reveal(), $module_handler->reveal());
-
     $extension_discovery = $this->prophesize(ExtensionDiscovery::class);
     $extension_discovery->scan('test_extension')->willReturn(['test_name' => new Extension($this->root, 'test_extension', 'vfs://drupal_root/example/test_name/test_name.info.yml')]);
-    $test_extension_list->setExtensionDiscovery($extension_discovery->reveal());
-    return $test_extension_list;
+
+    return ExtensionHub::create(
+      'test_extension',
+      TestExtensionList::create(
+        'test_extension',
+        $info_parser->reveal(),
+        $module_handler->reveal(),
+        $extension_discovery->reveal()),
+      $cache->reveal());
   }
 
   protected function getMocks() {
@@ -195,10 +210,28 @@ class ExtensionListTest extends UnitTestCase {
 
 }
 
-class TestExtension extends ExtensionList {
+class TestExtensionList extends DiscoveryExtensionListBase {
 
-  public function setExtensionDiscovery(ExtensionDiscovery $extension_discovery) {
-    $this->extensionDiscovery = $extension_discovery;
+  /**
+   * @param string $type
+   * @param \Drupal\Core\Extension\InfoParserInterface $info_parser
+   * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
+   * @param \Drupal\Core\Extension\ExtensionDiscovery $extension_discovery
+   *
+   * @return \Drupal\Core\Extension\List_\ExtensionListInterface
+   */
+  static function create(
+    $type,
+    InfoParserInterface $info_parser,
+    ModuleHandlerInterface $module_handler,
+    ExtensionDiscovery $extension_discovery
+  ) {
+    return new self(
+      $type,
+      $info_parser,
+      $module_handler,
+      $extension_discovery,
+      []);
   }
 
 }

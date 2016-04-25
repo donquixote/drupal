@@ -476,11 +476,13 @@ services:
     arguments: ['@app.root', '@module_handler', '@kernel', '@router.builder']
     lazy: true
   extension.list.module:
-    class: Drupal\Core\Extension\ModuleExtensionList
-    arguments: ['@app.root', 'module', '@cache.default', '@info_parser', '@module_handler', '@config.factory', '@extension.list.profile']
+    class: Drupal\Core\Extension\Hub\ExtensionHubInterface
+    factory: Drupal\Core\Extension\Hub\ExtensionHub::createForModules
+    arguments: ['@app.root', '@info_parser', '@module_handler', '@config.factory', '@extension.list.profile', '@cache.default']
   extension.list.profile:
-    class: Drupal\Core\Extension\ProfileExtensionList
-    arguments: ['@app.root', 'profile', '@cache.default', '@info_parser', '@module_handler']
+    class: Drupal\Core\Extension\Hub\ExtensionHubInterface
+    factory: Drupal\Core\Extension\Hub\ExtensionHub::createForProfiles
+    arguments: ['@app.root', '@info_parser', '@module_handler', '@cache.default']
   content_uninstall_validator:
     class: Drupal\Core\Entity\ContentUninstallValidator
     tags:

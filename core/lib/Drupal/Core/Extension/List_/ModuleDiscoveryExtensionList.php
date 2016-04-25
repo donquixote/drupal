@@ -1,71 +1,81 @@
 <?php
 
-namespace Drupal\Core\Extension;
+namespace Drupal\Core\Extension\List_;
 
-use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Extension\Extension;
+use Drupal\Core\Extension\ExtensionDiscovery;
+use Drupal\Core\Extension\InfoParserInterface;
+use Drupal\Core\Extension\ModuleHandler;
+use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 
-/**
- * Provides a list of available modules.
- */
-class ModuleExtensionList extends ExtensionList {
+class ModuleDiscoveryExtensionList extends DiscoveryExtensionListBase {
 
+  // @todo Use an injected (lazy/proxy) translation service.
   use StringTranslationTrait;
 
   /**
-   * {@inheritdoc}
-   */
-  protected $defaults = [
-    'dependencies' => [],
-    'description' => '',
-    'package' => 'Other',
-    'version' => NULL,
-    'php' => DRUPAL_MINIMUM_PHP,
-  ];
-
-  /**
-   * The config factory.
-   *
    * @var \Drupal\Core\Config\ConfigFactoryInterface
    */
-  protected $configFactory;
+  private $configFactory;
 
   /**
-   * The profile list needed by this module list.
-   *
-   * @var \Drupal\Core\Extension\ExtensionList
+   * @var \Drupal\Core\Extension\List_\ExtensionListInterface
    */
-  protected $profileList;
+  private $profileList;
 
   /**
-   * Constructs a new ModuleExtensionList instance.
-   *
-   * @param string $root
-   *   The app root.
-   * @param string $type
-   *   The extension type.
-   * @param \Drupal\Core\Cache\CacheBackendInterface $cache
-   *   The cache.
    * @param \Drupal\Core\Extension\InfoParserInterface $info_parser
-   *   The info parser.
    * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
-   *   The module handler.
+   * @param \Drupal\Core\Extension\ExtensionDiscovery $extension_discovery
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
-   *   The config factory.
-   * @param \Drupal\Core\Extension\ExtensionList $profile_list
-   *   The site profile listing.
+   * @param \Drupal\Core\Extension\List_\ExtensionListInterface $profile_list
+   *
+   * @return \Drupal\Core\Extension\List_\ModuleDiscoveryExtensionList
    */
-  public function __construct(
-    $root,
-    $type,
-    CacheBackendInterface $cache,
+  static function create(
     InfoParserInterface $info_parser,
     ModuleHandlerInterface $module_handler,
+    ExtensionDiscovery $extension_discovery,
     ConfigFactoryInterface $config_factory,
-    ExtensionList $profile_list
+    ExtensionListInterface $profile_list
   ) {
-    parent::__construct($root, $type, $cache, $info_parser, $module_handler);
+    return new self(
+      'module',
+      $info_parser,
+      $module_handler,
+      $extension_discovery,
+      [
+        'dependencies' => [],
+        'description' => '',
+        'package' => 'Other',
+        'version' => NULL,
+        'php' => DRUPAL_MINIMUM_PHP,
+      ],
+      $config_factory,
+      $profile_list);
+  }
+
+  /**
+   * @param string $type
+   * @param \Drupal\Core\Extension\InfoParserInterface $info_parser
+   * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
+   * @param \Drupal\Core\Extension\ExtensionDiscovery $extension_discovery
+   * @param array $info_defaults
+   * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
+   * @param \Drupal\Core\Extension\List_\ExtensionListInterface $profile_list
+   */
+  function __construct(
+    $type,
+    InfoParserInterface $info_parser,
+    ModuleHandlerInterface $module_handler,
+    ExtensionDiscovery $extension_discovery,
+    array $info_defaults,
+    ConfigFactoryInterface $config_factory,
+    ExtensionListInterface $profile_list
+  ) {
+    parent::__construct($type, $info_parser, $module_handler, $extension_discovery, $info_defaults);
 
     $this->configFactory = $config_factory;
     $this->profileList = $profile_list;
@@ -93,7 +103,7 @@ class ModuleExtensionList extends ExtensionList {
   /**
    * {@inheritdoc}
    */
-  protected function doListExtensions() {
+  public function listExtensions() {
     // Find installation profiles. This needs to happen before performing a
     // module scan as the module scan needs to know what the active profile is.
     $profiles = $this->profileList->listExtensions();
@@ -107,7 +117,7 @@ class ModuleExtensionList extends ExtensionList {
     }
 
     // Find modules.
-    $extensions = parent::doListExtensions();
+    $extensions = parent::listExtensions();
     // It is possible that a module was marked as required by
     // hook_system_info_alter() and modules that it depends on are not required.
     foreach ($extensions as $extension) {
@@ -136,8 +146,11 @@ class ModuleExtensionList extends ExtensionList {
     // Add status, weight, and schema version.
     $installed_modules = $this->configFactory->get('core.extension')->get('module') ?: [];
     foreach ($extensions as $name => $module) {
+      /** @noinspection PhpUndefinedFieldInspection */
       $module->weight = isset($installed_modules[$name]) ? $installed_modules[$name] : 0;
+      /** @noinspection PhpUndefinedFieldInspection */
       $module->status = (int) isset($installed_modules[$name]);
+      /** @noinspection PhpUndefinedFieldInspection */
       $module->schema_version = SCHEMA_UNINSTALLED;
     }
     $extensions = $this->moduleHandler->buildModuleDependencies($extensions);
@@ -159,6 +172,7 @@ class ModuleExtensionList extends ExtensionList {
         $dependency_name = ModuleHandler::parseDependency($dependency)['name'];
         if (!isset($modules[$dependency_name]->info['required'])) {
           $modules[$dependency_name]->info['required'] = TRUE;
+          // @todo Use an injected (lazy/proxy) translation service.
           $modules[$dependency_name]->info['explanation'] = $this->t('Dependency of required module @module', array('@module' => $module->info['name']));
           // Ensure any dependencies it has are required.
           $this->ensureRequiredDependencies($modules[$dependency_name], $modules);
