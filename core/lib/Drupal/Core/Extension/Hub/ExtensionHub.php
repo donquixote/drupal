@@ -124,7 +124,7 @@ class ExtensionHub implements ExtensionHubInterface {
     CacheBackendInterface $cache
   ) {
 
-    $extension_list = new ExtensionListCache($extension_list, $cache, 'core.extension_listing.' . $type);
+    $extension_list = new ExtensionListCache($extension_list, $cache, 'core.extension.list.' . $type);
     $extension_list = new ExtensionListBuffer($extension_list);
 
     $info_list = new ExtensionInfoList($extension_list);
