@@ -106,7 +106,13 @@ abstract class ExtensionList implements ExtensionListInterface {
    * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
    *   The module handler.
    */
-  public function __construct($root, $type, CacheBackendInterface $cache, InfoParserInterface $info_parser, ModuleHandlerInterface $module_handler) {
+  public function __construct(
+    $root,
+    $type,
+    CacheBackendInterface $cache,
+    InfoParserInterface $info_parser,
+    ModuleHandlerInterface $module_handler
+  ) {
     $this->root = $root;
     $this->type = $type;
     $this->cache = $cache;
