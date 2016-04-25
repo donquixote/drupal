@@ -166,7 +166,7 @@ class ModuleInstaller implements ModuleInstallerInterface {
             $module_filenames[$name] = $current_module_filenames[$name];
           }
           else {
-            $module_path = \Drupal::service('extension.list.module')->getPath($name);
+            $module_path = \Drupal::service('extension.list.module')->nameGetPath($name);
             $pathname = "$module_path/$name.info.yml";
             $filename = file_exists($module_path . "/$name.module") ? "$name.module" : NULL;
             $module_filenames[$name] = new Extension($this->root, 'module', $pathname, $filename);

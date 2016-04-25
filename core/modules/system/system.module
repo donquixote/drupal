@@ -916,7 +916,7 @@ function system_check_directory($form_element, FormStateInterface $form_state) {
 function system_get_info($type, $name = NULL) {
   if ($type == 'module') {
     if (isset($name)) {
-      return \Drupal::service('extension.list.module')->getInfo($name);
+      return \Drupal::service('extension.list.module')->nameGetInfo($name);
     }
     else {
       return \Drupal::service('extension.list.module')->getAllInfo();

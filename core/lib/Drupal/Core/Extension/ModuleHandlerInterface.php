@@ -308,7 +308,7 @@ interface ModuleHandlerInterface {
    *   in if no matching module is found.
    *
    * @deprecated in Drupal 8.2.0, will be removed before Drupal 9.0.0.
-   *   Use \Drupal::service('extension.list.module')->getName() instead.
+   *   Use \Drupal::service('extension.list.module')->nameGetLabel() instead.
    */
   public function getName($module);
 

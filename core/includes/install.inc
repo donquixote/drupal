@@ -618,7 +618,7 @@ function drupal_install_system($install_state) {
   // Before having installed the system module and being able to do a module
   // rebuild, prime the ModuleExtensionList static cache with the module's
   // exact location.
-  \Drupal::service('extension.list.module')->setFilename('system', 'core/modules/system/system.info.yml');
+  \Drupal::service('extension.list.module')->nameSetFilename('system', 'core/modules/system/system.info.yml');
 
   // Install base system configuration.
   \Drupal::service('config.installer')->installDefaultConfig('core', 'core');
