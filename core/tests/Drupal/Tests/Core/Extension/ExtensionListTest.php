@@ -40,7 +40,7 @@ class ExtensionListTest extends UnitTestCase {
   public function testGetName() {
     $test_extension_list = $this->setupTestExtensionList();
 
-    $this->assertEquals('test name', $test_extension_list->nameGetLabel('test_name'));
+    static::assertEquals('test name', $test_extension_list->nameGetLabel('test_name'));
   }
 
   /**
@@ -65,8 +65,8 @@ class ExtensionListTest extends UnitTestCase {
     $test_extension_list = $this->setupTestExtensionList();
 
     $extension = $test_extension_list->nameGetExtension('test_name');
-    $this->assertInstanceOf(Extension::class, $extension);
-    $this->assertEquals('test_name', $extension->getName());
+    static::assertInstanceOf(Extension::class, $extension);
+    static::assertEquals('test_name', $extension->getName());
   }
 
   /**
@@ -76,8 +76,8 @@ class ExtensionListTest extends UnitTestCase {
     $test_extension_list = $this->setupTestExtensionList();
 
     $extensions = $test_extension_list->listExtensions();
-    $this->assertCount(1, $extensions);
-    $this->assertEquals('test_name', $extensions['test_name']->getName());
+    static::assertCount(1, $extensions);
+    static::assertEquals('test_name', $extensions['test_name']->getName());
   }
 
   /**
@@ -88,7 +88,7 @@ class ExtensionListTest extends UnitTestCase {
     $test_extension_list = $this->setupTestExtensionList();
 
     $info = $test_extension_list->nameGetInfo('test_name');
-    $this->assertEquals([
+    static::assertEquals([
       'type' => 'test_extension',
       'core' => '8.x',
       'name' => 'test name',
@@ -103,7 +103,7 @@ class ExtensionListTest extends UnitTestCase {
     $test_extension_list = $this->setupTestExtensionList();
 
     $infos = $test_extension_list->getAllInfo();
-    $this->assertEquals(['test_name' => [
+    static::assertEquals(['test_name' => [
       'type' => 'test_extension',
       'core' => '8.x',
       'name' => 'test name',
@@ -118,7 +118,7 @@ class ExtensionListTest extends UnitTestCase {
     $test_extension_list = $this->setupTestExtensionList();
 
     $filenames = $test_extension_list->getFilenames();
-    $this->assertEquals([
+    static::assertEquals([
       'test_name' => 'vfs://drupal_root/example/test_name/test_name.info.yml',
     ], $filenames);
   }
@@ -130,7 +130,7 @@ class ExtensionListTest extends UnitTestCase {
     $test_extension_list = $this->setupTestExtensionList();
 
     $filename = $test_extension_list->nameGetFilename('test_name');
-    $this->assertEquals('vfs://drupal_root/example/test_name/test_name.info.yml', $filename);
+    static::assertEquals('vfs://drupal_root/example/test_name/test_name.info.yml', $filename);
   }
 
 
@@ -142,7 +142,7 @@ class ExtensionListTest extends UnitTestCase {
     $test_extension_list = $this->setupTestExtensionList();
 
     $test_extension_list->nameSetFilename('test_name', 'vfs://drupal_root/example2/test_name/test_name.info.yml');
-    $this->assertEquals('vfs://drupal_root/example2/test_name/test_name.info.yml', $test_extension_list->nameGetFilename('test_name'));
+    static::assertEquals('vfs://drupal_root/example2/test_name/test_name.info.yml', $test_extension_list->nameGetFilename('test_name'));
   }
 
   /**
@@ -152,7 +152,7 @@ class ExtensionListTest extends UnitTestCase {
     $test_extension_list = $this->setupTestExtensionList();
 
     $path = $test_extension_list->nameGetPath('test_name');
-    $this->assertEquals('vfs://drupal_root/example/test_name', $path);
+    static::assertEquals('vfs://drupal_root/example/test_name', $path);
   }
 
   /**
