@@ -45,6 +45,13 @@ class Extension implements \Serializable {
   protected $root;
 
   /**
+   * Parsed contents of the *.info.yml file. Stays null until initialized.
+   *
+   * @var array|null
+   */
+  public $info;
+
+  /**
    * Constructs a new Extension object.
    *
    * @param string $root
