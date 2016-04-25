@@ -20,7 +20,7 @@ use Prophecy\Argument;
 class ExtensionListTest extends UnitTestCase {
 
   /**
-   * @covers ::getName
+   * @covers ::nameGetLabel
    * @expectedException \InvalidArgumentException
    */
   public function testGetNameWithNonExistingExtension() {
@@ -35,7 +35,7 @@ class ExtensionListTest extends UnitTestCase {
   }
 
   /**
-   * @covers ::getName
+   * @covers ::nameGetLabel
    */
   public function testGetName() {
     $test_extension_list = $this->setupTestExtensionList();
@@ -44,7 +44,7 @@ class ExtensionListTest extends UnitTestCase {
   }
 
   /**
-   * @covers ::getExtension
+   * @covers ::nameGetExtension
    * @expectedException \InvalidArgumentException
    */
   public function testGetExtensionWithNonExistingExtension() {
@@ -59,7 +59,7 @@ class ExtensionListTest extends UnitTestCase {
   }
 
   /**
-   * @covers ::getExtension
+   * @covers ::nameGetExtension
    */
   public function testGetExtension() {
     $test_extension_list = $this->setupTestExtensionList();
@@ -81,7 +81,7 @@ class ExtensionListTest extends UnitTestCase {
   }
 
   /**
-   * @covers ::getInfo
+   * @covers ::nameGetInfo
    * @covers ::getAllInfo
    */
   public function testGetInfo() {
@@ -124,7 +124,7 @@ class ExtensionListTest extends UnitTestCase {
   }
 
   /**
-   * @covers ::getFilename
+   * @covers ::nameGetFilename
    */
   public function testGetFilename() {
     $test_extension_list = $this->setupTestExtensionList();
@@ -135,8 +135,8 @@ class ExtensionListTest extends UnitTestCase {
 
 
   /**
-   * @covers ::setFilename
-   * @covers ::getFilename
+   * @covers ::nameSetFilename
+   * @covers ::nameGetFilename
    */
   public function testSetFilename() {
     $test_extension_list = $this->setupTestExtensionList();
@@ -146,7 +146,7 @@ class ExtensionListTest extends UnitTestCase {
   }
 
   /**
-   * @covers ::getPath
+   * @covers ::nameGetPath
    */
   public function testGetPath() {
     $test_extension_list = $this->setupTestExtensionList();
