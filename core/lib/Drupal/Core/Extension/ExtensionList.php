@@ -191,8 +191,8 @@ abstract class ExtensionList implements ExtensionListInterface {
    * @throws \InvalidArgumentException
    *   If there is no extension with the supplied machine name.
    */
-  public function getName($machine_name) {
-    return $this->getExtension($machine_name)->info['name'];
+  public function nameGetLabel($machine_name) {
+    return $this->nameGetExtension($machine_name)->info['name'];
   }
 
   /**
@@ -206,7 +206,7 @@ abstract class ExtensionList implements ExtensionListInterface {
    * @throws \InvalidArgumentException
    *   If there is no extension with the supplied name.
    */
-  public function getExtension($name) {
+  public function nameGetExtension($name) {
     $extensions = $this->listExtensions();
     if (isset($extensions[$name])) {
       return $extensions[$name];
@@ -281,7 +281,7 @@ abstract class ExtensionList implements ExtensionListInterface {
    * This function returns the contents of the .info.yml file for the specified
    * installed extension.
    *
-   * @param string $name
+   * @param string $extension_name
    *   The name of an extension whose information shall be returned. If
    *   $name does not exist or is not enabled, an empty array will be returned.
    *
@@ -291,13 +291,13 @@ abstract class ExtensionList implements ExtensionListInterface {
    * @throws \InvalidArgumentException
    *   If there is no extension with the supplied name.
    */
-  public function getInfo($name) {
+  public function nameGetInfo($extension_name) {
     // Ensure that $this->extensionInfo is primed.
     $this->getAllInfo();
-    if (isset($this->extensionInfo[$name])) {
-      return $this->extensionInfo[$name];
+    if (isset($this->extensionInfo[$extension_name])) {
+      return $this->extensionInfo[$extension_name];
     }
-    throw new \InvalidArgumentException("The {$this->type} $name does not exist.");
+    throw new \InvalidArgumentException("The {$this->type} $extension_name does not exist.");
   }
 
   /**
@@ -396,7 +396,7 @@ abstract class ExtensionList implements ExtensionListInterface {
    *   The filename of the extension which is to be set explicitly rather
    *   than by consulting the dynamic extension listing.
    */
-  public function setFilename($extension_name, $filename) {
+  public function nameSetFilename($extension_name, $filename) {
     $this->addedFileNames[$extension_name] = $filename;
   }
 
@@ -435,7 +435,7 @@ abstract class ExtensionList implements ExtensionListInterface {
    * @throws \InvalidArgumentException
    *   If there is no extension with the supplied name.
    */
-  public function getFilename($extension_name) {
+  public function nameGetFilename($extension_name) {
     // Ensure that $this->fileNames is primed.
     $this->getFilenames();
     if (isset($this->addedFileNames[$extension_name])) {
@@ -460,8 +460,8 @@ abstract class ExtensionList implements ExtensionListInterface {
    * @throws \InvalidArgumentException
    *   If there is no extension with the supplied name.
    */
-  public function getPath($extension_name) {
-    return dirname($this->getFilename($extension_name));
+  public function nameGetPath($extension_name) {
+    return dirname($this->nameGetFilename($extension_name));
   }
 
 }

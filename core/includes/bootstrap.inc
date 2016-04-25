@@ -206,12 +206,12 @@ function drupal_get_filename($type, $name, $filename = NULL) {
     $extension_list = \Drupal::service($service_id);
     if (isset($filename)) {
       // Manually add the info file path of an extension.
-      $extension_list->setFilename($name, $filename);
+      $extension_list->nameSetFilename($name, $filename);
       return;
     }
     else {
       try {
-        return $extension_list->getFilename($name);
+        return $extension_list->nameGetFilename($name);
       }
       catch (\InvalidArgumentException $e) {
         // Catch the exception and trigger error to maintain existing behavior.

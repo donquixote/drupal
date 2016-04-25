@@ -36,20 +36,20 @@ interface ExtensionListInterface {
    * @throws \InvalidArgumentException
    *   If there is no extension with the supplied machine name.
    */
-  public function getName($machine_name);
+  public function nameGetLabel($machine_name);
 
   /**
    * Returns a single extension.
    *
    * @param string $name
-   *   The extension name.
+   *   The extension machine name.
    *
    * @return \Drupal\Core\Extension\Extension
    *
    * @throws \InvalidArgumentException
    *   If there is no extension with the supplied name.
    */
-  public function getExtension($name);
+  public function nameGetExtension($name);
 
   /**
    * Returns all available extensions.
@@ -64,9 +64,9 @@ interface ExtensionListInterface {
    * This function returns the contents of the .info.yml file for the specified
    * installed extension.
    *
-   * @param string $name
-   *   The name of an extension whose information shall be returned. If
-   *   $name does not exist or is not enabled, an empty array will be returned.
+   * @param string $extension_name
+   *   The name of an extension whose information shall be returned. If an
+   *   extension with this name does not exist, an exception is thrown.
    *
    * @return mixed[]
    *   An associative array of extension information.
@@ -74,7 +74,7 @@ interface ExtensionListInterface {
    * @throws \InvalidArgumentException
    *   If there is no extension with the supplied name.
    */
-  public function getInfo($name);
+  public function nameGetInfo($extension_name);
 
   /**
    * Returns an array of information about enabled modules or themes.
@@ -110,7 +110,7 @@ interface ExtensionListInterface {
    *   The filename of the extension which is to be set explicitly rather
    *   than by consulting the dynamic extension listing.
    */
-  public function setFilename($extension_name, $filename);
+  public function nameSetFilename($extension_name, $filename);
 
   /**
    * Gets the filename for a system resource.
@@ -147,7 +147,7 @@ interface ExtensionListInterface {
    * @throws \InvalidArgumentException
    *   If there is no extension with the supplied name.
    */
-  public function getFilename($extension_name);
+  public function nameGetFilename($extension_name);
 
   /**
    * Gets the path to an extension of a specific type (module, theme, etc.).
@@ -161,5 +161,5 @@ interface ExtensionListInterface {
    * @throws \InvalidArgumentException
    *   If there is no extension with the supplied name.
    */
-  public function getPath($extension_name);
+  public function nameGetPath($extension_name);
 }
