@@ -56,7 +56,15 @@ class ModuleExtensionList extends ExtensionList {
    * @param \Drupal\Core\Extension\ExtensionList $profile_list
    *   The site profile listing.
    */
-  public function __construct($root, $type, CacheBackendInterface $cache, InfoParserInterface $info_parser, ModuleHandlerInterface $module_handler, ConfigFactoryInterface $config_factory, ExtensionList $profile_list) {
+  public function __construct(
+    $root,
+    $type,
+    CacheBackendInterface $cache,
+    InfoParserInterface $info_parser,
+    ModuleHandlerInterface $module_handler,
+    ConfigFactoryInterface $config_factory,
+    ExtensionList $profile_list
+  ) {
     parent::__construct($root, $type, $cache, $info_parser, $module_handler);
 
     $this->configFactory = $config_factory;
