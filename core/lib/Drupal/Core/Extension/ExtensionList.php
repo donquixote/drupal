@@ -205,6 +205,7 @@ abstract class ExtensionList {
    *   The extension name.
    *
    * @return \Drupal\Core\Extension\Extension
+   *   Processed extension object for the given machine name.
    *
    * @throws \InvalidArgumentException
    *   If there is no extension with the supplied name.
@@ -222,6 +223,7 @@ abstract class ExtensionList {
    * Returns all available extensions.
    *
    * @return \Drupal\Core\Extension\Extension[]
+   *   Processed extension objects, keyed by machine name.
    */
   public function listExtensions() {
     if (isset($this->extensions)) {
@@ -244,6 +246,7 @@ abstract class ExtensionList {
    * extensions to this raw listing.
    *
    * @return \Drupal\Core\Extension\Extension[]
+   *   Unprocessed extension objects, keyed by machine name.
    */
   protected function doScanExtensions() {
     return $this->extensionDiscovery->scan($this->type);
@@ -253,6 +256,10 @@ abstract class ExtensionList {
    * Build the actual list of extensions before caching it.
    *
    * @return \Drupal\Core\Extension\Extension[]
+   *   Processed extension objects, keyed by machine name.
+   *
+   * @throws \Drupal\Core\Extension\InfoParserException
+   *   If one of the .info.yml files is incomplete, or causes a parsing error.
    */
   protected function doListExtensions() {
     // Find extensions.
@@ -286,7 +293,7 @@ abstract class ExtensionList {
    *
    * @param string $name
    *   The name of an extension whose information shall be returned. If
-   *   $name does not exist or is not enabled an exception is returned.
+   *   $name does not exist or is not enabled an exception is thrown.
    *
    * @return mixed[]
    *   An associative array of extension information.
