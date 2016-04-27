@@ -83,7 +83,7 @@ abstract class ExtensionList {
    *
    * @var string[]
    */
-  protected $addedFileNames;
+  protected $addedFileNames = [];
 
   /**
    * The extension discovery service.
@@ -134,7 +134,7 @@ abstract class ExtensionList {
     $this->cache->delete($this->getInfoCacheId());
     $this->fileNames = NULL;
     $this->cache->delete($this->getFilenameCacheId());
-    $this->addedFileNames = NULL;
+    $this->addedFileNames = [];
     return $this;
   }
 
