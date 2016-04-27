@@ -56,14 +56,14 @@ abstract class ExtensionList {
   /**
    * The statically cached extensions.
    *
-   * @var \Drupal\Core\Extension\Extension[]
+   * @var \Drupal\Core\Extension\Extension[]|null
    */
   protected $extensions;
 
   /**
    * Static caching for extension info.
    *
-   * @var array[]
+   * @var array[]|null
    *   Keys are extension names, and values their info arrays (mixed[]).
    */
   protected $extensionInfo;
@@ -71,7 +71,7 @@ abstract class ExtensionList {
   /**
    * A list of extension folder names keyed by extension name.
    *
-   * @var string[]
+   * @var string[]|null
    */
   protected $fileNames;
 
