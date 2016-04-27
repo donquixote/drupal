@@ -100,7 +100,7 @@ abstract class KernelTestBase extends TestBase {
   protected function beforePrepareEnvironment() {
     // Copy/prime extension file lists once to avoid filesystem scans.
     if (!isset($this->moduleFiles)) {
-      $this->moduleFiles = \Drupal::state()->get('system.module.files') ?: array();
+      $this->moduleFiles = \Drupal::cache('default')->get('system.module.files') ?: array();
       $this->themeFiles = \Drupal::state()->get('system.theme.files') ?: array();
     }
   }
@@ -222,7 +222,7 @@ EOD;
     // Re-inject extension file listings into state, unless the key/value
     // service was overridden (in which case its storage does not exist yet).
     if ($this->container->get('keyvalue') instanceof KeyValueMemoryFactory) {
-      $this->container->get('state')->set('system.module.files', $this->moduleFiles);
+      $this->container->get('cache.default')->set('system.module.files', $this->moduleFiles);
       $this->container->get('state')->set('system.theme.files', $this->themeFiles);
     }
 

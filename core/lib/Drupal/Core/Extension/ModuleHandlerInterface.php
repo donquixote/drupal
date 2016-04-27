@@ -306,6 +306,9 @@ interface ModuleHandlerInterface {
    * @return string
    *   Returns the human readable name of the module or the machine name passed
    *   in if no matching module is found.
+   *
+   * @deprecated in Drupal 8.2.0, will be removed before Drupal 9.0.0.
+   *   Use \Drupal::service('extension.list.module')->getName() instead.
    */
   public function getName($module);
 

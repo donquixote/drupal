@@ -1,0 +1,21 @@
+<?php
+
+namespace Drupal\Core\Extension;
+
+/**
+ * Provides a list of installation profiles.
+ */
+class ProfileExtensionList extends ExtensionList {
+
+  /**
+   * {@inheritdoc}
+   */
+  protected $defaults = [
+    'dependencies' => [],
+    'description' => '',
+    'package' => 'Other',
+    'version' => NULL,
+    'php' => DRUPAL_MINIMUM_PHP,
+  ];
+
+}

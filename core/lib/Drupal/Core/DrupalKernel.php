@@ -780,7 +780,10 @@ class DrupalKernel implements DrupalKernelInterface, TerminableInterface {
     if (isset($this->container)) {
       // Save the id of the currently logged in user.
       if ($this->container->initialized('current_user')) {
-        $current_user_id = $this->container->get('current_user')->id();
+        /** @var \Drupal\Core\Session\AccountProxyInterface $current_user */
+        $current_user = $this->container->get('current_user');
+        // Ensure to not accidentally initialize the user.
+        $current_user_id = $current_user->hasAccount() ? $current_user->id() : 0;
       }
 
       // If there is a session, close and save it.
