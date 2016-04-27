@@ -138,12 +138,12 @@ class ModuleExtensionList extends ExtensionList {
   }
 
   /**
-   * Ensures that dependencies of required modules are also required.
+   * Marks dependencies of required modules as 'required', recursively.
    *
    * @param \Drupal\Core\Extension\Extension $module
-   *   The module info.
+   *   The module extension object.
    * @param \Drupal\Core\Extension\Extension[] $modules
-   *   The array of all module info.
+   *   Extension objects for all available modules.
    */
   protected function ensureRequiredDependencies(Extension $module, array $modules = []) {
     if (!empty($module->info['required'])) {
