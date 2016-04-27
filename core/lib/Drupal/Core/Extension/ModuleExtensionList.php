@@ -66,37 +66,54 @@ class ModuleExtensionList extends ExtensionList {
   /**
    * {@inheritdoc}
    */
+  protected function getExtensionDiscovery() {
+    $discovery = parent::getExtensionDiscovery();
+
+    if (NULL !== $active_profile = $this->getActiveProfile()) {
+      // Set the profile in the ExtensionDiscovery so we can scan from the right
+      // profile directory.
+      $discovery->setProfileDirectories([
+        $active_profile->getName() => $active_profile->getPathname(),
+      ]);
+    }
+
+    return $discovery;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   protected function doScanExtensions() {
     $extensions = parent::doScanExtensions();
 
-    // Find installation profiles.
-    $profiles = $this->profileList->listExtensions();
-
-    // Include the installation profile in modules that are loaded.
-    if ($profile = drupal_get_profile()) {
-      $extensions[$profile] = $profiles[$profile];
+    if (NULL !== $active_profile = $this->getActiveProfile()) {
+      // Include the installation profile in modules that are loaded.
+      $extensions[$active_profile->getName()] = $active_profile;
       // Installation profile hooks are always executed last.
-      $extensions[$profile]->weight = 1000;
+      $active_profile->weight = 1000;
     }
 
     return $extensions;
   }
 
   /**
+   * Gets the processed active profile object, or null.
+   *
+   * @return \Drupal\Core\Extension\Extension|null
+   */
+  protected function getActiveProfile() {
+    $profiles = $this->profileList->listExtensions();
+    $active_profile_name = drupal_get_profile();
+    if ($active_profile_name && isset($profiles[$active_profile_name])) {
+      return $profiles[$active_profile_name];
+    }
+    return NULL;
+  }
+
+  /**
    * {@inheritdoc}
    */
   protected function doListExtensions() {
-    // Find installation profiles. This needs to happen before performing a
-    // module scan as the module scan needs to know what the active profile is.
-    $profiles = $this->profileList->listExtensions();
-    $profile = drupal_get_profile();
-    if ($profile && isset($profiles[$profile])) {
-      // Set the profile in the ExtensionDiscovery so we can scan from the right
-      // profile directory.
-      $this->extensionDiscovery->setProfileDirectories([
-        $profile => $profiles[$profile]->getPathname(),
-      ]);
-    }
 
     // Find modules.
     $extensions = parent::doListExtensions();
@@ -106,22 +123,24 @@ class ModuleExtensionList extends ExtensionList {
       $this->ensureRequiredDependencies($extension, $extensions);
     }
 
-    if ($profile) {
+    // Modify the active profile object that was previously added to the module
+    // list.
+    $active_profile_name = drupal_get_profile();
+    if ($active_profile_name && isset($extensions[$active_profile_name])) {
+      $active_profile = $extensions[$active_profile_name];
       // Installation profiles are hidden by default, unless explicitly
       // specified otherwise in the .info.yml file.
-      if (!isset($extensions[$profile]->info['hidden'])) {
-        $extensions[$profile]->info['hidden'] = TRUE;
+      if (!isset($active_profile->info['hidden'])) {
+        $active_profile->info['hidden'] = TRUE;
       }
 
-      if (isset($extensions[$profile])) {
-        // The installation profile is required, if it's a valid module.
-        $extensions[$profile]->info['required'] = TRUE;
-        // Add a default distribution name if the profile did not provide one.
-        // @see install_profile_info()
-        // @see drupal_install_profile_distribution_name()
-        if (!isset($extensions[$profile]->info['distribution']['name'])) {
-          $extensions[$profile]->info['distribution']['name'] = 'Drupal';
-        }
+      // The installation profile is required, if it's a valid module.
+      $active_profile->info['required'] = TRUE;
+      // Add a default distribution name if the profile did not provide one.
+      // @see install_profile_info()
+      // @see drupal_install_profile_distribution_name()
+      if (!isset($active_profile->info['distribution']['name'])) {
+        $active_profile->info['distribution']['name'] = 'Drupal';
       }
     }
 

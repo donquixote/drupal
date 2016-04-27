@@ -197,8 +197,25 @@ class ExtensionListTest extends UnitTestCase {
 
 class TestExtension extends ExtensionList {
 
+  /**
+   * @var \Drupal\Core\Extension\ExtensionDiscovery|null
+   */
+  private $extensionDiscovery;
+
+  /**
+   * @param \Drupal\Core\Extension\ExtensionDiscovery $extension_discovery
+   */
   public function setExtensionDiscovery(ExtensionDiscovery $extension_discovery) {
     $this->extensionDiscovery = $extension_discovery;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  protected function getExtensionDiscovery() {
+    return NULL !== $this->extensionDiscovery
+      ? $this->extensionDiscovery
+      : parent::getExtensionDiscovery();
   }
 
 }

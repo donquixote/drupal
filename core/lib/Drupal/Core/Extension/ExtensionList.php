@@ -86,13 +86,6 @@ abstract class ExtensionList {
   protected $addedFileNames = [];
 
   /**
-   * The extension discovery service.
-   *
-   * @var \Drupal\Core\Extension\ExtensionDiscovery
-   */
-  protected $extensionDiscovery;
-
-  /**
    * Constructs a new ExtensionList instance.
    *
    * @param string $root
@@ -112,7 +105,6 @@ abstract class ExtensionList {
     $this->cache = $cache;
     $this->infoParser = $info_parser;
     $this->moduleHandler = $module_handler;
-    $this->extensionDiscovery = $this->getExtensionDiscovery();
   }
 
   /**
@@ -249,7 +241,7 @@ abstract class ExtensionList {
    *   Unprocessed extension objects, keyed by machine name.
    */
   protected function doScanExtensions() {
-    return $this->extensionDiscovery->scan($this->type);
+    return $this->getExtensionDiscovery()->scan($this->type);
   }
 
   /**
