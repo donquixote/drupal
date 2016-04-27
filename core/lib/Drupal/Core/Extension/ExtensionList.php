@@ -275,7 +275,7 @@ abstract class ExtensionList {
       $extension->info['mtime'] = $extension->getMTime();
 
       // Merge in defaults and save.
-      $extensions[$name]->info = $extension->info + $this->defaults;
+      $extension->info += $this->defaults;
 
       // Invoke hook_system_info_alter() to give installed modules a chance to
       // modify the data in the .info.yml files if necessary.
