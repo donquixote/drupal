@@ -100,6 +100,13 @@ class ExtensionDiscovery {
   protected $sitePath;
 
   /**
+   * Resets the static cache.
+   */
+  static function staticReset() {
+    self::$files = [];
+  }
+
+  /**
    * Constructs a new ExtensionDiscovery object.
    *
    * @param string $root
