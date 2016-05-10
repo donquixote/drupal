@@ -168,7 +168,7 @@ class ExtensionDiscovery {
     // Determine the installation profile directories to scan for extensions,
     // unless explicit profile directories have been set. Exclude profiles as we
     // cannot have profiles within profiles.
-    if (!isset($this->profileDirectories) && $type != 'profile') {
+    if (!isset($this->profileDirectories) && $type !== 'profile') {
       $this->setProfileDirectoriesFromSettings();
     }
 
@@ -249,7 +249,7 @@ class ExtensionDiscovery {
     // which test runs are triggered).
     if (drupal_valid_test_ua() && !drupal_installation_attempted()) {
       $testing_profile = \Drupal::config('simpletest.settings')->get('parent_profile');
-      if ($testing_profile && $testing_profile != $profile) {
+      if ($testing_profile && $testing_profile !== $profile) {
         $this->profileDirectories[] = drupal_get_path('profile', $testing_profile);
       }
     }
@@ -419,8 +419,8 @@ class ExtensionDiscovery {
     // include_paths will not be consulted). Retain the relative originating
     // directory being scanned, so relative paths can be reconstructed below
     // (all paths are expected to be relative to $this->root).
-    $dir_prefix = ($dir == '' ? '' : "$dir/");
-    $absolute_dir = ($dir == '' ? $this->root : $this->root . "/$dir");
+    $dir_prefix = ($dir === '' ? '' : "$dir/");
+    $absolute_dir = ($dir === '' ? $this->root : $this->root . "/$dir");
 
     if (!is_dir($absolute_dir)) {
       return $files;
@@ -484,7 +484,7 @@ class ExtensionDiscovery {
 
       // Determine whether the extension has a main extension file.
       // For theme engines, the file extension is .engine.
-      if ($type == 'theme_engine') {
+      if ($type === 'theme_engine') {
         $filename = $name . '.engine';
       }
       // For profiles/modules/themes, it is the extension type.
