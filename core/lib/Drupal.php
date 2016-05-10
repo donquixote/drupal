@@ -182,6 +182,17 @@ class Drupal {
   }
 
   /**
+   * Gets a version of the app root that does not depend on the container.
+   *
+   * This should only be used in tests.
+   *
+   * @return string
+   */
+  public static function staticRoot() {
+    return dirname(dirname(__DIR__));
+  }
+
+  /**
    * Indicates if there is a currently active request object.
    *
    * @return bool
