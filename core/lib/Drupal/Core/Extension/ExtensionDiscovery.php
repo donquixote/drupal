@@ -443,6 +443,10 @@ class ExtensionDiscovery {
       \RecursiveIteratorIterator::CATCH_GET_CHILD
     );
 
+    /**
+     * @var string $key
+     * @var \RecursiveDirectoryIterator $fileinfo
+     */
     foreach ($iterator as $key => $fileinfo) {
       // All extension names in Drupal have to be valid PHP function names due
       // to the module hook architecture.
@@ -467,6 +471,7 @@ class ExtensionDiscovery {
       if (empty($type)) {
         continue;
       }
+      /** @var string $type */
       $name = $fileinfo->getBasename('.info.yml');
       $pathname = $dir_prefix . $fileinfo->getSubPathname();
 
