@@ -8,6 +8,48 @@ namespace Drupal\Core\Extension;
 class Extension implements \Serializable {
 
   /**
+   * @var string|null
+   */
+  public $subpath;
+
+  /**
+   * @var int|null
+   */
+  public $weight;
+
+  /**
+   * @var int|null
+   */
+  public $status;
+
+  /**
+   * @var int|null
+   */
+  public $schema_version;
+
+  /**
+   * @var array|null
+   */
+  public $required_by;
+
+  /**
+   * @var array|null
+   */
+  public $requires;
+
+  /**
+   * @var int|null
+   */
+  public $sort;
+
+  /**
+   * Parsed contents of the *.info.yml file. Stays null until initialized.
+   *
+   * @var array|null
+   */
+  public $info;
+
+  /**
    * The type of the extension (e.g., 'module').
    *
    * @var string
