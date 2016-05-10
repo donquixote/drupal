@@ -454,7 +454,7 @@ class ExtensionDiscovery {
         continue;
       }
 
-      if ($this->fileCache && $cached_extension = $this->fileCache->get($fileinfo->getPathName())) {
+      if ($this->fileCache && $cached_extension = $this->fileCache->get($fileinfo->getPathname())) {
         $files[$cached_extension->getType()][$key] = $cached_extension;
         continue;
       }
@@ -497,7 +497,7 @@ class ExtensionDiscovery {
       $files[$type][$key] = $extension;
 
       if ($this->fileCache) {
-        $this->fileCache->set($fileinfo->getPathName(), $extension);
+        $this->fileCache->set($fileinfo->getPathname(), $extension);
       }
     }
     return $files;
