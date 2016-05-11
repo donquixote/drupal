@@ -74,7 +74,7 @@ class ExtensionDiscovery {
   /**
    * List of installation profile directories to additionally scan.
    *
-   * @var array
+   * @var string[]|null
    */
   protected $profileDirectories;
 
@@ -168,7 +168,7 @@ class ExtensionDiscovery {
     // Determine the installation profile directories to scan for extensions,
     // unless explicit profile directories have been set. Exclude profiles as we
     // cannot have profiles within profiles.
-    if (!isset($this->profileDirectories) && $type !== 'profile') {
+    if ($this->profileDirectories === NULL && $type !== 'profile') {
       $this->setProfileDirectoriesFromSettings();
     }
 
@@ -264,7 +264,7 @@ class ExtensionDiscovery {
   /**
    * Gets the installation profile directories to be scanned.
    *
-   * @return array
+   * @return string[]|null
    *   A list of installation profile directory paths relative to the system
    *   root directory.
    */
@@ -275,7 +275,7 @@ class ExtensionDiscovery {
   /**
    * Sets explicit profile directories to scan.
    *
-   * @param array $paths
+   * @param string[] $paths
    *   A list of installation profile directory paths relative to the system
    *   root directory (without trailing slash) to search for extensions.
    *
@@ -296,7 +296,7 @@ class ExtensionDiscovery {
    *   The filtered list of extensions.
    */
   protected function filterByProfileDirectories(array $all_files) {
-    if (empty($this->profileDirectories)) {
+    if ($this->profileDirectories === NULL || $this->profileDirectories === []) {
       return $all_files;
     }
 
@@ -343,7 +343,7 @@ class ExtensionDiscovery {
       // If the extension belongs to a profile but no profile directories are
       // defined, then we are scanning for installation profiles themselves.
       // In this case, profiles are sorted by origin only.
-      elseif (empty($this->profileDirectories)) {
+      elseif ($this->profileDirectories === NULL || $this->profileDirectories === []) {
         $origins[$key] = static::ORIGIN_PROFILE;
         $profiles[$key] = NULL;
       }
