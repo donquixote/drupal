@@ -1,11 +1,11 @@
 <?php
 
-namespace Drupal\Core\Extension\List_\Raw;
+namespace Drupal\Core\Extension\RawExtensionsByName;
 
 use Drupal\Core\Extension\Extension;
 use Drupal\Core\Extension\FilesByName\FilesByNameInterface;
 
-class RawExtensionList_FilesByName implements RawExtensionListInterface {
+class RawExtensionsByName_FilesByName implements RawExtensionsByNameInterface {
 
   /**
    * @var \Drupal\Core\Extension\FilesByName\FilesByNameInterface
@@ -32,7 +32,7 @@ class RawExtensionList_FilesByName implements RawExtensionListInterface {
    * @param string $root
    * @param string $type
    *
-   * @return \Drupal\Core\Extension\List_\Raw\RawExtensionListInterface
+   * @return \Drupal\Core\Extension\RawExtensionsByName\RawExtensionsByNameInterface
    */
   static function create(FilesByNameInterface $filesByName, $root, $type) {
     $filename_suffix = $type === 'theme_engine'

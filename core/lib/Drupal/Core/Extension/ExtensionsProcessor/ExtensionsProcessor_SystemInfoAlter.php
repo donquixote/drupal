@@ -1,10 +1,10 @@
 <?php
 
-namespace Drupal\Core\Extension\List_\Processor;
+namespace Drupal\Core\Extension\ExtensionsProcessor;
 
 use Drupal\Core\Extension\ModuleHandlerInterface;
 
-class ExtensionListProcessor_SystemInfoAlter implements ExtensionListProcessorInterface {
+class ExtensionsProcessor_SystemInfoAlter implements ExtensionsProcessorInterface {
 
   /**
    * @var \Drupal\Core\Extension\ModuleHandlerInterface

@@ -1,11 +1,11 @@
 <?php
 
-namespace Drupal\Core\Extension\List_;
+namespace Drupal\Core\Extension\ExtensionsByName;
 
 use Drupal\Component\Graph\Graph;
 use Drupal\Core\Extension\ModuleHandler;
 
-final class ExtensionListUtil {
+final class ExtensionsByNameUtil {
 
   private function __construct() {}
 

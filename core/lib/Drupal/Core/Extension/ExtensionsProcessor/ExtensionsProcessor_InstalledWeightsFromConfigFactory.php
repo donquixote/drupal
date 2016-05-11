@@ -1,10 +1,10 @@
 <?php
 
-namespace Drupal\Core\Extension\List_\Processor;
+namespace Drupal\Core\Extension\ExtensionsProcessor;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
 
-class ExtensionListProcessor_InstalledWeightsFromConfigFactory implements ExtensionListProcessorInterface {
+class ExtensionsProcessor_InstalledWeightsFromConfigFactory implements ExtensionsProcessorInterface {
 
   /**
    * @var \Drupal\Core\Config\ConfigFactoryInterface

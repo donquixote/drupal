@@ -1,8 +1,8 @@
 <?php
 
-namespace Drupal\Core\Extension\List_\Processor;
+namespace Drupal\Core\Extension\ExtensionsProcessor;
 
-interface ExtensionListProcessorInterface {
+interface ExtensionsProcessorInterface {
 
   /**
    * @param \Drupal\Core\Extension\Extension[] $extensions

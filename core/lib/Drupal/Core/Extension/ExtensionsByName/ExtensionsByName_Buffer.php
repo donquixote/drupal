@@ -1,11 +1,11 @@
 <?php
 
-namespace Drupal\Core\Extension\List_;
+namespace Drupal\Core\Extension\ExtensionsByName;
 
-class ExtensionList_Buffer implements ExtensionListingInterface {
+class ExtensionsByName_Buffer implements ExtensionsByNameInterface {
 
   /**
-   * @var \Drupal\Core\Extension\List_\ExtensionListingInterface
+   * @var \Drupal\Core\Extension\ExtensionsByName\ExtensionsByNameInterface
    */
   private $decorated;
 
@@ -15,9 +15,9 @@ class ExtensionList_Buffer implements ExtensionListingInterface {
   private $extensions;
 
   /**
-   * @param \Drupal\Core\Extension\List_\ExtensionListingInterface $decorated
+   * @param \Drupal\Core\Extension\ExtensionsByName\ExtensionsByNameInterface $decorated
    */
-  function __construct(ExtensionListingInterface $decorated) {
+  function __construct(ExtensionsByNameInterface $decorated) {
     $this->decorated = $decorated;
   }
 
@@ -35,9 +35,9 @@ class ExtensionList_Buffer implements ExtensionListingInterface {
    *
    * @return \Drupal\Core\Extension\Extension[]
    */
-  public function listExtensions() {
+  public function getExtensions() {
     return NULL !== $this->extensions
       ? $this->extensions
-      : $this->extensions = $this->decorated->listExtensions();
+      : $this->extensions = $this->decorated->getExtensions();
   }
 }

@@ -1,11 +1,11 @@
 <?php
-namespace Drupal\Tests\Core\Extension\List_;
+namespace Drupal\Tests\Core\Extension;
 
 use Drupal\Core\Extension\Extension;
 use Drupal\Core\Extension\FilesByName\FilesByNameUtil;
 use Drupal\Core\Extension\FilesToInfo\FilesToInfo_Static;
 use Drupal\Core\Extension\FilesToTypes\FilesToTypes_Static;
-use Drupal\Core\Extension\List_\Builder\ExtensionListBuilder;
+use Drupal\Core\Extension\ExtensionsByName\Builder\ExtensionsByNameBuilder;
 use Drupal\Core\Extension\ProfileName\ProfileName_Static;
 use Drupal\Core\Extension\DirectoryToFiles\DirectoryToFiles_StaticGrep;
 use Drupal\Core\StringTranslation\PluralTranslatableMarkup;
@@ -13,12 +13,12 @@ use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\StringTranslation\TranslationInterface;
 use Drupal\Tests\UnitTestCase;
 
-class ExtensionListingTest extends UnitTestCase {
+class ExtensionsByNameTest extends UnitTestCase {
 
   /**
    * Tests the extension list discovery with fake directory scans.
    */
-  public function testExtensionListVirtual() {
+  public function testExtensionsByNameVirtual() {
 
     $info_by_file = [
       'core/profiles/standard/standard.info.yml' => [
@@ -100,7 +100,7 @@ class ExtensionListingTest extends UnitTestCase {
 
     $translationService = new FakeTranslationManager();
 
-    $lists = ExtensionListBuilder::create($root, $providers)
+    $lists = ExtensionsByNameBuilder::create($root, $providers)
       ->withFilesToInfo(new FilesToInfo_Static($info_by_file))
       ->withActiveProfileName('myprofile')
       ->withInstalledWeightsStatic($installed_weights)
@@ -113,7 +113,7 @@ class ExtensionListingTest extends UnitTestCase {
     $extensions_by_type = [];
     $files_by_type_and_name = [];
     foreach ($lists as $type => $list) {
-      $extensions_by_type[$type] = $type_extensions_by_name = $list->listExtensions();
+      $extensions_by_type[$type] = $type_extensions_by_name = $list->getExtensions();
       foreach ($type_extensions_by_name as $name => $extension) {
         $files_by_type_and_name[$type][$name] = $extension->getPathname();
       }

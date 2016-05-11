@@ -1,8 +1,8 @@
 <?php
 
-namespace Drupal\Core\Extension\List_\Processor;
+namespace Drupal\Core\Extension\ExtensionsProcessor;
 
-class ExtensionListProcessor_AddMtime implements ExtensionListProcessorInterface {
+class ExtensionsProcessor_AddMtime implements ExtensionsProcessorInterface {
 
   /**
    * @param \Drupal\Core\Extension\Extension[] $extensions

@@ -1,14 +1,14 @@
 <?php
 
-namespace Drupal\Core\Extension\List_;
+namespace Drupal\Core\Extension\ExtensionsByName;
 
 use Drupal\Core\Extension\FilesToInfo\FilesToInfoInterface;
-use Drupal\Core\Extension\List_\Raw\RawExtensionListInterface;
+use Drupal\Core\Extension\RawExtensionsByName\RawExtensionsByNameInterface;
 
-class ExtensionList_FromRawExtensionList implements ExtensionListingInterface {
+class ExtensionsByName_FromRawExtensions implements ExtensionsByNameInterface {
 
   /**
-   * @var \Drupal\Core\Extension\List_\Raw\RawExtensionListInterface
+   * @var \Drupal\Core\Extension\RawExtensionsByName\RawExtensionsByNameInterface
    */
   private $rawExtensionList;
 
@@ -23,12 +23,12 @@ class ExtensionList_FromRawExtensionList implements ExtensionListingInterface {
   private $defaults;
 
   /**
-   * @param \Drupal\Core\Extension\List_\Raw\RawExtensionListInterface $rawExtensionList
+   * @param \Drupal\Core\Extension\RawExtensionsByName\RawExtensionsByNameInterface $rawExtensionList
    * @param \Drupal\Core\Extension\FilesToInfo\FilesToInfoInterface $filesToInfo
    * @param array $defaults
    *   Defaults to be merged into the info array parsed from the *.info.yml file.
    */
-  public function __construct(RawExtensionListInterface $rawExtensionList, FilesToInfoInterface $filesToInfo, array $defaults) {
+  public function __construct(RawExtensionsByNameInterface $rawExtensionList, FilesToInfoInterface $filesToInfo, array $defaults) {
     $this->rawExtensionList = $rawExtensionList;
     $this->filesToInfo = $filesToInfo;
     $this->defaults = $defaults;
@@ -48,7 +48,7 @@ class ExtensionList_FromRawExtensionList implements ExtensionListingInterface {
    *
    * @return \Drupal\Core\Extension\Extension[]
    */
-  public function listExtensions() {
+  public function getExtensions() {
 
     $extensions = $this->rawExtensionList->getRawExtensions();
 

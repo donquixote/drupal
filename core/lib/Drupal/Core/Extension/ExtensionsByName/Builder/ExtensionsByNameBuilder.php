@@ -1,33 +1,33 @@
 <?php
 
-namespace Drupal\Core\Extension\List_\Builder;
+namespace Drupal\Core\Extension\ExtensionsByName\Builder;
 
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Extension\FilesToInfo\FilesToInfo_InfoParser;
 use Drupal\Core\Extension\FilesToInfo\FilesToInfoInterface;
 use Drupal\Core\Extension\InfoParserInterface;
-use Drupal\Core\Extension\List_\ExtensionList_Buffer;
-use Drupal\Core\Extension\List_\ExtensionList_Cache;
-use Drupal\Core\Extension\List_\ExtensionList_FromRawExtensionList;
-use Drupal\Core\Extension\List_\ExtensionList_MultipleProcessorDecorator;
-use Drupal\Core\Extension\List_\ExtensionListUtil;
-use Drupal\Core\Extension\List_\Processor\ExtensionListProcessor_AddMtime;
-use Drupal\Core\Extension\List_\Processor\ExtensionListProcessor_Dependencies;
-use Drupal\Core\Extension\List_\Processor\ExtensionListProcessor_InstalledWeightsFromConfigFactory;
-use Drupal\Core\Extension\List_\Processor\ExtensionListProcessor_InstalledWeightsStatic;
-use Drupal\Core\Extension\List_\Processor\ExtensionListProcessor_ProfileAsModule;
-use Drupal\Core\Extension\List_\Processor\ExtensionListProcessor_RequiredDependencies;
-use Drupal\Core\Extension\List_\Processor\ExtensionListProcessor_SystemInfoAlter;
-use Drupal\Core\Extension\List_\Raw\RawExtensionList_FilesByName;
-use Drupal\Core\Extension\List_\Raw\RawExtensionList_ProfileAsModule;
+use Drupal\Core\Extension\ExtensionsByName\ExtensionsByName_Buffer;
+use Drupal\Core\Extension\ExtensionsByName\ExtensionsByName_Cache;
+use Drupal\Core\Extension\ExtensionsByName\ExtensionsByName_FromRawExtensions;
+use Drupal\Core\Extension\ExtensionsByName\ExtensionsByName_MultipleProcessorDecorator;
+use Drupal\Core\Extension\ExtensionsByName\ExtensionsByNameUtil;
+use Drupal\Core\Extension\ExtensionsProcessor\ExtensionsProcessor_AddMtime;
+use Drupal\Core\Extension\ExtensionsProcessor\ExtensionsProcessor_Dependencies;
+use Drupal\Core\Extension\ExtensionsProcessor\ExtensionsProcessor_InstalledWeightsFromConfigFactory;
+use Drupal\Core\Extension\ExtensionsProcessor\ExtensionsProcessor_InstalledWeightsStatic;
+use Drupal\Core\Extension\ExtensionsProcessor\ExtensionsProcessor_ProfileAsModule;
+use Drupal\Core\Extension\ExtensionsProcessor\ExtensionsProcessor_RequiredDependencies;
+use Drupal\Core\Extension\ExtensionsProcessor\ExtensionsProcessor_SystemInfoAlter;
+use Drupal\Core\Extension\RawExtensionsByName\RawExtensionsByName_FilesByName;
+use Drupal\Core\Extension\RawExtensionsByName\RawExtensionsByName_ProfileAsModule;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Extension\ProfileName\ProfileName_DrupalGetProfile;
 use Drupal\Core\Extension\ProfileName\ProfileName_Static;
 use Drupal\Core\Extension\ProfileName\ProfileNameInterface;
 use Drupal\Core\StringTranslation\TranslationInterface;
 
-class ExtensionListBuilder {
+class ExtensionsByNameBuilder {
 
   /**
    * @var string
@@ -94,7 +94,7 @@ class ExtensionListBuilder {
    * @param string $root
    * @param array $filesByNameProviders
    *
-   * @return self
+   * @return ExtensionsByNameBuilder
    */
   public static function create($root, array $filesByNameProviders) {
     return new self($root, $filesByNameProviders);
@@ -229,18 +229,18 @@ class ExtensionListBuilder {
   /**
    * Creates one extension list per type.
    *
-   * @return \Drupal\Core\Extension\List_\ExtensionListingInterface[]
+   * @return \Drupal\Core\Extension\ExtensionsByName\ExtensionsByNameInterface[]
    *   Format: $[$extension_type] = $extension_list
    */
   public function buildAll() {
     
     $raw_lists = [];
     foreach ($this->filesByNameProviders as $type => $filesByNameProvider) {
-      $raw_lists[$type] = RawExtensionList_FilesByName::create($filesByNameProvider, $this->root, $type);
+      $raw_lists[$type] = RawExtensionsByName_FilesByName::create($filesByNameProvider, $this->root, $type);
     }
 
     // Active profile is also listed as a module.
-    $raw_lists['module'] = new RawExtensionList_ProfileAsModule($raw_lists['module'], $raw_lists['profile'], $this->activeProfileNameProvider);
+    $raw_lists['module'] = new RawExtensionsByName_ProfileAsModule($raw_lists['module'], $raw_lists['profile'], $this->activeProfileNameProvider);
 
     $filesToInfo = $this->filesToInfo === NULL
       ? FilesToInfo_InfoParser::create()
@@ -248,19 +248,19 @@ class ExtensionListBuilder {
 
     $lists = [];
     foreach ($raw_lists as $type => $raw_list) {
-      $extension_list = new ExtensionList_FromRawExtensionList($raw_list, $filesToInfo, ExtensionListUtil::typeGetDefaults($type));
+      $extension_list = new ExtensionsByName_FromRawExtensions($raw_list, $filesToInfo, ExtensionsByNameUtil::typeGetDefaults($type));
 
       $processors = $this->typeBuildProcessors($type);
       if ([] !== $processors) {
-        $extension_list = new ExtensionList_MultipleProcessorDecorator($extension_list, $processors);
+        $extension_list = new ExtensionsByName_MultipleProcessorDecorator($extension_list, $processors);
       }
 
       if ($this->useBuffer) {
-        $extension_list = new ExtensionList_Buffer($extension_list);
+        $extension_list = new ExtensionsByName_Buffer($extension_list);
       }
 
       if ($this->cache !== NULL && $this->cacheId !== NULL) {
-        $extension_list = new ExtensionList_Cache($extension_list, $this->cache, $this->cacheId);
+        $extension_list = new ExtensionsByName_Cache($extension_list, $this->cache, $this->cacheId);
       }
 
       $lists[$type] = $extension_list;
@@ -278,21 +278,21 @@ class ExtensionListBuilder {
 
     $processors = [];
     if ($this->addMtime) {
-      $processors[] = new ExtensionListProcessor_AddMtime();
+      $processors[] = new ExtensionsProcessor_AddMtime();
     }
     if ($this->systemInfoAlterModuleHandler !== NULL) {
-      $processors[] = new ExtensionListProcessor_SystemInfoAlter($this->systemInfoAlterModuleHandler, $type);
+      $processors[] = new ExtensionsProcessor_SystemInfoAlter($this->systemInfoAlterModuleHandler, $type);
     }
     if ($type === 'module') {
-      $processors[] = new ExtensionListProcessor_ProfileAsModule($this->activeProfileNameProvider);
-      $processors[] = new ExtensionListProcessor_RequiredDependencies($this->translationService);
+      $processors[] = new ExtensionsProcessor_ProfileAsModule($this->activeProfileNameProvider);
+      $processors[] = new ExtensionsProcessor_RequiredDependencies($this->translationService);
       if ($this->installedWeightsConfigFactory !== NULL) {
-        $processors[] = new ExtensionListProcessor_InstalledWeightsFromConfigFactory($this->installedWeightsConfigFactory, $type);
+        $processors[] = new ExtensionsProcessor_InstalledWeightsFromConfigFactory($this->installedWeightsConfigFactory, $type);
       }
       elseif (isset($this->installedWeightsByType[$type])) {
-        $processors[] = new ExtensionListProcessor_InstalledWeightsStatic($this->installedWeightsByType[$type]);
+        $processors[] = new ExtensionsProcessor_InstalledWeightsStatic($this->installedWeightsByType[$type]);
       }
-      $processors[] = new ExtensionListProcessor_Dependencies();
+      $processors[] = new ExtensionsProcessor_Dependencies();
     }
 
     return $processors;

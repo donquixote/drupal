@@ -1,8 +1,8 @@
 <?php
 
-namespace Drupal\Core\Extension\List_\Raw;
+namespace Drupal\Core\Extension\RawExtensionsByName;
 
-interface RawExtensionListInterface {
+interface RawExtensionsByNameInterface {
 
   /**
    * Resets any stored or cached extension list.

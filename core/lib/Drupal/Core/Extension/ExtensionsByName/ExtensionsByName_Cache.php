@@ -1,13 +1,13 @@
 <?php
 
-namespace Drupal\Core\Extension\List_;
+namespace Drupal\Core\Extension\ExtensionsByName;
 
 use Drupal\Core\Cache\CacheBackendInterface;
 
-class ExtensionList_Cache implements ExtensionListingInterface {
+class ExtensionsByName_Cache implements ExtensionsByNameInterface {
 
   /**
-   * @var \Drupal\Core\Extension\List_\ExtensionListingInterface
+   * @var \Drupal\Core\Extension\ExtensionsByName\ExtensionsByNameInterface
    */
   private $decorated;
 
@@ -26,11 +26,11 @@ class ExtensionList_Cache implements ExtensionListingInterface {
   /**
    * Constructs a new ExtensionList instance.
    *
-   * @param \Drupal\Core\Extension\List_\ExtensionListingInterface $decorated
+   * @param \Drupal\Core\Extension\ExtensionsByName\ExtensionsByNameInterface $decorated
    * @param \Drupal\Core\Cache\CacheBackendInterface $cache
    * @param string $cache_id
    */
-  public function __construct(ExtensionListingInterface $decorated, CacheBackendInterface $cache, $cache_id) {
+  public function __construct(ExtensionsByNameInterface $decorated, CacheBackendInterface $cache, $cache_id) {
     $this->cache = $cache;
     $this->decorated = $decorated;
     $this->cache_id = $cache_id;
@@ -47,11 +47,11 @@ class ExtensionList_Cache implements ExtensionListingInterface {
   /**
    * {@inheritdoc}
    */
-  public function listExtensions() {
+  public function getExtensions() {
     if ($cache = $this->cache->get($this->cache_id)) {
       return $cache->data;
     }
-    $extensions = $this->decorated->listExtensions();
+    $extensions = $this->decorated->getExtensions();
     $this->cache->set($this->cache_id, $extensions);
     return $extensions;
   }

@@ -1,8 +1,8 @@
 <?php
 
-namespace Drupal\Core\Extension\List_;
+namespace Drupal\Core\Extension\ExtensionsByName;
 
-interface ExtensionListingInterface {
+interface ExtensionsByNameInterface {
 
   /**
    * Resets any stored or cached extension list.
@@ -15,7 +15,8 @@ interface ExtensionListingInterface {
    * Returns all available extensions, with $extension->info filled in.
    *
    * @return \Drupal\Core\Extension\Extension[]
+   *   Format: $[$name] = $extension
    */
-  public function listExtensions();
+  public function getExtensions();
 
 }

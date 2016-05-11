@@ -1,13 +1,13 @@
 <?php
 
-namespace Drupal\Core\Extension\List_\Processor;
+namespace Drupal\Core\Extension\ExtensionsProcessor;
 
 use Drupal\Core\Extension\Extension;
 use Drupal\Core\Extension\ModuleHandler;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\StringTranslation\TranslationInterface;
 
-class ExtensionListProcessor_RequiredDependencies implements ExtensionListProcessorInterface {
+class ExtensionsProcessor_RequiredDependencies implements ExtensionsProcessorInterface {
 
   use StringTranslationTrait;
 

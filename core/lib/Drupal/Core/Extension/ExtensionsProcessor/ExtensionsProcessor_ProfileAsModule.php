@@ -1,10 +1,10 @@
 <?php
 
-namespace Drupal\Core\Extension\List_\Processor;
+namespace Drupal\Core\Extension\ExtensionsProcessor;
 
 use Drupal\Core\Extension\ProfileName\ProfileNameInterface;
 
-class ExtensionListProcessor_ProfileAsModule implements ExtensionListProcessorInterface {
+class ExtensionsProcessor_ProfileAsModule implements ExtensionsProcessorInterface {
 
   /**
    * @var \Drupal\Core\Extension\ProfileName\ProfileNameInterface

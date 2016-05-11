@@ -1,8 +1,8 @@
 <?php
 
-namespace Drupal\Core\Extension\List_\Processor;
+namespace Drupal\Core\Extension\ExtensionsProcessor;
 
-class ExtensionListProcessor_InstalledWeightsStatic implements ExtensionListProcessorInterface {
+class ExtensionsProcessor_InstalledWeightsStatic implements ExtensionsProcessorInterface {
 
   /**
    * @var int[]

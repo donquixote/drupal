@@ -1,21 +1,21 @@
 <?php
 
-namespace Drupal\Core\Extension\List_\Raw;
+namespace Drupal\Core\Extension\RawExtensionsByName;
 
 use Drupal\Core\Extension\ProfileName\ProfileNameInterface;
 
 /**
  * Decorator that adds the active profile to the list.
  */
-class RawExtensionList_ProfileAsModule implements RawExtensionListInterface {
+class RawExtensionsByName_ProfileAsModule implements RawExtensionsByNameInterface {
 
   /**
-   * @var \Drupal\Core\Extension\List_\Raw\RawExtensionListInterface
+   * @var \Drupal\Core\Extension\RawExtensionsByName\RawExtensionsByNameInterface
    */
   private $decorated;
 
   /**
-   * @var \Drupal\Core\Extension\List_\Raw\RawExtensionListInterface
+   * @var \Drupal\Core\Extension\RawExtensionsByName\RawExtensionsByNameInterface
    */
   private $profileList;
 
@@ -25,11 +25,11 @@ class RawExtensionList_ProfileAsModule implements RawExtensionListInterface {
   private $profileNameProvider;
 
   /**
-   * @param \Drupal\Core\Extension\List_\Raw\RawExtensionListInterface $decorated
-   * @param \Drupal\Core\Extension\List_\Raw\RawExtensionListInterface $profileList
+   * @param \Drupal\Core\Extension\RawExtensionsByName\RawExtensionsByNameInterface $decorated
+   * @param \Drupal\Core\Extension\RawExtensionsByName\RawExtensionsByNameInterface $profileList
    * @param \Drupal\Core\Extension\ProfileName\ProfileNameInterface $profileNameProvider
    */
-  public function __construct(RawExtensionListInterface $decorated, RawExtensionListInterface $profileList, ProfileNameInterface $profileNameProvider) {
+  public function __construct(RawExtensionsByNameInterface $decorated, RawExtensionsByNameInterface $profileList, ProfileNameInterface $profileNameProvider) {
     $this->decorated = $decorated;
     $this->profileList = $profileList;
     $this->profileNameProvider = $profileNameProvider;
