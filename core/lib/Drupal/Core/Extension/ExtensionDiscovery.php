@@ -467,18 +467,18 @@ class ExtensionDiscovery {
       }
 
       // Determine extension type from info file.
-      $type = FALSE;
+      $type = NULL;
       $file = $fileinfo->openFile('r');
-      while (!$type && !$file->eof()) {
-        preg_match('@^type:\s*(\'|")?(\w+)\1?\s*$@', $file->fgets(), $matches);
-        if (isset($matches[2])) {
+      while (FALSE !== $line = $file->fgets()) {
+        if (preg_match('@^type:\s*(\'|")?(\w+)\1?\s*$@', $line, $matches)) {
           $type = $matches[2];
+          break;
         }
       }
-      if (empty($type)) {
+      if ($type === NULL) {
+        // Skip files where an extension type cannot be determined.
         continue;
       }
-      /** @var string $type */
       $name = $fileinfo->getBasename('.info.yml');
       $pathname = $dir_prefix . $fileinfo->getSubPathname();
 
