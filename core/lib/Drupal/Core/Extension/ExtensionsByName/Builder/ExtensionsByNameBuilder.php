@@ -4,12 +4,9 @@ namespace Drupal\Core\Extension\ExtensionsByName\Builder;
 
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Config\ConfigFactoryInterface;
-use Drupal\Core\Extension\FilesToInfo\FilesToInfo_InfoParser;
-use Drupal\Core\Extension\FilesToInfo\FilesToInfoInterface;
-use Drupal\Core\Extension\InfoParserInterface;
 use Drupal\Core\Extension\ExtensionsByName\ExtensionsByName_Buffer;
 use Drupal\Core\Extension\ExtensionsByName\ExtensionsByName_Cache;
-use Drupal\Core\Extension\ExtensionsByName\ExtensionsByName_FromRawExtensions;
+use Drupal\Core\Extension\ExtensionsByName\ExtensionsByName_FromRawExtensionsByType;
 use Drupal\Core\Extension\ExtensionsByName\ExtensionsByName_MultipleProcessorDecorator;
 use Drupal\Core\Extension\ExtensionsByName\ExtensionsByNameUtil;
 use Drupal\Core\Extension\ExtensionsProcessor\ExtensionsProcessor_AddMtime;
@@ -19,25 +16,24 @@ use Drupal\Core\Extension\ExtensionsProcessor\ExtensionsProcessor_InstalledWeigh
 use Drupal\Core\Extension\ExtensionsProcessor\ExtensionsProcessor_ProfileAsModule;
 use Drupal\Core\Extension\ExtensionsProcessor\ExtensionsProcessor_RequiredDependencies;
 use Drupal\Core\Extension\ExtensionsProcessor\ExtensionsProcessor_SystemInfoAlter;
-use Drupal\Core\Extension\RawExtensionsByName\RawExtensionsByName_FilesByName;
-use Drupal\Core\Extension\RawExtensionsByName\RawExtensionsByName_ProfileAsModule;
+use Drupal\Core\Extension\FilesToInfo\FilesToInfo_InfoParser;
+use Drupal\Core\Extension\FilesToInfo\FilesToInfoInterface;
+use Drupal\Core\Extension\InfoParserInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Extension\ProfileName\ProfileName_DrupalGetProfile;
 use Drupal\Core\Extension\ProfileName\ProfileName_Static;
 use Drupal\Core\Extension\ProfileName\ProfileNameInterface;
+use Drupal\Core\Extension\RawExtensionsByType\RawExtensionsByType_ActiveProfileAsModule;
+use Drupal\Core\Extension\RawExtensionsByType\RawExtensionsByType_Buffer;
+use Drupal\Core\Extension\RawExtensionsByType\RawExtensionsByTypeInterface;
 use Drupal\Core\StringTranslation\TranslationInterface;
 
 class ExtensionsByNameBuilder {
 
   /**
-   * @var string
+   * @var \Drupal\Core\Extension\RawExtensionsByType\RawExtensionsByTypeInterface
    */
-  private $root;
-
-  /**
-   * @var array
-   */
-  private $filesByNameProviders;
+  private $rawExtensionsByType;
 
   /**
    * @var \Drupal\Core\Extension\FilesToInfo\FilesToInfoInterface
@@ -91,22 +87,19 @@ class ExtensionsByNameBuilder {
   private $cacheId;
 
   /**
-   * @param string $root
-   * @param array $filesByNameProviders
+   * @param \Drupal\Core\Extension\RawExtensionsByType\RawExtensionsByTypeInterface $rawExtensionsByType
    *
-   * @return ExtensionsByNameBuilder
+   * @return \Drupal\Core\Extension\ExtensionsByName\Builder\ExtensionsByNameBuilder
    */
-  public static function create($root, array $filesByNameProviders) {
-    return new self($root, $filesByNameProviders);
+  public static function create(RawExtensionsByTypeInterface $rawExtensionsByType) {
+    return new self($rawExtensionsByType);
   }
 
   /**
-   * @param string $root
-   * @param array $filesByNameProviders
+   * @param \Drupal\Core\Extension\RawExtensionsByType\RawExtensionsByTypeInterface $rawExtensionsByType
    */
-  public function __construct($root, array $filesByNameProviders) {
-    $this->root = $root;
-    $this->filesByNameProviders = $filesByNameProviders;
+  public function __construct(RawExtensionsByTypeInterface $rawExtensionsByType) {
+    $this->rawExtensionsByType = $rawExtensionsByType;
     $this->activeProfileNameProvider = new ProfileName_DrupalGetProfile();
   }
 
@@ -233,22 +226,19 @@ class ExtensionsByNameBuilder {
    *   Format: $[$extension_type] = $extension_list
    */
   public function buildAll() {
-    
-    $raw_lists = [];
-    foreach ($this->filesByNameProviders as $type => $filesByNameProvider) {
-      $raw_lists[$type] = RawExtensionsByName_FilesByName::create($filesByNameProvider, $this->root, $type);
-    }
 
-    // Active profile is also listed as a module.
-    $raw_lists['module'] = new RawExtensionsByName_ProfileAsModule($raw_lists['module'], $raw_lists['profile'], $this->activeProfileNameProvider);
+    $rawExtensionsByType = $this->rawExtensionsByType;
+    $rawExtensionsByType = new RawExtensionsByType_ActiveProfileAsModule($rawExtensionsByType, $this->activeProfileNameProvider);
+    $rawExtensionsByType = new RawExtensionsByType_Buffer($rawExtensionsByType);
 
     $filesToInfo = $this->filesToInfo === NULL
       ? FilesToInfo_InfoParser::create()
       : $this->filesToInfo;
 
     $lists = [];
-    foreach ($raw_lists as $type => $raw_list) {
-      $extension_list = new ExtensionsByName_FromRawExtensions($raw_list, $filesToInfo, ExtensionsByNameUtil::typeGetDefaults($type));
+    foreach (['profile', 'module', 'theme', 'theme_engine'] as $type) {
+      $defaults = ExtensionsByNameUtil::typeGetDefaults($type);
+      $extension_list = new ExtensionsByName_FromRawExtensionsByType($rawExtensionsByType, $type, $filesToInfo, $defaults);
 
       $processors = $this->typeBuildProcessors($type);
       if ([] !== $processors) {

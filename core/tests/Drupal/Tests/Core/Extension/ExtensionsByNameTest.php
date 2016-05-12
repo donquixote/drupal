@@ -1,13 +1,16 @@
 <?php
 namespace Drupal\Tests\Core\Extension;
 
+use Drupal\Core\Extension\DirectoryToFiles\DirectoryToFiles_StaticGrep;
 use Drupal\Core\Extension\Extension;
-use Drupal\Core\Extension\FilesByName\FilesByNameUtil;
+use Drupal\Core\Extension\ExtensionsByName\Builder\ExtensionsByNameBuilder;
 use Drupal\Core\Extension\FilesToInfo\FilesToInfo_Static;
 use Drupal\Core\Extension\FilesToTypes\FilesToTypes_Static;
-use Drupal\Core\Extension\ExtensionsByName\Builder\ExtensionsByNameBuilder;
 use Drupal\Core\Extension\ProfileName\ProfileName_Static;
-use Drupal\Core\Extension\DirectoryToFiles\DirectoryToFiles_StaticGrep;
+use Drupal\Core\Extension\RawExtensionsByType\RawExtensionsByType_FromRawExtensionsGrouped;
+use Drupal\Core\Extension\SearchdirPrefixes\SearchdirPrefixes_Common;
+use Drupal\Core\Extension\SearchdirToFilesGrouped\SearchdirToFilesGrouped_Common;
+use Drupal\Core\Extension\SearchdirToRawExtensionsGrouped\SearchdirToRawExtensionsGroupedSingleton;
 use Drupal\Core\StringTranslation\PluralTranslatableMarkup;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\StringTranslation\TranslationInterface;
@@ -76,16 +79,17 @@ class ExtensionsByNameTest extends UnitTestCase {
     unset($files_by_type_and_name_expected['module']['otherprofile_nested_module']);
     $files_by_type_and_name_expected['module']['myprofile'] = 'profiles/myprofile/myprofile.info.yml';
 
-    $searchdirToFiles = new DirectoryToFiles_StaticGrep($files);
+    $directoryToFiles = new DirectoryToFiles_StaticGrep($files);
     $filesToTypes = new FilesToTypes_Static($types_by_file, 'module');
+    $searchdirToFilesGrouped = SearchdirToFilesGrouped_Common::createFromComponents($directoryToFiles, $filesToTypes);
 
-    $providers = FilesByNameUtil::createAllFromBaseComponents(
-      'sites/default',
-      $searchdirToFiles,
-      $filesToTypes,
+    $root = '/DRUPAL_ROOT';
+    $searchdirToRawExtensionsGrouped = SearchdirToRawExtensionsGroupedSingleton::createInstance($root, $searchdirToFilesGrouped);
+
+    $rawExtensionsByType = RawExtensionsByType_FromRawExtensionsGrouped::create(
+      new SearchdirPrefixes_Common('sites/default'),
+      $searchdirToRawExtensionsGrouped,
       new ProfileName_Static('myprofile'));
-
-    $root = \Drupal::staticRoot();
 
     $installed_weights = [
       'module' => [
@@ -98,16 +102,14 @@ class ExtensionsByNameTest extends UnitTestCase {
       ],
     ];
 
-    $translationService = new FakeTranslationManager();
-
-    $lists = ExtensionsByNameBuilder::create($root, $providers)
+    $lists = ExtensionsByNameBuilder::create($rawExtensionsByType)
       ->withFilesToInfo(new FilesToInfo_Static($info_by_file))
       ->withActiveProfileName('myprofile')
       ->withInstalledWeightsStatic($installed_weights)
       ->withoutMtime()
       // Avoid the module handler.
       # ->withSystemInfoAlter()
-      ->withTranslationService($translationService)
+      ->withTranslationService(new FakeTranslationManager())
       ->buildAll();
 
     $extensions_by_type = [];
