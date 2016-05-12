@@ -62,6 +62,9 @@ class SearchdirToRawExtensionsGrouped_Common implements SearchdirToRawExtensions
 
           // E.g. 'system.module'.
           $filename = $name . $filename_suffix;
+          if (!file_exists($this->root . '/' . dirname($yml_file) . '/' . $filename)) {
+            $filename = NULL;
+          }
 
           $extension = new Extension($this->root, $type, $yml_file, $filename);
 
