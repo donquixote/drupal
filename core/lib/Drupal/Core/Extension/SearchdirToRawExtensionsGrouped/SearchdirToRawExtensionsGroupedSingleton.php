@@ -26,8 +26,8 @@ use Drupal\Core\Extension\SearchdirToFilesGrouped\SearchdirToFilesGroupedSinglet
 final class SearchdirToRawExtensionsGroupedSingleton extends UtilBase {
 
   /**
-   * @var \Drupal\Core\Extension\SearchdirToRawExtensionsGrouped\SearchdirToRawExtensionsGroupedInterface[][][]
-   *   Format: $[$root][(int)$include_tests][$type] = $instance
+   * @var \Drupal\Core\Extension\SearchdirToRawExtensionsGrouped\SearchdirToRawExtensionsGroupedInterface[][]
+   *   Format: $[$root][(int)$include_tests] = $instance
    */
   private static $instances = [];
 
