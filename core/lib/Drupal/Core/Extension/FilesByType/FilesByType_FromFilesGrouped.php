@@ -2,10 +2,13 @@
 
 namespace Drupal\Core\Extension\FilesByType;
 
+use Drupal\Core\Extension\ProfileName\ProfileName_DrupalGetProfile;
 use Drupal\Core\Extension\ProfileName\ProfileNameInterface;
+use Drupal\Core\Extension\SearchdirPrefixes\SearchdirPrefixes_Common;
 use Drupal\Core\Extension\SearchdirPrefixes\SearchdirPrefixesInterface;
 use Drupal\Core\Extension\SearchdirPrefixes\SearchdirPrefixesUtil;
 use Drupal\Core\Extension\SearchdirToFilesGrouped\SearchdirToFilesGroupedInterface;
+use Drupal\Core\Extension\SearchdirToFilesGrouped\SearchdirToFilesGroupedSingleton;
 
 class FilesByType_FromFilesGrouped implements FilesByTypeInterface {
 
@@ -23,6 +26,40 @@ class FilesByType_FromFilesGrouped implements FilesByTypeInterface {
    * @var \Drupal\Core\Extension\ProfileName\ProfileNameInterface
    */
   private $profileNameProvider;
+
+  /**
+   * @param string $root
+   * @param bool $include_tests
+   *
+   * @return \Drupal\Core\Extension\FilesByType\FilesByTypeInterface
+   */
+  public static function createFromGlobals($root, $include_tests = FALSE) {
+    return self::create(
+      new SearchdirPrefixes_Common(),
+      SearchdirToFilesGroupedSingleton::getInstance($root, $include_tests),
+      new ProfileName_DrupalGetProfile());
+  }
+
+  /**
+   * @param \Drupal\Core\Extension\SearchdirPrefixes\SearchdirPrefixesInterface $searchdirPrefixes
+   * @param \Drupal\Core\Extension\SearchdirToFilesGrouped\SearchdirToFilesGroupedInterface $searchdirToFilesGrouped
+   * @param \Drupal\Core\Extension\ProfileName\ProfileNameInterface $profileNameProvider
+   * @param bool $buffered
+   *
+   * @return \Drupal\Core\Extension\FilesByType\FilesByTypeInterface
+   */
+  public static function create(
+    SearchdirPrefixesInterface $searchdirPrefixes,
+    SearchdirToFilesGroupedInterface $searchdirToFilesGrouped,
+    ProfileNameInterface $profileNameProvider,
+    $buffered = TRUE
+  ) {
+    $instance = new self($searchdirPrefixes, $searchdirToFilesGrouped, $profileNameProvider);
+    if ($buffered) {
+      $instance = new FilesByType_Buffer($instance);
+    }
+    return $instance;
+  }
 
   /**
    * @param \Drupal\Core\Extension\SearchdirPrefixes\SearchdirPrefixesInterface $searchdirPrefixes

@@ -27,6 +27,7 @@ class SearchdirPrefixes_Common implements SearchdirPrefixesInterface {
    *   If the site path is NULL, one will be automatically determined from
    *   global state.
    * @param bool $support_simpletest
+   *   TRUE to add an additional search directory for simpletest.
    */
   public function __construct($sitePath = NULL, $support_simpletest = TRUE) {
     $this->sitePath = $sitePath;
