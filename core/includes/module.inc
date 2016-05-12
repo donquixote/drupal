@@ -5,7 +5,7 @@
  * API for loading and interacting with Drupal modules.
  */
 
-use Drupal\Core\Extension\ExtensionDiscovery;
+use Drupal\Core\Extension\DiscoveryRealm\ExtensionDiscoveryRealm;
 
 /**
  * Builds a list of installed themes.
@@ -144,8 +144,7 @@ function module_load_include($type, $module, $name = NULL) {
  * Returns an array of modules required by core.
  */
 function drupal_required_modules() {
-  $listing = new ExtensionDiscovery(\Drupal::root());
-  $files = $listing->scan('module');
+  $files = ExtensionDiscoveryRealm::build()->getRawModules();
   $required = array();
 
   // Unless called by the installer, an installation profile is required and

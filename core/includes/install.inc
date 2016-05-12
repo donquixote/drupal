@@ -5,13 +5,13 @@
  * API functions for installing modules and themes.
  */
 
-use Drupal\Component\Utility\Unicode;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Drupal\Component\Utility\Crypt;
 use Drupal\Component\Utility\OpCodeCache;
+use Drupal\Component\Utility\Unicode;
 use Drupal\Component\Utility\UrlHelper;
-use Drupal\Core\Extension\ExtensionDiscovery;
+use Drupal\Core\Extension\DiscoveryRealm\ExtensionDiscoveryRealm;
 use Drupal\Core\Site\Settings;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 /**
  * Requirement severity -- Informational message only.
@@ -556,11 +556,7 @@ function drupal_verify_profile($install_state) {
   $info = $install_state['profile_info'];
 
   // Get the list of available modules for the selected installation profile.
-  $listing = new ExtensionDiscovery(\Drupal::root());
-  $present_modules = array();
-  foreach ($listing->scan('module') as $present_module) {
-    $present_modules[] = $present_module->getName();
-  }
+  $present_modules = ExtensionDiscoveryRealm::build()->typeGetMachineNames('module');
 
   // The installation profile is also a module, which needs to be installed
   // after all the other dependencies have been installed.
@@ -934,8 +930,7 @@ function drupal_check_profile($profile) {
   // Performs an ExtensionDiscovery scan as the system module is unavailable and
   // we don't yet know where all the modules are located.
   // @todo Remove as part of https://www.drupal.org/node/2186491
-  $listing = new ExtensionDiscovery(\Drupal::root());
-  $module_list = $listing->scan('module');
+  $module_list = ExtensionDiscoveryRealm::build()->getRawModules();
   foreach ($info['dependencies'] as $module) {
     $file = \Drupal::root() . '/' . $module_list[$module]->getPath() . "/$module.install";
     if (is_file($file)) {

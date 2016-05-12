@@ -6,10 +6,12 @@
  */
 
 use Drupal\Component\Utility\UrlHelper;
-use Drupal\Core\DrupalKernel;
 use Drupal\Core\Config\BootstrapConfigStorageFactory;
 use Drupal\Core\Database\Database;
 use Drupal\Core\Database\DatabaseExceptionWrapper;
+use Drupal\Core\DependencyInjection\ContainerBuilder;
+use Drupal\Core\DrupalKernel;
+use Drupal\Core\Extension\DiscoveryRealm\ExtensionDiscoveryRealm;
 use Drupal\Core\Form\FormState;
 use Drupal\Core\Installer\Exception\AlreadyInstalledException;
 use Drupal\Core\Installer\Exception\InstallerException;
@@ -19,19 +21,17 @@ use Drupal\Core\Language\Language;
 use Drupal\Core\Language\LanguageManager;
 use Drupal\Core\Logger\LoggerChannelFactory;
 use Drupal\Core\Site\Settings;
-use Drupal\Core\StringTranslation\Translator\FileTranslation;
 use Drupal\Core\StackMiddleware\ReverseProxyMiddleware;
-use Drupal\Core\Extension\ExtensionDiscovery;
-use Drupal\Core\DependencyInjection\ContainerBuilder;
+use Drupal\Core\StringTranslation\Translator\FileTranslation;
 use Drupal\Core\Url;
 use Drupal\language\Entity\ConfigurableLanguage;
+use Drupal\user\Entity\User;
+use GuzzleHttp\Exception\RequestException;
 use Symfony\Cmf\Component\Routing\RouteObjectInterface;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Route;
-use Drupal\user\Entity\User;
-use GuzzleHttp\Exception\RequestException;
 
 /**
  * Do not run the task during the current installation request.
@@ -419,9 +419,7 @@ function install_begin_request($class_loader, &$install_state) {
     ->addTranslator($container->get('string_translator.file_translation'));
 
   // Add list of all available profiles to the installation state.
-  $listing = new ExtensionDiscovery($container->get('app.root'));
-  $listing->setProfileDirectories(array());
-  $install_state['profiles'] += $listing->scan('profile');
+  $install_state['profiles'] += ExtensionDiscoveryRealm::build($container->get('app.root'))->getRawProfiles();
 
   // Prime drupal_get_filename()'s static cache.
   foreach ($install_state['profiles'] as $name => $profile) {
