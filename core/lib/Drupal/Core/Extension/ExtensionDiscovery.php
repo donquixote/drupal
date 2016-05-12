@@ -4,7 +4,8 @@ namespace Drupal\Core\Extension;
 
 use Drupal\Component\FileCache\FileCacheFactory;
 use Drupal\Core\DrupalKernel;
-use Drupal\Core\Extension\Discovery\RecursiveExtensionFilterIterator;
+use Drupal\Core\Extension\SearchdirToRawExtensionsGrouped\SearchdirToRawExtensionsGroupedInterface;
+use Drupal\Core\Extension\SearchdirToRawExtensionsGrouped\SearchdirToRawExtensionsGroupedSingleton;
 use Drupal\Core\Site\Settings;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -65,13 +66,6 @@ class ExtensionDiscovery {
   protected $infoParser;
 
   /**
-   * Previously discovered files keyed by origin directory and extension type.
-   *
-   * @var array
-   */
-  protected static $files = array();
-
-  /**
    * List of installation profile directories to additionally scan.
    *
    * @var string[]|null
@@ -100,10 +94,17 @@ class ExtensionDiscovery {
   protected $sitePath;
 
   /**
+   * The component that searches the directories, or NULL if not initialized.
+   *
+   * @var \Drupal\Core\Extension\SearchdirToRawExtensionsGrouped\SearchdirToRawExtensionsGroupedInterface|null
+   */
+  protected $searchdirToRawExtensionsGrouped;
+
+  /**
    * Resets the static cache.
    */
   static function staticReset() {
-    self::$files = [];
+    SearchdirToRawExtensionsGroupedSingleton::resetInstancesData();
   }
 
   /**
@@ -123,6 +124,21 @@ class ExtensionDiscovery {
     $this->fileCache = $use_file_cache ? FileCacheFactory::get('extension_discovery') : NULL;
     $this->profileDirectories = $profile_directories;
     $this->sitePath = $site_path;
+  }
+
+  /**
+   * Sets the component that searches the directories.
+   *
+   * This allows to specify a custom component for this, instead of using
+   * the default component.
+   *
+   * @param \Drupal\Core\Extension\SearchdirToRawExtensionsGrouped\SearchdirToRawExtensionsGroupedInterface $searchdirToRawExtensionsGrouped
+   *
+   * @return $this
+   */
+  public function setSearchdirToRawExtensionsGrouped(SearchdirToRawExtensionsGroupedInterface $searchdirToRawExtensionsGrouped) {
+    $this->searchdirToRawExtensionsGrouped = $searchdirToRawExtensionsGrouped;
+    return $this;
   }
 
   /**
@@ -213,15 +229,18 @@ class ExtensionDiscovery {
       $include_tests = Settings::get('extension_discovery_scan_tests') || drupal_valid_test_ua();
     }
 
+    $searchdirToRawExtensionsGrouped = $this->searchdirToRawExtensionsGrouped !== NULL
+      ? $this->searchdirToRawExtensionsGrouped
+      : SearchdirToRawExtensionsGroupedSingleton::getInstance($this->root, $include_tests);
+
     $files = array();
     foreach ($searchdirs as $dir) {
-      // Discover all extensions in the directory, unless we did already.
-      if (!isset(static::$files[$dir][$include_tests])) {
-        static::$files[$dir][$include_tests] = $this->scanDirectory($dir, $include_tests);
-      }
-      // Only return extensions of the requested type.
-      if (isset(static::$files[$dir][$include_tests][$type])) {
-        $files += static::$files[$dir][$include_tests][$type];
+      /** @var \Drupal\Core\Extension\Extension[][][] $raw_extensions_grouped */
+      $raw_extensions_grouped = $searchdirToRawExtensionsGrouped->getRawExtensionsGrouped($dir === '' ? $dir : $dir . '/');
+      if (array_key_exists($type, $raw_extensions_grouped)) {
+        foreach ($raw_extensions_grouped[$type] as $subdir_name => $subdir_raw_extensions_by_name) {
+          $files += $subdir_raw_extensions_by_name;
+        }
       }
     }
 
@@ -391,121 +410,6 @@ class ExtensionDiscovery {
     // earlier ones; they replace the extension in the existing $files array.
     foreach ($all_files as $file) {
       $files[$file->getName()] = $file;
-    }
-    return $files;
-  }
-
-  /**
-   * Recursively scans a base directory for the requested extension type.
-   *
-   * @param string $dir
-   *   A relative base directory path to scan, without trailing slash.
-   * @param bool $include_tests
-   *   Whether to include test extensions. If FALSE, all 'tests' directories are
-   *   excluded in the search.
-   *
-   * @return array
-   *   An associative array whose keys are extension type names and whose values
-   *   are associative arrays of \Drupal\Core\Extension\Extension objects, keyed
-   *   by absolute path name.
-   *
-   * @see \Drupal\Core\Extension\Discovery\RecursiveExtensionFilterIterator
-   */
-  protected function scanDirectory($dir, $include_tests) {
-    $files = array();
-
-    // In order to scan top-level directories, absolute directory paths have to
-    // be used (which also improves performance, since any configured PHP
-    // include_paths will not be consulted). Retain the relative originating
-    // directory being scanned, so relative paths can be reconstructed below
-    // (all paths are expected to be relative to $this->root).
-    $dir_prefix = ($dir === '' ? '' : "$dir/");
-    $absolute_dir = ($dir === '' ? $this->root : $this->root . "/$dir");
-
-    if (!is_dir($absolute_dir)) {
-      return $files;
-    }
-    // Use Unix paths regardless of platform, skip dot directories, follow
-    // symlinks (to allow extensions to be linked from elsewhere), and return
-    // the RecursiveDirectoryIterator instance to have access to getSubPath(),
-    // since SplFileInfo does not support relative paths.
-    $flags = \FilesystemIterator::UNIX_PATHS;
-    $flags |= \FilesystemIterator::SKIP_DOTS;
-    $flags |= \FilesystemIterator::FOLLOW_SYMLINKS;
-    $flags |= \FilesystemIterator::CURRENT_AS_SELF;
-    $directory_iterator = new \RecursiveDirectoryIterator($absolute_dir, $flags);
-
-    // Filter the recursive scan to discover extensions only.
-    // Important: Without a RecursiveFilterIterator, RecursiveDirectoryIterator
-    // would recurse into the entire filesystem directory tree without any kind
-    // of limitations.
-    $filter = new RecursiveExtensionFilterIterator($directory_iterator);
-    $filter->acceptTests($include_tests);
-
-    // The actual recursive filesystem scan is only invoked by instantiating the
-    // RecursiveIteratorIterator.
-    $iterator = new \RecursiveIteratorIterator($filter,
-      \RecursiveIteratorIterator::LEAVES_ONLY,
-      // Suppress filesystem errors in case a directory cannot be accessed.
-      \RecursiveIteratorIterator::CATCH_GET_CHILD
-    );
-
-    /**
-     * @var string $key
-     * @var \RecursiveDirectoryIterator $fileinfo
-     */
-    foreach ($iterator as $key => $fileinfo) {
-      // All extension names in Drupal have to be valid PHP function names due
-      // to the module hook architecture.
-      if (!preg_match(static::PHP_FUNCTION_PATTERN, $fileinfo->getBasename('.info.yml'))) {
-        continue;
-      }
-
-      if ($this->fileCache && $cached_extension = $this->fileCache->get($fileinfo->getPathname())) {
-        $files[$cached_extension->getType()][$key] = $cached_extension;
-        continue;
-      }
-
-      // Determine extension type from info file.
-      $type = NULL;
-      $file = $fileinfo->openFile('r');
-      while (FALSE !== $line = $file->fgets()) {
-        if (preg_match('@^type:\s*(\'|")?(\w+)\1?\s*$@', $line, $matches)) {
-          $type = $matches[2];
-          break;
-        }
-      }
-      if ($type === NULL) {
-        // Skip files where an extension type cannot be determined.
-        continue;
-      }
-      $name = $fileinfo->getBasename('.info.yml');
-      $pathname = $dir_prefix . $fileinfo->getSubPathname();
-
-      // Determine whether the extension has a main extension file.
-      // For theme engines, the file extension is .engine.
-      if ($type === 'theme_engine') {
-        $filename = $name . '.engine';
-      }
-      // For profiles/modules/themes, it is the extension type.
-      else {
-        $filename = $name . '.' . $type;
-      }
-      if (!file_exists($this->root . '/' . dirname($pathname) . '/' . $filename)) {
-        $filename = NULL;
-      }
-
-      $extension = new Extension($this->root, $type, $pathname, $filename);
-
-      // Track the originating directory for sorting purposes.
-      $extension->subpath = $fileinfo->getSubPath();
-      $extension->origin = $dir;
-
-      $files[$type][$key] = $extension;
-
-      if ($this->fileCache) {
-        $this->fileCache->set($fileinfo->getPathname(), $extension);
-      }
     }
     return $files;
   }
