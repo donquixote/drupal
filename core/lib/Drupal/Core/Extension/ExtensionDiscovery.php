@@ -491,7 +491,7 @@ class ExtensionDiscovery {
       else {
         $filename = $name . '.' . $type;
       }
-      if (!file_exists(dirname($pathname) . '/' . $filename)) {
+      if (!file_exists($this->root . '/' . dirname($pathname) . '/' . $filename)) {
         $filename = NULL;
       }
 
