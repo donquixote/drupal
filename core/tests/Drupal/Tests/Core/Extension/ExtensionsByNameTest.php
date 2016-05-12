@@ -133,6 +133,8 @@ class ExtensionsByNameTest extends UnitTestCase {
       'version' => NULL,
       'php' => DRUPAL_MINIMUM_PHP,
     ];
+    $extension_expected->subpath = 'modules/system/system.info.yml';
+    $extension_expected->origin = 'core';
     $extension_expected->required_by = [];
     $extension_expected->requires = [];
     $extension_expected->sort = 0;
@@ -155,6 +157,8 @@ class ExtensionsByNameTest extends UnitTestCase {
       'required' => TRUE,
       'explanation' => new TranslatableMarkup('Dependency of required module @module', ['@module' => 'Name of (myprofile)'], [], new FakeTranslationManager()),
     ];
+    $extension_expected->subpath = 'profiles/myprofile/modules/myprofile_nested_module/myprofile_nested_module.info.yml';
+    $extension_expected->origin = '';
     $extension_expected->required_by = [
       'myprofile' => [
         'name' => 'myprofile_nested_module',
@@ -185,6 +189,8 @@ class ExtensionsByNameTest extends UnitTestCase {
         'name' => 'Drupal',
       ],
     ];
+    $extension_expected->subpath = 'profiles/myprofile/myprofile.info.yml';
+    $extension_expected->origin = '';
     $extension_expected->required_by = [];
     $extension_expected->requires = [
       'myprofile_nested_module' => [

@@ -43,6 +43,12 @@ class SearchdirToRawExtensionsGrouped_Common implements SearchdirToRawExtensions
    */
   public function getRawExtensionsGrouped($searchdir_prefix) {
 
+    $searchdir = $searchdir_prefix !== ''
+      ? substr($searchdir_prefix, 0, -1)
+      : '';
+
+    $subpath_offset = strlen($searchdir_prefix);
+
     $extensions_grouped = [];
     foreach ($this->searchdirToFilesGrouped->getFilesGrouped($searchdir_prefix) as $type => $type_files_by_subdir_name) {
 
@@ -51,12 +57,17 @@ class SearchdirToRawExtensionsGrouped_Common implements SearchdirToRawExtensions
         : '.' . $type;
 
       foreach ($type_files_by_subdir_name as $subdir_name => $subdir_files_by_name) {
+
         foreach ($subdir_files_by_name as $name => $yml_file) {
 
           // E.g. 'system.module'.
           $filename = $name . $filename_suffix;
 
           $extension = new Extension($this->root, $type, $yml_file, $filename);
+
+          // Add subpath and origin for BC.
+          $extension->subpath = substr($yml_file, $subpath_offset);
+          $extension->origin = $searchdir;
 
           $extensions_grouped[$type][$subdir_name][$name] = $extension;
         }
