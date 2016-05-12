@@ -84,7 +84,7 @@ class ExtensionsByNameTest extends UnitTestCase {
     $searchdirToFilesGrouped = SearchdirToFilesGrouped_Common::createFromComponents($directoryToFiles, $filesToTypes);
 
     $root = '/DRUPAL_ROOT';
-    $searchdirToRawExtensionsGrouped = SearchdirToRawExtensionsGroupedSingleton::createInstance($root, $searchdirToFilesGrouped);
+    $searchdirToRawExtensionsGrouped = SearchdirToRawExtensionsGroupedSingleton::createInstance($root, $searchdirToFilesGrouped, FALSE);
 
     $rawExtensionsByType = RawExtensionsByType_FromRawExtensionsGrouped::create(
       new SearchdirPrefixes_Common('sites/default', FALSE),
@@ -133,7 +133,7 @@ class ExtensionsByNameTest extends UnitTestCase {
       'version' => NULL,
       'php' => DRUPAL_MINIMUM_PHP,
     ];
-    $extension_expected->subpath = 'modules/system/system.info.yml';
+    $extension_expected->subpath = 'modules/system';
     $extension_expected->origin = 'core';
     $extension_expected->required_by = [];
     $extension_expected->requires = [];
@@ -157,7 +157,7 @@ class ExtensionsByNameTest extends UnitTestCase {
       'required' => TRUE,
       'explanation' => new TranslatableMarkup('Dependency of required module @module', ['@module' => 'Name of (myprofile)'], [], new FakeTranslationManager()),
     ];
-    $extension_expected->subpath = 'profiles/myprofile/modules/myprofile_nested_module/myprofile_nested_module.info.yml';
+    $extension_expected->subpath = 'profiles/myprofile/modules/myprofile_nested_module';
     $extension_expected->origin = '';
     $extension_expected->required_by = [
       'myprofile' => [
@@ -189,7 +189,7 @@ class ExtensionsByNameTest extends UnitTestCase {
         'name' => 'Drupal',
       ],
     ];
-    $extension_expected->subpath = 'profiles/myprofile/myprofile.info.yml';
+    $extension_expected->subpath = 'profiles/myprofile';
     $extension_expected->origin = '';
     $extension_expected->required_by = [];
     $extension_expected->requires = [

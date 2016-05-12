@@ -22,13 +22,22 @@ class SearchdirToRawExtensionsGrouped_Common implements SearchdirToRawExtensions
   private $root;
 
   /**
+   * @var bool
+   */
+  private $checkFileExists;
+
+  /**
    * @param \Drupal\Core\Extension\SearchdirToFilesGrouped\SearchdirToFilesGroupedInterface $searchdirToFilesGrouped
    * @param string $root
    *   The Drupal root directory.
+   * @param bool $check_file_exists
+   *   TRUE, to check if the *.profile, *.module, *.theme or *.engine file exists.
+   *   FALSE, to always assume the file does exist.
    */
-  public function __construct(SearchdirToFilesGroupedInterface $searchdirToFilesGrouped, $root) {
+  public function __construct(SearchdirToFilesGroupedInterface $searchdirToFilesGrouped, $root, $check_file_exists = TRUE) {
     $this->searchdirToFilesGrouped = $searchdirToFilesGrouped;
     $this->root = $root;
+    $this->checkFileExists = $check_file_exists;
   }
 
   /**
@@ -62,14 +71,14 @@ class SearchdirToRawExtensionsGrouped_Common implements SearchdirToRawExtensions
 
           // E.g. 'system.module'.
           $filename = $name . $filename_suffix;
-          if (!file_exists($this->root . '/' . dirname($yml_file) . '/' . $filename)) {
+          if ($this->checkFileExists && !file_exists($this->root . '/' . dirname($yml_file) . '/' . $filename)) {
             $filename = NULL;
           }
 
           $extension = new Extension($this->root, $type, $yml_file, $filename);
 
           // Add subpath and origin for BC.
-          $extension->subpath = substr($yml_file, $subpath_offset);
+          $extension->subpath = substr(dirname($yml_file), $subpath_offset);
           $extension->origin = $searchdir;
 
           $extensions_grouped[$type][$subdir_name][$name] = $extension;

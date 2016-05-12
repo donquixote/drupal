@@ -68,12 +68,15 @@ final class SearchdirToRawExtensionsGroupedSingleton extends UtilBase {
    * @param string $root
    *   The Drupal root directory.
    * @param \Drupal\Core\Extension\SearchdirToFilesGrouped\SearchdirToFilesGroupedInterface $searchdirToFilesGrouped
+   * @param bool $check_file_exists
+   *   TRUE, to check if the *.profile, *.module, *.theme or *.engine file exists.
+   *   FALSE, to always assume the file does exist.
    *
    * @return \Drupal\Core\Extension\SearchdirToRawExtensionsGrouped\SearchdirToRawExtensionsGroupedInterface
    */
-  public static function createInstance($root, SearchdirToFilesGroupedInterface $searchdirToFilesGrouped) {
+  public static function createInstance($root, SearchdirToFilesGroupedInterface $searchdirToFilesGrouped, $check_file_exists = TRUE) {
 
-    $instance = new SearchdirToRawExtensionsGrouped_Common($searchdirToFilesGrouped, $root);
+    $instance = new SearchdirToRawExtensionsGrouped_Common($searchdirToFilesGrouped, $root, $check_file_exists);
     $instance = new SearchdirToRawExtensionsGrouped_Buffer($instance);
 
     return $instance;
