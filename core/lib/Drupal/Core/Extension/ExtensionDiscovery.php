@@ -510,17 +510,4 @@ class ExtensionDiscovery {
     return $files;
   }
 
-  /**
-   * Returns a parser for .info.yml files.
-   *
-   * @return \Drupal\Core\Extension\InfoParser
-   *   The InfoParser instance.
-   */
-  protected function getInfoParser() {
-    if (!isset($this->infoParser)) {
-      $this->infoParser = new InfoParser();
-    }
-    return $this->infoParser;
-  }
-
 }
