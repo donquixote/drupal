@@ -14,7 +14,7 @@ class ExtensionsProcessor_InstalledWeightsStatic implements ExtensionsProcessorI
    * @param int[] $weights
    *   Format: $[$extension_name] = $weight
    */
-  function __construct(array $weights) {
+  public function __construct(array $weights) {
     $this->weights = $weights;
   }
 

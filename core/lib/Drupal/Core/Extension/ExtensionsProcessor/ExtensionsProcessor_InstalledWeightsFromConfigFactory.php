@@ -20,7 +20,7 @@ class ExtensionsProcessor_InstalledWeightsFromConfigFactory implements Extension
    * @param \Drupal\Core\Config\ConfigFactoryInterface $configFactory
    * @param string $type
    */
-  function __construct(ConfigFactoryInterface $configFactory, $type) {
+  public function __construct(ConfigFactoryInterface $configFactory, $type) {
     $this->configFactory = $configFactory;
     $this->type = $type;
   }

@@ -17,7 +17,7 @@ class ExtensionsByName_Buffer implements ExtensionsByNameInterface {
   /**
    * @param \Drupal\Core\Extension\ExtensionsByName\ExtensionsByNameInterface $decorated
    */
-  function __construct(ExtensionsByNameInterface $decorated) {
+  public function __construct(ExtensionsByNameInterface $decorated) {
     $this->decorated = $decorated;
   }
 

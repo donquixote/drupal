@@ -14,7 +14,7 @@ class FilesToTypes_FilesToInfo implements FilesToTypesInterface {
   /**
    * @param \Drupal\Core\Extension\FilesToInfo\FilesToInfoInterface $filesToInfo
    */
-  function __construct(FilesToInfoInterface $filesToInfo) {
+  public function __construct(FilesToInfoInterface $filesToInfo) {
     $this->filesToInfo = $filesToInfo;
   }
 

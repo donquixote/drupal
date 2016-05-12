@@ -19,7 +19,7 @@ class SearchdirToFilesGrouped_Buffer implements SearchdirToFilesGroupedInterface
   /**
    * @param \Drupal\Core\Extension\SearchdirToFilesGrouped\SearchdirToFilesGroupedInterface $decorated
    */
-  function __construct(SearchdirToFilesGroupedInterface $decorated) {
+  public function __construct(SearchdirToFilesGroupedInterface $decorated) {
     $this->decorated = $decorated;
   }
 

@@ -22,7 +22,7 @@ class FilesToInfo_InfoParser implements FilesToInfoInterface {
   /**
    * @param \Drupal\Core\Extension\InfoParserInterface $infoParser
    */
-  function __construct(InfoParserInterface $infoParser) {
+  public function __construct(InfoParserInterface $infoParser) {
     $this->infoParser = $infoParser;
   }
 

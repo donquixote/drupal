@@ -16,7 +16,7 @@ class DirectoryToFiles_StaticGrep implements DirectoryToFilesInterface {
    * @param string[] $files
    *   Format: $[] = 'core/modules/system/system.info.yml';
    */
-  function __construct(array $files) {
+  public function __construct(array $files) {
     $this->files = $files;
   }
 

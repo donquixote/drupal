@@ -67,7 +67,7 @@ class SearchdirToFilesGrouped_Common implements SearchdirToFilesGroupedInterface
    * @param string $suffix
    *   E.g. '.info.yml'
    */
-  function __construct(array $subdirNames, DirectoryToFilesInterface $searchdirToFiles, FilesToTypesInterface $filesToTypes, $suffix) {
+  public function __construct(array $subdirNames, DirectoryToFilesInterface $searchdirToFiles, FilesToTypesInterface $filesToTypes, $suffix) {
     $this->subdirNames = $subdirNames;
     $this->searchdirToFiles = $searchdirToFiles;
     $this->filesToTypes = $filesToTypes;
