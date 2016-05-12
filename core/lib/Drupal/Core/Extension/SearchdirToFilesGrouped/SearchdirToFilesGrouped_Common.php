@@ -75,6 +75,13 @@ class SearchdirToFilesGrouped_Common implements SearchdirToFilesGroupedInterface
   }
 
   /**
+   * Resets all cached or buffered data.
+   */
+  public function reset() {
+    $this->searchdirToFiles->reset();
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function getFilesGrouped($searchdir_prefix) {

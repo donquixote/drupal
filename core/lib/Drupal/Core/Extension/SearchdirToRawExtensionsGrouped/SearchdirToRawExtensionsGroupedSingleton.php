@@ -32,6 +32,17 @@ final class SearchdirToRawExtensionsGroupedSingleton extends UtilBase {
   private static $instances = [];
 
   /**
+   * Resets cached data in all instances.
+   */
+  public static function resetInstancesData() {
+    foreach (self::$instances as $instances) {
+      foreach ($instances as $instance) {
+        $instance->reset();
+      }
+    }
+  }
+
+  /**
    * Gets the singleton instance for the specified root directory and extension
    * type.
    *

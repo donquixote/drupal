@@ -21,6 +21,13 @@ class DirectoryToFiles_StaticGrep implements DirectoryToFilesInterface {
   }
 
   /**
+   * Resets all cached data.
+   */
+  public function reset() {
+    // Nothing to do.
+  }
+
+  /**
    * Gets the paths to *.info.yml files found in the specified directory tree.
    *
    * @param string $directory

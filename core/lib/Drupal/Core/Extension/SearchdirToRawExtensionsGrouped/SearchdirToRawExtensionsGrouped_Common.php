@@ -32,6 +32,13 @@ class SearchdirToRawExtensionsGrouped_Common implements SearchdirToRawExtensions
   }
 
   /**
+   * Resets all cached or buffered data.
+   */
+  public function reset() {
+    $this->searchdirToFilesGrouped->reset();
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function getRawExtensionsGrouped($searchdir_prefix) {

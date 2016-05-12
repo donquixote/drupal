@@ -96,6 +96,13 @@ class DirectoryToFiles_Readdir implements DirectoryToFilesInterface {
   }
 
   /**
+   * Resets all cached data.
+   */
+  public function reset() {
+    // Nothing to do.
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function getFiles($directory) {

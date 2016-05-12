@@ -5,6 +5,11 @@ namespace Drupal\Core\Extension\SearchdirToFilesGrouped;
 interface SearchdirToFilesGroupedInterface {
 
   /**
+   * Resets all cached or buffered data.
+   */
+  public function reset();
+
+  /**
    * @param string $searchdir_prefix
    *   E.g. 'core/' or 'sites/default/'
    *

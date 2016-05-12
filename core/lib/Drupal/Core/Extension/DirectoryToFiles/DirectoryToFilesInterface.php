@@ -16,4 +16,9 @@ interface DirectoryToFilesInterface {
    */
   public function getFiles($directory);
 
+  /**
+   * Resets all cached data.
+   */
+  public function reset();
+
 }

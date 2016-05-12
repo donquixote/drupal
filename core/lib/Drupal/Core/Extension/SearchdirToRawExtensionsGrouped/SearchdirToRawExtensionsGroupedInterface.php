@@ -5,6 +5,11 @@ namespace Drupal\Core\Extension\SearchdirToRawExtensionsGrouped;
 interface SearchdirToRawExtensionsGroupedInterface {
 
   /**
+   * Resets all cached data.
+   */
+  public function reset();
+
+  /**
    * @param string $searchdir_prefix
    *   E.g. 'core/' or '' or 'sites/default/'.
    *

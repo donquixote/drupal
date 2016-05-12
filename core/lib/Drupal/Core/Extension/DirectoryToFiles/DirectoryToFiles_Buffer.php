@@ -23,6 +23,14 @@ class DirectoryToFiles_Buffer implements DirectoryToFilesInterface {
   }
 
   /**
+   * Resets all cached data.
+   */
+  public function reset() {
+    $this->decorated->reset();
+    $this->buffer = [];
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function getFiles($directory) {
