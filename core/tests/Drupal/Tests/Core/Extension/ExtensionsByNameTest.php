@@ -87,7 +87,7 @@ class ExtensionsByNameTest extends UnitTestCase {
     $searchdirToRawExtensionsGrouped = SearchdirToRawExtensionsGroupedSingleton::createInstance($root, $searchdirToFilesGrouped);
 
     $rawExtensionsByType = RawExtensionsByType_FromRawExtensionsGrouped::create(
-      new SearchdirPrefixes_Common('sites/default'),
+      new SearchdirPrefixes_Common('sites/default', FALSE),
       $searchdirToRawExtensionsGrouped,
       new ProfileName_Static('myprofile'));
 

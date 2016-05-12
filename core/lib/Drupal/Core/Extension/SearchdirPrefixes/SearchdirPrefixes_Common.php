@@ -3,6 +3,7 @@
 namespace Drupal\Core\Extension\SearchdirPrefixes;
 
 use Drupal\Core\DrupalKernel;
+use Drupal\Core\Site\Settings;
 use Symfony\Component\HttpFoundation\Request;
 
 class SearchdirPrefixes_Common implements SearchdirPrefixesInterface {
@@ -16,13 +17,20 @@ class SearchdirPrefixes_Common implements SearchdirPrefixesInterface {
   private $sitePath;
 
   /**
+   * @var bool
+   */
+  private $supportSimpletest;
+
+  /**
    * @param string $sitePath
    *   The site path, e.g. 'sites/default'.
    *   If the site path is NULL, one will be automatically determined from
    *   global state.
+   * @param bool $support_simpletest
    */
-  public function __construct($sitePath = NULL) {
+  public function __construct($sitePath = NULL, $support_simpletest = TRUE) {
     $this->sitePath = $sitePath;
+    $this->supportSimpletest = $support_simpletest;
   }
 
   /**
@@ -32,13 +40,14 @@ class SearchdirPrefixes_Common implements SearchdirPrefixesInterface {
    */
   public function getSearchdirPrefixWeights() {
 
-    $prefix_weights = SearchdirPrefixesUtil::getBasicSearchdirPrefixWeights();
+    $site_path = $this->getSitePath();
 
-    if (NULL !== $site_path = $this->getSitePath()) {
-      $prefix_weights[$site_path . '/'] = SearchdirPrefixesUtil::ORIGIN_SITE;
+    $test_parent_site = NULL;
+    if ($this->supportSimpletest) {
+      $test_parent_site = Settings::get('test_parent_site') ?: NULL;
     }
 
-    return $prefix_weights;
+    return SearchdirPrefixesUtil::getSearchdirPrefixWeights($site_path, $test_parent_site);
   }
 
   /**

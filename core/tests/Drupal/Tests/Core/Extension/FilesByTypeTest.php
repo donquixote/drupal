@@ -48,7 +48,7 @@ class FilesByTypeTest extends UnitTestCase {
     $filesToTypes = new FilesToTypes_Static($types_by_name, 'module');
 
     $filesByType = new FilesByType_FromFilesGrouped(
-      new SearchdirPrefixes_Common('sites/default'),
+      new SearchdirPrefixes_Common('sites/default', FALSE),
       SearchdirToFilesGrouped_Common::createFromComponents($directoryToFiles, $filesToTypes),
       new ProfileName_Static('myprofile'));
 
@@ -87,7 +87,7 @@ class FilesByTypeTest extends UnitTestCase {
     $root = \Drupal::staticRoot();
 
     $filesByType = new FilesByType_FromFilesGrouped(
-      new SearchdirPrefixes_Common('sites/default'),
+      new SearchdirPrefixes_Common('sites/default', FALSE),
       SearchdirToFilesGrouped_Common::createSimpleFromRootPath($root),
       new ProfileName_Static('myprofile'));
 

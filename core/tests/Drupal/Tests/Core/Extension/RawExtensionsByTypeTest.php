@@ -19,7 +19,7 @@ class RawExtensionsByTypeTest extends UnitTestCase {
     $root = \Drupal::staticRoot();
 
     $rawExtensionsByType = RawExtensionsByType_FromRawExtensionsGrouped::create(
-      new SearchdirPrefixes_Common('sites/default'),
+      new SearchdirPrefixes_Common('sites/default', FALSE),
       SearchdirToRawExtensionsGroupedSingleton::createInstance(
         $root,
         SearchdirToFilesGroupedSingleton::createInstance(
