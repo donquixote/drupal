@@ -13,11 +13,11 @@ final class DirectoryToFilesSingleton extends UtilBase {
 
   /**
    * @param string $root
-   * @param string $include_tests
+   * @param bool $include_tests
    *
    * @return \Drupal\Core\Extension\DirectoryToFiles\DirectoryToFilesInterface
    */
-  public static function getInstance($root, $include_tests) {
+  public static function getInstance($root, $include_tests = FALSE) {
     return isset(self::$instances[$root][(int)$include_tests])
       ? self::$instances[$root][(int)$include_tests]
       : self::$instances[$root][(int)$include_tests] = self::createInstance($root, $include_tests);
@@ -29,8 +29,7 @@ final class DirectoryToFilesSingleton extends UtilBase {
    *
    * @return \Drupal\Core\Extension\DirectoryToFiles\DirectoryToFiles_Buffer
    */
-  public static function createInstance($root, $include_tests) {
-
+  public static function createInstance($root, $include_tests = FALSE) {
     $instance = DirectoryToFiles_Readdir::create($root, $include_tests);
     return new DirectoryToFiles_Buffer($instance);
   }

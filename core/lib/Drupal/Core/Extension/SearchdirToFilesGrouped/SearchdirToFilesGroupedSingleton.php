@@ -21,7 +21,7 @@ final class SearchdirToFilesGroupedSingleton extends UtilBase {
    *
    * @return \Drupal\Core\Extension\SearchdirToFilesGrouped\SearchdirToFilesGroupedInterface
    */
-  public static function getInstance($root, $include_tests) {
+  public static function getInstance($root, $include_tests = FALSE) {
     return isset(self::$instances[$root][(int)$include_tests])
       ? self::$instances[$root][(int)$include_tests]
       : self::$instances[$root][(int)$include_tests] = self::createInstance(
