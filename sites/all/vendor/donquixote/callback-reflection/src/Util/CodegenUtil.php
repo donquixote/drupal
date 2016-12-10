@@ -6,17 +6,15 @@ final class CodegenUtil extends UtilBase {
 
   /**
    * @param string[] $argsPhp
-   * @param string $indentation
-   *   E.g. '  '.
    *
    * @return string
    */
-  public static function argsPhpGetArglistPhp(array $argsPhp, $indentation) {
+  public static function argsPhpGetArglistPhp(array $argsPhp) {
     if (array() === $argsPhp) {
       return '';
     }
     else {
-      return "\n  " . self::indent(implode(",\n", $argsPhp), $indentation);
+      return "\n  " . self::indent(implode(",\n", $argsPhp), '  ');
     }
   }
 
@@ -47,29 +45,31 @@ final class CodegenUtil extends UtilBase {
   /**
    * @param string $php
    * @param string $indent_level
+   * @param string $indent_base
    *
    * @return string
    */
   public static function autoIndent($php, $indent_level, $indent_base = '') {
     $tokens = token_get_all('<?php' . "\n" . $php);
-    array_shift($tokens);
     $tokens[] = '#';
 
-    $i = 0;
-    return self::doAutoIndent($tokens, $i, $indent_base, $indent_level);
+    $i = 1;
+    $out = [''];
+    self::doAutoIndent($out, $tokens, $i, $indent_base, $indent_level);
+    return implode('', $out);
   }
 
   /**
+   * @param string[] $out
    * @param array $tokens
    * @param int $i
    * @param string $indent_base
    * @param string $indent_level
-   *
-   * @return string
    */
-  private static function doAutoIndent(array $tokens, &$i, $indent_base, $indent_level) {
+  private static function doAutoIndent(array &$out, array $tokens, &$i, $indent_base, $indent_level) {
 
-    $out = '';
+    $indent_deeper = $indent_base . $indent_level;
+
     while (TRUE) {
       $token = $tokens[$i];
 
@@ -80,47 +80,53 @@ final class CodegenUtil extends UtilBase {
           case '{':
           case '(':
           case '[':
-            $out .= $token;
-            $out .= self::doAutoIndent($tokens, ++$i, $indent_base . $indent_level, $indent_level);
+            $out[] = $token;
+            ++$i;
+            self::doAutoIndent($out, $tokens, $i, $indent_deeper, $indent_level);
+            if (T_WHITESPACE === $tokens[$i - 1][0]) {
+              $out[$i -1] = str_replace($indent_deeper, $indent_base, $out[$i - 1]);
+            }
             break;
 
           case '}':
           case ')':
           case ']':
-            $out .= $token;
-            ++$i;
-            return $out;
+            $out[] = $token;
+            return;
 
           case '#':
-            return $out;
+            return;
+
+          default:
+            $out[] = $token;
+            break;
         }
       }
       else {
         switch ($token[0]) {
 
           case T_WHITESPACE:
-            $snippet = preg_replace("@\n *@", "\n" . $indent_base, $token[1]);
+            $n_linebreaks = substr_count($token[1], "\n");
+            if (0 === $n_linebreaks) {
+              $out[] = $token[1];
+              ++$i;
+              continue 2;
+            }
+            $out[] = str_repeat("\n", $n_linebreaks) . $indent_base;
             break;
 
           case T_DOC_COMMENT:
           case T_COMMENT:
-            $snippet = preg_replace("@\n *\\*@", "\n" . $indent_base . ' *', $token[1]);
+            $out[] = preg_replace("@ *\\n *\\*@", "\n" . $indent_base . ' *', $token[1]);
             break;
 
           default:
-            $out .= $token[1];
-            continue 2;
+            $out[] = $token[1];
+            break;
         }
-
-        // Remove trailing whitespace.
-        $snippet = preg_replace("@ *\n@", '', $snippet);
-
-        $out .= $snippet;
       }
 
       ++$i;
     }
-
-    return $out;
   }
 }

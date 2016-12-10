@@ -8,40 +8,6 @@ final class ParamUtil extends UtilBase {
    * @param \ReflectionParameter[] $params
    * @param mixed[] $args
    *
-   * @throws \InvalidArgumentException
-   */
-  static function paramsRequireValidArgs(array $params, array $args) {
-
-    // Check that $args is a regular numerically indexed array.
-    if ($args !== array_values($args)) {
-      throw new \InvalidArgumentException("\$args has inconsistent array indexing.");
-    }
-
-    $nArgs = count($args);
-    $nParams = count($params);
-
-    // Check that not too many arguments are given.
-    if ($nArgs > $nParams) {
-      throw new \InvalidArgumentException("Found $nArgs args, but only $nParams parameters expected.");
-    }
-
-    // Check that all required arguments are given.
-    if ($nArgs < $nParams && !$params[$nArgs]->isOptional()) {
-      throw new \InvalidArgumentException("Parameter $nArgs is required.");
-    }
-
-    // Validate each argument separately.
-    foreach ($args as $i => $arg) {
-      if (!self::paramValidateArg($params[$i], $arg)) {
-        throw new \InvalidArgumentException("Argument $i does not match expected type.");
-      }
-    }
-  }
-
-  /**
-   * @param \ReflectionParameter[] $params
-   * @param mixed[] $args
-   *
    * @return bool
    */
   static function paramsValidateArgs(array $params, array $args) {

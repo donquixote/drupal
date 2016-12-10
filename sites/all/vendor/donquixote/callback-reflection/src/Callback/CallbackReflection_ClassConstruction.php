@@ -65,13 +65,12 @@ class CallbackReflection_ClassConstruction implements CallbackReflectionInterfac
   /**
    * @param string[] $argsPhp
    *   PHP statements for each parameter.
-   * @param string $indentation
    *
    * @return string
    *   PHP statement.
    */
-  public function argsPhpGetPhp(array $argsPhp, $indentation) {
-    $arglistPhp = CodegenUtil::argsPhpGetArglistPhp($argsPhp, $indentation);
+  public function argsPhpGetPhp(array $argsPhp) {
+    $arglistPhp = CodegenUtil::argsPhpGetArglistPhp($argsPhp);
     return 'new \\' . $this->reflClass->getName() . '(' . $arglistPhp . ')';
   }
 }

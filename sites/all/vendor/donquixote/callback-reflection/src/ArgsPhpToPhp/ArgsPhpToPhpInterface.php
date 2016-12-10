@@ -12,12 +12,10 @@ interface ArgsPhpToPhpInterface {
   /**
    * @param string[] $argsPhp
    *   PHP statements for each parameter.
-   * @param string $indentation
-   *   E.g. '  '.
    *
    * @return string
    *   PHP statement.
    */
-  public function argsPhpGetPhp(array $argsPhp, $indentation);
+  public function argsPhpGetPhp(array $argsPhp);
 
 }

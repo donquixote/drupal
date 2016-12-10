@@ -22,8 +22,7 @@ EOT
         array(
           var_export("A\nB", TRUE),
           'new \stdClass',
-        ),
-        '  '));
+        )));
 
     static::assertSame(
       <<<'EOT'
@@ -37,8 +36,7 @@ EOT
       $callbackReflection->argsPhpGetPhp(
         array(
           $php,
-        ),
-        '  '));
+        )));
 
     static::assertEquals(
       $reflectionMethod->getParameters(),

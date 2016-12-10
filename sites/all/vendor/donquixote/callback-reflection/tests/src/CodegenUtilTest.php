@@ -82,33 +82,16 @@ B\'',
           '"x"',
           "foo(\n  4,\n  5)",
           var_export("A\nB", TRUE),
-        ),
-        '  '));
+        )
+      )
+    );
 
-    static::assertSame('', CodegenUtil::argsPhpGetArglistPhp(array(), '  '));
+    static::assertSame('', CodegenUtil::argsPhpGetArglistPhp(array()));
   }
 
   public function testAutoIndent() {
 
-    static::assertSame(
-      '
-class C {
-
-  /**
-   * @return string
-   */
-  function foo() {
-
-    /*
-     * Non-doc comment.
-     */
-    return \'a
-b\';
-  }
-}
-      ',
-      CodegenUtil::autoIndent(
-        '
+    $ugly = '
  class C {
   
  /**
@@ -123,8 +106,24 @@ return \'a
 b\';
 }
 }
-',
-        '  '));
+';
+    $clean = '
+class C {
+
+  /**
+   * @return string
+   */
+  function foo() {
+
+    /*
+     * Non-doc comment.
+     */
+    return \'a
+b\';
+  }
+}
+';
+    static::assertSame($clean, CodegenUtil::autoIndent($ugly, '  '));
   }
 
 }
