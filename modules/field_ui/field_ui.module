@@ -332,10 +332,14 @@ function field_ui_field_attach_create_bundle($entity_type, $bundle) {
  */
 function _field_ui_bundle_admin_path($entity_type, $bundle_name) {
   $bundles = field_info_bundles($entity_type);
+  if (!isset($bundles[$bundle_name])) {
+    return NULL;
+  }
   $bundle_info = $bundles[$bundle_name];
   if (isset($bundle_info['admin'])) {
     return isset($bundle_info['admin']['real path']) ? $bundle_info['admin']['real path'] : $bundle_info['admin']['path'];
   }
+  return NULL;
 }
 
 /**
