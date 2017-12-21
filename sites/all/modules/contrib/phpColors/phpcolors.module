@@ -1,0 +1,46 @@
+<?php
+/**
+ * @file
+ * Integrates the phpColors Color class into Drupal.
+ */
+
+/**
+ * Implements hook_init()
+ */
+function phpcolors_init() {
+  if (0 === strpos($_GET['q'], 'js/admin_menu/cache/')) {
+    return;
+  }
+  # class_exists('what');
+  # new \phpColors\Color('0000ff');
+  if (empty($_POST)) {
+    libraries_load('phpcolors');
+  }
+}
+
+/**
+ * Implements hook_libraries_info().
+ */
+function phpcolors_libraries_info() {
+
+  $libraries = array();
+
+  $libraries['phpcolors'] = array(
+    'name' => 'phpColors',
+    'vendor url' => 'http://mexitek.github.com/phpColors',
+    'download url' => 'http://mexitek.github.com/phpColors',
+    'path' => 'src',
+    'version' => '1.0.0',
+  );
+
+  $libraries['phpcolors']['xautoload'] = function($adapter) {
+    /** @var xautoload_InjectedAPI_hookXautoload $adapter */
+    $adapter->addClassmapSources(array('src'));
+  };
+
+  return $libraries;
+}
+
+function phpcolors_libraries_info_alter() {
+  class_exists('foooo');
+}

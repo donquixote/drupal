@@ -1,0 +1,14 @@
+name = "phpColors"
+description = "Provide phpColors library integration."
+core        = "7.x"
+version     = "7.x-1.0"
+php         = 5.3
+dependencies[] = libraries
+dependencies[] = xautoload
+
+; Information added by drupal.org packaging script on 2013-07-31
+version = "7.x-1.0"
+core = "7.x"
+project = "phpColors"
+datestamp = "1375230981"
+

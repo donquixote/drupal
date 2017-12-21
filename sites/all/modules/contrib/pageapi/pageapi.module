@@ -1,0 +1,424 @@
+<?php
+
+
+/**
+ * Implements hook_theme_registry_alter()
+ */
+function pageapi_theme_registry_alter(&$reg) {
+  // Note: 'page' executes first, before 'html'.
+  foreach (array(
+    'page',
+    // 'html',
+  ) as $hook) {
+    // Note: 'preprocess' executes first, before 'process'.
+    foreach (array(
+      'preprocess',
+      // 'process',
+    ) as $key) {
+      foreach ($reg[$hook]["$key functions"] as $i => &$function) {
+        if ($function === "template_{$key}_$hook") {
+          $function = "_pageapi_template_{$key}_$hook";
+        }
+      }
+    }
+  }
+}
+
+
+// Replaced preprocess functions
+// -----------------------------------------------------------------------------
+
+
+function _pageapi_template_preprocess_page(&$variables) {
+  _pageapi_invoke_pageapi($variables);
+  return template_preprocess_page($variables);
+}
+
+function _pageapi_template_process_page(&$variables) {
+  return template_process_page($variables);
+}
+
+function _pageapi_template_preprocess_html(&$variables) {
+  return template_preprocess_html($variables);
+}
+
+function _pageapi_template_process_html(&$variables) {
+  return template_process_html($variables);
+}
+
+
+// API logic
+// -----------------------------------------------------------------------------
+
+
+function _pageapi_invoke_pageapi(&$vars) {
+  $api = _pageapi_build_injectable_api($vars);
+  foreach (module_implements('pageapi') as $module) {
+    $f = $module . '_pageapi';
+    $api->setModule($module);
+    $f($api);
+  }
+  // Let themes implement hook_pageapi(), just like modules.
+  foreach (_pageapi_get_theme_hierarchy() as $theme) {
+    $f = $theme . '_pageapi';
+    if (function_exists($f)) {
+      $api->setTheme($theme);
+      $f($api);
+    }
+  }
+  // Callbacks that were registered for this specific page only.
+  _pageapi_CallbackRegistry::executeCallbacks($api);
+}
+
+
+function pageapi_register_callback($callback, $args = array(), $weight = 0) {
+  _pageapi_CallbackRegistry::registerCallback($callback, $args);
+}
+
+
+class _pageapi_CallbackRegistry {
+
+  protected static $_callbacks = array();
+  protected static $_weights = array();
+
+  static function registerCallback($callback, $args, $weight) {
+    self::$_callbacks[$weight][] = array($callback, $args);
+  }
+
+  static function executeCallbacks($api) {
+    ksort(self::$_callbacks, SORT_NUMERIC);
+    foreach (self::$_callbacks as $weight => $callbacks) {
+      foreach ($callbacks as $callback_info) {
+        list($callback, $args) = $callback_info;
+        $args = array_merge(array($api), $args);
+        call_user_func_array($callback, $args);
+      }
+    }
+  }
+}
+
+
+/**
+ * Get the names of the active theme and all base themes.
+ */
+function _pageapi_get_theme_hierarchy() {
+  $themes = list_themes();
+  $hierarchy = array();
+  $theme = $GLOBALS['theme'];
+  while ($theme && isset($themes[$theme])) {
+    $hierarchy[] = $theme;
+    $theme = isset($themes[$theme]->base_theme) ? $themes[$theme]->base_theme : NULL;
+  }
+  return array_reverse($hierarchy);
+}
+
+
+function _pageapi_build_injectable_api(&$vars) {
+  $module = NULL;
+  $module_path = NULL;
+  return new pageapi_InjectedAPI($vars, $module, $module_path);
+}
+
+
+/**
+ * Instances of this class are injected as $api argument into hook_pageapi implementations.
+ */
+class pageapi_InjectedAPI {
+
+  protected $_vars;
+  protected $_module;
+  protected $_module_path;
+
+  function __construct(&$vars) {
+    $this->_vars =& $vars;
+  }
+
+  function favicon($file, $location = TRUE) {
+    $file = $this->_buildFilepath($file, $location);
+    $this->_vars['favicon'] = base_path() . $file;
+  }
+
+  /**
+   * Shortcut for drupal_add_css()
+   *
+   * @param $file :string
+   *   Filepath, relative to the module dir.
+   * @param $module :string
+   *   Location specifier. Can be
+   *   - TRUE, to specify the current module.
+   *   - "module:[module name]", to specify a module.
+   *   - "theme:[theme name]", to specify a theme.
+   *   - "library:[library name]", to specify a library (http://drupal.org/project/libraries).
+   *   - "files", if $file is relative to the files dir.
+   *   - FALSE, if $file is relative to drupal root.
+   */
+  function css($file, $location = TRUE) {
+    $file = $this->_buildFilepath($file, $location);
+    drupal_add_css($file);
+  }
+
+  /**
+   * Shortcut for drupal_add_js()
+   *
+   * @param $file :string
+   *   Filepath, relative to the module dir.
+   * @param $location :string
+   *   Location specifier. Same syntax as in the css() method.
+   */
+  function js($file, $location = TRUE) {
+    $file = $this->_buildFilepath($file, $location);
+    drupal_add_js($file);
+  }
+
+  /**
+   * Determine the physical filepath, relative to Drupal root.
+   *
+   * @param $file :string
+   *   Filepath, relative to the module dir.
+   * @param $location :string
+   *   Location specifier, same syntax as in the css() method.
+   * @return :string
+   *   Filepath, relative to Drupal root.
+   */
+  protected function _buildFilepath($file, $location) {
+    if ($location === TRUE) {
+      $dir = $this->_module_path;
+    }
+    elseif (!is_string($location)) {
+      $dir = NULL;
+    }
+    else {
+      list($type, $name) = explode(':', $location) + array(NULL);
+      if (!isset($name)) {
+        if ($type == 'files') {
+          $dir = file_directory_path();
+          $download_method = variable_get('file_downloads', FILE_DOWNLOADS_PUBLIC);
+          if ($download_method == FILE_DOWNLOADS_PRIVATE) {
+            // TODO: Support private download method.
+            // This is not trivial, because now we can no longer use the simple way of url building.
+            // The $dir variable should remain the same, anyway, because this is only about the physical location.
+          }
+        }
+        elseif ($type == 'site') {
+          // Current site dir.
+          $dir = conf_path();
+        }
+      }
+      else {
+        if ($type == 'module') {
+          $dir = drupal_get_path('module', $name);
+          if (empty($dir)) {
+            throw new Exception("Module '$name' does not exist, or is not enabled.");
+          }
+        }
+        elseif ($type == 'theme') {
+          $dir = drupal_get_path('theme', $name);
+          if (empty($dir)) {
+            throw new Exception("Theme '$name' does not exist, or is not enabled.");
+          }
+        }
+        elseif ($type == 'library') {
+          $dir = libraries_get_path($name);
+          if (empty($dir)) {
+            throw new Exception("Library '$name' was not found.");
+          }
+        }
+        else {
+          throw new Exception("Unknown location type '$type' in '$location'.");
+        }
+      }
+      if (empty($dir)) {
+        throw new Exception("Invalid location specifier '$location'.");
+      }
+    }
+    return isset($dir) ? ($dir . '/' . $file) : $file;
+  }
+
+  function jsSetting($key, $value) {
+    $pieces = array_reverse(explode('.', $key));
+    while ($piece = array_pop($pieces)) {
+      $value = array($piece => $value);
+    }
+    drupal_add_js($value, array('type' => 'setting'));
+  }
+
+  function jsSettings(array $values) {
+    drupal_add_js($values, array('type' => 'setting'));
+  }
+
+  /**
+   * @param $path :string
+   *   The system path of the targeted local task (tab).
+   * @param $weight :numeric or FALSE
+   *   FALSE, to disable the local task.
+   *   numeric, to give it a new weight.
+   */
+  function moveLocalTask($route, $weight) {
+    $this->_vars['localTaskCache']->moveLocalTask($route, $weight);
+  }
+
+  /**
+   * This function is used behind the scenes, to allow pageapi to know about the
+   * module that owns the currently running hook_pageapi implementation.
+   *
+   * Only use this, if you want to pass around the $api object to other modules.
+   */
+  function setModule($module) {
+    $this->_module = $module;
+    $this->_module_path = drupal_get_path('module', $module);
+  }
+
+  /**
+   * This function is used behind the scenes, to allow pageapi to know about the
+   * theme that owns the currently running hook_pageapi implementation.
+   *
+   * Only use this, if you want to pass around the $api object to other themes.
+   */
+  function setTheme($theme) {
+    $this->_module = $theme;
+    $this->_module_path = drupal_get_path('theme', $theme);
+  }
+}
+
+
+class pageapi_LocalTaskCache {
+
+  protected $_urlToWeight;
+  protected $_routeToUrl;
+  protected $_hasModifications = FALSE;
+
+  function urlToWeight($url) {
+    $this->_init();
+    return $this->_urlToWeight[$url];
+  }
+
+  function moveLocalTask($route, $weight) {
+    $this->_init();
+    $url = $this->_routeToUrl($route);
+    if (isset($this->_urlToWeight[$url]) && $this->_urlToWeight[$url] !== $weight) {
+      $this->_urlToWeight[$url] = $weight;
+      $this->_hasModifications = TRUE;
+    }
+  }
+
+  function sortLocalTasks(&$html) {
+    if ($this->_hasModifications) {
+      $doc = new DOMDocument('1.0', 'iso-8859-1');
+      $doc->loadXML($html);
+      $this->_sortDOMTree($doc);
+      $html = $doc->saveXML();
+    }
+  }
+
+  function init() {
+    $this->_init();
+  }
+
+  protected function _routeToUrl($route) {
+    $this->_init();
+    return $this->_routeToUrl[$route];
+  }
+
+  protected function _init() {
+
+    if (!isset($this->_urlToWeight)) {
+      $this->_urlToWeight = array();
+      $this->_routeToUrl = array();
+
+      $map = arg();
+      $router_item = menu_get_item();
+      if ($router_item && $router_item['access']) {
+        // Get all tabs and the root page.
+        $q = db_query("SELECT * FROM {menu_router} WHERE tab_root = '%s' ORDER BY weight, title", $router_item['tab_root']);
+
+        while ($item = db_fetch_array($q)) {
+          _menu_translate($item, $map, TRUE);
+          // Store the translated item for later use.
+          $url = url($item['href']);
+          $this->_urlToWeight[$url] = $item['weight'];
+          $this->_routeToUrl[$item['path']] = $url;
+        }
+      }
+    }
+  }
+
+  protected function _sortDOMTree($ele) {
+    if ($ele->tagName == 'ul') {
+      $sortme = array();
+      while ($c = $ele->firstChild) {
+        $ele->removeChild($c);
+        if ($c->tagName == 'li') {
+          $href = $this->_findLinkHref($c);
+          $weight = $this->urlToWeight($href);
+          if (!isset($weight)) {
+            $sortme[0][] = $c;
+          }
+          elseif ($weight === FALSE) {
+            // Element is to be removed. Do nothing.
+          }
+          elseif (is_numeric($weight)) {
+            // We got a weight setting for this element.
+            $sortme[$weight][] = $c;
+          }
+        }
+      }
+      ksort($sortme, SORT_NUMERIC);
+      if (count($sortme) > 1) {
+        foreach ($sortme as $children) {
+          foreach ($children as $c) {
+            $ele->appendChild($c);
+          }
+        }
+        return TRUE;
+      }
+      else {
+        // Only one or zero tabs left? Then remove this level altogether.
+        return FALSE;
+      }
+    }
+    else {
+      // Search for ul elements deeper down the hierarchy.
+      $has_any_tabs = FALSE;
+      $has_empty_ul = FALSE;
+      foreach ($ele->childNodes as $c) {
+        if (!empty($c->tagName)) {
+          $has_tabs = $this->_sortDOMTree($c);
+          if ($has_tabs === FALSE) {
+            $ele->removeChild($c);
+            $has_empty_ul = TRUE;
+          }
+          elseif ($has_tabs === TRUE) {
+            $has_any_tabs = TRUE;
+          }
+        }
+      }
+      if ($has_any_tabs) {
+        return TRUE;
+      }
+      elseif ($has_empty_ul) {
+        return FALSE;
+      }
+    }
+  }
+
+  protected function _findLinkHref($ele) {
+    foreach ($ele->childNodes as $c) {
+      if ($c->tagName == 'a') {
+        if ($c->hasAttribute('href')) {
+          return $c->getAttribute('href');
+        }
+      }
+      elseif (!empty($c->tagName)) {
+        $candidate = $this->_findLinkHref($c);
+        if (isset($candidate)) {
+          return $candidate;
+        }
+      }
+    }
+  }
+}
+
+
+
+
+

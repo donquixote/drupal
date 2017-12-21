@@ -1,0 +1,11 @@
+name = Page API
+description = "Introduces a hook that is invoked before hook_preprocess_page()"
+core = 7.x
+PHP = 5.2
+
+; Information added by drupal.org packaging script on 2012-01-15
+version = "7.x-1.0-alpha1"
+core = "7.x"
+project = "pageapi"
+datestamp = "1326590701"
+
