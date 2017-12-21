@@ -1,0 +1,16 @@
+{
+  "name": "donquixote/nicetrace",
+  "type": "library",
+  "description": "Library to make human-friendly PHP backtrace arrays.",
+  "homepage": "http://github.com/donquixote/nicetrace",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Andreas Hennings",
+      "email": "andreas@dqxtech.net"
+    }
+  ],
+  "autoload": {
+    "psr-4": { "Donquixote\\Nicetrace\\": "src/" }
+  }
+}

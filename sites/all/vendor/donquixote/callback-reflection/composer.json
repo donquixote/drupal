@@ -1,0 +1,21 @@
+{
+  "name": "donquixote/callback-reflection",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Andreas Hennings",
+      "email": "andreas@dqxtech.net"
+    }
+  ],
+  "minimum-stability": "dev",
+  "autoload": {
+    "psr-4": {
+      "Donquixote\\CallbackReflection\\": "src"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Donquixote\\CallbackReflection\\Tests\\": "tests/src"
+    }
+  }
+}

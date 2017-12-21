@@ -1,0 +1,302 @@
+[
+    {
+        "name": "donquixote/containerkit",
+        "version": "0.0.0-alpha.1",
+        "version_normalized": "0.0.0.0-alpha1",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/donquixote/containerkit.git",
+            "reference": "b5f9a69fc91748cee771d0f4ef636e577a6656e6"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/donquixote/containerkit/zipball/b5f9a69fc91748cee771d0f4ef636e577a6656e6",
+            "reference": "b5f9a69fc91748cee771d0f4ef636e577a6656e6",
+            "shasum": ""
+        },
+        "time": "2016-01-11 11:19:52",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Donquixote\\Containerkit\\": "src"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Andreas Hennings",
+                "email": "andreas@dqxtech.net"
+            }
+        ]
+    },
+    {
+        "name": "donquixote/annotation-parser",
+        "version": "v0.0.0-alpha1",
+        "version_normalized": "0.0.0.0-alpha1",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/donquixote/annotation-parser.git",
+            "reference": "8266a911c299d3034fa80d56758041ec905a30d0"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/donquixote/annotation-parser/zipball/8266a911c299d3034fa80d56758041ec905a30d0",
+            "reference": "8266a911c299d3034fa80d56758041ec905a30d0",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.5.0"
+        },
+        "time": "2016-08-23 23:32:53",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Donquixote\\Annotation\\": "src"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Andreas Hennings",
+                "email": "andreas@dqxtech.net"
+            }
+        ]
+    },
+    {
+        "name": "gregwar/cache",
+        "version": "v1.0.12",
+        "version_normalized": "1.0.12.0",
+        "target-dir": "Gregwar/Cache",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/Gregwar/Cache.git",
+            "reference": "305d0f5a12c0beecbbd7e1de236f59f39e0c0ac3"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/Gregwar/Cache/zipball/305d0f5a12c0beecbbd7e1de236f59f39e0c0ac3",
+            "reference": "305d0f5a12c0beecbbd7e1de236f59f39e0c0ac3",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3"
+        },
+        "time": "2016-09-23 08:16:04",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-0": {
+                "Gregwar\\Cache": ""
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Gregwar",
+                "email": "g.passault@gmail.com"
+            }
+        ],
+        "description": "A lightweight file-system cache system",
+        "keywords": [
+            "cache",
+            "caching",
+            "file-system",
+            "system"
+        ]
+    },
+    {
+        "name": "donquixote/callback-reflection",
+        "version": "1.0.0-alpha.2",
+        "version_normalized": "1.0.0.0-alpha2",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/donquixote/callback-reflection.git",
+            "reference": "5b223bb57a0f4d711b411921300faab25bcba47c"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/donquixote/callback-reflection/zipball/5b223bb57a0f4d711b411921300faab25bcba47c",
+            "reference": "5b223bb57a0f4d711b411921300faab25bcba47c",
+            "shasum": ""
+        },
+        "time": "2016-12-17 01:49:37",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Donquixote\\CallbackReflection\\": "src"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Andreas Hennings",
+                "email": "andreas@dqxtech.net"
+            }
+        ]
+    },
+    {
+        "name": "donquixote/nicetrace",
+        "version": "0.0.4",
+        "version_normalized": "0.0.4.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/donquixote/nicetrace.git",
+            "reference": "774dd8f40643ee5583dd8c510ead8a511d38e0e7"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/donquixote/nicetrace/zipball/774dd8f40643ee5583dd8c510ead8a511d38e0e7",
+            "reference": "774dd8f40643ee5583dd8c510ead8a511d38e0e7",
+            "shasum": ""
+        },
+        "time": "2016-03-06 06:06:08",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Donquixote\\Nicetrace\\": "src/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Andreas Hennings",
+                "email": "andreas@dqxtech.net"
+            }
+        ],
+        "description": "Library to make human-friendly PHP backtrace arrays.",
+        "homepage": "http://github.com/donquixote/nicetrace"
+    },
+    {
+        "name": "imagine/imagine",
+        "version": "v0.7.1",
+        "version_normalized": "0.7.1.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/avalanche123/Imagine.git",
+            "reference": "a9a702a946073cbca166718f1b02a1e72d742daa"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/avalanche123/Imagine/zipball/a9a702a946073cbca166718f1b02a1e72d742daa",
+            "reference": "a9a702a946073cbca166718f1b02a1e72d742daa",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.3.2"
+        },
+        "require-dev": {
+            "sami/sami": "^3.3",
+            "symfony/phpunit-bridge": "^3.2"
+        },
+        "suggest": {
+            "ext-gd": "to use the GD implementation",
+            "ext-gmagick": "to use the Gmagick implementation",
+            "ext-imagick": "to use the Imagick implementation"
+        },
+        "time": "2017-05-16 10:31:22",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-develop": "0.7-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-0": {
+                "Imagine": "lib/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Bulat Shakirzyanov",
+                "email": "mallluhuct@gmail.com",
+                "homepage": "http://avalanche123.com"
+            }
+        ],
+        "description": "Image processing for PHP 5.3",
+        "homepage": "http://imagine.readthedocs.org/",
+        "keywords": [
+            "drawing",
+            "graphics",
+            "image manipulation",
+            "image processing"
+        ]
+    },
+    {
+        "name": "gregwar/image",
+        "version": "v2.0.21",
+        "version_normalized": "2.0.21.0",
+        "target-dir": "Gregwar/Image",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/Gregwar/Image.git",
+            "reference": "c9899e4c71009338f89a8c63c12c681692533ede"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/Gregwar/Image/zipball/c9899e4c71009338f89a8c63c12c681692533ede",
+            "reference": "c9899e4c71009338f89a8c63c12c681692533ede",
+            "shasum": ""
+        },
+        "require": {
+            "ext-gd": "*",
+            "gregwar/cache": "^1.0.6",
+            "php": "^5.3 || ^7.0"
+        },
+        "require-dev": {
+            "sllh/php-cs-fixer-styleci-bridge": "~1.0",
+            "symfony/phpunit-bridge": "^2.7.4 || ^3.0"
+        },
+        "suggest": {
+            "behat/transliterator": "Transliterator provides ability to set non-latin1 pretty names"
+        },
+        "time": "2017-01-24 09:29:39",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-0": {
+                "Gregwar\\Image": ""
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Grégoire Passault",
+                "email": "g.passault@gmail.com",
+                "homepage": "http://www.gregwar.com/"
+            }
+        ],
+        "description": "Image handling",
+        "homepage": "https://github.com/Gregwar/Image",
+        "keywords": [
+            "gd",
+            "image"
+        ]
+    }
+]

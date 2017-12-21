@@ -1,0 +1,21 @@
+{
+  "name": "donquixote/containerkit",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Andreas Hennings",
+      "email": "andreas@dqxtech.net"
+    }
+  ],
+  "minimum-stability": "dev",
+  "autoload": {
+    "psr-4": {
+      "Donquixote\\Containerkit\\": "src"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Donquixote\\Containerkit\\Tests\\": "tests/src"
+    }
+  }
+}
