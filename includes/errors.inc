@@ -134,7 +134,14 @@ function _drupal_decode_exception($exception) {
  *   An error message.
  */
 function _drupal_render_exception_safe($exception) {
-  return check_plain(strtr('%type: !message in %function (line %line of %file).', _drupal_decode_exception($exception)));
+  return strtr(
+    ''
+    . '<code>%type</code> in line %line of <code>%file</code>:<br/>'
+    . 'in <code>%function</code><br/>'
+    . '<pre>!message</pre>'
+    . '<h4>Backtrace</h4><pre>%trace</pre>'
+    . '',
+    _drupal_decode_exception($exception));
 }
 
 /**
