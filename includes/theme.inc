@@ -514,6 +514,17 @@ class ThemeRegistry Extends DrupalCacheArray {
  */
 function _theme_process_registry(&$cache, $name, $type, $theme, $path) {
   $result = array();
+  // Invoke the hook_theme() implementation, process what is returned, and
+  // merge it into $cache.
+  $function = $name . '_theme';
+  if (function_exists($function)) {
+    $result = $function($cache, $type, $theme, $path);
+  }
+  _drupal_theme_process_registry($cache, $name, $type, $theme, $path, $result);
+}
+
+
+function _drupal_theme_process_registry(&$cache, $name, $type, $theme, $path, $result) {
 
   // Processor functions work in two distinct phases with the process
   // functions always being executed after the preprocess functions.
