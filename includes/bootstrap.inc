@@ -2618,7 +2618,22 @@ function _drupal_exception_handler($exception) {
     if (error_displayable()) {
       print '<h1>Additional uncaught exception thrown while handling exception.</h1>';
       print '<h2>Original</h2><p>' . _drupal_render_exception_safe($exception) . '</p>';
-      print '<h2>Additional</h2><p>' . _drupal_render_exception_safe($exception2) . '</p><hr />';
+
+      $e_prev = $exception;
+      while ($e_prev = $e_prev->getPrevious()) {
+        print '<h3>Previous</h3>';
+        print '<p>' . _drupal_render_exception_safe($e_prev) . '</p>';
+      }
+
+      print '<h2>Additional</h2><p>' . _drupal_render_exception_safe($exception2) . '</p>';
+
+      $e_prev = $exception2;
+      while ($e_prev = $e_prev->getPrevious()) {
+        print '<h3>Previous</h3>';
+        print '<p>' . _drupal_render_exception_safe($e_prev) . '</p>';
+      }
+
+      print '<hr />';
     }
   }
 }
