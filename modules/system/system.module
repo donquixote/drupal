@@ -540,6 +540,7 @@ function system_menu() {
   );
   $items['system/ajax'] = array(
     'title' => 'AHAH callback',
+    /* @see ajax_form_callback() */
     'page callback' => 'ajax_form_callback',
     'delivery callback' => 'ajax_deliver',
     'access callback' => TRUE,
