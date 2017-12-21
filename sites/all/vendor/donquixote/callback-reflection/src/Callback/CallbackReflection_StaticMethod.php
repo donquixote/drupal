@@ -2,22 +2,15 @@
 
 namespace Donquixote\CallbackReflection\Callback;
 
-use Donquixote\CallbackReflection\ArgsPhpToPhp\ArgsPhpToPhpInterface;
+use Donquixote\CallbackReflection\CodegenHelper\CodegenHelperInterface;
 use Donquixote\CallbackReflection\Util\CodegenUtil;
 
-class CallbackReflection_StaticMethod implements CallbackReflectionInterface, ArgsPhpToPhpInterface {
+class CallbackReflection_StaticMethod implements CallbackReflectionInterface {
 
   /**
    * @var \ReflectionMethod
    */
   private $reflMethod;
-
-  /**
-   * @param \ReflectionMethod $reflMethod
-   */
-  function __construct(\ReflectionMethod $reflMethod) {
-    $this->reflMethod = $reflMethod;
-  }
 
   /**
    * @param string $className
@@ -28,6 +21,13 @@ class CallbackReflection_StaticMethod implements CallbackReflectionInterface, Ar
   static function create($className, $methodName) {
     $reflectionMethod = new \ReflectionMethod($className, $methodName);
     return new self($reflectionMethod);
+  }
+
+  /**
+   * @param \ReflectionMethod $reflMethod
+   */
+  function __construct(\ReflectionMethod $reflMethod) {
+    $this->reflMethod = $reflMethod;
   }
 
   /**
@@ -49,11 +49,12 @@ class CallbackReflection_StaticMethod implements CallbackReflectionInterface, Ar
   /**
    * @param string[] $argsPhp
    *   PHP statements for each parameter.
+   * @param \Donquixote\CallbackReflection\CodegenHelper\CodegenHelperInterface $helper
    *
    * @return string
    *   PHP statement.
    */
-  public function argsPhpGetPhp(array $argsPhp) {
+  public function argsPhpGetPhp(array $argsPhp, CodegenHelperInterface $helper) {
     $arglistPhp = CodegenUtil::argsPhpGetArglistPhp($argsPhp);
     return '\\' . $this->reflMethod->getDeclaringClass()->getName() . '::' . $this->reflMethod->getName() . '(' . $arglistPhp . ')';
   }

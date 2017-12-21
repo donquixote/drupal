@@ -2,13 +2,13 @@
 
 namespace Donquixote\CallbackReflection\Callback;
 
-use Donquixote\CallbackReflection\ArgsPhpToPhp\ArgsPhpToPhpInterface;
+use Donquixote\CallbackReflection\CodegenHelper\CodegenHelperInterface;
 use Donquixote\CallbackReflection\Util\CodegenUtil;
 
 /**
  * Wraps a class constructor as a factory callback.
  */
-class CallbackReflection_ClassConstruction implements CallbackReflectionInterface, ArgsPhpToPhpInterface {
+class CallbackReflection_ClassConstruction implements CallbackReflectionInterface {
 
   /**
    * @var \ReflectionClass
@@ -16,7 +16,7 @@ class CallbackReflection_ClassConstruction implements CallbackReflectionInterfac
   private $reflClass;
 
   /**
-   * @param $class
+   * @param string $class
    *
    * @return null|static
    */
@@ -24,6 +24,15 @@ class CallbackReflection_ClassConstruction implements CallbackReflectionInterfac
     return class_exists($class)
       ? new static(new \ReflectionClass($class))
       : NULL;
+  }
+
+  /**
+   * @param string $class
+   *
+   * @return static
+   */
+  public static function create($class) {
+    return new static(new \ReflectionClass($class));
   }
 
   /**
@@ -39,6 +48,9 @@ class CallbackReflection_ClassConstruction implements CallbackReflectionInterfac
    * @param \ReflectionClass $reflClass
    */
   function __construct(\ReflectionClass $reflClass) {
+    if (!$reflClass->isInstantiable()) {
+      throw new \InvalidArgumentException("The class is not instantiable.");
+    }
     $this->reflClass = $reflClass;
   }
 
@@ -65,11 +77,12 @@ class CallbackReflection_ClassConstruction implements CallbackReflectionInterfac
   /**
    * @param string[] $argsPhp
    *   PHP statements for each parameter.
+   * @param \Donquixote\CallbackReflection\CodegenHelper\CodegenHelperInterface $helper
    *
    * @return string
    *   PHP statement.
    */
-  public function argsPhpGetPhp(array $argsPhp) {
+  public function argsPhpGetPhp(array $argsPhp, CodegenHelperInterface $helper) {
     $arglistPhp = CodegenUtil::argsPhpGetArglistPhp($argsPhp);
     return 'new \\' . $this->reflClass->getName() . '(' . $arglistPhp . ')';
   }

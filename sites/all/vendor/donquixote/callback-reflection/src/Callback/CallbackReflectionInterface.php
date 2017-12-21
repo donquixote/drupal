@@ -2,6 +2,8 @@
 
 namespace Donquixote\CallbackReflection\Callback;
 
+use Donquixote\CallbackReflection\CodegenHelper\CodegenHelperInterface;
+
 interface CallbackReflectionInterface {
 
   /**
@@ -19,5 +21,15 @@ interface CallbackReflectionInterface {
    * @return mixed|void
    */
   function invokeArgs(array $args);
+
+  /**
+   * @param string[] $argsPhp
+   *   PHP statements for each parameter.
+   * @param \Donquixote\CallbackReflection\CodegenHelper\CodegenHelperInterface $helper
+   *
+   * @return string
+   *   PHP statement.
+   */
+  public function argsPhpGetPhp(array $argsPhp, CodegenHelperInterface $helper);
 
 }

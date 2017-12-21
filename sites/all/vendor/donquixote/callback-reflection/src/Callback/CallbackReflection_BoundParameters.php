@@ -2,6 +2,12 @@
 
 namespace Donquixote\CallbackReflection\Callback;
 
+use Donquixote\CallbackReflection\CodegenHelper\CodegenHelperInterface;
+
+/**
+ * A decorator that implements "currying",
+ * so some of the parameters are bound while others remain free.
+ */
 class CallbackReflection_BoundParameters implements CallbackReflectionInterface {
 
   /**
@@ -15,12 +21,23 @@ class CallbackReflection_BoundParameters implements CallbackReflectionInterface 
   private $boundArgs;
 
   /**
-   * @param \Donquixote\CallbackReflection\Callback\CallbackReflectionInterface $decorated
-   * @param array $args
+   * @var string[]
    */
-  function __construct(CallbackReflectionInterface $decorated, array $args) {
+  private $boundArgsPhp;
+
+  /**
+   * @param \Donquixote\CallbackReflection\Callback\CallbackReflectionInterface $decorated
+   * @param mixed[] $boundArgs
+   *   Arguments for parameters of the decorated callback that should be "bound".
+   * @param string[] $boundArgsPhp
+   *   PHP equivalent of the arguments, for the argsPhpGetPhp() method.
+   *   If $args contains some keys that are not present in $argsPhp, then a
+   *   simple var_export() will be attempted.
+   */
+  function __construct(CallbackReflectionInterface $decorated, array $boundArgs, array $boundArgsPhp = []) {
     $this->decorated = $decorated;
-    $this->boundArgs = $args;
+    $this->boundArgs = $boundArgs;
+    $this->boundArgsPhp = $boundArgsPhp;
   }
 
   /**
@@ -62,5 +79,49 @@ class CallbackReflection_BoundParameters implements CallbackReflectionInterface 
       $combinedArgs[] = $arg;
     }
     return $this->decorated->invokeArgs($combinedArgs);
+  }
+
+  /**
+   * @param string[] $argsPhp
+   *   PHP statements for each parameter.
+   * @param \Donquixote\CallbackReflection\CodegenHelper\CodegenHelperInterface $helper
+   *
+   * @return string
+   *   PHP statement.
+   */
+  public function argsPhpGetPhp(array $argsPhp, CodegenHelperInterface $helper) {
+
+    $argsPhp = array_values($argsPhp);
+
+    $j = 0;
+    $combinedArgsPhp = [];
+    foreach ($this->decorated->getReflectionParameters() as $i => $param) {
+      if (array_key_exists($i, $this->boundArgs)) {
+        if (array_key_exists($i, $this->boundArgsPhp)) {
+          $argPhp = $this->boundArgsPhp[$i];
+        }
+        else {
+          $argPhp = $helper->export($this->boundArgs[$i]);
+        }
+      }
+      elseif (array_key_exists($paramName = $param->getName(), $this->boundArgs)) {
+        if (array_key_exists($paramName, $this->boundArgsPhp)) {
+          $argPhp = $this->boundArgsPhp[$paramName];
+        }
+        else {
+          $argPhp = $helper->export($this->boundArgs[$paramName]);
+        }
+      }
+      elseif (array_key_exists($j, $argsPhp)) {
+        $argPhp = $argsPhp[$j];
+        ++$j;
+      }
+      else {
+        throw new \InvalidArgumentException('Insufficient arguments.');
+      }
+      $combinedArgsPhp[] = $argPhp;
+    }
+
+    return $this->decorated->argsPhpGetPhp($combinedArgsPhp, $helper);
   }
 }

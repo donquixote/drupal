@@ -2,6 +2,9 @@
 
 namespace Donquixote\CallbackReflection\Callback;
 
+use Donquixote\CallbackReflection\CodegenHelper\CodegenHelperInterface;
+use Donquixote\CallbackReflection\Util\CodegenUtil;
+
 class CallbackReflection_ObjectMethod implements CallbackReflectionInterface {
 
   /**
@@ -15,12 +18,20 @@ class CallbackReflection_ObjectMethod implements CallbackReflectionInterface {
   private $reflMethod;
 
   /**
+   * @var null|string
+   */
+  private $objectPhp;
+
+  /**
    * @param object $object
    * @param string $methodName
+   * @param string|null $objectPhp
+   *   PHP expression that creates or returns the object, if available.
+   *   Otherwise, argsPhpGetPhp() will attempt to export the object.
    *
    * @return \Donquixote\CallbackReflection\Callback\CallbackReflection_ObjectMethod
    */
-  static function create($object, $methodName) {
+  static function create($object, $methodName, $objectPhp = NULL) {
     if (!is_object($object)) {
       throw new \InvalidArgumentException("First parameter must be an object.");
     }
@@ -29,16 +40,19 @@ class CallbackReflection_ObjectMethod implements CallbackReflectionInterface {
       throw new \InvalidArgumentException("Object has no such method.");
     }
     $reflMethod = $reflObject->getMethod($methodName);
-    return new self($object, $reflMethod);
+    return new self($object, $reflMethod, $objectPhp);
   }
 
   /**
    * @param object $object
    * @param \ReflectionMethod $reflMethod
+   * @param string|null $objectPhp
+   *   PHP expression that creates or returns the object, if available.
+   *   Otherwise, argsPhpGetPhp() will attempt to export the object.
    *
    * @throws \InvalidArgumentException
    */
-  function __construct($object, \ReflectionMethod $reflMethod) {
+  function __construct($object, \ReflectionMethod $reflMethod, $objectPhp = NULL) {
     if (!$object instanceof $reflMethod->class) {
       if (!is_object($object)) {
         throw new \InvalidArgumentException("First parameter must be an object.");
@@ -47,6 +61,7 @@ class CallbackReflection_ObjectMethod implements CallbackReflectionInterface {
     }
     $this->object = $object;
     $this->reflMethod = $reflMethod;
+    $this->objectPhp = $objectPhp;
   }
 
   /**
@@ -63,5 +78,25 @@ class CallbackReflection_ObjectMethod implements CallbackReflectionInterface {
    */
   function invokeArgs(array $args) {
     return $this->reflMethod->invokeArgs($this->object, $args);
+  }
+
+  /**
+   * @param string[] $argsPhp
+   *   PHP statements for each parameter.
+   * @param \Donquixote\CallbackReflection\CodegenHelper\CodegenHelperInterface $helper
+   *
+   * @return string
+   *   PHP statement.
+   */
+  public function argsPhpGetPhp(array $argsPhp, CodegenHelperInterface $helper) {
+
+    $objectPhp = (NULL !== $this->objectPhp)
+      ? $this->objectPhp
+      : $helper->exportObject($this->object);
+
+    $arglistPhp = CodegenUtil::argsPhpGetArglistPhp($argsPhp);
+
+    return $objectPhp
+      . "\n  ->" . $this->reflMethod->getName() . '(' . $arglistPhp . ')';
   }
 }

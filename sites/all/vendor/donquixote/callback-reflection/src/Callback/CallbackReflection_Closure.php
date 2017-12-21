@@ -2,6 +2,9 @@
 
 namespace Donquixote\CallbackReflection\Callback;
 
+use Donquixote\CallbackReflection\CodegenHelper\CodegenHelperInterface;
+use Donquixote\CallbackReflection\Util\CodegenUtil;
+
 class CallbackReflection_Closure implements CallbackReflectionInterface {
 
   /**
@@ -35,5 +38,23 @@ class CallbackReflection_Closure implements CallbackReflectionInterface {
    */
   function invokeArgs(array $args) {
     return call_user_func_array($this->closure, $args);
+  }
+
+  /**
+   * @param string[] $argsPhp
+   *   PHP statements for each parameter.
+   * @param \Donquixote\CallbackReflection\CodegenHelper\CodegenHelperInterface $helper
+   *
+   * @return string
+   *   PHP statement.
+   */
+  public function argsPhpGetPhp(array $argsPhp, CodegenHelperInterface $helper) {
+
+    // This is going to fail, but that's ok.
+    $closurePhp = $helper->exportClosure($this->closure);
+
+    array_unshift($argsPhp, $closurePhp);
+    $arglistPhp = CodegenUtil::argsPhpGetArglistPhp($argsPhp);
+    return 'call_user_func_array(' . $arglistPhp . ')';
   }
 }
