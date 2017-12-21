@@ -6780,8 +6780,17 @@ function drupal_array_set_nested_value(array &$array, array $parents, $value, $f
   foreach ($parents as $parent) {
     // PHP auto-creates container arrays and NULL entries without error if $ref
     // is NULL, but throws an error if $ref is set, but not an array.
-    if ($force && isset($ref) && !is_array($ref)) {
-      $ref = array();
+    if (isset($ref) && !is_array($ref)) {
+      if ($force) {
+        $ref = array();
+      }
+      else {
+        # dpm($array, implode(', ', $parents) . ' :: ' . $parent . ' :: ' . __FUNCTION__);
+        # dpm($ref, '$ref');
+        \Drupal\krumong\dpm(ddebug_backtrace(TRUE), __FUNCTION__);
+        dpm(var_export($ref, TRUE), $parent);
+        # return;
+      }
     }
     $ref = &$ref[$parent];
   }
