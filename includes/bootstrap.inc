@@ -2602,7 +2602,7 @@ function _drupal_error_handler($error_level, $message, $filename, $line, $contex
  * always fatal: the execution of the script will stop as soon as the exception
  * handler exits.
  *
- * @param $exception
+ * @param \Exception $exception
  *   The exception object that was thrown.
  */
 function _drupal_exception_handler($exception) {
