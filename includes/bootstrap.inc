@@ -3038,10 +3038,10 @@ function language_types() {
 /**
  * Returns a list of installed languages, indexed by the specified key.
  *
- * @param $field
+ * @param string $field
  *   (optional) The field to index the list with.
  *
- * @return
+ * @return object[]|object[][]
  *   An associative array, keyed on the values of $field.
  *   - If $field is 'weight' or 'enabled', the array is nested, with the outer
  *     array's values each being associative arrays with language codes as
@@ -3088,10 +3088,10 @@ function language_list($field = 'language') {
 /**
  * Returns the default language, as an object, or one of its properties.
  *
- * @param $property
+ * @param string $property
  *   (optional) The property of the language object to return.
  *
- * @return
+ * @return object|mixed
  *   Either the language object for the default language used on the site,
  *   or the property of that object named in the $property parameter.
  */
