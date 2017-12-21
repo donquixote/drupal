@@ -222,7 +222,7 @@ function field_has_translation_handler($entity_type, $handler = NULL) {
  * @param $default
  *   Whether to return the default language code or the current language code in
  *   case $langcode is invalid.
- * @return
+ * @return string
  *   A valid language code.
  */
 function field_valid_language($langcode, $default = TRUE) {
