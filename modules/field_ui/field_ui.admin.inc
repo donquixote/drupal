@@ -32,7 +32,13 @@ function field_ui_fields_list() {
 
         // Add the current instance.
         $admin_path = _field_ui_bundle_admin_path($entity_type, $bundle);
-        $rows[$field_name]['data'][2][] = $admin_path ? l($bundles[$entity_type][$bundle]['label'], $admin_path . '/fields') : $bundles[$entity_type][$bundle]['label'];
+        if (!isset($bundles[$entity_type][$bundle])) {
+          $bundle_label = $bundle;
+        }
+        else {
+          $bundle_label = $bundles[$entity_type][$bundle]['label'];
+        }
+        $rows[$field_name]['data'][2][] = $admin_path ? l($bundle_label, $admin_path . '/fields') : $bundle_label;
       }
     }
   }
