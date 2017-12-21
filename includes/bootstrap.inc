@@ -3877,3 +3877,221 @@ function drupal_clear_opcode_cache($filepath) {
     @apc_delete_file($filepath);
   }
 }
+
+/**
+ * @return string[][]
+ *   Format: $[$suffix][$prefix] = $function
+ *   Example: $['menu_alter']['system'] = 'system_menu_alter'
+ */
+function _drupal_get_structured_function_list() {
+  $t0 = microtime(TRUE);
+
+  static $functions_by_suffix_and_prefix = array();
+  static $functions_count = 0;
+
+  $t0 = ($dt = microtime(TRUE) - $t0) + $t0;
+
+  $functions_all = get_defined_functions();
+  $functions = $functions_all['user'];
+
+  if (count($functions) === $functions_count) {
+    # dpm('same');
+    return $functions_by_suffix_and_prefix;
+  }
+
+  $prefixes = _drupal_get_prefixes();
+
+  if ($functions_count === 0) {
+    $functions_by_suffix_and_prefix = _drupal_build_structured_function_list($functions, $prefixes);
+  }
+  else {
+    $functions_new = array_slice($functions, $functions_count);
+    foreach (_drupal_build_structured_function_list($functions_new, $prefixes) as $suffix => $functions_by_prefix) {
+      foreach ($functions_by_prefix as $prefix => $function) {
+        $functions_by_suffix_and_prefix[$suffix][$prefix] = $function;
+      }
+    }
+  }
+
+  $functions_count = count($functions);
+  return $functions_by_suffix_and_prefix;
+}
+
+/**
+ * Groups a list of functions by hook name / suffix.
+ *
+ * @param string[] $functions
+ *   List of functions, typically from get_defined_functions()['user'].
+ *
+ * @return string[][]
+ *   Format: $[$suffix][$prefix] = $function
+ *   Example: $['menu_alter']['system'] = 'system_menu_alter'
+ */
+function _drupal_build_structured_function_list(array $functions, array $prefixes) {
+
+  $functions_and_markers_map = array_fill_keys($functions, TRUE);
+  $prefixes_by_opening_marker = array();
+  $prefixes_by_closing_marker = array();
+  foreach ($prefixes as $prefix) {
+    $functions_and_markers_map[$prefix . '_#'] = '#';
+    $functions_and_markers_map[$prefix . '_§'] = '§';
+    $prefixes_by_opening_marker[$prefix . '_#'] = $prefix;
+    $prefixes_by_closing_marker[$prefix . '_§'] = $prefix;
+  }
+  ksort($functions_and_markers_map);
+
+  # $functions_and_markers_map_copy = $functions_and_markers_map;
+
+  $currentPrefixes = array();
+  # $collectByPrefix = array();
+  $functions_by_suffix_and_prefix = array();
+  foreach ($functions_and_markers_map as $function_or_marker => $trueOrSymbol) {
+    unset($functions_and_markers_map[$function_or_marker]);
+    if (TRUE === $trueOrSymbol) {
+      foreach ($currentPrefixes as $prefix => $strlen) {
+        $suffix = substr($function_or_marker, $strlen);
+        # $collectByPrefix[$prefix][$suffix] = $function_or_marker;
+        $functions_by_suffix_and_prefix[$suffix][$prefix] = $function_or_marker;
+      }
+    }
+    elseif ('#' === $trueOrSymbol) {
+      $prefix = $prefixes_by_opening_marker[$function_or_marker];
+      $currentPrefixes[$prefix] = strlen($prefix) + 1;
+    }
+    elseif ('§' === $trueOrSymbol) {
+      $prefix = $prefixes_by_closing_marker[$function_or_marker];
+      unset($currentPrefixes[$prefix]);
+    }
+  }
+
+  # $functions_by_suffix_and_prefix_copy = $functions_by_suffix_and_prefix;
+  # $functions_by_suffix_and_prefix_copy[] = 'x';
+
+  return $functions_by_suffix_and_prefix;
+}
+
+/**
+ * Gets a list of all enabled modules' names, theme names, and theme engine
+ * names.
+ *
+ * @return string[]
+ */
+function _drupal_get_prefixes() {
+  static $prefixes;
+  return (NULL === $prefixes)
+    ? $prefixes = _drupal_build_prefixes()
+    : $prefixes;
+}
+
+/**
+ * Builds a list of all enabled modules' names, theme names, and theme engine
+ * names.
+ *
+ * @return string[]
+ */
+function _drupal_build_prefixes() {
+  $prefixes = module_list();
+  foreach (system_list('theme') as $theme) {
+    $prefixes[] = $theme->name;
+    // @todo Better way to get theme engines?
+    if (isset($theme->info['engine'])) {
+      $prefixes[] = $theme->info['engine'];
+    }
+  }
+  $prefixes[] = 'template';
+  $prefixes = array_unique($prefixes);
+  sort($prefixes);
+  return $prefixes;
+}
+
+/**
+ * Groups a list of functions by hook name / suffix.
+ *
+ * @param string[] $functions
+ *   List of functions, typically from get_defined_functions()['user'].
+ *
+ * @return string[][]
+ *   Format: $[$suffix][$prefix] = $function
+ *   Example: $['menu_alter']['system'] = 'system_menu_alter'
+ */
+function _drupal_get_grouped_function_list() {
+
+  static $functions_by_suffix_and_prefix = array();
+  static $functions_count = 0;
+
+  $functions_all = get_defined_functions();
+  $functions = $functions_all['user'];
+
+  if (count($functions) === $functions_count) {
+    return $functions_by_suffix_and_prefix;
+  }
+
+  if ($functions_count === 0) {
+    $functions_new = $functions;
+  }
+  else {
+    $functions_new = array_slice($functions, $functions_count);
+  }
+
+  $functions_by_suffix_and_prefix = _drupal_accum_grouped_function_list($functions_new);
+
+  $functions_count = count($functions);
+  return $functions_by_suffix_and_prefix;
+}
+
+/**
+ * Groups a list of functions by hook name / suffix.
+ *
+ * @param string[] $functions
+ *   List of functions, typically from get_defined_functions()['user'].
+ *
+ * @return string[][]
+ *   Format: $[$suffix][$prefix] = $function
+ *   Example: $['menu_alter']['system'] = 'system_menu_alter'
+ */
+function _drupal_accum_grouped_function_list(array $functions_new) {
+
+  static $functions_by_suffix_and_prefix = array();
+
+  if (array() === $functions_new) {
+    return $functions_by_suffix_and_prefix;
+  }
+
+  $list_new = _drupal_build_grouped_function_list($functions_new);
+
+  if (array() === $functions_by_suffix_and_prefix) {
+    $functions_by_suffix_and_prefix = $list_new;
+  }
+  else {
+    foreach ($list_new as $suffix => $functions_by_prefix) {
+      foreach ($functions_by_prefix as $prefix => $function) {
+        $functions_by_suffix_and_prefix[$suffix][$prefix] = $function;
+      }
+    }
+  }
+
+  return $functions_by_suffix_and_prefix;
+}
+
+/**
+ * Groups a list of functions by hook name / suffix.
+ *
+ * @param string[] $functions
+ *   List of functions, typically from get_defined_functions()['user'].
+ *
+ * @return string[][]
+ *   Format: $[$suffix][$prefix] = $function
+ *   Example: $['menu_alter']['system'] = 'system_menu_alter'
+ */
+function _drupal_build_grouped_function_list(array $functions) {
+
+  $grouped = array();
+  foreach ($functions as $function) {
+    $pos = 0;
+    while (FALSE !== $pos = strpos($function, '_', $pos + 1)) {
+      $grouped[substr($function, $pos + 1)][substr($function, 0, $pos)] = $function;
+    }
+  }
+
+  return $grouped;
+}
