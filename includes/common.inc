@@ -8068,7 +8068,7 @@ function entity_load_unchanged($entity_type, $id) {
 /**
  * Gets the entity controller for an entity type.
  *
- * @return DrupalEntityControllerInterface
+ * @return DrupalEntityControllerInterface|EntityAPIControllerInterface
  *   The entity controller object for the specified entity type.
  */
 function entity_get_controller($entity_type) {
