@@ -111,6 +111,7 @@ function _drupal_decode_exception($exception) {
   }
   $caller = _drupal_get_last_caller($backtrace);
 
+  // See https://www.drupal.org/node/2769601
   return array(
     '%type' => get_class($exception),
     // The standard PHP exception handler considers that the exception message
@@ -119,6 +120,7 @@ function _drupal_decode_exception($exception) {
     '%function' => $caller['function'],
     '%file' => $caller['file'],
     '%line' => $caller['line'],
+    '%trace' => $exception->getTraceAsString(),
     'severity_level' => WATCHDOG_ERROR,
   );
 }
