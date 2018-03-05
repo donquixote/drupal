@@ -15,9 +15,9 @@ files[] = tests/date_views_pager.test
 files[] = tests/date_views_popup.test
 files[] = tests/date_form.test
 
-; Information added by Drupal.org packaging script on 2017-04-07
-version = "7.x-2.10"
+; Information added by Drupal.org packaging script on 2018-01-16
+version = "7.x-2.10+5-dev"
 core = "7.x"
 project = "date"
-datestamp = "1491562090"
+datestamp = "1516129389"
 
