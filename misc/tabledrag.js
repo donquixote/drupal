@@ -259,13 +259,13 @@ Drupal.tableDrag.prototype.makeDraggable = function (item) {
   // Create the handle.
   var handle = $('<a href="#" class="tabledrag-handle"><div class="handle">&nbsp;</div></a>').attr('title', Drupal.t('Drag to re-order'));
   // Insert the handle after indentations (if any).
-  if ($('> td:first .indentation:last', item).length) {
-    $('> td:first .indentation:last', item).after(handle);
+  if ($('td:first .indentation:last', item).length) {
+    $('td:first .indentation:last', item).after(handle);
     // Update the total width of indentation in this entire table.
     self.indentCount = Math.max($('.indentation', item).length, self.indentCount);
   }
   else {
-    $('> td:first', item).prepend(handle);
+    $('td:first', item).prepend(handle);
   }
 
   // Add hover action for the handle.
