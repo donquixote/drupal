@@ -253,7 +253,67 @@ function _block_compare($a, $b) {
  * @ingroup forms
  */
 function block_admin_configure($form, &$form_state, $module, $delta) {
+
+  // Check if the module exists / is enabled.
+  // Note that even if the module is disabled, a function {$module}_block_info()
+  // might still exist, and return block declarations. This is why this check is
+  // needed.
+  // See https://www.drupal.org/project/drupal/issues/1154742
+  if (!module_exists($module)) {
+    // A module with this name does not exist, or is not enabled.
+    drupal_set_message(
+      t('Module %module does not exist, or is not enabled.',
+        array('%module' => $module)),
+      'warning');
+    drupal_not_found();
+    drupal_exit();
+    // Let the IDE know that this is an exit point.
+    exit;
+  }
+
+  // Check if the module implements hook_block_info().
+  if (!module_hook($module, 'block_info')) {
+    drupal_set_message(
+      t('Module %module does not implement hook_block_info().',
+        array('%module' => $module)),
+      'warning');
+    drupal_not_found();
+    drupal_exit();
+    // Let the IDE know that this is an exit point.
+    exit;
+  }
+
+  // No need to call module_invoke() here, because module_hook() was already
+  // called before.
+  $function = $module . '_block_info';
+  $definitions = $function();
+
+  if ($delta === NULL) {
+    // A new block is being created.
+  }
+  elseif (!is_array($definitions) || !isset($definitions[$delta])) {
+    // The given module does not declare a block with the given delta.
+    drupal_set_message(
+      t('Module %module does not declare a block with $delta == %delta.',
+        array('%module' => $module, '%delta' => $delta)),
+      'warning');
+    drupal_not_found();
+    drupal_exit();
+    // Let the IDE know that this is an exit point.
+    exit;
+  }
+  else {
+    // An existing block is being edited.
+    if (isset($definitions[$delta]['info'])) {
+      // Use the block subject for the page title.
+      drupal_set_title(
+        t("'%name' block", array('%name' => $definitions[$delta]['info'])),
+        PASS_THROUGH);
+    }
+  }
+
   $block = block_load($module, $delta);
+
   $form['module'] = array(
     '#type' => 'value',
     '#value' => $block->module,
@@ -262,12 +322,6 @@ function block_admin_configure($form, &$form_state, $module, $delta) {
     '#type' => 'value',
     '#value' => $block->delta,
   );
-
-  // Get the block subject for the page title.
-  $info = module_invoke($block->module, 'block_info');
-  if (isset($info[$block->delta])) {
-    drupal_set_title(t("'%name' block", array('%name' => $info[$block->delta]['info'])), PASS_THROUGH);
-  }
 
   $form['settings']['title'] = array(
     '#type' => 'textfield',
