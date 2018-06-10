@@ -717,13 +717,13 @@ function block_list($region) {
  * This function returns the first block matching the module and delta
  * parameters, so it should not be used for theme-specific functionality.
  *
- * @param $module
+ * @param string $module
  *   Name of the module that implements the block to load.
- * @param $delta
+ * @param string|int|null $delta
  *   Unique ID of the block within the context of $module. Pass NULL to return
  *   an empty block object for $module.
  *
- * @return
+ * @return \stdClass
  *   A block object.
  */
 function block_load($module, $delta) {
