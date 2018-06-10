@@ -220,13 +220,24 @@ function block_block_info() {
  * Implements hook_block_configure().
  */
 function block_block_configure($delta = 0) {
-  if ($delta) {
-    $custom_block = block_custom_block_get($delta);
+  if (!$delta) {
+    // If $delta is empty (NULL, 0, ''), it means a new block is being created.
+    return block_custom_block_form();
   }
-  else {
-    $custom_block = array();
+
+  $custom_block = block_custom_block_get($delta);
+  if ($custom_block !== FALSE) {
+    // An existing block is being edited.
+    return block_custom_block_form($custom_block);
   }
-  return block_custom_block_form($custom_block);
+
+  // The block for this delta does not exist.
+  // @todo Make this message look nicer.
+  $form = array();
+  $form['#markup'] = t('A block with $delta === @delta does not exist.',
+    array('@delta' => $delta));
+
+  return $form;
 }
 
 /**
