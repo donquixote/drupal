@@ -504,11 +504,12 @@ function _block_rehash($theme = NULL) {
 /**
  * Returns information from database about a user-created (custom) block.
  *
- * @param $bid
+ * @param string|int $bid
  *   ID of the block to get information for.
  *
- * @return
- *   Associative array of information stored in the database for this block.
+ * @return array|false
+ *   Associative array of information stored in the database for this block, or
+ *   FALSE, if none found.
  *   Array keys:
  *   - bid: Block ID.
  *   - info: Block description.
