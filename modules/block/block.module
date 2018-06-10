@@ -727,7 +727,8 @@ function block_list($region) {
  *   A block object.
  */
 function block_load($module, $delta) {
-  if (isset($delta)) {
+
+  if ($delta !== NULL) {
     $block = db_query('SELECT * FROM {block} WHERE module = :module AND delta = :delta', array(':module' => $module, ':delta' => $delta))->fetchObject();
   }
 
