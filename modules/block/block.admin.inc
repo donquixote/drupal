@@ -243,16 +243,23 @@ function _block_compare($a, $b) {
  *
  * Also used by block_add_block_form() for adding a new custom block.
  *
- * @param $module
+ * @param array $form
+ * @param array $form_state
+ * @param string $module
  *   Name of the module that implements the block to be configured.
- * @param $delta
- *   Unique ID of the block within the context of $module.
+ * @param string|null $delta
+ *   Unique ID of the block within the context of $module, or
+ *   NULL, if a new block is being created.
  *
+ * @return array
+ *   The form array.
+ *
+ * @see block_add_block_form()
  * @see block_admin_configure_validate()
  * @see block_admin_configure_submit()
  * @ingroup forms
  */
-function block_admin_configure($form, &$form_state, $module, $delta) {
+function block_admin_configure(array $form, array &$form_state, $module, $delta) {
 
   // Check if the module exists / is enabled.
   // Note that even if the module is disabled, a function {$module}_block_info()
