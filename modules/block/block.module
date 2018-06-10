@@ -116,6 +116,7 @@ function block_menu() {
   $items['admin/structure/block/manage/%/%'] = array(
     'title' => 'Configure block',
     'page callback' => 'drupal_get_form',
+    /* @see block_admin_configure() */
     'page arguments' => array('block_admin_configure', 4, 5),
     'access arguments' => array('administer blocks'),
     'file' => 'block.admin.inc',
@@ -137,6 +138,7 @@ function block_menu() {
   $items['admin/structure/block/add'] = array(
     'title' => 'Add block',
     'page callback' => 'drupal_get_form',
+    /* @see block_add_block_form() */
     'page arguments' => array('block_add_block_form'),
     'access arguments' => array('administer blocks'),
     'type' => MENU_LOCAL_ACTION,
@@ -156,6 +158,7 @@ function block_menu() {
       $items['admin/structure/block/list/' . $key . '/add'] = array(
         'title' => 'Add block',
         'page callback' => 'drupal_get_form',
+        /* @see block_add_block_form() */
         'page arguments' => array('block_add_block_form'),
         'access arguments' => array('administer blocks'),
         'type' => MENU_LOCAL_ACTION,
