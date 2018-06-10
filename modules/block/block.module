@@ -523,14 +523,17 @@ function block_custom_block_get($bid) {
 /**
  * Form constructor for the custom block form.
  *
- * @param $edit
+ * @param array $edit
  *   (optional) An associative array of information retrieved by
  *   block_custom_get_block() if an existing block is being edited, or an empty
  *   array otherwise. Defaults to array().
  *
+ * @return array
+ *   The form array.
+ *
  * @ingroup forms
  */
-function block_custom_block_form($edit = array()) {
+function block_custom_block_form(array $edit = array()) {
   $edit += array(
     'info' => '',
     'body' => '',
