@@ -2823,10 +2823,10 @@ function drupal_exit($destination = NULL) {
  *
  * @param $array
  *   A linear array.
- * @param $function
+ * @param callable $function
  *   A name of a function to apply to all values before output.
  *
- * @return
+ * @return array
  *   An associative array.
  */
 function drupal_map_assoc($array, $function = NULL) {
