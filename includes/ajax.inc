@@ -412,6 +412,8 @@ function ajax_form_callback() {
 
     return $result;
   }
+
+  return NULL;
 }
 
 /**
