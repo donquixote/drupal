@@ -2829,14 +2829,23 @@ function drupal_exit($destination = NULL) {
  * @return array
  *   An associative array.
  */
-function drupal_map_assoc($array, $function = NULL) {
-  // array_combine() fails with empty arrays:
-  // http://bugs.php.net/bug.php?id=34857.
-  $array = !empty($array) ? array_combine($array, $array) : array();
-  if (is_callable($function)) {
-    $array = array_map($function, $array);
+function drupal_map_assoc(array $array, callable $function = NULL) {
+  if (empty($array)) {
+    return array();
   }
-  return $array;
+  foreach ($array as $k => $value) {
+    if (!is_scalar($value)) {
+      $type = gettype($value);
+      dpm(ddebug_backtrace(TRUE, 0, DEBUG_BACKTRACE_IGNORE_ARGS), __FUNCTION__);
+      return [];
+      # throw new \RuntimeException("\$array[$k] must be a scalar, $type found instead.");
+    }
+  }
+  $array = array_combine($array, $array);
+  if (NULL === $function) {
+    return $array;
+  }
+  return array_map($function, $array);
 }
 
 /**
