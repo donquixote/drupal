@@ -454,28 +454,6 @@ function admin_menu_links_icon() {
       'external' => TRUE,
     ),
   );
-  // Add link to drupal.org.
-  $links['icon']['drupal.org'] = array(
-    '#title' => 'Drupal.org',
-    '#weight' => 100,
-    '#access' => user_access('display drupal links'),
-    '#href' => 'http://drupal.org',
-  );
-  // Add links to project issue queues.
-  foreach (module_list(FALSE, TRUE) as $module) {
-    $info = drupal_parse_info_file(drupal_get_path('module', $module) . '/' . $module . '.info');
-    if (!isset($info['project']) || isset($links['icon']['drupal.org'][$info['project']])) {
-      continue;
-    }
-    $links['icon']['drupal.org'][$info['project']] = array(
-      '#title' => t('@project issue queue', array('@project' => $info['name'])),
-      '#weight' => ($info['project'] == 'drupal' ? -10 : 0),
-      '#href' => 'http://drupal.org/project/issues/' . $info['project'],
-      '#options' => array(
-        'query' => array('version' => (isset($info['core']) ? $info['core'] : 'All')),
-      ),
-    );
-  }
   // Add items to flush caches.
   $links['icon']['flush-cache'] = array(
     '#title' => t('Flush all caches'),
