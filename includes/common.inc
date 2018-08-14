@@ -6582,12 +6582,12 @@ function element_child($key) {
  * The children of a element array are those key/value pairs whose key does
  * not start with a '#'. See drupal_render() for details.
  *
- * @param $elements
+ * @param array $elements
  *   The element array whose children are to be identified.
- * @param $sort
+ * @param bool $sort
  *   Boolean to indicate whether the children should be sorted by weight.
  *
- * @return
+ * @return string[]
  *   The array keys of the element's children.
  */
 function element_children(&$elements, $sort = FALSE) {
